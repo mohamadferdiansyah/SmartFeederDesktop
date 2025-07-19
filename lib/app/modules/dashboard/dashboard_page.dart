@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/data/dummy_data.dart';
 import 'package:smart_feeder_desktop/app/modules/control_schedule/control_schedule_page.dart';
 import 'package:smart_feeder_desktop/app/modules/dashboard/dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/layout/layout_controller.dart';
@@ -21,119 +22,6 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  // Dummy data list kandang
-  final List<Map<String, dynamic>> stableList = [
-    {
-      'stableName': 'Kandang 1',
-      'imageAsset': 'assets/images/stable.jpg',
-      'scheduleText': 'Penjadwalan', // Bisa: Penjadwalan, Otomatis, Manual
-      'isActive': true,
-      'remainingWater': 4.2, // dari 5 Liter
-      'remainingFeed': 38.0, // dari 50 Gram
-      'lastFeedText': '2 jam yang lalu',
-    },
-    {
-      'stableName': 'Kandang 2',
-      'imageAsset': 'assets/images/stable.jpg',
-      'scheduleText': 'Otomatis',
-      'isActive': false,
-      'remainingWater': 1.5,
-      'remainingFeed': 12.0,
-      'lastFeedText': '1 jam yang lalu',
-    },
-    {
-      'stableName': 'Kandang 3',
-      'imageAsset': 'assets/images/stable.jpg',
-      'scheduleText': 'Manual',
-      'isActive': true,
-      'remainingWater': 0.8,
-      'remainingFeed': 5.5,
-      'lastFeedText': '30 menit yang lalu',
-    },
-    {
-      'stableName': 'Kandang 4',
-      'imageAsset': 'assets/images/stable.jpg',
-      'scheduleText': 'Otomatis',
-      'isActive': true,
-      'remainingWater': 5.0,
-      'remainingFeed': 49.0,
-      'lastFeedText': '10 menit yang lalu',
-    },
-    {
-      'stableName': 'Kandang 5',
-      'imageAsset': 'assets/images/stable.jpg',
-      'scheduleText': 'Manual',
-      'isActive': false,
-      'remainingWater': 0.2,
-      'remainingFeed': 0.0,
-      'lastFeedText': '3 jam yang lalu',
-    },
-    // Tambah data dummy lain jika perlu
-  ];
-
-  final List<Map<String, dynamic>> historyList = [
-    {
-      'datetime': DateTime(2025, 7, 18, 08, 30),
-      'water': 4.2,
-      'feed': 38.0,
-      'scheduleText': 'Penjadwalan',
-    },
-    {
-      'datetime': DateTime(2025, 7, 18, 12, 15),
-      'water': 2.5,
-      'feed': 21.0,
-      'scheduleText': 'Otomatis',
-    },
-    {
-      'datetime': DateTime(2025, 7, 18, 16, 45),
-      'water': 0.8,
-      'feed': 5.5,
-      'scheduleText': 'Manual',
-    },
-    {
-      'datetime': DateTime(2025, 7, 18, 20, 10),
-      'water': 5.0,
-      'feed': 49.0,
-      'scheduleText': 'Otomatis',
-    },
-    {
-      'datetime': DateTime(2025, 7, 17, 09, 20),
-      'water': 3.7,
-      'feed': 30.0,
-      'scheduleText': 'Penjadwalan',
-    },
-    {
-      'datetime': DateTime(2025, 7, 17, 13, 00),
-      'water': 1.2,
-      'feed': 10.0,
-      'scheduleText': 'Manual',
-    },
-    {
-      'datetime': DateTime(2025, 7, 17, 18, 10),
-      'water': 4.9,
-      'feed': 44.0,
-      'scheduleText': 'Penjadwalan',
-    },
-    {
-      'datetime': DateTime(2025, 7, 17, 22, 45),
-      'water': 0.5,
-      'feed': 3.0,
-      'scheduleText': 'Manual',
-    },
-    {
-      'datetime': DateTime(2025, 7, 16, 07, 55),
-      'water': 2.0,
-      'feed': 18.0,
-      'scheduleText': 'Otomatis',
-    },
-    {
-      'datetime': DateTime(2025, 7, 16, 15, 30),
-      'water': 5.0,
-      'feed': 50.0,
-      'scheduleText': 'Penjadwalan',
-    },
-  ];
-
   final DashboardController controller = Get.find();
   final LayoutController layoutController = Get.find();
 
@@ -455,7 +343,25 @@ class _DashboardPageState extends State<DashboardPage> {
                 CustomCard(
                   scrollable: false,
                   title: 'Informasi Detail',
-                  trailing: const Icon(Icons.more_horiz),
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white, width: 1),
+                    ),
+                    child: Text(
+                      stableList[0].stableName,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                   titleFontSize: 26,
                   headerHeight: 80,
                   content: Row(
@@ -467,16 +373,16 @@ class _DashboardPageState extends State<DashboardPage> {
                         child: Column(
                           children: [
                             CustomStableWaterCard(
-                              remainingWater: stableList[0]['remainingWater'],
+                              remainingWater: stableList[0].remainingWater,
                               maxWater: 5,
                               phLevel: 7.2,
-                              lastWaterText: stableList[0]['lastFeedText'],
+                              lastWaterText: stableList[0].lastFeedText,
                             ),
                             SizedBox(height: 16),
                             CustomStableFeedCard(
                               remainingFeed: 3,
                               maxFeed: 50,
-                              lastFeedText: stableList[0]['lastFeedText'],
+                              lastFeedText: stableList[0].lastFeedText,
                             ),
                             SizedBox(height: 4),
                             Column(
@@ -524,12 +430,9 @@ class _DashboardPageState extends State<DashboardPage> {
                               onPressed: () {
                                 showFillDialog(
                                   context: context,
-                                  stableName:
-                                      stableList[0]['stableName'], // index kandang terpilih
-                                  mainTankWater:
-                                      512.3, // contoh dummy, dari data tanki utama
-                                  mainTankFeed:
-                                      150.5, // contoh dummy, dari data tanki utama
+                                  stableName: stableList[0].stableName,
+                                  mainTankWater: 512.3,
+                                  mainTankFeed: 150.5,
                                   onSubmit: (water, feed) {
                                     // lakukan aksi pengisian di sini
                                     print(
@@ -640,10 +543,10 @@ class _DashboardPageState extends State<DashboardPage> {
                                           bottom: 12.0,
                                         ),
                                         child: HistoryEntryCard(
-                                          datetime: item['datetime'],
-                                          water: item['water'],
-                                          feed: item['feed'],
-                                          scheduleText: item['scheduleText'],
+                                          datetime: item.datetime,
+                                          water: item.water,
+                                          feed: item.feed,
+                                          scheduleText: item.scheduleText,
                                         ),
                                       );
                                     },
@@ -674,13 +577,13 @@ class _DashboardPageState extends State<DashboardPage> {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
                       child: CustomStableCard(
-                        stableName: stable['stableName'],
-                        imageAsset: stable['imageAsset'],
-                        scheduleText: stable['scheduleText'],
-                        isActive: stable['isActive'],
-                        remainingWater: stable['remainingWater'],
-                        remainingFeed: stable['remainingFeed'],
-                        lastFeedText: stable['lastFeedText'],
+                        stableName: stable.stableName,
+                        imageAsset: stable.imageAsset,
+                        scheduleText: stable.scheduleText,
+                        isActive: stable.isActive,
+                        remainingWater: stable.remainingWater,
+                        remainingFeed: stable.remainingFeed,
+                        lastFeedText: stable.lastFeedText,
                         onSelect: () {
                           // aksi pilih kandang
                         },

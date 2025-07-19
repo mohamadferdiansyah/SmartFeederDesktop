@@ -42,7 +42,7 @@ class CustomStableWaterCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Sisa Air:',
+                          ' Sisa Air:',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
