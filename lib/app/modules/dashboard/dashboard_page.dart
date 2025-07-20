@@ -25,15 +25,6 @@ class _DashboardPageState extends State<DashboardPage> {
   final DashboardController controller = Get.find();
   final LayoutController layoutController = Get.find();
 
-  String formatDuration(int seconds) {
-    final duration = Duration(seconds: seconds);
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final hours = twoDigits(duration.inHours);
-    final minutes = twoDigits(duration.inMinutes.remainder(60));
-    final secs = twoDigits(duration.inSeconds.remainder(60));
-    return '$hours:$minutes:$secs';
-  }
-
   Future<void> showFillDialog({
     required BuildContext context,
     required String stableName,
@@ -212,10 +203,16 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                       child: Row(
                         children: [
-                          Image.asset(
-                            'assets/images/fill_tank.png',
-                            width: 200,
-                            height: 200,
+                          Obx(
+                            () => Image.asset(
+                              controller.getTankImageAsset(
+                                current: controller.airTankCurrent.value,
+                                max: controller.tankMax,
+                                isWater: true,
+                              ),
+                              width: 200,
+                              height: 200,
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Column(
@@ -229,45 +226,51 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ),
                               ),
                               SizedBox(height: 8),
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black,
-                                  ),
-                                  children: [
-                                    TextSpan(text: 'Sisa Air: '),
-                                    TextSpan(
-                                      text: '512.3L',
-                                      style: TextStyle(
-                                        fontSize: 40,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.blue,
-                                      ),
+                              Obx(
+                                () => RichText(
+                                  text: TextSpan(
+                                    style: TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black,
                                     ),
-                                  ],
+                                    children: [
+                                      TextSpan(text: 'Sisa Air: '),
+                                      TextSpan(
+                                        text:
+                                            '${controller.airTankCurrent.toStringAsFixed(1)}L',
+                                        style: TextStyle(
+                                          fontSize: 40,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                               SizedBox(height: 8),
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black,
-                                  ),
-                                  children: [
-                                    TextSpan(text: 'Ph Level: '),
-                                    TextSpan(
-                                      text: '7.2',
-                                      style: TextStyle(
-                                        fontSize: 40,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.green,
-                                      ),
+                              Obx(
+                                () => RichText(
+                                  text: TextSpan(
+                                    style: TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black,
                                     ),
-                                  ],
+                                    children: [
+                                      TextSpan(text: 'Ph Level: '),
+                                      TextSpan(
+                                        text:
+                                            '${controller.phCurrent.value.toStringAsFixed(1)}',
+                                        style: TextStyle(
+                                          fontSize: 40,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -286,10 +289,16 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                       child: Row(
                         children: [
-                          Image.asset(
-                            'assets/images/fill_tank.png',
-                            width: 200,
-                            height: 200,
+                          Obx(
+                            () => Image.asset(
+                              controller.getTankImageAsset(
+                                current: controller.feedTankCurrent.value,
+                                max: controller.tankMax,
+                                isWater: false,
+                              ),
+                              width: 200,
+                              height: 200,
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Column(
@@ -313,7 +322,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                   children: [
                                     TextSpan(text: 'Sisa Pakan: '),
                                     TextSpan(
-                                      text: '150.5Kg',
+                                      text:
+                                          '${controller.feedTankCurrent.toStringAsFixed(1)}Kg',
                                       style: TextStyle(
                                         fontSize: 40,
                                         fontWeight: FontWeight.bold,
@@ -410,7 +420,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   child: Center(
                                     child: Obx(
                                       () => Text(
-                                        formatDuration(
+                                        controller.formatDuration(
                                           controller.secondsRemaining.value,
                                         ),
                                         style: TextStyle(
