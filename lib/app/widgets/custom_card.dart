@@ -80,7 +80,7 @@ class CustomCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Spacer(),
+                      SizedBox(width: 12),
                       if (trailing != null) trailing!,
                     ],
                   ),

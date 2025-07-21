@@ -11,6 +11,8 @@ import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_d
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/layout/feeder_layout_binding.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/layout/feeder_layout_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/feeder_device_binding.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/feeder_device_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/help/halter_help_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/layout/halter_layout_binding.dart';
@@ -27,11 +29,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_halter/sync/halter_sync_p
 
 class AppPages {
   static final pages = [
-    GetPage(
-      name: '/login',
-      page: () => LoginPage(),
-      binding: LoginBinding(),
-    ),
+    GetPage(name: '/login', page: () => LoginPage(), binding: LoginBinding()),
     GetPage(
       name: '/main-menu',
       page: () => MainMenuPage(),
@@ -47,11 +45,12 @@ class AppPages {
           page: () => FeederDashboardPage(),
           binding: FeederDashboardBinding(),
         ),
+        GetPage(name: '/schedule', page: () => ControlSchedulePage()),
         GetPage(
-          name: '/schedule',
-          page: () => ControlSchedulePage(),
+          name: '/device',
+          page: () => FeederDevicePage(),
+          binding: FeederDeviceBinding(),
         ),
-        // Tambah GetPage child lain sesuai kebutuhan modul smart-feeder
       ],
     ),
     GetPage(
@@ -59,46 +58,16 @@ class AppPages {
       page: () => HalterLayoutPage(),
       binding: HalterLayoutBinding(),
       children: [
-        GetPage(
-          name: '/dashboard',
-          page: () => HalterDashboardPage(),
-        ),
-        GetPage(
-          name: '/horse',
-          page: () => HalterHorsePage(),
-        ),
-        GetPage(
-          name: '/feed',
-          page: () => HalterFeedPage(),
-        ),
-        GetPage(
-          name: '/device',
-          page: () => HalterDevicePage(),
-        ),
-        GetPage(
-          name: '/stable',
-          page: () => HalterStablePage(),
-        ),
-        GetPage(
-          name: '/camera',
-          page: () => HalterCameraPage(),
-        ),
-        GetPage(
-          name: '/raw-data',
-          page: () => HalterRawDataPage(),
-        ),
-        GetPage(
-          name: '/setting',
-          page: () => HalterSettingPage(),
-        ),
-        GetPage(
-          name: '/help',
-          page: () => HalterHelpPage(),
-        ),
-        GetPage(
-          name: '/sync',
-          page: () => HalterSyncPage(),
-        ),
+        GetPage(name: '/dashboard', page: () => HalterDashboardPage()),
+        GetPage(name: '/horse', page: () => HalterHorsePage()),
+        GetPage(name: '/feed', page: () => HalterFeedPage()),
+        GetPage(name: '/device', page: () => HalterDevicePage()),
+        GetPage(name: '/stable', page: () => HalterStablePage()),
+        GetPage(name: '/camera', page: () => HalterCameraPage()),
+        GetPage(name: '/raw-data', page: () => HalterRawDataPage()),
+        GetPage(name: '/setting', page: () => HalterSettingPage()),
+        GetPage(name: '/help', page: () => HalterHelpPage()),
+        GetPage(name: '/sync', page: () => HalterSyncPage()),
       ],
     ),
     GetPage(
@@ -106,10 +75,7 @@ class AppPages {
       page: () => WalkerLayoutPage(),
       binding: WalkerLayoutBinding(),
       children: [
-        GetPage(
-          name: '/dashboard',
-          page: () => WalkerDashboardPage(),
-        ),
+        GetPage(name: '/dashboard', page: () => WalkerDashboardPage()),
       ],
     ),
   ];

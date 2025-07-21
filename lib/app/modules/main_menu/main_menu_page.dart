@@ -138,7 +138,7 @@ class MainMenuPage extends StatelessWidget {
                                   'Pantau kesehatan dan posisi kuda secara realtime.',
                               imageAsset: 'assets/images/smart_halter.jpg',
                               onTap: () {
-                                Get.toNamed('/smart-feeder');
+                                Get.toNamed('/smart-halter');
                               },
                             ),
                             CustomMainMenuCard(
@@ -147,7 +147,7 @@ class MainMenuPage extends StatelessWidget {
                                   'Atur pemberian pakan & air otomatis untuk kuda.',
                               imageAsset: 'assets/images/smart_feeder.jpg',
                               onTap: () {
-                                Get.toNamed('/smart-halter');
+                                Get.toNamed('/smart-feeder');
                               },
                             ),
                             CustomMainMenuCard(

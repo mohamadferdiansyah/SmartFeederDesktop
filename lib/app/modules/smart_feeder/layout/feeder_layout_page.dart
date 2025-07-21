@@ -6,7 +6,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_feeder/layout/feeder_layo
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/control_schedule/control_schedule_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/feed/feed_page.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/device_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/feeder_device_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/water/water_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/setting/setting_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/help/help_page.dart';
@@ -22,8 +22,8 @@ class FeederLayoutPage extends StatelessWidget {
       page: FeederDashboardPage(),
     ),
     SidebarMenuItem(
-      title: "Kontrol Jadwal",
-      icon: Icons.schedule_rounded,
+      title: "Kontrol Penjadwalan",
+      icon: Icons.calendar_month_rounded,
       page: ControlSchedulePage(),
     ),
     SidebarMenuItem(
@@ -33,7 +33,7 @@ class FeederLayoutPage extends StatelessWidget {
         SidebarMenuItem(
           title: "Data Perangkat",
           icon: Icons.device_hub,
-          page: DevicePage(),
+          page: FeederDevicePage(),
         ),
         SidebarMenuItem(
           title: "Data Pakan",

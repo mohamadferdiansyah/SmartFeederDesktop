@@ -30,8 +30,8 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
         : selectedStable.remainingFeed;
     final maxKandang = isAir ? 5 : 50;
     final kurangIsi = isAir
-        ? maxKandang - selectedStable.remainingWater
-        : maxKandang - selectedStable.remainingFeed;
+        ? maxKandang - selectedStable.remainingWater.value
+        : maxKandang - selectedStable.remainingFeed.value;
 
     Color airBg = isAir ? Colors.blue : Colors.blue.withOpacity(0.1);
     Color airText = isAir ? Colors.white : Colors.blue;

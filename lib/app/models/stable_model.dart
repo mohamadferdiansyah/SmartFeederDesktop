@@ -1,10 +1,12 @@
+import 'package:get/get.dart';
+
 class StableModel {
   final String stableName;
   final String imageAsset;
-  final String scheduleText; // Penjadwalan, Otomatis, Manual
+  final String scheduleText;
   final bool isActive;
-  final double remainingWater; // Liter
-  final double remainingFeed;  // Gram
+  final RxDouble remainingWater;
+  final RxDouble remainingFeed;
   final String lastFeedText;
 
   StableModel({
@@ -12,20 +14,9 @@ class StableModel {
     required this.imageAsset,
     required this.scheduleText,
     required this.isActive,
-    required this.remainingWater,
-    required this.remainingFeed,
+    required double remainingWater,
+    required double remainingFeed,
     required this.lastFeedText,
-  });
-
-  factory StableModel.fromMap(Map<String, dynamic> map) {
-    return StableModel(
-      stableName: map['stableName'],
-      imageAsset: map['imageAsset'],
-      scheduleText: map['scheduleText'],
-      isActive: map['isActive'],
-      remainingWater: map['remainingWater'],
-      remainingFeed: map['remainingFeed'],
-      lastFeedText: map['lastFeedText'],
-    );
-  }
+  })  : remainingWater = remainingWater.obs,
+        remainingFeed = remainingFeed.obs;
 }

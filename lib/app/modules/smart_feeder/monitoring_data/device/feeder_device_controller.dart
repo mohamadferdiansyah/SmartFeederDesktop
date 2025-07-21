@@ -1,0 +1,148 @@
+import 'package:get/get.dart';
+import 'package:smart_feeder_desktop/app/models/feeder_device_model.dart';
+
+class FeederDeviceController extends GetxController {
+  
+  final RxList<FeederDeviceModel> devices = <FeederDeviceModel>[
+    FeederDeviceModel(
+      id: 'DVC001',
+      name: 'Sensor Suhu 1',
+      type: 'Sensor',
+      status: 'Aktif',
+      lastActive: DateTime(2025, 7, 21, 8, 10),
+    ),
+    FeederDeviceModel(
+      id: 'DVC002',
+      name: 'Pompa Air',
+      type: 'Actuator',
+      status: 'Nonaktif',
+      lastActive: DateTime(2025, 7, 20, 19, 32),
+    ),
+    FeederDeviceModel(
+      id: 'DVC003',
+      name: 'Sensor pH',
+      type: 'Sensor',
+      status: 'Aktif',
+      lastActive: DateTime(2025, 7, 21, 7, 48),
+    ),
+    FeederDeviceModel(
+      id: 'DVC004',
+      name: 'Kamera CCTV',
+      type: 'Camera',
+      status: 'Aktif',
+      lastActive: DateTime(2025, 7, 21, 6, 45),
+    ),
+    FeederDeviceModel(
+      id: 'DVC005',
+      name: 'Dispenser Pakan',
+      type: 'Actuator',
+      status: 'Nonaktif',
+      lastActive: DateTime(2025, 7, 19, 21, 10),
+    ),
+    FeederDeviceModel(
+      id: 'DVC006',
+      name: 'Sensor Kelembapan',
+      type: 'Sensor',
+      status: 'Aktif',
+      lastActive: DateTime(2025, 7, 20, 12, 11),
+    ),
+    FeederDeviceModel(
+      id: 'DVC007',
+      name: 'Valve Air',
+      type: 'Actuator',
+      status: 'Aktif',
+      lastActive: DateTime(2025, 7, 20, 22, 18),
+    ),
+    FeederDeviceModel(
+      id: 'DVC008',
+      name: 'Sensor Cahaya',
+      type: 'Sensor',
+      status: 'Nonaktif',
+      lastActive: DateTime(2025, 7, 19, 10, 25),
+    ),
+    FeederDeviceModel(
+      id: 'DVC009',
+      name: 'Fan Pendingin',
+      type: 'Actuator',
+      status: 'Aktif',
+      lastActive: DateTime(2025, 7, 20, 8, 30),
+    ),
+    FeederDeviceModel(
+      id: 'DVC010',
+      name: 'Sensor Air',
+      type: 'Sensor',
+      status: 'Nonaktif',
+      lastActive: DateTime(2025, 7, 18, 23, 54),
+    ),
+    FeederDeviceModel(
+      id: 'DVC011',
+      name: 'Dispenser Vitamin',
+      type: 'Actuator',
+      status: 'Aktif',
+      lastActive: DateTime(2025, 7, 21, 3, 15),
+    ),
+    FeederDeviceModel(
+      id: 'DVC012',
+      name: 'Heater Air',
+      type: 'Actuator',
+      status: 'Nonaktif',
+      lastActive: DateTime(2025, 7, 19, 17, 45),
+    ),
+    FeederDeviceModel(
+      id: 'DVC013',
+      name: 'Sensor Ammonia',
+      type: 'Sensor',
+      status: 'Nonaktif',
+      lastActive: DateTime(2025, 7, 19, 20, 10),
+    ),
+    FeederDeviceModel(
+      id: 'DVC014',
+      name: 'Pompa Cadangan',
+      type: 'Actuator',
+      status: 'Aktif',
+      lastActive: DateTime(2025, 7, 20, 5, 12),
+    ),
+    FeederDeviceModel(
+      id: 'DVC015',
+      name: 'Sensor Suhu 2',
+      type: 'Sensor',
+      status: 'Aktif',
+      lastActive: DateTime(2025, 7, 21, 7, 50),
+    ),
+    FeederDeviceModel(
+      id: 'DVC016',
+      name: 'Lampu UV',
+      type: 'Actuator',
+      status: 'Nonaktif',
+      lastActive: DateTime(2025, 7, 18, 22, 40),
+    ),
+    FeederDeviceModel(
+      id: 'DVC017',
+      name: 'Sensor Oksigen',
+      type: 'Sensor',
+      status: 'Aktif',
+      lastActive: DateTime(2025, 7, 21, 5, 33),
+    ),
+    FeederDeviceModel(
+      id: 'DVC018',
+      name: 'Pompa Oksigen',
+      type: 'Actuator',
+      status: 'Aktif',
+      lastActive: DateTime(2025, 7, 20, 16, 41),
+    ),
+    FeederDeviceModel(
+      id: 'DVC019',
+      name: 'Sensor Salinitas',
+      type: 'Sensor',
+      status: 'Nonaktif',
+      lastActive: DateTime(2025, 7, 19, 10, 45),
+    ),
+    FeederDeviceModel(
+      id: 'DVC020',
+      name: 'Dispenser Pakan 2',
+      type: 'Actuator',
+      status: 'Aktif',
+      lastActive: DateTime(2025, 7, 21, 4, 19),
+    ),
+  ].obs;
+}
