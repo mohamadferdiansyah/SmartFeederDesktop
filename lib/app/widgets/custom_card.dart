@@ -10,12 +10,16 @@ class CustomCard extends StatelessWidget {
   final Color headerColor;
   final double borderRadius;
   final bool scrollable;
+  final double width;
+  final double height;
 
   const CustomCard({
     super.key,
     required this.title,
     required this.content,
     this.trailing,
+    this.width = double.infinity,
+    this.height = double.infinity,
     this.titleFontSize = 24,
     this.headerHeight = 70,
     this.headerColor = AppColors.primary,
@@ -27,7 +31,8 @@ class CustomCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        width: double.infinity,
+        width: width,
+        height: height,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(borderRadius),

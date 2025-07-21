@@ -5,11 +5,17 @@ import 'package:smart_feeder_desktop/app/modules/dashboard/dashboard_page.dart';
 import 'package:smart_feeder_desktop/app/modules/feed/feed_page.dart';
 import 'package:smart_feeder_desktop/app/modules/layout/layout_binding.dart';
 import 'package:smart_feeder_desktop/app/modules/layout/layout_page.dart';
+import 'package:smart_feeder_desktop/app/modules/login/login_binding.dart';
+import 'package:smart_feeder_desktop/app/modules/login/login_page.dart';
+import 'package:smart_feeder_desktop/app/modules/main_menu/main_menu_binding.dart';
+import 'package:smart_feeder_desktop/app/modules/main_menu/main_menu_page.dart';
 import 'package:smart_feeder_desktop/app/modules/water/water_page.dart';
 
 class AppPages {
   static final pages = [
     GetPage(name: '/main', page: () => LayoutPage(), binding: LayoutBinding()),
+    GetPage(name: '/login', page: () => LoginPage(), binding: LoginBinding()),
+    GetPage(name: '/menu', page: () => MainMenuPage(), binding: MainMenuBinding()),
     GetPage(name: '/dashboard', page: () => DashboardPage(), binding: DashboardBinding()),
     GetPage(name: '/schedule', page: () => ControlSchedulePage()),
     GetPage(name: '/feed', page: () => FeedPage()),

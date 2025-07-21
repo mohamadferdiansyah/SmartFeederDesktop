@@ -6,7 +6,10 @@ import 'app/constants/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('id_ID', null); // Inisialisasi locale Indonesia
+  await initializeDateFormatting(
+    'id_ID',
+    null,
+  ); // Inisialisasi locale Indonesia
   runApp(SmartFeederApp());
 }
 
@@ -18,7 +21,7 @@ class SmartFeederApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'SmartFeeder Desktop',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/main',
+      initialRoute: '/login',
       getPages: AppPages.pages,
       theme: ThemeData(
         primaryColor: AppColors.primary,
