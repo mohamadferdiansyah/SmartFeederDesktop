@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'dart:async';
 
-class DashboardController extends GetxController {
+class FeederDashboardController extends GetxController {
   RxInt secondsRemaining = 9390.obs;
 
   Timer? _timer;

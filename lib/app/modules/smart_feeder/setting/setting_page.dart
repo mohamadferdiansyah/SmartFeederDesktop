@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class DeviceSettingPage extends StatefulWidget {
-  const DeviceSettingPage({super.key});
+class SettingPage extends StatefulWidget {
+  const SettingPage({super.key});
 
   @override
-  State<DeviceSettingPage> createState() => _DeviceSettingPageState();
+  State<SettingPage> createState() => SettingPageState();
 }
 
-class _DeviceSettingPageState extends State<DeviceSettingPage> {
+class SettingPageState extends State<SettingPage> {
   @override
   Widget build(BuildContext context) {
     return Padding(

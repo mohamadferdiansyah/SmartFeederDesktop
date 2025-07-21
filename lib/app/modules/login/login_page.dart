@@ -1,7 +1,9 @@
+import 'dart:io'; // <-- Tambahkan ini
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 
@@ -116,7 +118,17 @@ class _LoginPageState extends State<LoginPage> {
                       CustomButton(
                         text: 'Login',
                         onPressed: () {
-                          Get.offAndToNamed('/menu');
+                          if (emailController.text.isEmpty ||
+                              passwordController.text.isEmpty) {
+                            Get.snackbar(
+                              'Error',
+                              'Username dan Password tidak boleh kosong',
+                              backgroundColor: Colors.red.withOpacity(0.8),
+                              colorText: Colors.white,
+                            );
+                          } else {
+                            Get.offAndToNamed('/main-menu');
+                          }
                         },
                         backgroundColor: AppColors.primary,
                         iconTrailing: Icons.login,
@@ -125,6 +137,34 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ],
+            ),
+          ),
+
+          // ==== BUTTON KELUAR DI POJOK KANAN BAWAH ====
+          Positioned(
+            right: 32,
+            bottom: 32,
+            child: SizedBox(
+              width: 150,
+              height: 50,
+              child: CustomButton(
+                text: 'Keluar',
+                iconTrailing: Icons.exit_to_app,
+                backgroundColor: Colors.red,
+                onPressed: () {
+                  showConfirmationDialog(
+                    context: context,
+                    title: 'Keluar Aplikasi',
+                    message: 'Apakah kamu yakin ingin keluar dari aplikasi?',
+                    confirmText: 'Keluar',
+                    icon: Icons.exit_to_app,
+                    iconColor: Colors.red,
+                    onConfirm: () {
+                      exit(0);
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ],

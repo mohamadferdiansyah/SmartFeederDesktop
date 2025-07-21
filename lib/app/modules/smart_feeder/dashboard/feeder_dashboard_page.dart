@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/data/dummy_data.dart';
-import 'package:smart_feeder_desktop/app/modules/control_schedule/control_schedule_page.dart';
-import 'package:smart_feeder_desktop/app/modules/dashboard/dashboard_controller.dart';
-import 'package:smart_feeder_desktop/app/modules/layout/layout_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/control_schedule/control_schedule_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/layout/feeder_layout_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_history_card.dart';
@@ -14,16 +13,16 @@ import 'package:smart_feeder_desktop/app/widgets/custom_stable_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_stable_feed_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_stable_water_card.dart';
 
-class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
+class FeederDashboardPage extends StatefulWidget {
+  const FeederDashboardPage({super.key});
 
   @override
-  State<DashboardPage> createState() => _DashboardPageState();
+  State<FeederDashboardPage> createState() => _FeederDashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
-  final DashboardController controller = Get.find();
-  final LayoutController layoutController = Get.find();
+class _FeederDashboardPageState extends State<FeederDashboardPage> {
+  final FeederDashboardController controller = Get.find();
+  final FeederLayoutController layoutController = Get.find();
 
   Future<void> showFillDialog({
     required BuildContext context,
@@ -519,8 +518,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                   child: CustomButton(
                                     text: 'Ubah Jadwal',
                                     onPressed: () {
-                                      layoutController.navigateTo(
+                                      layoutController.setPage(
                                         ControlSchedulePage(),
+                                        'Ubah Jadwal',
                                       );
                                     },
                                     height: 70,

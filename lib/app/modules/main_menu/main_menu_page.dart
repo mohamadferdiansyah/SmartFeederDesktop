@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_main_menu_card.dart';
 
@@ -9,6 +10,7 @@ class MainMenuPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: Stack(
         children: [
@@ -101,7 +103,18 @@ class MainMenuPage extends StatelessWidget {
                           CustomButton(
                             text: 'Logout',
                             onPressed: () {
-                              // Logika untuk logout
+                              showConfirmationDialog(
+                                context: context,
+                                title: 'Konfirmasi Logout',
+                                message: 'Apakah kamu yakin ingin logout?',
+                                confirmText: 'Keluar',
+                                cancelText: 'Batal',
+                                icon: Icons.logout,
+                                iconColor: AppColors.primary,
+                                onConfirm: () {
+                                  Get.offAllNamed('/login');
+                                },
+                              );
                             },
                             width: 200,
                             height: 60,
@@ -125,7 +138,7 @@ class MainMenuPage extends StatelessWidget {
                                   'Pantau kesehatan dan posisi kuda secara realtime.',
                               imageAsset: 'assets/images/smart_halter.jpg',
                               onTap: () {
-                                Get.toNamed('/');
+                                Get.toNamed('/smart-feeder');
                               },
                             ),
                             CustomMainMenuCard(
@@ -134,7 +147,7 @@ class MainMenuPage extends StatelessWidget {
                                   'Atur pemberian pakan & air otomatis untuk kuda.',
                               imageAsset: 'assets/images/smart_feeder.jpg',
                               onTap: () {
-                                // Navigasi ke menu Smart Feeder
+                                Get.toNamed('/smart-halter');
                               },
                             ),
                             CustomMainMenuCard(
@@ -143,7 +156,7 @@ class MainMenuPage extends StatelessWidget {
                                   'Kontrol dan monitor aktivitas berjalan kuda.',
                               imageAsset: 'assets/images/horse_walker.jpg',
                               onTap: () {
-                                // Navigasi ke menu Horse Walker
+                                Get.toNamed('/horse-walker');
                               },
                             ),
                           ],
