@@ -18,7 +18,7 @@ class CustomButton extends StatelessWidget {
 
   const CustomButton({
     super.key,
-    required this.text,
+    this.text = '',
     required this.onPressed,
     this.isDisabled = false,
     this.icon,

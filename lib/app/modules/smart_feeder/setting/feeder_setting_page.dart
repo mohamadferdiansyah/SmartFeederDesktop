@@ -17,7 +17,7 @@ class FeederSettingPageState extends State<FeederSettingPage> {
   final TextEditingController _loraPortController = TextEditingController(
     text: 'COM3',
   );
-  String? _selectedJenisPengiriman = 'Realtime';
+  String? _selectedJenisPengiriman = 'LoRa';
   bool _cloudConnected = true;
   bool _loraConnected = false;
 
@@ -217,7 +217,7 @@ class FeederSettingPageState extends State<FeederSettingPage> {
                             border: OutlineInputBorder(),
                             isDense: true,
                           ),
-                          items: ['Realtime', 'Batch', 'Manual']
+                          items: ['LoRa', 'Http', 'LoRa + Http']
                               .map(
                                 (jenis) => DropdownMenuItem(
                                   value: jenis,

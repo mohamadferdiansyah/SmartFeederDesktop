@@ -82,7 +82,7 @@ class _WaterPageState extends State<WaterPage> {
                   child: Row(
                     children: [
                       Text(
-                        'Stok Air Masuk',
+                        'Data Air',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,

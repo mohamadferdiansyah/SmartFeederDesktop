@@ -82,7 +82,7 @@ class _FeedPageState extends State<FeedPage> {
                   child: Row(
                     children: [
                       Text(
-                        'Stok Pakan Masuk',
+                        'Data Pakan',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,

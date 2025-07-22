@@ -19,6 +19,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/de
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/feeder_device_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/history/feeder_history_binding.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/history/feeder_history_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_binding.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/help/halter_help_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/layout/halter_layout_binding.dart';
@@ -73,7 +74,7 @@ class AppPages {
       page: () => HalterLayoutPage(),
       binding: HalterLayoutBinding(),
       children: [
-        GetPage(name: '/dashboard', page: () => HalterDashboardPage()),
+        GetPage(name: '/dashboard', page: () => HalterDashboardPage(), binding: HalterDashboardBinding()),
         GetPage(name: '/horse', page: () => HalterHorsePage()),
         GetPage(name: '/feed', page: () => HalterFeedPage()),
         GetPage(name: '/device', page: () => HalterDevicePage()),

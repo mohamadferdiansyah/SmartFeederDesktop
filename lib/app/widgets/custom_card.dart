@@ -12,6 +12,7 @@ class CustomCard extends StatelessWidget {
   final bool scrollable;
   final double width;
   final double height;
+  final bool withExpanded;
 
   const CustomCard({
     super.key,
@@ -25,80 +26,84 @@ class CustomCard extends StatelessWidget {
     this.headerColor = AppColors.primary,
     this.borderRadius = 12,
     this.scrollable = true,
+    this.withExpanded = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(borderRadius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header
-            Container(
-              height: headerHeight,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: headerColor,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(borderRadius),
-                  topRight: Radius.circular(borderRadius),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
+    Widget card = Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Container(
+            height: headerHeight,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: headerColor,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(borderRadius),
+                topRight: Radius.circular(borderRadius),
               ),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Row(
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: titleFontSize,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      if (trailing != null) trailing!,
-                    ],
-                  ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
                 ),
-              ),
+              ],
             ),
-            // Content
-            Expanded(
+            child: Center(
               child: Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: scrollable
-                    ? SingleChildScrollView(child: content)
-                    : content,
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Row(
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: titleFontSize,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    if (trailing != null) trailing!,
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
+          ),
+          // Content
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: scrollable
+                  ? SingleChildScrollView(child: content)
+                  : content,
+            ),
+          ),
+        ],
       ),
     );
+    if (withExpanded) {
+      return Expanded(child: card);
+    } else {
+      return card;
+    }
   }
 }

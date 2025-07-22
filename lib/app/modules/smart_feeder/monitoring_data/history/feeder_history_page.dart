@@ -83,7 +83,7 @@ class _FeederHistoryPageState extends State<FeederHistoryPage> {
                   child: Row(
                     children: [
                       Text(
-                        'Riwayat Pengisian Kandang',
+                        'Data Riwayat Pengisian',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
