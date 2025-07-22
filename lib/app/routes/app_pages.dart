@@ -6,6 +6,10 @@ import 'package:smart_feeder_desktop/app/modules/login/login_binding.dart';
 import 'package:smart_feeder_desktop/app/modules/login/login_page.dart';
 import 'package:smart_feeder_desktop/app/modules/main_menu/main_menu_binding.dart';
 import 'package:smart_feeder_desktop/app/modules/main_menu/main_menu_page.dart';
+import 'package:smart_feeder_desktop/app/modules/monitoring_room/dashboard/monitor_dashboard_page.dart';
+import 'package:smart_feeder_desktop/app/modules/monitoring_room/layout/monitor_layout_binding.dart';
+import 'package:smart_feeder_desktop/app/modules/monitoring_room/layout/monitor_layout_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/control_schedule/control_schedule_binding.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/control_schedule/control_schedule_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_binding.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_page.dart';
@@ -13,6 +17,8 @@ import 'package:smart_feeder_desktop/app/modules/smart_feeder/layout/feeder_layo
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/layout/feeder_layout_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/feeder_device_binding.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/feeder_device_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/history/feeder_history_binding.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/history/feeder_history_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/help/halter_help_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/layout/halter_layout_binding.dart';
@@ -45,11 +51,20 @@ class AppPages {
           page: () => FeederDashboardPage(),
           binding: FeederDashboardBinding(),
         ),
-        GetPage(name: '/schedule', page: () => ControlSchedulePage()),
+        GetPage(
+          name: '/schedule',
+          page: () => ControlSchedulePage(),
+          binding: ControlScheduleBinding(),
+        ),
         GetPage(
           name: '/device',
           page: () => FeederDevicePage(),
           binding: FeederDeviceBinding(),
+        ),
+        GetPage(
+          name: '/history',
+          page: () => FeederHistoryPage(),
+          binding: FeederHistoryBinding(),
         ),
       ],
     ),
@@ -76,6 +91,14 @@ class AppPages {
       binding: WalkerLayoutBinding(),
       children: [
         GetPage(name: '/dashboard', page: () => WalkerDashboardPage()),
+      ],
+    ),
+    GetPage(
+      name: '/monitoring-room',
+      page: () => MonitorLayoutPage(),
+      binding: MonitorLayoutBinding(),
+      children: [
+        GetPage(name: '/dashboard', page: () => MonitorDashboardPage()),
       ],
     ),
   ];

@@ -12,7 +12,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_halter/raw_data/halter_ra
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/sync/halter_sync_page.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_sidebar.dart';
-import 'package:smart_feeder_desktop/app/models/sidebar_menu.dart';
+import 'package:smart_feeder_desktop/app/models/sidebar_menu_model.dart';
 
 class HalterLayoutPage extends StatelessWidget {
   HalterLayoutPage({super.key});

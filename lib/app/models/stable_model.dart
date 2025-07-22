@@ -8,6 +8,7 @@ class StableModel {
   final RxDouble remainingWater;
   final RxDouble remainingFeed;
   final String lastFeedText;
+  final String horseId; // tambah ini, simpan id kuda saja
 
   StableModel({
     required this.stableName,
@@ -17,6 +18,7 @@ class StableModel {
     required double remainingWater,
     required double remainingFeed,
     required this.lastFeedText,
+    required this.horseId,
   })  : remainingWater = remainingWater.obs,
         remainingFeed = remainingFeed.obs;
 }

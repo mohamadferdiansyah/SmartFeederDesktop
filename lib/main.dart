@@ -25,10 +25,10 @@ class SmartFeederApp extends StatelessWidget {
       getPages: AppPages.pages,
       theme: ThemeData(
         primaryColor: AppColors.primary,
-        colorScheme: ColorScheme.fromSeed(
+        colorScheme: ColorScheme.fromSeed(  
           seedColor: AppColors.primary,
           primary: AppColors.primary,
-          secondary: AppColors.secondary,
+          secondary: const Color.fromARGB(255, 213, 79, 79),
         ),
         scaffoldBackgroundColor: Colors.grey[100],
         useMaterial3: true,

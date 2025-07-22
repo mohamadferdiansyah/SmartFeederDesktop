@@ -10,7 +10,6 @@ class MainMenuPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: Stack(
         children: [
@@ -54,12 +53,10 @@ class MainMenuPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 24),
                 // Title card + Menu Cards (DI DALAM 1 CONTAINER)
                 Container(
-                  padding: EdgeInsets.symmetric(vertical: 32, horizontal: 32),
-                  margin: EdgeInsets.symmetric(horizontal: 32),
-                  width: MediaQuery.of(context).size.width * 0.75,
+                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 32),
+                  width: MediaQuery.of(context).size.width * 0.7,
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.88),
                     borderRadius: BorderRadius.circular(32),
@@ -126,13 +123,16 @@ class MainMenuPage extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: 32),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CustomMainMenuCard(
+                      SizedBox(height: 16),
+                      // ganti SingleChildScrollView + Row dengan ini:
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        alignment: WrapAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.28,
+                            child: CustomMainMenuCard(
                               title: 'Smart Halter',
                               description:
                                   'Pantau kesehatan dan posisi kuda secara realtime.',
@@ -141,7 +141,10 @@ class MainMenuPage extends StatelessWidget {
                                 Get.toNamed('/smart-halter');
                               },
                             ),
-                            CustomMainMenuCard(
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.28,
+                            child: CustomMainMenuCard(
                               title: 'Smart Feeder',
                               description:
                                   'Atur pemberian pakan & air otomatis untuk kuda.',
@@ -150,7 +153,10 @@ class MainMenuPage extends StatelessWidget {
                                 Get.toNamed('/smart-feeder');
                               },
                             ),
-                            CustomMainMenuCard(
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.28,
+                            child: CustomMainMenuCard(
                               title: 'Horse Walker',
                               description:
                                   'Kontrol dan monitor aktivitas berjalan kuda.',
@@ -159,8 +165,19 @@ class MainMenuPage extends StatelessWidget {
                                 Get.toNamed('/horse-walker');
                               },
                             ),
-                          ],
-                        ),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.28,
+                            child: CustomMainMenuCard(
+                              title: 'Monitoring Room',
+                              description: 'Monitor Ruangan Kuda.',
+                              imageAsset: 'assets/images/monitoring.jpg',
+                              onTap: () {
+                                Get.toNamed('/monitoring-room');
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

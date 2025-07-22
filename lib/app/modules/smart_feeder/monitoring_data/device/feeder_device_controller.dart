@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/models/feeder_device_model.dart';
 
 class FeederDeviceController extends GetxController {
-  
   final RxList<FeederDeviceModel> devices = <FeederDeviceModel>[
     FeederDeviceModel(
       id: 'DVC001',

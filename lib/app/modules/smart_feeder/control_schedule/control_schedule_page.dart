@@ -1,37 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/control_schedule/control_schedule_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
-import 'package:smart_feeder_desktop/app/data/dummy_data.dart';
 import 'package:smart_feeder_desktop/app/models/stable_model.dart';
 
 class ControlSchedulePage extends StatefulWidget {
-  const ControlSchedulePage({super.key});
+  final int stableSelected;
+
+  const ControlSchedulePage({super.key, this.stableSelected = 0});
 
   @override
   State<ControlSchedulePage> createState() => _ControlSchedulePageState();
 }
 
 class _ControlSchedulePageState extends State<ControlSchedulePage> {
-  int _selectedTab = 0; // 0: Air, 1: Pakan
+  final ControlScheduleController controller = Get.find();
+  final FeederDashboardController feederController = Get.find();
 
-  StableModel selectedStable = stableList[0];
+  int _selectedTab = 0; // 0: Air, 1: Pakan
   String selectedMode = "Penjadwalan";
   int intervalJam = 2; // default 2 jam
 
   @override
+  void initState() {
+    super.initState();
+    controller.selectedStableIndex.value = widget.stableSelected;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isAir = _selectedTab == 0;
-    final tabTitle = isAir ? "Air" : "Pakan";
     final colorMain = isAir ? Colors.blue : Colors.deepOrange;
     final satuan = isAir ? "Liter" : "Gram";
-    final sisaKandang = isAir
-        ? selectedStable.remainingWater
-        : selectedStable.remainingFeed;
-    final maxKandang = isAir ? 5 : 50;
-    final kurangIsi = isAir
-        ? maxKandang - selectedStable.remainingWater.value
-        : maxKandang - selectedStable.remainingFeed.value;
 
     Color airBg = isAir ? Colors.blue : Colors.blue.withOpacity(0.1);
     Color airText = isAir ? Colors.white : Colors.blue;
@@ -64,8 +67,8 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                 SizedBox(
                   width: 350,
                   child: DropdownButtonFormField<StableModel>(
-                    value: selectedStable,
-                    items: stableList
+                    value: controller.selectedStable,
+                    items: controller.stableList
                         .map(
                           (kandang) => DropdownMenuItem(
                             value: kandang,
@@ -74,7 +77,13 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                         )
                         .toList(),
                     onChanged: (val) {
-                      setState(() => selectedStable = val!);
+                      if (val != null) {
+                        setState(() {
+                          controller.selectedStableIndex.value = controller
+                              .stableList
+                              .indexOf(val);
+                        });
+                      }
                     },
                     decoration: InputDecoration(
                       labelText: "Pilih Kandang",
@@ -160,7 +169,7 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(12),
                                       child: Image.asset(
-                                        selectedStable.imageAsset,
+                                        controller.selectedStable.imageAsset,
                                         width: double.infinity,
                                         height: 100,
                                         fit: BoxFit.cover,
@@ -170,7 +179,7 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                     Row(
                                       children: [
                                         Text(
-                                          selectedStable.stableName,
+                                          controller.selectedStable.stableName,
                                           style: const TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
@@ -183,17 +192,20 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                             vertical: 6,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: selectedStable.isActive
+                                            color:
+                                                controller
+                                                    .selectedStable
+                                                    .isActive
                                                 ? Colors.green
-                                                : Colors.grey,
+                                                : Colors.red,
                                             borderRadius: BorderRadius.circular(
                                               8,
                                             ),
                                           ),
                                           child: Text(
-                                            selectedStable.isActive
+                                            controller.selectedStable.isActive
                                                 ? 'Aktif'
-                                                : 'Nonaktif',
+                                                : 'Tidak Aktif',
                                             style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 16,
@@ -214,7 +226,9 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                           ),
                                         ),
                                         Text(
-                                          selectedStable.lastFeedText,
+                                          controller
+                                              .selectedStable
+                                              .lastFeedText,
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -227,60 +241,249 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                               ),
                             ),
                             const SizedBox(width: 24),
-                            // Container Sisa Air/Pakan di Kandang & Kebutuhan Isi Tempat
-                            Expanded(
+                            Flexible(
                               child: SizedBox(
                                 height: 210,
                                 child: Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: colorMain.withOpacity(0.06),
+                                    color: colorMain.withOpacity(0.07),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(color: colorMain),
                                   ),
                                   child: Row(
                                     children: [
-                                      Image.asset(
-                                        'assets/images/fill_tank.png',
-                                        width: 90,
-                                        height: 90,
-                                      ),
-                                      const SizedBox(width: 16),
                                       Expanded(
-                                        child: Column(
+                                        child: Row(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                              CrossAxisAlignment.center,
                                           children: [
-                                            Text(
-                                              'Sisa $tabTitle di Kandang:',
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Text(
-                                              '$sisaKandang $satuan',
-                                              style: TextStyle(
-                                                fontSize: 26,
-                                                fontWeight: FontWeight.bold,
-                                                color: colorMain,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 12),
-                                            Text(
-                                              'Kebutuhan Isi Tempat:',
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Text(
-                                              '${kurangIsi.clamp(0, maxKandang).toStringAsFixed(1)} $satuan',
-                                              style: TextStyle(
-                                                fontSize: 26,
-                                                fontWeight: FontWeight.bold,
-                                                color: colorMain,
-                                              ),
+                                            Obx(() {
+                                              final stable =
+                                                  feederController
+                                                      .stableList[controller
+                                                      .selectedStableIndex
+                                                      .value];
+                                              final lessContent = isAir
+                                                  ? controller.maxWater -
+                                                        stable
+                                                            .remainingWater
+                                                            .value
+                                                  : controller.maxFeed -
+                                                        stable
+                                                            .remainingFeed
+                                                            .value;
+
+                                              return Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    'Sisa  di Kandang:',
+                                                    style: TextStyle(
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    isAir
+                                                        ? '${stable.remainingWater.value.toStringAsFixed(1)} $satuan'
+                                                        : '${stable.remainingFeed.value.toStringAsFixed(1)} $satuan',
+                                                    style: TextStyle(
+                                                      fontSize: 26,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: colorMain,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    'Kebutuhan Isi Tempat:',
+                                                    style: TextStyle(
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    isAir
+                                                        ? '${lessContent.clamp(0, controller.maxWater).toStringAsFixed(1)} $satuan'
+                                                        : '${lessContent.clamp(0, controller.maxFeed).toStringAsFixed(1)} $satuan',
+                                                    // '${kurangIsi.clamp(0, isAir ? controller.maxWater : controller.maxFeed).toStringAsFixed(1)} ',
+                                                    style: TextStyle(
+                                                      fontSize: 26,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: colorMain,
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            }),
+                                            const SizedBox(width: 20),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                RichText(
+                                                  text: TextSpan(
+                                                    style: const TextStyle(
+                                                      fontSize: 20,
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                    children: [
+                                                      const TextSpan(
+                                                        text: 'Kuda: ',
+                                                        style: TextStyle(
+                                                          color: Colors.black,
+                                                        ),
+                                                      ),
+                                                      TextSpan(
+                                                        text:
+                                                            '${controller.getHorseById(controller.selectedStable.horseId).name}',
+                                                        style: TextStyle(
+                                                          color: colorMain,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 30,
+                                                        ),
+                                                      ),
+                                                      TextSpan(
+                                                        text:
+                                                            ' (${controller.getHorseById(controller.selectedStable.horseId).horseId})',
+                                                        style: const TextStyle(
+                                                          color: Colors.black54,
+                                                          fontSize: 16,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                SizedBox(height: 4),
+                                                RichText(
+                                                  text: TextSpan(
+                                                    style: const TextStyle(
+                                                      fontSize: 20,
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                    children: [
+                                                      TextSpan(
+                                                        text: 'Umur: ',
+                                                        style: TextStyle(
+                                                          color: Colors.black,
+                                                        ),
+                                                      ),
+                                                      TextSpan(
+                                                        text:
+                                                            '${controller.getHorseById(controller.selectedStable.horseId).getAgeInYears()} tahun',
+                                                        style: TextStyle(
+                                                          color: colorMain,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 30,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                SizedBox(height: 4),
+                                                RichText(
+                                                  text: TextSpan(
+                                                    style: const TextStyle(
+                                                      fontSize: 20,
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                    children: [
+                                                      const TextSpan(
+                                                        text: 'Jenis: ',
+                                                        style: TextStyle(
+                                                          color: Colors.black,
+                                                        ),
+                                                      ),
+                                                      TextSpan(
+                                                        text:
+                                                            '${controller.getHorseById(controller.selectedStable.horseId).type}',
+                                                        style: TextStyle(
+                                                          color: colorMain,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 30,
+                                                        ),
+                                                      ),
+                                                      const TextSpan(
+                                                        text: '  |  Kelamin: ',
+                                                        style: TextStyle(
+                                                          color: Colors.black,
+                                                        ),
+                                                      ),
+                                                      TextSpan(
+                                                        text:
+                                                            '${controller.getHorseById(controller.selectedStable.horseId).gender}',
+                                                        style: TextStyle(
+                                                          color: colorMain,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 30,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                SizedBox(height: 4),
+                                                RichText(
+                                                  text: TextSpan(
+                                                    style: const TextStyle(
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                    children: [
+                                                      TextSpan(
+                                                        text: 'Kesehatan: ',
+                                                        style: TextStyle(
+                                                          color: Colors.black,
+                                                        ),
+                                                      ),
+                                                      TextSpan(
+                                                        text: controller
+                                                            .getHorseById(
+                                                              controller
+                                                                  .selectedStable
+                                                                  .horseId,
+                                                            )
+                                                            .healthStatus,
+                                                        style: TextStyle(
+                                                          color:
+                                                              controller
+                                                                      .getHorseById(
+                                                                        controller
+                                                                            .selectedStable
+                                                                            .horseId,
+                                                                      )
+                                                                      .healthStatus ==
+                                                                  "Sehat"
+                                                              ? Colors.green
+                                                              : Colors.red,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 30,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
@@ -290,84 +493,106 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 28),
-                        // Mode Penjadwalan
-                        Text(
-                          'Mode Penjadwalan:',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        DropdownButtonFormField<String>(
-                          value: selectedMode,
-                          items: [
-                            DropdownMenuItem(
-                              value: "Penjadwalan",
-                              child: Text("Penjadwalan"),
-                            ),
-                            DropdownMenuItem(
-                              value: "Otomatis",
-                              child: Text("Otomatis"),
-                            ),
-                            DropdownMenuItem(
-                              value: "Manual",
-                              child: Text("Manual"),
-                            ),
-                          ],
-                          onChanged: (val) => setState(
-                            () => selectedMode = val ?? "Penjadwalan",
-                          ),
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            filled: true,
-                            fillColor: colorMain.withOpacity(0.07),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        // Input interval: dropdown angka 1-24
-                        if (selectedMode == "Penjadwalan")
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Interval Penjadwalan (berapa jam sekali):',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            SizedBox(width: 24),
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: double.infinity,
                               ),
-                              const SizedBox(height: 6),
-                              SizedBox(
-                                width: 250,
-                                child: DropdownButtonFormField<int>(
-                                  value: intervalJam,
-                                  items: List.generate(
-                                    24,
-                                    (index) => DropdownMenuItem(
-                                      value: index + 1,
-                                      child: Text('${index + 1} jam'),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Mode Penjadwalan:',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  onChanged: (val) {
-                                    setState(() => intervalJam = val ?? 2);
-                                  },
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
+                                  const SizedBox(height: 6),
+                                  SizedBox(
+                                    width: 300,
+                                    child: DropdownButtonFormField<String>(
+                                      value: selectedMode,
+                                      items: [
+                                        DropdownMenuItem(
+                                          value: "Penjadwalan",
+                                          child: Text("Penjadwalan"),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: "Otomatis",
+                                          child: Text("Otomatis"),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: "Manual",
+                                          child: Text("Manual"),
+                                        ),
+                                      ],
+                                      onChanged: (val) => setState(
+                                        () =>
+                                            selectedMode = val ?? "Penjadwalan",
+                                      ),
+                                      decoration: InputDecoration(
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        filled: true,
+                                        fillColor: colorMain.withOpacity(0.07),
+                                      ),
                                     ),
-                                    filled: true,
-                                    fillColor: colorMain.withOpacity(0.07),
                                   ),
-                                ),
+                                  const SizedBox(height: 20),
+                                  // Input interval: dropdown angka 1-24
+                                  if (selectedMode == "Penjadwalan")
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Interval Penjadwalan (berapa jam sekali):',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        SizedBox(
+                                          width: 300,
+                                          child: DropdownButtonFormField<int>(
+                                            value: intervalJam,
+                                            items: List.generate(
+                                              24,
+                                              (index) => DropdownMenuItem(
+                                                value: index + 1,
+                                                child: Text('${index + 1} jam'),
+                                              ),
+                                            ),
+                                            onChanged: (val) {
+                                              setState(
+                                                () => intervalJam = val ?? 2,
+                                              );
+                                            },
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              filled: true,
+                                              fillColor: colorMain.withOpacity(
+                                                0.07,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
+                        ),
                         Spacer(),
                         CustomButton(
                           text: 'Simpan Jadwal',

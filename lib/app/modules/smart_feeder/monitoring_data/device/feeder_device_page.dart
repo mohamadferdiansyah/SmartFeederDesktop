@@ -4,6 +4,7 @@ import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/feeder_device_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/feeder_device_controller.dart';
 import 'package:intl/intl.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 
 class FeederDevicePage extends StatefulWidget {
@@ -14,11 +15,13 @@ class FeederDevicePage extends StatefulWidget {
 }
 
 class _FeederDevicePageState extends State<FeederDevicePage> {
-  String _searchText = "";
-  int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   final TextEditingController _searchController = TextEditingController();
   final FeederDeviceController _controller = Get.find<FeederDeviceController>();
   late DeviceDataTableSource _dataSource;
+  String _searchText = "";
+  int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
+  int? _sortColumnIndex;
+  bool _sortAscending = true;
 
   @override
   void initState() {
@@ -94,7 +97,10 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
             // Content
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(18.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 36.0,
+                  vertical: 12.0,
+                ),
                 child: Column(
                   children: [
                     // Search Box
@@ -114,103 +120,312 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                         builder: (context, constraints) {
                           final tableWidth = constraints.maxWidth;
                           // Kolom: [ID, Nama, Tipe, Status, LastActive]
-                          // Misal: ID: 15%, Nama: 30%, Tipe: 10%, Status: 10%, LastActive: 35%
-                          final idW = tableWidth * 0.15;
+                          // Misal: ID: 15%, Nama: 30%, Tipe: 10%, Status: 10%, LastActive: 25%
+                          final idW = tableWidth * 0.10;
                           final nameW = tableWidth * 0.30;
                           final typeW = tableWidth * 0.10;
                           final statusW = tableWidth * 0.10;
-                          final lastActiveW = tableWidth * 0.35;
+                          final lastActiveW = tableWidth * 0.20;
+                          final actionW = tableWidth * 0.15;
 
                           return Expanded(
                             child: SingleChildScrollView(
-                              child: PaginatedDataTable(
-                                columnSpacing:
-                                    0, // karena sudah pakai SizedBox di cell
-                                horizontalMargin: 0,
-                                columns: [
-                                  DataColumn(
-                                    label: SizedBox(
-                                      width: idW,
-                                      child: const Text(
-                                        'ID',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end, 
+                                    children: [
+                                      CustomButton(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                            0.15,
+                                        height: 70,
+                                        backgroundColor: Colors.green,
+                                        fontSize: 24,
+                                        icon: Icons.table_view_rounded,
+                                        text: 'Export Excel',
+                                        onPressed: () {},
                                       ),
-                                    ),
-                                    onSort: (i, asc) => setState(() {
-                                      _dataSource.sort((d) => d.id, asc);
-                                    }),
+                                    ],
                                   ),
-                                  DataColumn(
-                                    label: SizedBox(
-                                      width: nameW,
-                                      child: const Text(
-                                        'Nama',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
+                                  SizedBox(height: 12),
+                                  Theme(
+                                    data: Theme.of(context).copyWith(
+                                      cardColor: Colors
+                                          .white, // warna area body & footer PENUH
+                                      dataTableTheme: DataTableThemeData(
+                                        headingRowColor:
+                                            MaterialStateProperty.all(
+                                              Colors.grey[200]!,
+                                            ),
+                                        dataRowColor: MaterialStateProperty.all(
+                                          Colors.white,
                                         ),
                                       ),
                                     ),
-                                    onSort: (i, asc) => setState(() {
-                                      _dataSource.sort((d) => d.name, asc);
-                                    }),
-                                  ),
-                                  DataColumn(
-                                    label: SizedBox(
-                                      width: typeW,
-                                      child: const Text(
-                                        'Tipe',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
+                                    child: PaginatedDataTable(
+                                      columnSpacing:
+                                          0, // karena sudah pakai SizedBox di cell
+                                      horizontalMargin: 0,
+                                      sortColumnIndex: _sortColumnIndex,
+                                      sortAscending: _sortAscending,
+                                      columns: [
+                                        DataColumn(
+                                          label: MouseRegion(
+                                            onEnter: (_) => setState(() {
+                                              _dataSource.hoveredColumnIndex =
+                                                  0;
+                                            }),
+                                            onExit: (_) => setState(() {
+                                              _dataSource.hoveredColumnIndex =
+                                                  null;
+                                            }),
+                                            child: AnimatedContainer(
+                                              duration: Duration(
+                                                milliseconds: 150,
+                                              ),
+                                              width: idW,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    _dataSource
+                                                            .hoveredColumnIndex ==
+                                                        0
+                                                    ? Colors.blue.withOpacity(
+                                                        0.15,
+                                                      )
+                                                    : Colors.transparent,
+                                              ),
+                                              child: Center(
+                                                child: const Text(
+                                                  'ID',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          onSort: (columnIndex, ascending) {
+                                            setState(() {
+                                              _sortColumnIndex = columnIndex;
+                                              _sortAscending = ascending;
+                                              _dataSource.sort(
+                                                (d) => d.id,
+                                                ascending,
+                                              );
+                                            });
+                                          },
                                         ),
-                                      ),
-                                    ),
-                                    onSort: (i, asc) => setState(() {
-                                      _dataSource.sort((d) => d.type, asc);
-                                    }),
-                                  ),
-                                  DataColumn(
-                                    label: SizedBox(
-                                      width: statusW,
-                                      child: const Text(
-                                        'Status',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
+                                        DataColumn(
+                                          label: MouseRegion(
+                                            onEnter: (_) => setState(() {
+                                              _dataSource.hoveredColumnIndex =
+                                                  1;
+                                            }),
+                                            onExit: (_) => setState(() {
+                                              _dataSource.hoveredColumnIndex =
+                                                  null;
+                                            }),
+                                            child: AnimatedContainer(
+                                              duration: Duration(
+                                                milliseconds: 150,
+                                              ),
+                                              width: nameW,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    _dataSource
+                                                            .hoveredColumnIndex ==
+                                                        1
+                                                    ? Colors.blue.withOpacity(
+                                                        0.15,
+                                                      )
+                                                    : Colors.transparent,
+                                              ),
+                                              child: Center(
+                                                child: const Text(
+                                                  'Nama',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          onSort: (columnIndex, ascending) {
+                                            setState(() {
+                                              _sortColumnIndex = columnIndex;
+                                              _sortAscending = ascending;
+                                              _dataSource.sort(
+                                                (d) => d.id,
+                                                ascending,
+                                              );
+                                            });
+                                          },
                                         ),
-                                      ),
-                                    ),
-                                    onSort: (i, asc) => setState(() {
-                                      _dataSource.sort((d) => d.status, asc);
-                                    }),
-                                  ),
-                                  DataColumn(
-                                    label: SizedBox(
-                                      width: lastActiveW,
-                                      child: const Text(
-                                        'Last Active',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
+                                        DataColumn(
+                                          label: MouseRegion(
+                                            onEnter: (_) => setState(() {
+                                              _dataSource.hoveredColumnIndex =
+                                                  2;
+                                            }),
+                                            onExit: (_) => setState(() {
+                                              _dataSource.hoveredColumnIndex =
+                                                  null;
+                                            }),
+                                            child: AnimatedContainer(
+                                              duration: Duration(
+                                                milliseconds: 150,
+                                              ),
+                                              width: typeW,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    _dataSource
+                                                            .hoveredColumnIndex ==
+                                                        2
+                                                    ? Colors.blue.withOpacity(
+                                                        0.15,
+                                                      )
+                                                    : Colors.transparent,
+                                              ),
+                                              child: Center(
+                                                child: const Text(
+                                                  'Tipe',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          onSort: (columnIndex, ascending) {
+                                            setState(() {
+                                              _sortColumnIndex = columnIndex;
+                                              _sortAscending = ascending;
+                                              _dataSource.sort(
+                                                (d) => d.id,
+                                                ascending,
+                                              );
+                                            });
+                                          },
                                         ),
-                                      ),
+                                        DataColumn(
+                                          label: MouseRegion(
+                                            onEnter: (_) => setState(() {
+                                              _dataSource.hoveredColumnIndex =
+                                                  3;
+                                            }),
+                                            onExit: (_) => setState(() {
+                                              _dataSource.hoveredColumnIndex =
+                                                  null;
+                                            }),
+                                            child: AnimatedContainer(
+                                              duration: Duration(
+                                                milliseconds: 150,
+                                              ),
+                                              width: statusW,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    _dataSource
+                                                            .hoveredColumnIndex ==
+                                                        3
+                                                    ? Colors.blue.withOpacity(
+                                                        0.15,
+                                                      )
+                                                    : Colors.transparent,
+                                              ),
+                                              child: Center(
+                                                child: const Text(
+                                                  'Status',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          onSort: (columnIndex, ascending) {
+                                            setState(() {
+                                              _sortColumnIndex = columnIndex;
+                                              _sortAscending = ascending;
+                                              _dataSource.sort(
+                                                (d) => d.id,
+                                                ascending,
+                                              );
+                                            });
+                                          },
+                                        ),
+                                        DataColumn(
+                                          label: MouseRegion(
+                                            onEnter: (_) => setState(() {
+                                              _dataSource.hoveredColumnIndex =
+                                                  4;
+                                            }),
+                                            onExit: (_) => setState(() {
+                                              _dataSource.hoveredColumnIndex =
+                                                  null;
+                                            }),
+                                            child: AnimatedContainer(
+                                              duration: Duration(
+                                                milliseconds: 150,
+                                              ),
+                                              width: lastActiveW,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    _dataSource
+                                                            .hoveredColumnIndex ==
+                                                        4
+                                                    ? Colors.blue.withOpacity(
+                                                        0.15,
+                                                      )
+                                                    : Colors.transparent,
+                                              ),
+                                              child: Center(
+                                                child: const Text(
+                                                  'Last Active',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          onSort: (columnIndex, ascending) {
+                                            setState(() {
+                                              _sortColumnIndex = columnIndex;
+                                              _sortAscending = ascending;
+                                              _dataSource.sort(
+                                                (d) => d.id,
+                                                ascending,
+                                              );
+                                            });
+                                          },
+                                        ),
+                                        DataColumn(
+                                          label: SizedBox(
+                                            width: actionW, // atur lebar
+                                            child: Center(
+                                              child: Text(
+                                                'Aksi',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                      source: _dataSource,
+                                      rowsPerPage: _rowsPerPage,
+                                      availableRowsPerPage: const [5, 10, 20],
+                                      onRowsPerPageChanged: (value) {
+                                        setState(() {
+                                          _rowsPerPage = value ?? 5;
+                                        });
+                                      },
+                                      showCheckboxColumn: false,
                                     ),
-                                    onSort: (i, asc) => setState(() {
-                                      _dataSource.sort(
-                                        (d) => d.lastActive,
-                                        asc,
-                                      );
-                                    }),
                                   ),
                                 ],
-                                source: _dataSource,
-                                rowsPerPage: _rowsPerPage,
-                                availableRowsPerPage: const [5, 10, 20],
-                                onRowsPerPageChanged: (value) {
-                                  setState(() {
-                                    _rowsPerPage = value ?? 5;
-                                  });
-                                },
-                                showCheckboxColumn: false,
                               ),
                             ),
                           );
@@ -233,6 +448,7 @@ class DeviceDataTableSource extends DataTableSource {
   List<FeederDeviceModel> devices;
   List<FeederDeviceModel> filteredDevices;
   int _selectedCount = 0;
+  int? hoveredColumnIndex;
 
   DeviceDataTableSource({required this.devices})
     : filteredDevices = List.from(devices);
@@ -274,12 +490,40 @@ class DeviceDataTableSource extends DataTableSource {
     return DataRow.byIndex(
       index: index,
       cells: [
-        DataCell(Text(device.id)),
-        DataCell(Text(device.name)),
-        DataCell(Text(device.type)),
-        DataCell(Text(device.status)),
+        DataCell(Center(child: Text(device.id))),
+        DataCell(Center(child: Text(device.name))),
+        DataCell(Center(child: Text(device.type))),
+        DataCell(Center(child: Text(device.status))),
         DataCell(
-          Text(DateFormat('yyyy-MM-dd HH:mm').format(device.lastActive)),
+          Center(
+            child: Text(
+              DateFormat('yyyy-MM-dd HH:mm').format(device.lastActive),
+            ),
+          ),
+        ),
+        DataCell(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CustomButton(
+                width: 80,
+                height: 30,
+                text: 'Detail',
+                borderRadius: 6,
+                onPressed: () {
+                  // TODO: aksi detail
+                },
+              ),
+              SizedBox(width: 8),
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.red),
+                tooltip: 'Hapus',
+                onPressed: () {
+                  // TODO: aksi hapus
+                },
+              ),
+            ],
+          ),
         ),
       ],
     );

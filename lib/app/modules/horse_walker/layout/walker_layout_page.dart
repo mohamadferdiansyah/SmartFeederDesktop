@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/modules/horse_walker/dashboard/walker_dashboard_page.dart';
 import 'package:smart_feeder_desktop/app/modules/horse_walker/layout/walker_layout_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_sidebar.dart';
-import 'package:smart_feeder_desktop/app/models/sidebar_menu.dart';
+import 'package:smart_feeder_desktop/app/models/sidebar_menu_model.dart';
 
 class WalkerLayoutPage extends StatelessWidget {
   WalkerLayoutPage({super.key});

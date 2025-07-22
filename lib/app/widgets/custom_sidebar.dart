@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
-import 'package:smart_feeder_desktop/app/models/sidebar_menu.dart';
+import 'package:smart_feeder_desktop/app/models/sidebar_menu_model.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 
 class CustomSidebar extends StatefulWidget {

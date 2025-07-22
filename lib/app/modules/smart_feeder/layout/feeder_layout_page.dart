@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/history/feeder_history_page.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_sidebar.dart';
-import 'package:smart_feeder_desktop/app/models/sidebar_menu.dart';
+import 'package:smart_feeder_desktop/app/models/sidebar_menu_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/layout/feeder_layout_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/control_schedule/control_schedule_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/feed/feed_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/feeder_device_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/water/water_page.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_feeder/setting/setting_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/setting/feeder_setting_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/help/help_page.dart';
 
 class FeederLayoutPage extends StatelessWidget {
@@ -45,12 +46,17 @@ class FeederLayoutPage extends StatelessWidget {
           icon: Icons.water,
           page: WaterPage(),
         ),
+        SidebarMenuItem(
+          title: "Data Riwayat Pengisian",
+          icon: Icons.history_rounded,
+          page: FeederHistoryPage(),
+        ),
       ],
     ),
     SidebarMenuItem(
       title: "Pengaturan Perangkat",
       icon: Icons.settings_rounded,
-      page: SettingPage(),
+      page: FeederSettingPage(),
     ),
     SidebarMenuItem(
       title: "Bantuan",

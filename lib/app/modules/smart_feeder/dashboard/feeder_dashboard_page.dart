@@ -7,7 +7,6 @@ import 'package:smart_feeder_desktop/app/modules/smart_feeder/layout/feeder_layo
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_history_card.dart';
-import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_stable_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_stable_tank_card.dart';
 
@@ -661,9 +660,16 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                     child: CustomButton(
                                       text: 'Ubah Jadwal',
                                       onPressed: () {
+                                        final index = controller
+                                            .selectedStableIndex
+                                            .value;
+                                        controller.selectedStableIndex.value =
+                                            index;
                                         layoutController.setPage(
-                                          ControlSchedulePage(),
-                                          'Ubah Jadwal',
+                                          ControlSchedulePage(
+                                            stableSelected: index,
+                                          ),
+                                          'Kontrol Penjadwalan',
                                         );
                                       },
                                       height: 70,
