@@ -18,7 +18,7 @@ class SmartFeederApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+  return GetMaterialApp(
       title: 'SmartFeeder Desktop',
       debugShowCheckedModeBanner: false,
       initialRoute: '/login',

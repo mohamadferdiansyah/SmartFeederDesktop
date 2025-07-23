@@ -1,24 +1,12 @@
-import 'package:get/get.dart';
 
 class StableModel {
-  final String stableName;
-  final String imageAsset;
-  final String scheduleText;
-  final bool isActive;
-  final RxDouble remainingWater;
-  final RxDouble remainingFeed;
-  final String lastFeedText;
-  final String horseId; // tambah ini, simpan id kuda saja
+  final String stableId;
+  final String name;
+  final String address;
 
   StableModel({
-    required this.stableName,
-    required this.imageAsset,
-    required this.scheduleText,
-    required this.isActive,
-    required double remainingWater,
-    required double remainingFeed,
-    required this.lastFeedText,
-    required this.horseId,
-  })  : remainingWater = remainingWater.obs,
-        remainingFeed = remainingFeed.obs;
+    required this.stableId,
+    required this.name,
+    required this.address,
+  });
 }

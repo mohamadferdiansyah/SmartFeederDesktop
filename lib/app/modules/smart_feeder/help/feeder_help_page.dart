@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 
-class HelpPage extends StatefulWidget {
-  const HelpPage({super.key});
+class FeederHelpPage extends StatefulWidget {
+  const FeederHelpPage({super.key});
 
   @override
-  State<HelpPage> createState() => _HelpPageState();
+  State<FeederHelpPage> createState() => _FeederHelpPageState();
 }
 
-class _HelpPageState extends State<HelpPage> {
+class _FeederHelpPageState extends State<FeederHelpPage> {
   final List<_HelpSection> sections = [
     _HelpSection(
       icon: Icons.dashboard_rounded,

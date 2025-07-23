@@ -425,7 +425,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                             border: Border.all(color: Colors.white, width: 1),
                           ),
                           child: Text(
-                            controller.selectedStable.stableName,
+                            controller.selectedRoom.name,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 24,
@@ -440,23 +440,38 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: controller.selectedStable.isActive
+                            color:
+                                controller.getDeviceStatusByRoom(
+                                      controller.selectedRoom.roomId,
+                                    ) ==
+                                    "Aktif"
                                 ? Colors.green.withOpacity(0.2)
                                 : Colors.red.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: controller.selectedStable.isActive
+                              color:
+                                  controller.getDeviceStatusByRoom(
+                                        controller.selectedRoom.roomId,
+                                      ) ==
+                                      "Aktif"
                                   ? Colors.green
                                   : Colors.red,
                               width: 1,
                             ),
                           ),
                           child: Text(
-                            controller.selectedStable.isActive
+                            controller.getDeviceStatusByRoom(
+                                      controller.selectedRoom.roomId,
+                                    ) ==
+                                    "Aktif"
                                 ? 'Aktif'
                                 : 'Tidak Aktif',
                             style: TextStyle(
-                              color: controller.selectedStable.isActive
+                              color:
+                                  controller.getDeviceStatusByRoom(
+                                        controller.selectedRoom.roomId,
+                                      ) ==
+                                      "Aktif"
                                   ? Colors.green
                                   : Colors.red,
                               fontSize: 24,
@@ -470,8 +485,16 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                   titleFontSize: 26,
                   headerHeight: 80,
                   content: Obx(() {
-                    final stable = controller
-                        .stableList[controller.selectedStableIndex.value];
+                    if (controller.filteredRoomList.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'Tidak ada data ruangan',
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
+                        ),
+                      );
+                    }
+                    final room = controller
+                        .filteredRoomList[controller.selectedRoomIndex.value];
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -482,19 +505,21 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                             children: [
                               CustomStableTankCard(
                                 isWater: true,
-                                current: stable.remainingWater.value,
+                                current: room.remainingWater.value,
                                 max: 5,
                                 phLevel: 7.2,
-                                lastText: stable.lastFeedText,
+                                lastText:
+                                    room.lastFeedText ?? 'Belum ada pengisian',
                                 getTankImageAsset:
                                     controller.getStableTankImageAsset,
                               ),
                               SizedBox(height: 16),
                               CustomStableTankCard(
                                 isWater: false,
-                                current: stable.remainingFeed.value,
+                                current: room.remainingFeed.value,
                                 max: 50,
-                                lastText: stable.lastFeedText,
+                                lastText:
+                                    room.lastFeedText ?? 'Belum ada pengisian',
                                 getTankImageAsset:
                                     controller.getStableTankImageAsset,
                               ),
@@ -599,28 +624,28 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                       decoration: BoxDecoration(
                                         color:
                                             controller
-                                                    .selectedStable
-                                                    .scheduleText ==
-                                                'Penjadwalan'
+                                                    .selectedRoom
+                                                    .scheduleType ==
+                                                'penjadwalan'
                                             ? Colors.teal.withOpacity(0.2)
                                             : controller
-                                                      .selectedStable
-                                                      .scheduleText ==
-                                                  'Otomatis'
+                                                      .selectedRoom
+                                                      .scheduleType ==
+                                                  'otomatis'
                                             ? Colors.blue.withOpacity(0.2)
                                             : Colors.orange.withOpacity(0.2),
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
                                           color:
                                               controller
-                                                      .selectedStable
-                                                      .scheduleText ==
-                                                  'Penjadwalan'
+                                                      .selectedRoom
+                                                      .scheduleType ==
+                                                  'penjadwalan'
                                               ? Colors.teal
                                               : controller
-                                                        .selectedStable
-                                                        .scheduleText ==
-                                                    'Otomatis'
+                                                        .selectedRoom
+                                                        .scheduleType ==
+                                                    'otomatis'
                                               ? Colors.blue
                                               : Colors.orange,
                                           width: 1,
@@ -630,21 +655,29 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                         child: Obx(
                                           () => Text(
                                             controller
-                                                .selectedStable
-                                                .scheduleText,
+                                                        .selectedRoom
+                                                        .scheduleType ==
+                                                    'penjadwalan'
+                                                ? 'Penjadwalan'
+                                                : controller
+                                                          .selectedRoom
+                                                          .scheduleType ==
+                                                      'otomatis'
+                                                ? 'Otomatis'
+                                                : 'Manual',
                                             style: TextStyle(
                                               fontSize: 24,
                                               fontWeight: FontWeight.bold,
                                               color:
                                                   controller
-                                                          .selectedStable
-                                                          .scheduleText ==
-                                                      'Penjadwalan'
+                                                          .selectedRoom
+                                                          .scheduleType ==
+                                                      'penjadwalan'
                                                   ? Colors.teal
                                                   : controller
-                                                            .selectedStable
-                                                            .scheduleText ==
-                                                        'Otomatis'
+                                                            .selectedRoom
+                                                            .scheduleType ==
+                                                        'otomatis'
                                                   ? Colors.blue
                                                   : Colors.orange,
                                             ),
@@ -660,14 +693,14 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                     child: CustomButton(
                                       text: 'Ubah Jadwal',
                                       onPressed: () {
-                                        final index = controller
-                                            .selectedStableIndex
-                                            .value;
-                                        controller.selectedStableIndex.value =
+                                        final index =
+                                            controller.selectedRoomIndex.value;
+                                        controller.selectedRoomIndex.value =
                                             index;
+                                        print('ini index ke $index');
                                         layoutController.setPage(
                                           ControlSchedulePage(
-                                            stableSelected: index,
+                                            roomSelected: index,
                                           ),
                                           'Kontrol Penjadwalan',
                                         );
@@ -695,25 +728,25 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                     thumbVisibility: true,
                                     child: Obx(() {
                                       final selectedIndex =
-                                          controller.selectedStableIndex.value;
+                                          controller.selectedRoomIndex.value;
+                                      if (controller.filteredRoomList.isEmpty) {
+                                        return Center(
+                                          child: Text('Belum ada ruangan'),
+                                        );
+                                      }
+                                      final selectedRoomId = controller
+                                          .filteredRoomList[selectedIndex]
+                                          .roomId;
                                       final selectedHistory = controller
-                                          .historyList
+                                          .historyEntryList
                                           .where(
                                             (item) =>
-                                                item.stableIndex ==
-                                                selectedIndex,
+                                                item.roomId == selectedRoomId,
                                           )
                                           .toList();
-
                                       if (selectedHistory.isEmpty) {
                                         return Center(
-                                          child: Text(
-                                            'Belum ada riwayat',
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
+                                          child: Text('Belum ada riwayat'),
                                         );
                                       }
                                       return ListView.builder(
@@ -721,10 +754,10 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                         itemBuilder: (context, index) {
                                           final item = selectedHistory[index];
                                           return HistoryEntryCard(
-                                            datetime: item.datetime,
+                                            datetime: item.date,
                                             water: item.water,
                                             feed: item.feed,
-                                            scheduleText: item.scheduleText,
+                                            scheduleText: item.type,
                                           );
                                         },
                                       );
@@ -744,27 +777,56 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
           ),
           SizedBox(width: 8),
           CustomCard(
-            title: 'Daftar Kandang',
+            title: 'Daftar Ruangan',
+            trailing: Obx(
+              () => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.white, width: 1),
+                ),
+                child: Text(
+                  controller.getStableNameById(
+                    controller.selectedStableId.value,
+                  ),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
             content: SizedBox(
               height: 1000,
               child: Scrollbar(
                 thumbVisibility: true,
                 child: ListView.builder(
-                  itemCount: controller.stableList.length,
+                  itemCount: controller.filteredRoomList.length,
                   itemBuilder: (context, index) {
-                    final stable = controller.stableList[index];
+                    final room = controller.filteredRoomList[index];
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
                       child: CustomStableCard(
-                        stableName: stable.stableName,
-                        imageAsset: stable.imageAsset,
-                        scheduleText: stable.scheduleText,
-                        isActive: stable.isActive,
-                        remainingWater: stable.remainingWater,
-                        remainingFeed: stable.remainingFeed,
-                        lastFeedText: stable.lastFeedText,
+                        stableName: room.name,
+                        imageAsset: 'assets/images/stable.jpg',
+                        scheduleText: room.scheduleType == 'penjadwalan'
+                            ? 'Penjadwalan'
+                            : room.scheduleType == 'otomatis'
+                            ? 'Otomatis'
+                            : 'Manual',
+                        isActive:
+                            controller.getDeviceStatusByRoom(room.roomId) ==
+                                "Aktif"
+                            ? true
+                            : false,
+                        remainingWater: room.remainingWater,
+                        remainingFeed: room.remainingFeed,
+                        lastFeedText:
+                            room.lastFeedText ?? 'Belum ada pengisian',
                         onSelect: () {
-                          controller.selectedStableIndex.value = index;
+                          controller.selectedRoomIndex.value = index;
                         },
                         primaryColor: AppColors.primary,
                       ),

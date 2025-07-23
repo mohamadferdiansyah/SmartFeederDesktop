@@ -1,15 +1,11 @@
 class WaterModel {
-  final String id;
-  final String sourceName;
-  final double volume; // Satuan: Liter
-  final DateTime dateIn;
-  final String status; // Contoh: "Masuk", "Keluar", "Rusak", dll
+  final String waterId;
+  final String name;
+  final double stock; // liter
 
   WaterModel({
-    required this.id,
-    required this.sourceName,
-    required this.volume,
-    required this.dateIn,
-    required this.status,
+    required this.waterId,
+    required this.name,
+    required this.stock,
   });
 }

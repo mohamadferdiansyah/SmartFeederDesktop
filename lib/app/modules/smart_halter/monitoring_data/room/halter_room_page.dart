@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+// Ganti import berikut sesuai struktur project-mu
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
-import 'package:smart_feeder_desktop/app/models/feed_model.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/feed/feed_controller.dart';
+import 'package:smart_feeder_desktop/app/models/room_model.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/room/halter_room_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 
-class FeedPage extends StatefulWidget {
-  const FeedPage({super.key});
+class HalterRoomPage extends StatefulWidget {
+  const HalterRoomPage({super.key});
 
   @override
-  State<FeedPage> createState() => _FeedPageState();
+  State<HalterRoomPage> createState() => _HalterRoomPageState();
 }
 
-class _FeedPageState extends State<FeedPage> {
+class _HalterRoomPageState extends State<HalterRoomPage> {
   final TextEditingController _searchController = TextEditingController();
-  final FeedController _controller = Get.put(FeedController());
-  late FeedStockDataTableSource _dataSource;
+  final HalterRoomController _controller = Get.put(HalterRoomController());
+  late RoomDataTableSource _dataSource;
   String _searchText = "";
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   int? _sortColumnIndex;
@@ -25,7 +26,11 @@ class _FeedPageState extends State<FeedPage> {
   @override
   void initState() {
     super.initState();
-    _dataSource = FeedStockDataTableSource(stocks: _controller.feedList);
+    // Pastikan cctv controller sudah diinisialisasi sebelum HalterRoomController
+    _dataSource = RoomDataTableSource(
+      rooms: _controller.roomList,
+      getCctvNames: _controller.getCctvNames,
+    );
     _searchController.addListener(() {
       setState(() {
         _searchText = _searchController.text.trim().toLowerCase();
@@ -62,7 +67,7 @@ class _FeedPageState extends State<FeedPage> {
               width: double.infinity,
               decoration: BoxDecoration(
                 color: AppColors.primary,
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(8),
                   topRight: Radius.circular(8),
                 ),
@@ -75,13 +80,13 @@ class _FeedPageState extends State<FeedPage> {
                   ),
                 ],
               ),
-              child: Center(
+              child: const Center(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  padding: EdgeInsets.symmetric(horizontal: 24.0),
                   child: Row(
                     children: [
                       Text(
-                        'Data Pakan',
+                        'Daftar Ruangan',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -106,11 +111,10 @@ class _FeedPageState extends State<FeedPage> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: CustomInput(
-                        label: "Cari data pakan",
+                        label: "Cari ruangan",
                         controller: _searchController,
                         icon: Icons.search,
-                        hint:
-                            'Masukkan ID, nama pakan, supplier, status, tanggal',
+                        hint: 'Masukkan ID, nama, status, jadwal, atau device',
                         fontSize: 24,
                       ),
                     ),
@@ -119,58 +123,48 @@ class _FeedPageState extends State<FeedPage> {
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           final tableWidth = constraints.maxWidth;
-                          // Kolom: [ID, Nama Pakan, Jumlah, Tanggal Masuk, Supplier, Status, Aksi]
-                          final idW = tableWidth * 0.15;
-                          final feedNameW = tableWidth * 0.20;
-                          final qtyW = tableWidth * 0.20;
-                          final statusW = tableWidth * 0.20;
-                          final actionW = tableWidth * 0.20;
+                          // Kolom: [ID, Nama, Serial, Status, CCTV, Sisa Air, Sisa Pakan, Jadwal, Aksi]
+                          final idW = tableWidth * 0.10;
+                          final nameW = tableWidth * 0.15;
+                          final serialW = tableWidth * 0.15;
+                          final statusW = tableWidth * 0.10;
+                          final cctvW = tableWidth * 0.30;
+                          final actionW = tableWidth * 0.15;
 
                           return SingleChildScrollView(
-                            child: Theme(
-                              data: Theme.of(context).copyWith(
-                                cardColor: Colors.white,
-                                dataTableTheme: DataTableThemeData(
-                                  headingRowColor: MaterialStateProperty.all(
-                                    Colors.grey[200]!,
-                                  ),
-                                  dataRowColor: MaterialStateProperty.all(
-                                    Colors.white,
-                                  ),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    CustomButton(
+                                      width:
+                                          MediaQuery.of(context).size.width *
+                                          0.15,
+                                      height: 70,
+                                      backgroundColor: Colors.green,
+                                      fontSize: 24,
+                                      icon: Icons.table_view_rounded,
+                                      text: 'Export Excel',
+                                      onPressed: () {},
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      CustomButton(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                            0.15,
-                                        height: 70,
-                                        backgroundColor: Colors.green,
-                                        fontSize: 24,
-                                        icon: Icons.table_view_rounded,
-                                        text: 'Export Excel',
-                                        onPressed: () {},
+                                const SizedBox(height: 12),
+                                Theme(
+                                  data: Theme.of(context).copyWith(
+                                    cardColor: Colors.white,
+                                    dataTableTheme: DataTableThemeData(
+                                      headingRowColor:
+                                          MaterialStateProperty.all(
+                                            Colors.grey[200]!,
+                                          ),
+                                      dataRowColor: MaterialStateProperty.all(
+                                        Colors.white,
                                       ),
-                                      SizedBox(width: 12),
-                                      CustomButton(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                            0.15,
-                                        height: 70,
-                                        backgroundColor: Colors.blue,
-                                        fontSize: 24,
-                                        icon: Icons.add_rounded,
-                                        text: 'Tambah Data',
-                                        onPressed: () {},
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                  SizedBox(height: 12),
-                                  PaginatedDataTable(
+                                  child: PaginatedDataTable(
                                     columnSpacing: 0,
                                     horizontalMargin: 0,
                                     sortColumnIndex: _sortColumnIndex,
@@ -179,7 +173,7 @@ class _FeedPageState extends State<FeedPage> {
                                       DataColumn(
                                         label: SizedBox(
                                           width: idW,
-                                          child: Center(
+                                          child: const Center(
                                             child: Text(
                                               'ID',
                                               style: TextStyle(
@@ -193,7 +187,7 @@ class _FeedPageState extends State<FeedPage> {
                                             _sortColumnIndex = columnIndex;
                                             _sortAscending = ascending;
                                             _dataSource.sort(
-                                              (d) => d.feedId,
+                                              (d) => d.roomId,
                                               ascending,
                                             );
                                           });
@@ -201,10 +195,10 @@ class _FeedPageState extends State<FeedPage> {
                                       ),
                                       DataColumn(
                                         label: SizedBox(
-                                          width: feedNameW,
-                                          child: Center(
+                                          width: nameW,
+                                          child: const Center(
                                             child: Text(
-                                              'Nama Pakan',
+                                              'Nama',
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                               ),
@@ -224,23 +218,22 @@ class _FeedPageState extends State<FeedPage> {
                                       ),
                                       DataColumn(
                                         label: SizedBox(
-                                          width: qtyW,
-                                          child: Center(
+                                          width: serialW,
+                                          child: const Center(
                                             child: Text(
-                                              'Jumlah (Kg)',
+                                              'Device Serial',
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                           ),
                                         ),
-                                        numeric: true,
                                         onSort: (columnIndex, ascending) {
                                           setState(() {
                                             _sortColumnIndex = columnIndex;
                                             _sortAscending = ascending;
                                             _dataSource.sort(
-                                              (d) => d.stock,
+                                              (d) => d.deviceSerial,
                                               ascending,
                                             );
                                           });
@@ -249,9 +242,9 @@ class _FeedPageState extends State<FeedPage> {
                                       DataColumn(
                                         label: SizedBox(
                                           width: statusW,
-                                          child: Center(
+                                          child: const Center(
                                             child: Text(
-                                              'Tipe',
+                                              'Status',
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                               ),
@@ -263,7 +256,7 @@ class _FeedPageState extends State<FeedPage> {
                                             _sortColumnIndex = columnIndex;
                                             _sortAscending = ascending;
                                             _dataSource.sort(
-                                              (d) => d.type,
+                                              (d) => d.status,
                                               ascending,
                                             );
                                           });
@@ -271,8 +264,21 @@ class _FeedPageState extends State<FeedPage> {
                                       ),
                                       DataColumn(
                                         label: SizedBox(
+                                          width: cctvW,
+                                          child: const Center(
+                                            child: Text(
+                                              'CCTV',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: SizedBox(
                                           width: actionW,
-                                          child: Center(
+                                          child: const Center(
                                             child: Text(
                                               'Aksi',
                                               style: TextStyle(
@@ -293,8 +299,8 @@ class _FeedPageState extends State<FeedPage> {
                                     },
                                     showCheckboxColumn: false,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           );
                         },
@@ -312,30 +318,32 @@ class _FeedPageState extends State<FeedPage> {
 }
 
 // DataTableSource untuk PaginatedDataTable
-class FeedStockDataTableSource extends DataTableSource {
-  List<FeedModel> stocks;
-  List<FeedModel> filteredStocks;
+class RoomDataTableSource extends DataTableSource {
+  List<RoomModel> rooms;
+  List<RoomModel> filteredRooms;
+  final String Function(List<String>) getCctvNames;
   int _selectedCount = 0;
 
-  FeedStockDataTableSource({required this.stocks})
-    : filteredStocks = List.from(stocks);
+  RoomDataTableSource({required this.rooms, required this.getCctvNames})
+    : filteredRooms = List.from(rooms);
 
   void updateFilter(String searchText) {
     if (searchText.isEmpty) {
-      filteredStocks = List.from(stocks);
+      filteredRooms = List.from(rooms);
     } else {
-      filteredStocks = stocks.where((d) {
-        return d.feedId.toLowerCase().contains(searchText) ||
+      filteredRooms = rooms.where((d) {
+        return d.roomId.toLowerCase().contains(searchText) ||
             d.name.toLowerCase().contains(searchText) ||
-            d.type.toString().contains(searchText) ||
-            d.stock.toString().contains(searchText);
+            d.deviceSerial.toLowerCase().contains(searchText) ||
+            d.status.toLowerCase().contains(searchText) ||
+            getCctvNames(d.cctvIds).toLowerCase().contains(searchText);
       }).toList();
     }
     notifyListeners();
   }
 
-  void sort<T>(Comparable<T> Function(FeedModel d) getField, bool ascending) {
-    filteredStocks.sort((a, b) {
+  void sort<T>(Comparable<T> Function(RoomModel d) getField, bool ascending) {
+    filteredRooms.sort((a, b) {
       final aValue = getField(a);
       final bValue = getField(b);
       return ascending
@@ -347,14 +355,17 @@ class FeedStockDataTableSource extends DataTableSource {
 
   @override
   DataRow getRow(int index) {
-    final d = filteredStocks[index];
+    final room = filteredRooms[index];
     return DataRow.byIndex(
       index: index,
       cells: [
-        DataCell(Center(child: Text(d.feedId))),
-        DataCell(Center(child: Text(d.name))),
-        DataCell(Center(child: Text('${d.stock}'))),
-        DataCell(Center(child: Text(d.type.toString()))),
+        DataCell(Center(child: Text(room.roomId))),
+        DataCell(Center(child: Text(room.name))),
+        DataCell(Center(child: Text(room.deviceSerial))),
+        DataCell(
+          Center(child: Text(room.status == 'used' ? 'Aktif' : 'Tidak Aktif')),
+        ),
+        DataCell(Center(child: Text(getCctvNames(room.cctvIds)))),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -368,9 +379,9 @@ class FeedStockDataTableSource extends DataTableSource {
                   // TODO: aksi detail
                 },
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               IconButton(
-                icon: Icon(Icons.delete, color: Colors.red),
+                icon: const Icon(Icons.delete, color: Colors.red),
                 tooltip: 'Hapus',
                 onPressed: () {
                   // TODO: aksi hapus
@@ -384,7 +395,7 @@ class FeedStockDataTableSource extends DataTableSource {
   }
 
   @override
-  int get rowCount => filteredStocks.length;
+  int get rowCount => filteredRooms.length;
 
   @override
   bool get isRowCountApproximate => false;

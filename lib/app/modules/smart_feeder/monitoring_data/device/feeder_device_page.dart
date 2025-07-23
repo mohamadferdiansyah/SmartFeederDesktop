@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/feeder_device_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/feeder_device_controller.dart';
-import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 
@@ -26,7 +25,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
   @override
   void initState() {
     super.initState();
-    _dataSource = DeviceDataTableSource(devices: _controller.devices);
+    _dataSource = DeviceDataTableSource(devices: _controller.feederDeviceList);
     _searchController.addListener(() {
       setState(() {
         _searchText = _searchController.text.trim().toLowerCase();
@@ -121,19 +120,18 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                           final tableWidth = constraints.maxWidth;
                           // Kolom: [ID, Nama, Tipe, Status, LastActive]
                           // Misal: ID: 15%, Nama: 30%, Tipe: 10%, Status: 10%, LastActive: 25%
-                          final idW = tableWidth * 0.10;
-                          final nameW = tableWidth * 0.30;
-                          final typeW = tableWidth * 0.10;
-                          final statusW = tableWidth * 0.10;
-                          final lastActiveW = tableWidth * 0.20;
-                          final actionW = tableWidth * 0.15;
+                          final idW = tableWidth * 0.20;
+                          final nameW = tableWidth * 0.20;
+                          final typeW = tableWidth * 0.20;
+                          final statusW = tableWidth * 0.15;
+                          final actionW = tableWidth * 0.20;
 
                           return Expanded(
                             child: SingleChildScrollView(
                               child: Column(
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.end, 
+                                    mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       CustomButton(
                                         width:
@@ -210,7 +208,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                                               _sortColumnIndex = columnIndex;
                                               _sortAscending = ascending;
                                               _dataSource.sort(
-                                                (d) => d.id,
+                                                (d) => d.deviceId,
                                                 ascending,
                                               );
                                             });
@@ -256,7 +254,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                                               _sortColumnIndex = columnIndex;
                                               _sortAscending = ascending;
                                               _dataSource.sort(
-                                                (d) => d.id,
+                                                (d) => d.deviceId,
                                                 ascending,
                                               );
                                             });
@@ -302,7 +300,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                                               _sortColumnIndex = columnIndex;
                                               _sortAscending = ascending;
                                               _dataSource.sort(
-                                                (d) => d.id,
+                                                (d) => d.deviceId,
                                                 ascending,
                                               );
                                             });
@@ -348,53 +346,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                                               _sortColumnIndex = columnIndex;
                                               _sortAscending = ascending;
                                               _dataSource.sort(
-                                                (d) => d.id,
-                                                ascending,
-                                              );
-                                            });
-                                          },
-                                        ),
-                                        DataColumn(
-                                          label: MouseRegion(
-                                            onEnter: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  4;
-                                            }),
-                                            onExit: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  null;
-                                            }),
-                                            child: AnimatedContainer(
-                                              duration: Duration(
-                                                milliseconds: 150,
-                                              ),
-                                              width: lastActiveW,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    _dataSource
-                                                            .hoveredColumnIndex ==
-                                                        4
-                                                    ? Colors.blue.withOpacity(
-                                                        0.15,
-                                                      )
-                                                    : Colors.transparent,
-                                              ),
-                                              child: Center(
-                                                child: const Text(
-                                                  'Last Active',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          onSort: (columnIndex, ascending) {
-                                            setState(() {
-                                              _sortColumnIndex = columnIndex;
-                                              _sortAscending = ascending;
-                                              _dataSource.sort(
-                                                (d) => d.id,
+                                                (d) => d.deviceId,
                                                 ascending,
                                               );
                                             });
@@ -450,6 +402,8 @@ class DeviceDataTableSource extends DataTableSource {
   int _selectedCount = 0;
   int? hoveredColumnIndex;
 
+  final FeederDeviceController controller = Get.find<FeederDeviceController>();
+
   DeviceDataTableSource({required this.devices})
     : filteredDevices = List.from(devices);
 
@@ -458,13 +412,10 @@ class DeviceDataTableSource extends DataTableSource {
       filteredDevices = List.from(devices);
     } else {
       filteredDevices = devices.where((d) {
-        return d.id.toLowerCase().contains(searchText) ||
-            d.name.toLowerCase().contains(searchText) ||
+        return d.deviceId.toLowerCase().contains(searchText) ||
+            d.roomId!.toLowerCase().contains(searchText) ||
             d.type.toLowerCase().contains(searchText) ||
-            d.status.toLowerCase().contains(searchText) ||
-            DateFormat(
-              'yyyy-MM-dd HH:mm',
-            ).format(d.lastActive).contains(searchText);
+            d.status.toLowerCase().contains(searchText);
       }).toList();
     }
     notifyListeners();
@@ -490,17 +441,18 @@ class DeviceDataTableSource extends DataTableSource {
     return DataRow.byIndex(
       index: index,
       cells: [
-        DataCell(Center(child: Text(device.id))),
-        DataCell(Center(child: Text(device.name))),
-        DataCell(Center(child: Text(device.type))),
-        DataCell(Center(child: Text(device.status))),
+        DataCell(Center(child: Text(device.deviceId))),
         DataCell(
           Center(
             child: Text(
-              DateFormat('yyyy-MM-dd HH:mm').format(device.lastActive),
+              device.roomId != null
+                  ? controller.getRoomName(device.roomId!)
+                  : 'Tidak ada',
             ),
           ),
         ),
+        DataCell(Center(child: Text(device.type))),
+        DataCell(Center(child: Text(device.status))),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

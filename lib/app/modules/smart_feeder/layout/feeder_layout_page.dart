@@ -10,7 +10,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/fe
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/feeder_device_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/water/water_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/setting/feeder_setting_page.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_feeder/help/help_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/help/feeder_help_page.dart';
 
 class FeederLayoutPage extends StatelessWidget {
   FeederLayoutPage({super.key});
@@ -61,7 +61,7 @@ class FeederLayoutPage extends StatelessWidget {
     SidebarMenuItem(
       title: "Bantuan",
       icon: Icons.help_outline_rounded,
-      page: HelpPage(),
+      page: FeederHelpPage(),
     ),
   ];
 

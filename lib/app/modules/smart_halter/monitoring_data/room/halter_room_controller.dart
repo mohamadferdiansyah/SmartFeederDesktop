@@ -1,130 +1,8 @@
 import 'package:get/get.dart';
-import 'package:smart_feeder_desktop/app/models/feeder_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/cctv_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 
-class FeederDeviceController extends GetxController {
-  final RxList<FeederDeviceModel> feederDeviceList = <FeederDeviceModel>[
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223005',
-      roomId: 'R1',
-      status: 'on',
-      type: 'actuator',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223006',
-      roomId: 'R2',
-      status: 'off',
-      type: 'sensor',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223007',
-      roomId: 'R3',
-      status: 'on',
-      type: 'gateway',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223008',
-      roomId: 'R4',
-      status: 'off',
-      type: 'actuator',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223009',
-      roomId: 'R5',
-      status: 'on',
-      type: 'sensor',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223010',
-      roomId: 'R6',
-      status: 'off',
-      type: 'gateway',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223011',
-      roomId: 'R7',
-      status: 'on',
-      type: 'actuator',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223012',
-      roomId: 'R8',
-      status: 'off',
-      type: 'sensor',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223013',
-      roomId: 'R9',
-      status: 'on',
-      type: 'gateway',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223014',
-      roomId: 'R10',
-      status: 'off',
-      type: 'actuator',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223015',
-      roomId: 'R11',
-      status: 'on',
-      type: 'sensor',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223016',
-      roomId: 'R12',
-      status: 'off',
-      type: 'gateway',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223017',
-      roomId: 'R13',
-      status: 'on',
-      type: 'actuator',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223018',
-      roomId: 'R14',
-      status: 'off',
-      type: 'sensor',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223019',
-      roomId: 'R15',
-      status: 'on',
-      type: 'gateway',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223020',
-      roomId: 'R16',
-      status: 'off',
-      type: 'actuator',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223021',
-      roomId: 'R17',
-      status: 'on',
-      type: 'sensor',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223022',
-      roomId: 'R18',
-      status: 'off',
-      type: 'gateway',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223023',
-      roomId: 'R19',
-      status: 'on',
-      type: 'actuator',
-    ),
-    FeederDeviceModel(
-      deviceId: 'SFIPB1223024',
-      roomId: 'R20',
-      status: 'off',
-      type: 'sensor',
-    ),
-  ].obs;
+class HalterRoomController extends GetxController {
 
   final RxList<RoomModel> roomList = <RoomModel>[
     // Stable 1
@@ -348,7 +226,156 @@ class FeederDeviceController extends GetxController {
     ),
   ].obs;
 
-  String getRoomName(String roomId) {
-    return roomList.firstWhere((room) => room.roomId == roomId).name;
+  final RxList<CctvModel> cctvList = <CctvModel>[
+    CctvModel(
+      cctvId: 'CCTV1',
+      ipAddress: '172.19.0.193',
+      port: 8000,
+      username: 'admin',
+      password: 'fkh12345',
+    ),
+    CctvModel(
+      cctvId: 'CCTV2',
+      ipAddress: '172.19.0.194',
+      port: 8001,
+      username: 'admin2',
+      password: 'fkh12346',
+    ),
+    CctvModel(
+      cctvId: 'CCTV3',
+      ipAddress: '172.19.0.195',
+      port: 8002,
+      username: 'admin3',
+      password: 'fkh12347',
+    ),
+    CctvModel(
+      cctvId: 'CCTV4',
+      ipAddress: '172.19.0.196',
+      port: 8003,
+      username: 'admin4',
+      password: 'fkh12348',
+    ),
+    CctvModel(
+      cctvId: 'CCTV5',
+      ipAddress: '172.19.0.197',
+      port: 8004,
+      username: 'admin5',
+      password: 'fkh12349',
+    ),
+    CctvModel(
+      cctvId: 'CCTV6',
+      ipAddress: '172.19.0.198',
+      port: 8005,
+      username: 'admin6',
+      password: 'fkh12350',
+    ),
+    CctvModel(
+      cctvId: 'CCTV7',
+      ipAddress: '172.19.0.199',
+      port: 8006,
+      username: 'admin7',
+      password: 'fkh12351',
+    ),
+    CctvModel(
+      cctvId: 'CCTV8',
+      ipAddress: '172.19.0.200',
+      port: 8007,
+      username: 'admin8',
+      password: 'fkh12352',
+    ),
+    CctvModel(
+      cctvId: 'CCTV9',
+      ipAddress: '172.19.0.201',
+      port: 8008,
+      username: 'admin9',
+      password: 'fkh12353',
+    ),
+    CctvModel(
+      cctvId: 'CCTV10',
+      ipAddress: '172.19.0.202',
+      port: 8009,
+      username: 'admin10',
+      password: 'fkh12354',
+    ),
+    CctvModel(
+      cctvId: 'CCTV11',
+      ipAddress: '172.19.0.203',
+      port: 8010,
+      username: 'admin11',
+      password: 'fkh12355',
+    ),
+    CctvModel(
+      cctvId: 'CCTV12',
+      ipAddress: '172.19.0.204',
+      port: 8011,
+      username: 'admin12',
+      password: 'fkh12356',
+    ),
+    CctvModel(
+      cctvId: 'CCTV13',
+      ipAddress: '172.19.0.205',
+      port: 8012,
+      username: 'admin13',
+      password: 'fkh12357',
+    ),
+    CctvModel(
+      cctvId: 'CCTV14',
+      ipAddress: '172.19.0.206',
+      port: 8013,
+      username: 'admin14',
+      password: 'fkh12358',
+    ),
+    CctvModel(
+      cctvId: 'CCTV15',
+      ipAddress: '172.19.0.207',
+      port: 8014,
+      username: 'admin15',
+      password: 'fkh12359',
+    ),
+    CctvModel(
+      cctvId: 'CCTV16',
+      ipAddress: '172.19.0.208',
+      port: 8015,
+      username: 'admin16',
+      password: 'fkh12360',
+    ),
+    CctvModel(
+      cctvId: 'CCTV17',
+      ipAddress: '172.19.0.209',
+      port: 8016,
+      username: 'admin17',
+      password: 'fkh12361',
+    ),
+    CctvModel(
+      cctvId: 'CCTV18',
+      ipAddress: '172.19.0.210',
+      port: 8017,
+      username: 'admin18',
+      password: 'fkh12362',
+    ),
+    CctvModel(
+      cctvId: 'CCTV19',
+      ipAddress: '172.19.0.211',
+      port: 8018,
+      username: 'admin19',
+      password: 'fkh12363',
+    ),
+    CctvModel(
+      cctvId: 'CCTV20',
+      ipAddress: '172.19.0.212',
+      port: 8019,
+      username: 'admin20',
+      password: 'fkh12364',
+    ),
+  ].obs;
+  String getCctvNames(List<String> cctvIds) {
+    final names = cctvIds.map((id) {
+      final cctv = cctvList.firstWhereOrNull((c) => c.cctvId == id);
+      if (cctv != null) {
+        return '${cctv.ipAddress} (${cctv.cctvId})';
+      }
+      return id;
+    }).toList();
+    return names.join(' / ');
   }
 }

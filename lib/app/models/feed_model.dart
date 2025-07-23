@@ -1,15 +1,13 @@
 class FeedModel {
-  final String id;
-  final String feedName;
-  final int quantity; // satuan: Kg
-  final DateTime dateIn;
-  final String status; // misal: "Masuk", "Keluar", "Rusak", etc
+  final String feedId;
+  final String name;
+  final String type;
+  final double stock; // kilogram
 
   FeedModel({
-    required this.id,
-    required this.feedName,
-    required this.quantity,
-    required this.dateIn,
-    required this.status,
+    required this.feedId,
+    required this.name,
+    required this.type,
+    required this.stock,
   });
 }

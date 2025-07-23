@@ -69,11 +69,38 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                         child: Row(
                           children: [
                             Text(
-                              'Daftar Kuda Kandang A',
+                              'Daftar Kuda',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Spacer(),
+                            Obx(
+                              () => Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  controller.getStableNameById(
+                                    controller.selectedStableId.value,
+                                  ),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -85,12 +112,24 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                     child: Scrollbar(
                       thumbVisibility: true,
                       child: ListView.builder(
-                        itemCount: controller.stableList.length,
+                        itemCount: controller.filteredRoomList.length,
                         itemBuilder: (context, index) {
-                          final stable = controller.stableList[index];
+                          final room = controller.filteredRoomList[index];
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 16.0),
-                            child: CustomHorseCard(),
+                            child: CustomHorseCard(
+                              batteryPercent: 86,
+                              cctvActive: controller.isCctvActive(room.roomId),
+                              deviceActive: controller.isHalterDeviceActive(
+                                room.roomId,
+                              ),
+                              horseName: controller.getHorseNameByRoomId(
+                                room.roomId,
+                              ),
+                              isRoomFilled: controller.isRoomFilled(
+                                room.roomId,
+                              ),
+                            ),
                           );
                         },
                       ),

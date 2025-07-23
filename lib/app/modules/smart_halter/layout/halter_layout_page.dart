@@ -5,9 +5,8 @@ import 'package:smart_feeder_desktop/app/modules/smart_halter/help/halter_help_p
 import 'package:smart_feeder_desktop/app/modules/smart_halter/layout/halter_layout_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/camera/halter_camera_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/device/halter_device_page.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/feed/halter_feed_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/horse/halter_horse_page.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/stable/halter_stable_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/room/halter_room_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/raw_data/halter_raw_data_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/sync/halter_sync_page.dart';
@@ -34,16 +33,12 @@ class HalterLayoutPage extends StatelessWidget {
           page: HalterHorsePage(),
         ),
         SidebarMenuItem(
-          title: "Data Pakan",
-          page: HalterFeedPage()
-        ),
-        SidebarMenuItem(
           title: "Data Iot Node Halter",
           page: HalterDevicePage()
         ),
         SidebarMenuItem(
           title: "Data Ruang",
-          page: HalterStablePage()
+          page: HalterRoomPage()
         ),
         SidebarMenuItem(
           title: "Data CCTV",

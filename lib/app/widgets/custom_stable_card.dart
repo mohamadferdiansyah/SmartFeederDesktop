@@ -9,7 +9,7 @@ class CustomStableCard extends StatelessWidget {
   final String scheduleText;
   final bool isActive;
   final RxDouble remainingWater; // <-- RxDouble
-  final RxDouble remainingFeed;  // <-- RxDouble
+  final RxDouble remainingFeed; // <-- RxDouble
   final String lastFeedText;
   final VoidCallback onSelect;
   final Color? primaryColor;
@@ -79,8 +79,8 @@ class CustomStableCard extends StatelessWidget {
                   color: scheduleText == 'Penjadwalan'
                       ? Colors.teal
                       : scheduleText == 'Otomatis'
-                          ? Colors.blue
-                          : Colors.orange,
+                      ? Colors.blue
+                      : Colors.orange,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -115,54 +115,58 @@ class CustomStableCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           // === Obx untuk Air ===
-          Obx(() => RichText(
-                text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                  ),
-                  children: [
-                    const TextSpan(text: 'Tersedia Air: '),
-                    TextSpan(
-                      text: '${remainingWater.value.toStringAsFixed(1)}L',
-                      style: TextStyle(
-                        fontSize: 27,
-                        fontWeight: FontWeight.bold,
-                        color: primaryColor ?? Colors.blue,
-                      ),
-                    ),
-                  ],
+          Obx(
+            () => RichText(
+              text: TextSpan(
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
                 ),
-              )),
+                children: [
+                  const TextSpan(text: 'Tersedia Air: '),
+                  TextSpan(
+                    text: '${remainingWater.value.toStringAsFixed(1)}L',
+                    style: TextStyle(
+                      fontSize: 27,
+                      fontWeight: FontWeight.bold,
+                      color: primaryColor ?? Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           // === Obx untuk Pakan ===
-          Obx(() => RichText(
-                text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                  ),
-                  children: [
-                    const TextSpan(text: 'Tersedia Pakan: '),
-                    TextSpan(
-                      text: '${remainingFeed.value.toStringAsFixed(1)}g',
-                      style: const TextStyle(
-                        fontSize: 27,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepOrange,
-                      ),
-                    ),
-                  ],
+          Obx(
+            () => RichText(
+              text: TextSpan(
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
                 ),
-              )),
+                children: [
+                  const TextSpan(text: 'Tersedia Pakan: '),
+                  TextSpan(
+                    text: '${remainingFeed.value.toStringAsFixed(1)}g',
+                    style: const TextStyle(
+                      fontSize: 27,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepOrange,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           Text(
             'Pemberian Terakhir: $lastFeedText',
             style: const TextStyle(fontSize: 16, color: Colors.black54),
           ),
           const SizedBox(height: 16),
           CustomButton(
-            text: 'Pilih Kandang',
+            text: 'Pilih Ruangan',
             onPressed: onSelect,
             backgroundColor: primaryColor ?? AppColors.primary,
             textColor: Colors.white,

@@ -26,9 +26,8 @@ import 'package:smart_feeder_desktop/app/modules/smart_halter/layout/halter_layo
 import 'package:smart_feeder_desktop/app/modules/smart_halter/layout/halter_layout_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/camera/halter_camera_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/device/halter_device_page.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/feed/halter_feed_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/horse/halter_horse_page.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/stable/halter_stable_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/room/halter_room_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/raw_data/halter_raw_data_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/sync/halter_sync_page.dart';
@@ -76,9 +75,8 @@ class AppPages {
       children: [
         GetPage(name: '/dashboard', page: () => HalterDashboardPage(), binding: HalterDashboardBinding()),
         GetPage(name: '/horse', page: () => HalterHorsePage()),
-        GetPage(name: '/feed', page: () => HalterFeedPage()),
         GetPage(name: '/device', page: () => HalterDevicePage()),
-        GetPage(name: '/stable', page: () => HalterStablePage()),
+        GetPage(name: '/stable', page: () => HalterRoomPage()),
         GetPage(name: '/camera', page: () => HalterCameraPage()),
         GetPage(name: '/raw-data', page: () => HalterRawDataPage()),
         GetPage(name: '/setting', page: () => HalterSettingPage()),

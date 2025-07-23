@@ -1,25 +1,20 @@
 class HistoryEntryModel {
-  final int stableIndex; // atau String stableId, sesuaikan dengan model stable kamu
-  final DateTime datetime;
-  final double water;
-  final double feed;
-  final String scheduleText;
+  final String historyId;
+  final String stableId;
+  final String roomId;
+  final DateTime date;
+  final String type;
+  final double feed;  // kg
+  final double water; // liter
 
   HistoryEntryModel({
-    required this.stableIndex,
-    required this.datetime,
-    required this.water,
+    required this.historyId,
+    required this.stableId,
+    required this.roomId,
+    required this.date,
+    required this.type,
     required this.feed,
-    required this.scheduleText,
+    required this.water,
   });
 
-  factory HistoryEntryModel.fromMap(Map<String, dynamic> map) {
-    return HistoryEntryModel(
-      stableIndex: map['stableIndex'],
-      datetime: map['datetime'],
-      water: map['water'],
-      feed: map['feed'],
-      scheduleText: map['scheduleText'],
-    );
-  }
 }

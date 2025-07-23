@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/models/water_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/water/water_contorller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
@@ -26,7 +25,7 @@ class _WaterPageState extends State<WaterPage> {
   @override
   void initState() {
     super.initState();
-    _dataSource = WaterStockDataTableSource(stocks: _controller.waterStocks);
+    _dataSource = WaterStockDataTableSource(stocks: _controller.waterList);
     _searchController.addListener(() {
       setState(() {
         _searchText = _searchController.text.trim().toLowerCase();
@@ -120,12 +119,10 @@ class _WaterPageState extends State<WaterPage> {
                         builder: (context, constraints) {
                           final tableWidth = constraints.maxWidth;
                           // Kolom: [ID, Sumber Air, Volume, Tanggal Masuk, Status, Aksi]
-                          final idW = tableWidth * 0.10;
+                          final idW = tableWidth * 0.20;
                           final sourceNameW = tableWidth * 0.25;
-                          final volumeW = tableWidth * 0.12;
-                          final dateInW = tableWidth * 0.20;
-                          final statusW = tableWidth * 0.10;
-                          final actionW = tableWidth * 0.20;
+                          final volumeW = tableWidth * 0.25;
+                          final actionW = tableWidth * 0.26;
 
                           return SingleChildScrollView(
                             child: Theme(
@@ -194,7 +191,7 @@ class _WaterPageState extends State<WaterPage> {
                                             _sortColumnIndex = columnIndex;
                                             _sortAscending = ascending;
                                             _dataSource.sort(
-                                              (d) => d.id,
+                                              (d) => d.waterId,
                                               ascending,
                                             );
                                           });
@@ -205,7 +202,7 @@ class _WaterPageState extends State<WaterPage> {
                                           width: sourceNameW,
                                           child: Center(
                                             child: Text(
-                                              'Sumber',
+                                              'Nama',
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                               ),
@@ -217,7 +214,7 @@ class _WaterPageState extends State<WaterPage> {
                                             _sortColumnIndex = columnIndex;
                                             _sortAscending = ascending;
                                             _dataSource.sort(
-                                              (d) => d.sourceName,
+                                              (d) => d.name,
                                               ascending,
                                             );
                                           });
@@ -241,53 +238,7 @@ class _WaterPageState extends State<WaterPage> {
                                             _sortColumnIndex = columnIndex;
                                             _sortAscending = ascending;
                                             _dataSource.sort(
-                                              (d) => d.volume,
-                                              ascending,
-                                            );
-                                          });
-                                        },
-                                      ),
-                                      DataColumn(
-                                        label: SizedBox(
-                                          width: dateInW,
-                                          child: Center(
-                                            child: Text(
-                                              'Tanggal Masuk',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        onSort: (columnIndex, ascending) {
-                                          setState(() {
-                                            _sortColumnIndex = columnIndex;
-                                            _sortAscending = ascending;
-                                            _dataSource.sort(
-                                              (d) => d.dateIn,
-                                              ascending,
-                                            );
-                                          });
-                                        },
-                                      ),
-                                      DataColumn(
-                                        label: SizedBox(
-                                          width: statusW,
-                                          child: Center(
-                                            child: Text(
-                                              'Status',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        onSort: (columnIndex, ascending) {
-                                          setState(() {
-                                            _sortColumnIndex = columnIndex;
-                                            _sortAscending = ascending;
-                                            _dataSource.sort(
-                                              (d) => d.status,
+                                              (d) => d.stock,
                                               ascending,
                                             );
                                           });
@@ -349,13 +300,9 @@ class WaterStockDataTableSource extends DataTableSource {
       filteredStocks = List.from(stocks);
     } else {
       filteredStocks = stocks.where((d) {
-        return d.id.toLowerCase().contains(searchText) ||
-            d.sourceName.toLowerCase().contains(searchText) ||
-            d.status.toLowerCase().contains(searchText) ||
-            d.volume.toString().contains(searchText) ||
-            DateFormat(
-              'yyyy-MM-dd HH:mm',
-            ).format(d.dateIn).contains(searchText);
+        return d.waterId.toLowerCase().contains(searchText) ||
+            d.name.toLowerCase().contains(searchText) ||
+            d.stock.toString().contains(searchText);
       }).toList();
     }
     notifyListeners();
@@ -378,13 +325,9 @@ class WaterStockDataTableSource extends DataTableSource {
     return DataRow.byIndex(
       index: index,
       cells: [
-        DataCell(Center(child: Text(d.id))),
-        DataCell(Center(child: Text(d.sourceName))),
-        DataCell(Center(child: Text('${d.volume}'))),
-        DataCell(
-          Center(child: Text(DateFormat('yyyy-MM-dd HH:mm').format(d.dateIn))),
-        ),
-        DataCell(Center(child: Text(d.status))),
+        DataCell(Center(child: Text(d.waterId))),
+        DataCell(Center(child: Text(d.name))),
+        DataCell(Center(child: Text('${d.stock}'))),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

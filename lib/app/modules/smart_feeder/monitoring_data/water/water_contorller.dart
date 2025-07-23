@@ -2,77 +2,26 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/models/water_model.dart';
 
 class WaterContorller extends GetxController {
-  final RxList<WaterModel> waterStocks = <WaterModel>[
-    WaterModel(
-      id: 'WS001',
-      sourceName: 'Tandon Utama',
-      volume: 1500.0,
-      dateIn: DateTime(2025, 7, 20, 8, 30),
-      status: 'Masuk',
-    ),
-    WaterModel(
-      id: 'WS002',
-      sourceName: 'Sumur Bor',
-      volume: 1000.0,
-      dateIn: DateTime(2025, 7, 20, 14, 00),
-      status: 'Masuk',
-    ),
-    WaterModel(
-      id: 'WS003',
-      sourceName: 'Tandon Utama',
-      volume: 500.0,
-      dateIn: DateTime(2025, 7, 21, 9, 10),
-      status: 'Keluar',
-    ),
-    WaterModel(
-      id: 'WS004',
-      sourceName: 'Sumur Bor',
-      volume: 800.0,
-      dateIn: DateTime(2025, 7, 21, 15, 20),
-      status: 'Masuk',
-    ),
-    WaterModel(
-      id: 'WS005',
-      sourceName: 'Tandon Cadangan',
-      volume: 300.0,
-      dateIn: DateTime(2025, 7, 22, 10, 50),
-      status: 'Masuk',
-    ),
-    WaterModel(
-      id: 'WS006',
-      sourceName: 'Tandon Utama',
-      volume: 200.0,
-      dateIn: DateTime(2025, 7, 22, 16, 15),
-      status: 'Rusak',
-    ),
-    WaterModel(
-      id: 'WS007',
-      sourceName: 'Sumur Bor',
-      volume: 900.0,
-      dateIn: DateTime(2025, 7, 23, 8, 45),
-      status: 'Masuk',
-    ),
-    WaterModel(
-      id: 'WS008',
-      sourceName: 'Tandon Cadangan',
-      volume: 100.0,
-      dateIn: DateTime(2025, 7, 23, 17, 00),
-      status: 'Keluar',
-    ),
-    WaterModel(
-      id: 'WS009',
-      sourceName: 'Tandon Utama',
-      volume: 1200.0,
-      dateIn: DateTime(2025, 7, 24, 7, 30),
-      status: 'Masuk',
-    ),
-    WaterModel(
-      id: 'WS010',
-      sourceName: 'Sumur Bor',
-      volume: 600.0,
-      dateIn: DateTime(2025, 7, 24, 19, 27),
-      status: 'Masuk',
-    ),
-    // Tambahkan lebih banyak data sesuai kebutuhan
+  final RxList<WaterModel> waterList = <WaterModel>[
+    WaterModel(waterId: 'W1', name: 'Tandon A', stock: 100.0),
+    WaterModel(waterId: 'W2', name: 'Tandon B', stock: 80.0),
+    WaterModel(waterId: 'W3', name: 'Tandon C', stock: 90.0),
+    WaterModel(waterId: 'W4', name: 'Tandon D', stock: 70.0),
+    WaterModel(waterId: 'W5', name: 'Tandon E', stock: 60.0),
+    WaterModel(waterId: 'W6', name: 'Tandon F', stock: 85.0),
+    WaterModel(waterId: 'W7', name: 'Tandon G', stock: 98.0),
+    WaterModel(waterId: 'W8', name: 'Tandon H', stock: 120.0),
+    WaterModel(waterId: 'W9', name: 'Tandon I', stock: 88.0),
+    WaterModel(waterId: 'W10', name: 'Tandon J', stock: 75.0),
+    WaterModel(waterId: 'W11', name: 'Tandon K', stock: 110.0),
+    WaterModel(waterId: 'W12', name: 'Tandon L', stock: 95.0),
+    WaterModel(waterId: 'W13', name: 'Tandon M', stock: 78.0),
+    WaterModel(waterId: 'W14', name: 'Tandon N', stock: 104.0),
+    WaterModel(waterId: 'W15', name: 'Tandon O', stock: 115.0),
+    WaterModel(waterId: 'W16', name: 'Tandon P', stock: 99.0),
+    WaterModel(waterId: 'W17', name: 'Tandon Q', stock: 93.0),
+    WaterModel(waterId: 'W18', name: 'Tandon R', stock: 79.0),
+    WaterModel(waterId: 'W19', name: 'Tandon S', stock: 85.0),
+    WaterModel(waterId: 'W20', name: 'Tandon T', stock: 102.0),
   ].obs;
 }

@@ -2,6 +2,10 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashbboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/layout/halter_layout_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/camera/halter_camera_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/device/halter_device_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/horse/halter_horse_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/room/halter_room_controller.dart';
 
 class HalterLayoutBinding extends Bindings {
   @override
@@ -9,5 +13,9 @@ class HalterLayoutBinding extends Bindings {
     Get.lazyPut<HalterDashboardPage>(() => HalterDashboardPage());
     Get.lazyPut<HalterLayoutController>(() => HalterLayoutController());
     Get.lazyPut<HalterDashboardController>(() => HalterDashboardController());
+    Get.lazyPut<HalterRoomController>(() => HalterRoomController());
+    Get.lazyPut<HalterDeviceController>(() => HalterDeviceController());
+    Get.lazyPut<HalterCameraController>(() => HalterCameraController());
+    Get.lazyPut<HalterHorseController>(() => HalterHorseController());
   }
 }

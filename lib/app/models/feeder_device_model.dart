@@ -1,15 +1,14 @@
+
 class FeederDeviceModel {
-  final String id;
-  final String name;
-  final String type;
+  final String deviceId;
+  final String? roomId; // relasi ke room
   final String status;
-  final DateTime lastActive;
+  final String type;
 
   FeederDeviceModel({
-    required this.id,
-    required this.name,
-    required this.type,
+    required this.deviceId,
+    this.roomId,
     required this.status,
-    required this.lastActive,
+    required this.type,
   });
 }

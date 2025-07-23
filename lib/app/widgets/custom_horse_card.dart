@@ -3,7 +3,24 @@ import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 
 class CustomHorseCard extends StatelessWidget {
-  const CustomHorseCard({super.key});
+  final String horseName;
+  final bool isRoomFilled;
+  final int batteryPercent;
+  final bool deviceActive;
+  final bool cctvActive;
+  final VoidCallback? onSelectHorse;
+  final VoidCallback? onTapCctv;
+
+  const CustomHorseCard({
+    super.key,
+    required this.horseName,
+    required this.isRoomFilled,
+    required this.batteryPercent,
+    required this.deviceActive,
+    required this.cctvActive,
+    this.onSelectHorse,
+    this.onTapCctv,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +55,7 @@ class CustomHorseCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Kuda 1',
+                horseName,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -46,18 +63,20 @@ class CustomHorseCard extends StatelessWidget {
               ),
               const Spacer(),
               Tooltip(
-                message: 'Ruangan Terisi Kuda',
+                message: isRoomFilled
+                    ? 'Ruangan Terisi Kuda'
+                    : 'Ruangan Kosong',
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     vertical: 7,
                     horizontal: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.green,
+                    color: isRoomFilled ? Colors.green : Colors.red,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
-                    Icons.check_rounded,
+                    isRoomFilled ? Icons.check_rounded : Icons.close_rounded,
                     color: Colors.white,
                     size: 20,
                   ),
@@ -72,11 +91,11 @@ class CustomHorseCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.green,
+                    color: batteryPercent > 20 ? Colors.green : Colors.red,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '87%',
+                    '$batteryPercent%',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -94,11 +113,11 @@ class CustomHorseCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.blue,
+                    color: deviceActive ? Colors.blue : Colors.red,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'Aktif',
+                    deviceActive ? 'Aktif' : 'Mati',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -115,10 +134,10 @@ class CustomHorseCard extends StatelessWidget {
               // Tombol utama
               Expanded(
                 child: SizedBox(
-                  height: 48, // tinggi konsisten
+                  height: 48,
                   child: CustomButton(
                     text: 'Pilih Kuda',
-                    onPressed: () {},
+                    onPressed: onSelectHorse ?? () {},
                     backgroundColor: AppColors.primary,
                     textColor: Colors.white,
                     borderRadius: 10,
@@ -131,16 +150,16 @@ class CustomHorseCard extends StatelessWidget {
               const SizedBox(width: 8),
               // Tombol icon kamera
               Tooltip(
-                message: 'CCTV Aktif',
+                message: cctvActive ? 'CCTV Aktif' : 'CCTV Tidak Aktif',
                 child: SizedBox(
-                  height: 48, // samakan tinggi
-                  width: 48, // biar kotak
+                  height: 48,
+                  width: 48,
                   child: Material(
-                    color: Colors.green,
+                    color: cctvActive ? Colors.green : Colors.red,
                     borderRadius: BorderRadius.circular(10),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(10),
-                      onTap: () {},
+                      onTap: onTapCctv,
                       child: Center(
                         child: Icon(
                           Icons.videocam_rounded,

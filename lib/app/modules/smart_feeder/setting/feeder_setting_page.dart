@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 
@@ -10,6 +12,8 @@ class FeederSettingPage extends StatefulWidget {
 }
 
 class FeederSettingPageState extends State<FeederSettingPage> {
+  final FeederDashboardController controller = Get.find();
+
   // Dummy controllers
   final TextEditingController _cloudUrlController = TextEditingController(
     text: 'https://smarthalter.ipb.ac.id',
@@ -17,9 +21,10 @@ class FeederSettingPageState extends State<FeederSettingPage> {
   final TextEditingController _loraPortController = TextEditingController(
     text: 'COM3',
   );
+
   String? _selectedJenisPengiriman = 'LoRa';
-  bool _cloudConnected = true;
-  bool _loraConnected = false;
+  final bool _cloudConnected = true;
+  final bool _loraConnected = false;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +32,7 @@ class FeederSettingPageState extends State<FeederSettingPage> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: CustomCard(
-        title: 'Pengaturan Perangkat',
+        title: 'Pengaturan Aplikasi Feeder',
         content: Column(
           children: [
             SingleChildScrollView(
@@ -262,6 +267,87 @@ class FeederSettingPageState extends State<FeederSettingPage> {
                           'Not Connected',
                           style: const TextStyle(
                             color: Colors.orange,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.right,
+                        ),
+                      ],
+                    ),
+                  ),
+                  CustomCard(
+                    title: 'Pilih Kandang',
+                    headerColor: AppColors.primary,
+                    headerHeight: 50,
+                    titleFontSize: 18,
+                    width: MediaQuery.of(context).size.width * 0.25,
+                    height: MediaQuery.of(context).size.height * 0.27,
+                    borderRadius: 16,
+                    scrollable: false,
+                    content: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text('Kandang'),
+                        const SizedBox(height: 4),
+                        Obx(
+                          () => DropdownButtonFormField<String>(
+                            value: controller.selectedStableId.value,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                            items: controller.stableList
+                                .map(
+                                  (stable) => DropdownMenuItem(
+                                    value: stable.stableId,
+                                    child: Text(stable.name),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (val) {
+                              print('Selected stable: $val');
+                              if (val != null) {
+                                controller.setSelectedStableId(val);
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 40,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Kandang berhasil disimpan!'),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              'Simpan',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        LinearProgressIndicator(
+                          value: 1, // contoh dummy
+                          minHeight: 8,
+                          color: Colors.green,
+                          backgroundColor: Colors.grey[300],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Connected',
+                          style: const TextStyle(
+                            color: Colors.green,
                             fontWeight: FontWeight.bold,
                           ),
                           textAlign: TextAlign.right,

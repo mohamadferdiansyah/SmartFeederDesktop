@@ -27,7 +27,7 @@ class _FeederHistoryPageState extends State<FeederHistoryPage> {
   @override
   void initState() {
     super.initState();
-    _dataSource = HistoryDataTableSource(entries: controller.historyList);
+    _dataSource = HistoryDataTableSource(entries: controller.historyEntryList);
     _searchController.addListener(() {
       setState(() {
         _searchText = _searchController.text.trim().toLowerCase();
@@ -121,12 +121,12 @@ class _FeederHistoryPageState extends State<FeederHistoryPage> {
                         builder: (context, constraints) {
                           final tableWidth = constraints.maxWidth;
                           // Kolom: [Kandang, Tanggal, Jadwal, Air, Pakan]
-                          final stableW = tableWidth * 0.15;
+                          final stableW = tableWidth * 0.10;
                           final dateW = tableWidth * 0.20;
-                          final scheduleW = tableWidth * 0.18;
+                          final scheduleW = tableWidth * 0.15;
                           final waterW = tableWidth * 0.10;
                           final feedW = tableWidth * 0.10;
-                          final actionW = tableWidth * 0.20;
+                          final actionW = tableWidth * 0.17;
 
                           return Expanded(
                             child: SingleChildScrollView(
@@ -208,7 +208,53 @@ class _FeederHistoryPageState extends State<FeederHistoryPage> {
                                               _sortColumnIndex = columnIndex;
                                               _sortAscending = ascending;
                                               _dataSource.sort(
-                                                (e) => e.stableIndex,
+                                                (e) => e.stableId,
+                                                ascending,
+                                              );
+                                            });
+                                          },
+                                        ),
+                                        DataColumn(
+                                          label: MouseRegion(
+                                            onEnter: (_) => setState(() {
+                                              _dataSource.hoveredColumnIndex =
+                                                  0;
+                                            }),
+                                            onExit: (_) => setState(() {
+                                              _dataSource.hoveredColumnIndex =
+                                                  null;
+                                            }),
+                                            child: AnimatedContainer(
+                                              duration: Duration(
+                                                milliseconds: 150,
+                                              ),
+                                              width: stableW,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    _dataSource
+                                                            .hoveredColumnIndex ==
+                                                        0
+                                                    ? Colors.blue.withOpacity(
+                                                        0.15,
+                                                      )
+                                                    : Colors.transparent,
+                                              ),
+                                              child: Center(
+                                                child: const Text(
+                                                  'Ruangan',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          onSort: (columnIndex, ascending) {
+                                            setState(() {
+                                              _sortColumnIndex = columnIndex;
+                                              _sortAscending = ascending;
+                                              _dataSource.sort(
+                                                (e) => e.roomId,
                                                 ascending,
                                               );
                                             });
@@ -254,7 +300,7 @@ class _FeederHistoryPageState extends State<FeederHistoryPage> {
                                               _sortColumnIndex = columnIndex;
                                               _sortAscending = ascending;
                                               _dataSource.sort(
-                                                (e) => e.datetime,
+                                                (e) => e.date,
                                                 ascending,
                                               );
                                             });
@@ -300,7 +346,7 @@ class _FeederHistoryPageState extends State<FeederHistoryPage> {
                                               _sortColumnIndex = columnIndex;
                                               _sortAscending = ascending;
                                               _dataSource.sort(
-                                                (e) => e.scheduleText,
+                                                (e) => e.type,
                                                 ascending,
                                               );
                                             });
@@ -447,6 +493,7 @@ class HistoryDataTableSource extends DataTableSource {
   List<HistoryEntryModel> filteredEntries;
   int _selectedCount = 0;
   int? hoveredColumnIndex;
+  FeederHistoryController controller = Get.find<FeederHistoryController>();
 
   HistoryDataTableSource({required this.entries})
     : filteredEntries = List.from(entries);
@@ -458,11 +505,12 @@ class HistoryDataTableSource extends DataTableSource {
       filteredEntries = entries.where((e) {
         return
         // Kamu bisa ganti sesuai kebutuhan search
-        ('Kandang ${e.stableIndex + 1}'.toLowerCase().contains(searchText)) ||
-            e.scheduleText.toLowerCase().contains(searchText) ||
+        e.stableId.toLowerCase().contains(searchText) ||
+            e.roomId.toLowerCase().contains(searchText) ||
             DateFormat(
               'yyyy-MM-dd HH:mm',
-            ).format(e.datetime).contains(searchText) ||
+            ).format(e.date).contains(searchText) ||
+            e.type.toString().contains(searchText) ||
             e.water.toString().contains(searchText) ||
             e.feed.toString().contains(searchText);
       }).toList();
@@ -490,13 +538,14 @@ class HistoryDataTableSource extends DataTableSource {
     return DataRow.byIndex(
       index: index,
       cells: [
-        DataCell(Center(child: Text('Kandang ${entry.stableIndex + 1}'))),
+        DataCell(Center(child: Text(controller.getStableName(entry.stableId)))),
+        DataCell(Center(child: Text(controller.getRoomName(entry.roomId)))),
         DataCell(
           Center(
-            child: Text(DateFormat('yyyy-MM-dd HH:mm').format(entry.datetime)),
+            child: Text(DateFormat('yyyy-MM-dd HH:mm').format(entry.date)),
           ),
         ),
-        DataCell(Center(child: Text(entry.scheduleText))),
+        DataCell(Center(child: Text(entry.type.toString()))),
         DataCell(Center(child: Text(entry.water.toStringAsFixed(1)))),
         DataCell(Center(child: Text(entry.feed.toStringAsFixed(1)))),
         DataCell(

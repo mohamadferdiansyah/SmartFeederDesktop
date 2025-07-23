@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/control_schedule/control_schedule_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
-import 'package:smart_feeder_desktop/app/models/stable_model.dart';
 
 class ControlSchedulePage extends StatefulWidget {
-  final int stableSelected;
+  final int roomSelected;
 
-  const ControlSchedulePage({super.key, this.stableSelected = 0});
+  const ControlSchedulePage({super.key, this.roomSelected = 0});
 
   @override
   State<ControlSchedulePage> createState() => _ControlSchedulePageState();
@@ -27,7 +27,7 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
   @override
   void initState() {
     super.initState();
-    controller.selectedStableIndex.value = widget.stableSelected;
+    controller.selectedRoomIndex.value = widget.roomSelected;
   }
 
   @override
@@ -66,21 +66,21 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                 // Dropdown Pilih Kandang di atas
                 SizedBox(
                   width: 350,
-                  child: DropdownButtonFormField<StableModel>(
-                    value: controller.selectedStable,
-                    items: controller.stableList
+                  child: DropdownButtonFormField<RoomModel>(
+                    value: controller.selectedRoom,
+                    items: controller.filteredRoomList
                         .map(
                           (kandang) => DropdownMenuItem(
                             value: kandang,
-                            child: Text(kandang.stableName),
+                            child: Text(kandang.name),
                           ),
                         )
                         .toList(),
                     onChanged: (val) {
                       if (val != null) {
                         setState(() {
-                          controller.selectedStableIndex.value = controller
-                              .stableList
+                          controller.selectedRoomIndex.value = controller
+                              .roomList
                               .indexOf(val);
                         });
                       }
@@ -169,7 +169,7 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(12),
                                       child: Image.asset(
-                                        controller.selectedStable.imageAsset,
+                                        'assets/images/stable.jpg',
                                         width: double.infinity,
                                         height: 100,
                                         fit: BoxFit.cover,
@@ -179,7 +179,7 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                     Row(
                                       children: [
                                         Text(
-                                          controller.selectedStable.stableName,
+                                          controller.selectedRoom.name,
                                           style: const TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
@@ -194,8 +194,9 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                           decoration: BoxDecoration(
                                             color:
                                                 controller
-                                                    .selectedStable
-                                                    .isActive
+                                                        .selectedRoom
+                                                        .status ==
+                                                    'used'
                                                 ? Colors.green
                                                 : Colors.red,
                                             borderRadius: BorderRadius.circular(
@@ -203,7 +204,8 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                             ),
                                           ),
                                           child: Text(
-                                            controller.selectedStable.isActive
+                                            controller.selectedRoom.status ==
+                                                    'used'
                                                 ? 'Aktif'
                                                 : 'Tidak Aktif',
                                             style: const TextStyle(
@@ -227,8 +229,9 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                         ),
                                         Text(
                                           controller
-                                              .selectedStable
-                                              .lastFeedText,
+                                                  .selectedRoom
+                                                  .lastFeedText ??
+                                              'Belum Ada Pengisian',
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -259,18 +262,18 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                               CrossAxisAlignment.center,
                                           children: [
                                             Obx(() {
-                                              final stable =
+                                              final room =
                                                   feederController
-                                                      .stableList[controller
-                                                      .selectedStableIndex
+                                                      .roomList[controller
+                                                      .selectedRoomIndex
                                                       .value];
                                               final lessContent = isAir
                                                   ? controller.maxWater -
-                                                        stable
+                                                        room
                                                             .remainingWater
                                                             .value
                                                   : controller.maxFeed -
-                                                        stable
+                                                        room
                                                             .remainingFeed
                                                             .value;
 
@@ -281,7 +284,7 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                                     MainAxisAlignment.center,
                                                 children: [
                                                   Text(
-                                                    'Sisa  di Kandang:',
+                                                    'Tersedia ${isAir ? "Air" : "Pakan"} di Kandang:',
                                                     style: TextStyle(
                                                       fontSize: 20,
                                                       fontWeight:
@@ -290,8 +293,8 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                                   ),
                                                   Text(
                                                     isAir
-                                                        ? '${stable.remainingWater.value.toStringAsFixed(1)} $satuan'
-                                                        : '${stable.remainingFeed.value.toStringAsFixed(1)} $satuan',
+                                                        ? '${room.remainingWater.value.toStringAsFixed(1)} $satuan'
+                                                        : '${room.remainingFeed.value.toStringAsFixed(1)} $satuan',
                                                     style: TextStyle(
                                                       fontSize: 26,
                                                       fontWeight:
@@ -346,8 +349,13 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                                         ),
                                                       ),
                                                       TextSpan(
-                                                        text:
-                                                            '${controller.getHorseById(controller.selectedStable.horseId).name}',
+                                                        text: controller
+                                                            .getHorseById(
+                                                              controller
+                                                                  .selectedRoom
+                                                                  .horseId!,
+                                                            )
+                                                            .name,
                                                         style: TextStyle(
                                                           color: colorMain,
                                                           fontWeight:
@@ -357,7 +365,7 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                                       ),
                                                       TextSpan(
                                                         text:
-                                                            ' (${controller.getHorseById(controller.selectedStable.horseId).horseId})',
+                                                            ' (${controller.getHorseById(controller.selectedRoom.horseId!).horseId})',
                                                         style: const TextStyle(
                                                           color: Colors.black54,
                                                           fontSize: 16,
@@ -383,8 +391,13 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                                         ),
                                                       ),
                                                       TextSpan(
-                                                        text:
-                                                            '${controller.getHorseById(controller.selectedStable.horseId).getAgeInYears()} tahun',
+                                                        text: controller
+                                                            .getHorseById(
+                                                              controller
+                                                                  .selectedRoom
+                                                                  .horseId!,
+                                                            )
+                                                            .age,
                                                         style: TextStyle(
                                                           color: colorMain,
                                                           fontWeight:
@@ -413,7 +426,16 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                                       ),
                                                       TextSpan(
                                                         text:
-                                                            '${controller.getHorseById(controller.selectedStable.horseId).type}',
+                                                            controller
+                                                                    .getHorseById(
+                                                                      controller
+                                                                          .selectedRoom
+                                                                          .horseId!,
+                                                                    )
+                                                                    .type ==
+                                                                "local"
+                                                            ? "Lokal"
+                                                            : "Crossbred",
                                                         style: TextStyle(
                                                           color: colorMain,
                                                           fontWeight:
@@ -429,7 +451,16 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                                       ),
                                                       TextSpan(
                                                         text:
-                                                            '${controller.getHorseById(controller.selectedStable.horseId).gender}',
+                                                            controller
+                                                                    .getHorseById(
+                                                                      controller
+                                                                          .selectedRoom
+                                                                          .horseId!,
+                                                                    )
+                                                                    .gender ==
+                                                                "male"
+                                                            ? "Jantan"
+                                                            : "Betina",
                                                         style: TextStyle(
                                                           color: colorMain,
                                                           fontWeight:
@@ -457,21 +488,18 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                                       ),
                                                       TextSpan(
                                                         text: controller
-                                                            .getHorseById(
+                                                            .getHorseHealthStatusById(
                                                               controller
-                                                                  .selectedStable
-                                                                  .horseId,
-                                                            )
-                                                            .healthStatus,
+                                                                  .selectedRoom
+                                                                  .horseId!,
+                                                            ),
                                                         style: TextStyle(
                                                           color:
-                                                              controller
-                                                                      .getHorseById(
-                                                                        controller
-                                                                            .selectedStable
-                                                                            .horseId,
-                                                                      )
-                                                                      .healthStatus ==
+                                                              controller.getHorseHealthStatusById(
+                                                                    controller
+                                                                        .selectedRoom
+                                                                        .horseId!,
+                                                                  ) ==
                                                                   "Sehat"
                                                               ? Colors.green
                                                               : Colors.red,
