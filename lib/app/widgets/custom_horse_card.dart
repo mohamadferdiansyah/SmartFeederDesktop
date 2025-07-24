@@ -6,7 +6,7 @@ class CustomHorseCard extends StatelessWidget {
   final String horseName;
   final bool isRoomFilled;
   final int batteryPercent;
-  final bool deviceActive;
+  final String deviceActive;
   final bool cctvActive;
   final VoidCallback? onSelectHorse;
   final VoidCallback? onTapCctv;
@@ -113,11 +113,11 @@ class CustomHorseCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: deviceActive ? Colors.blue : Colors.red,
+                    color: deviceActive == "Aktif" ? Colors.green : Colors.red,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    deviceActive ? 'Aktif' : 'Mati',
+                    deviceActive,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,

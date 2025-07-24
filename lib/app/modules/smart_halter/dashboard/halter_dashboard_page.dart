@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashbboard_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_horse_card.dart';
 
@@ -14,7 +15,9 @@ class HalterDashboardPage extends StatefulWidget {
 }
 
 class HalterDashboardPageState extends State<HalterDashboardPage> {
-  final controller = Get.find<HalterDashboardController>();
+  final HalterDashboardController controller = Get.find();
+  final HalterSettingController settingController = Get.find();
+
   int selectedTab = 0; // 0: Detail Kuda, 1: Detail Ruangan
 
   @override
@@ -118,10 +121,11 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 16.0),
                             child: CustomHorseCard(
-                              batteryPercent: 86,
+                              batteryPercent: controller
+                                  .getBatteryPercentByRoomId(room.roomId),
                               cctvActive: controller.isCctvActive(room.roomId),
                               deviceActive: controller.isHalterDeviceActive(
-                                room.roomId,
+                                room.horseId ?? '',
                               ),
                               horseName: controller.getHorseNameByRoomId(
                                 room.roomId,
@@ -129,6 +133,9 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                               isRoomFilled: controller.isRoomFilled(
                                 room.roomId,
                               ),
+                              onSelectHorse: () {
+                                controller.selectedRoomIndex.value = index;
+                              },
                             ),
                           );
                         },
@@ -141,194 +148,245 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
             const SizedBox(width: 16),
             Column(
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Kartu Pie 1
-                    SizedBox(
-                      width: (MediaQuery.of(context).size.width / 2.7).clamp(
-                        180,
-                        260,
-                      ),
-                      child: _PieInfoCard(
-                        pie: _PieRuangKandangChart(),
-                        title: 'Ruangan Kandang A',
-                        subtitle: 'Total Ruang: 6',
-                        legend: [
-                          _LegendItem(color: Colors.blue, label: 'Terisi : 6'),
-                          _LegendItem(color: Colors.red, label: 'Kosong : 0'),
-                        ],
-                        bottomText: 'Sumber Data dari Cloud',
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    SizedBox(
-                      width: (MediaQuery.of(context).size.width / 2.7).clamp(
-                        180,
-                        260,
-                      ),
-                      child: _PieInfoCard(
-                        pie: _PieKudaChart(),
-                        title: 'Kuda',
-                        subtitle: null,
-                        legend: [
-                          _LegendItem(color: Colors.blue, label: 'Sehat : 5'),
-                          _LegendItem(color: Colors.orange, label: 'Sakit : 1'),
-                          _LegendItem(
-                            color: Colors.yellow,
-                            label: 'Diperiksa : 0',
+                Obx(() {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Kartu Pie 1
+                      SizedBox(
+                        width: (MediaQuery.of(context).size.width / 2.7).clamp(
+                          180,
+                          260,
+                        ),
+                        child: _PieInfoCard(
+                          pie: _PieRuangKandangChart(
+                            filledCount: controller.getFilledRoomCount(),
+                            emptyCount: controller.getEmptyRoomCount(),
                           ),
-                          _LegendItem(
-                            color: Colors.red,
-                            label: 'Meninggal : 0',
-                          ),
-                        ],
-                        bottomText: 'Total Kuda : 80 Ekor',
-                        bottomBold: true,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    SizedBox(
-                      width: (MediaQuery.of(context).size.width / 2.7).clamp(
-                        120,
-                        260,
-                      ),
-                      child: _PieInfoCard(
-                        pie: _PiePerangkatIoTChart(aktif: 2, tidakAktif: 6),
-                        title: 'Perangkat IoT Smart Halter',
-                        subtitle: null,
-                        legend: [
-                          _LegendItem(color: Colors.blue, label: 'Aktif : 2'),
-                          _LegendItem(
-                            color: Colors.red.shade400,
-                            label: 'Tidak Aktif : 6',
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 16),
-                    Container(
-                      constraints: BoxConstraints(maxWidth: 320),
-                      height: 190,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Header
-                          Container(
-                            height: 40,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(8),
-                                topRight: Radius.circular(8),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.2),
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
+                          title:
+                              'Ruangan Di ${controller.getStableNameById(controller.selectedStableId.value)}',
+                          subtitle:
+                              'Total Ruang: ${controller.filteredRoomList.length}',
+                          legend: [
+                            _LegendItem(
+                              color: Colors.blue,
+                              label:
+                                  'Terisi : ${controller.getFilledRoomCount()}',
                             ),
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12.0,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      'Status Koneksi Ke Cloud & LoRa',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                            _LegendItem(
+                              color: Colors.red,
+                              label:
+                                  'Kosong : ${controller.getEmptyRoomCount()}',
                             ),
+                          ],
+                          bottomText: 'Sumber Data dari Cloud',
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: (MediaQuery.of(context).size.width / 2.7).clamp(
+                          180,
+                          260,
+                        ),
+                        child: _PieInfoCard(
+                          pie: _PieKudaChart(
+                            healthyCount: controller.getHealthyHorseCount(),
+                            sickCount: controller.getSickHorseCount(),
+                            checkedCount: 0,
+                            deadCount: 0,
                           ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'IP Server :',
-                                        style: TextStyle(fontSize: 16),
-                                      ),
-                                      Spacer(),
-                                      Text(
-                                        '192.168.1.1',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Status LoRa :',
-                                        style: TextStyle(fontSize: 16),
-                                      ),
-                                      Spacer(),
-                                      Text(
-                                        'Terhubung',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Port :',
-                                        style: TextStyle(fontSize: 16),
-                                      ),
-                                      Spacer(),
-                                      Text(
-                                        'COM3',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
+                          title: 'Data Kuda',
+                          subtitle: null,
+                          legend: [
+                            _LegendItem(
+                              color: Colors.blue,
+                              label:
+                                  'Sehat : ${controller.getHealthyHorseCount()}',
+                            ),
+                            _LegendItem(
+                              color: Colors.orange,
+                              label:
+                                  'Sakit : ${controller.getSickHorseCount()}',
+                            ),
+                            _LegendItem(
+                              color: Colors.yellow,
+                              label: 'Diperiksa : 0',
+                            ),
+                            _LegendItem(
+                              color: Colors.red,
+                              label: 'Meninggal : 0',
+                            ),
+                          ],
+                          bottomText:
+                              'Total Kuda : ${controller.getFilledRoomCount()} Ekor',
+                          bottomBold: true,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: (MediaQuery.of(context).size.width / 2.7).clamp(
+                          120,
+                          260,
+                        ),
+                        child: _PieInfoCard(
+                          pie: _PiePerangkatIoTChart(
+                            on: controller.getDeviceOnCount(),
+                            off: controller.getDeviceOffCount(),
+                          ),
+                          title: 'Perangkat IoT Smart Halter',
+                          subtitle: null,
+                          legend: [
+                            _LegendItem(
+                              color: Colors.blue,
+                              label: 'Aktif : ${controller.getDeviceOnCount()}',
+                            ),
+                            _LegendItem(
+                              color: Colors.red.shade400,
+                              label:
+                                  'Tidak Aktif : ${controller.getDeviceOffCount()}',
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Container(
+                        constraints: BoxConstraints(maxWidth: 320),
+                        height: 190,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Header
+                            Container(
+                              height: 40,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(8),
+                                  topRight: Radius.circular(8),
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
                                   ),
                                 ],
                               ),
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12.0,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        'Status Koneksi Ke Cloud & LoRa',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Obx(() {
+                                  final setting =
+                                      settingController.setting.value;
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'IP Server :',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                          Spacer(),
+                                          Text(
+                                            setting.cloudUrl.replaceAll(
+                                              RegExp(r'https?://'),
+                                              '',
+                                            ),
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Status :',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                          Spacer(),
+                                          Text(
+                                            setting.loraConnected
+                                                ? "Terhubung"
+                                                : "Tidak Terhubung",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                              color: setting.loraConnected
+                                                  ? Colors.green
+                                                  : Colors.red,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Port :',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                          Spacer(),
+                                          Text(
+                                            setting.loraPort != ''
+                                                ? setting.loraPort
+                                                : 'Tidak Terhubung',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  );
+                                }),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  );
+                }),
                 const SizedBox(height: 16),
                 Container(
                   width: MediaQuery.of(context).size.width * 0.6,
@@ -375,11 +433,38 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                             child: Row(
                               children: [
                                 Text(
-                                  'Detail Kandang dan Kuda',
+                                  'Informasi Detail Kuda',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Obx(
+                                  () => Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      controller.getHorseNameByRoomId(
+                                        controller.selectedRoom.roomId,
+                                      ),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -592,19 +677,27 @@ class _PieInfoCard extends StatelessWidget {
 
 // Pie chart Ruangan Kandang
 class _PieRuangKandangChart extends StatelessWidget {
+  final int filledCount;
+  final int emptyCount;
+
+  const _PieRuangKandangChart({
+    required this.filledCount,
+    required this.emptyCount,
+  });
+
   @override
   Widget build(BuildContext context) {
     return PieChart(
       PieChartData(
         sections: [
           PieChartSectionData(
-            value: 6,
+            value: filledCount.toDouble(),
             color: Colors.blue,
             title: '',
             radius: 32,
           ),
           PieChartSectionData(
-            value: 0,
+            value: emptyCount.toDouble(),
             color: Colors.red,
             title: '',
             radius: 32,
@@ -620,31 +713,43 @@ class _PieRuangKandangChart extends StatelessWidget {
 
 // Pie chart Kuda
 class _PieKudaChart extends StatelessWidget {
+  final int healthyCount;
+  final int sickCount;
+  final int checkedCount;
+  final int deadCount;
+
+  const _PieKudaChart({
+    required this.healthyCount,
+    required this.sickCount,
+    required this.checkedCount,
+    required this.deadCount,
+  });
+
   @override
   Widget build(BuildContext context) {
     return PieChart(
       PieChartData(
         sections: [
           PieChartSectionData(
-            value: 5,
+            value: healthyCount.toDouble(),
             color: Colors.blue,
             title: '',
             radius: 32,
           ),
           PieChartSectionData(
-            value: 1,
+            value: sickCount.toDouble(),
             color: Colors.orange,
             title: '',
             radius: 32,
           ),
           PieChartSectionData(
-            value: 0,
+            value: checkedCount.toDouble(),
             color: Colors.yellow,
             title: '',
             radius: 32,
           ),
           PieChartSectionData(
-            value: 0,
+            value: deadCount.toDouble(),
             color: Colors.red,
             title: '',
             radius: 32,
@@ -660,14 +765,10 @@ class _PieKudaChart extends StatelessWidget {
 
 // Pie chart khusus perangkat IoT (tanpa judul/legend, hanya chart)
 class _PiePerangkatIoTChart extends StatelessWidget {
-  final int aktif;
-  final int tidakAktif;
+  final int on;
+  final int off;
 
-  const _PiePerangkatIoTChart({
-    super.key,
-    required this.aktif,
-    required this.tidakAktif,
-  });
+  const _PiePerangkatIoTChart({required this.on, required this.off});
 
   @override
   Widget build(BuildContext context) {
@@ -675,13 +776,13 @@ class _PiePerangkatIoTChart extends StatelessWidget {
       PieChartData(
         sections: [
           PieChartSectionData(
-            value: aktif.toDouble(),
+            value: on.toDouble(),
             color: Colors.blue,
             title: '',
             radius: 32,
           ),
           PieChartSectionData(
-            value: tidakAktif.toDouble(),
+            value: off.toDouble(),
             color: Colors.red.shade400,
             title: '',
             radius: 32,
@@ -703,6 +804,8 @@ class _LegendItem {
 }
 
 class _DetailKudaView extends StatelessWidget {
+  final HalterDashboardController controller = Get.find();
+
   @override
   Widget build(BuildContext context) {
     return Scrollbar(
@@ -714,93 +817,280 @@ class _DetailKudaView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // IoT Info dan Gambar Kuda
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // IoT Info
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'IoT Node Smart Halter',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text('Id Perangkat -\nTegangan -\nRSSI -'),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'Profil',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        // Profil List
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                children: [Text('-'), Text('-'), Text('-')],
-                              ),
+              Obx(
+                () => Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // IoT Info
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'IoT Node Smart Halter',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
-                            Expanded(
-                              child: Column(
-                                children: [Text('-'), Text('-'), Text('-')],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Gambar Kuda & Status
-                  Expanded(
-                    flex: 3,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 24.0),
-                          child: Image.asset(
-                            'assets/images/horse.png', // ganti path sesuai assetmu
-                            height: 200,
-                            fit: BoxFit.contain,
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            const Text('Status Kesehatan Kuda'),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
+                          const SizedBox(height: 4),
+                          Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Text('Id Perangkat'),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    controller
+                                        .getHalterDeviceByHorseId(
+                                          controller.selectedRoom.horseId ?? '',
+                                        )
+                                        .deviceId,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text('Tegangan'),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'NaN',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text('RSSI'),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'NaN',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Profil',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          // Profil List
+                          Obx(
+                            () => Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text('ID Kuda:'),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            controller.selectedRoom.horseId ??
+                                                '-',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text('Jenis Kuda:'),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            controller
+                                                        .getHorseById(
+                                                          controller
+                                                                  .selectedRoom
+                                                                  .horseId ??
+                                                              '',
+                                                        )
+                                                        .type ==
+                                                    'local'
+                                                ? 'Lokal'
+                                                : 'Crossbreed',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text('Umur:'),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            controller
+                                                .getHorseById(
+                                                  controller
+                                                          .selectedRoom
+                                                          .horseId ??
+                                                      '',
+                                                )
+                                                .age,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text('Kelamin:'),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            controller
+                                                        .getHorseById(
+                                                          controller
+                                                                  .selectedRoom
+                                                                  .horseId ??
+                                                              '',
+                                                        )
+                                                        .gender ==
+                                                    'male'
+                                                ? 'Jantan'
+                                                : 'Betina',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(6),
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text('Tanggal Menetap:'),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            'NaN',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text('Kesehatan:'),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            controller.getHorseHealthStatusById(
+                                              controller.selectedRoom.horseId ??
+                                                  '',
+                                            ),
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text('Posisi:'),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            'NaN',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Gambar Kuda & Status
+                    Expanded(
+                      flex: 3,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 24.0),
+                            child: Image.asset(
+                              'assets/images/horse.png', // ganti path sesuai assetmu
+                              height: 200,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              const Text('Status Kesehatan Kuda'),
+                              const SizedBox(width: 8),
+                              Obx(
+                                () => ElevatedButton(
+                                  onPressed: () {},
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        controller.getHorseHealthStatusById(
+                                              controller.selectedRoom.horseId ??
+                                                  '',
+                                            ) ==
+                                            'Sehat'
+                                        ? Colors.green
+                                        : Colors.red,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    controller.getHorseHealthStatusById(
+                                      controller.selectedRoom.horseId ?? '',
+                                    ),
+                                  ),
                                 ),
                               ),
-                              child: const Text("Sehat"),
-                            ),
-                            const SizedBox(width: 8),
-                          ],
-                        ),
-                      ],
+                              const SizedBox(width: 8),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
               // Divider

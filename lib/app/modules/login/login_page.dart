@@ -4,6 +4,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
+
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 
@@ -43,11 +44,24 @@ class _LoginPageState extends State<LoginPage> {
           ),
 
           // Content
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width * 0.4,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      spreadRadius: 5,
+                      blurRadius: 20,
+                      offset: Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -62,82 +76,135 @@ class _LoginPageState extends State<LoginPage> {
                       height: 250,
                       width: 250,
                     ),
+                    SizedBox(width: 16),
+                    Image.asset(
+                      'assets/images/lpdp.png',
+                      height: 250,
+                      width: 250,
+                    ),
                   ],
                 ),
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.3,
-                  padding: EdgeInsets.all(32),
-                  margin: EdgeInsets.symmetric(horizontal: 32),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        spreadRadius: 5,
-                        blurRadius: 20,
-                        offset: Offset(0, 10),
+              ),
+              SizedBox(height: 32),
+              IntrinsicHeight(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      padding: EdgeInsets.all(32),
+                      margin: EdgeInsets.symmetric(horizontal: 32),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.95),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            spreadRadius: 5,
+                            blurRadius: 20,
+                            offset: Offset(0, 10),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Smart Horse App',
-                        style: TextStyle(
-                          fontSize: 32,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Smart Horse App',
+                            style: TextStyle(
+                              fontSize: 32,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Silahkan Login Untuk Melanjutkan',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey[700],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 32),
+                          CustomInput(
+                            label: 'Username',
+                            controller: emailController,
+                            hint: 'Masukkan username',
+                            icon: Icons.person,
+                          ),
+                          SizedBox(height: 16),
+                          CustomInput(
+                            label: 'Password',
+                            controller: passwordController,
+                            hint: 'Masukkan password',
+                            icon: Icons.lock,
+                            isPassword: true,
+                          ),
+                          SizedBox(height: 32),
+                          CustomButton(
+                            text: 'Login',
+                            onPressed: () {
+                              if (emailController.text.isEmpty ||
+                                  passwordController.text.isEmpty) {
+                                Get.snackbar(
+                                  'Error',
+                                  'Username dan Password tidak boleh kosong',
+                                  backgroundColor: Colors.red.withOpacity(0.8),
+                                  colorText: Colors.white,
+                                );
+                              } else {
+                                Get.offAndToNamed('/main-menu');
+                              }
+                            },
+                            backgroundColor: AppColors.primary,
+                            iconTrailing: Icons.login,
+                          ),
+                        ],
                       ),
-                      Text(
-                        'Silahkan Login Untuk Melanjutkan',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey[700],
-                          fontWeight: FontWeight.w500,
-                        ),
+                    ),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.4,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 36,
+                        vertical: 48,
                       ),
-                      SizedBox(height: 32),
-                      CustomInput(
-                        label: 'Username',
-                        controller: emailController,
-                        hint: 'Masukkan username',
-                        icon: Icons.person,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.95),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.12),
+                            spreadRadius: 4,
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 16),
-                      CustomInput(
-                        label: 'Password',
-                        controller: passwordController,
-                        hint: 'Masukkan password',
-                        icon: Icons.lock,
-                        isPassword: true,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Logo CassMaTech
+                          Image.asset(
+                            'assets/images/cassmatech.png',
+                            height: 200,
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            "Dibiayai dengan Hibah Riset Inovatif Produktif (RISPRO), LPDP Tahun II dengan nomor kontrak PRJ-31/LPDP/2021",
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 32),
-                      CustomButton(
-                        text: 'Login',
-                        onPressed: () {
-                          if (emailController.text.isEmpty ||
-                              passwordController.text.isEmpty) {
-                            Get.snackbar(
-                              'Error',
-                              'Username dan Password tidak boleh kosong',
-                              backgroundColor: Colors.red.withOpacity(0.8),
-                              colorText: Colors.white,
-                            );
-                          } else {
-                            Get.offAndToNamed('/main-menu');
-                          }
-                        },
-                        backgroundColor: AppColors.primary,
-                        iconTrailing: Icons.login,
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
 
           // ==== BUTTON KELUAR DI POJOK KANAN BAWAH ====
@@ -152,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
                 iconTrailing: Icons.exit_to_app,
                 backgroundColor: Colors.red,
                 onPressed: () {
-                  showConfirmationDialog(
+                  showCustomDialog(
                     context: context,
                     title: 'Keluar Aplikasi',
                     message: 'Apakah kamu yakin ingin keluar dari aplikasi?',

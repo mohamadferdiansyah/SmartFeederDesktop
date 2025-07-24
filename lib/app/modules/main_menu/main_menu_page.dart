@@ -36,24 +36,45 @@ class MainMenuPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Logo row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/ipb.png',
-                      height: 200,
-                      width: 200,
-                    ),
-                    SizedBox(width: 20),
-                    Image.asset(
-                      'assets/images/biofarma.png',
-                      height: 250,
-                      width: 250,
-                    ),
-                  ],
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.4,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        spreadRadius: 5,
+                        blurRadius: 20,
+                        offset: Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/images/ipb.png',
+                        height: 150,
+                        width: 150,
+                      ),
+                      SizedBox(width: 16),
+                      Image.asset(
+                        'assets/images/biofarma.png',
+                        height: 250,
+                        width: 250,
+                      ),
+                      SizedBox(width: 16),
+                      Image.asset(
+                        'assets/images/lpdp.png',
+                        height: 250,
+                        width: 250,
+                      ),
+                    ],
+                  ),
                 ),
-                // Title card + Menu Cards (DI DALAM 1 CONTAINER)
+                SizedBox(height: 10),
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 20, horizontal: 32),
                   width: MediaQuery.of(context).size.width * 0.7,
@@ -100,7 +121,7 @@ class MainMenuPage extends StatelessWidget {
                           CustomButton(
                             text: 'Logout',
                             onPressed: () {
-                              showConfirmationDialog(
+                              showCustomDialog(
                                 context: context,
                                 title: 'Konfirmasi Logout',
                                 message: 'Apakah kamu yakin ingin logout?',

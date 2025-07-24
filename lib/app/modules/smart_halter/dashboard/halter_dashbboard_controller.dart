@@ -414,7 +414,7 @@ class HalterDashboardController extends GetxController {
       healthId: 'HEALTH1',
       horseId: 'H1',
       heartRate: 38,
-      bodyTemp: 37.2,
+      bodyTemp: 70,
       oxygen: 98.5,
       respiration: 18,
       posture: "Berdiri Kepala Tegak",
@@ -611,31 +611,135 @@ class HalterDashboardController extends GetxController {
   ].obs;
 
   final RxList<HalterDeviceModel> halterDeviceList = <HalterDeviceModel>[
-    HalterDeviceModel(deviceId: 'SHIPB1223005', horseId: 'H1', status: 'on'),
-    HalterDeviceModel(deviceId: 'SHIPB1223006', horseId: null, status: 'off'),
-    HalterDeviceModel(deviceId: 'SHIPB1223007', horseId: 'H2', status: 'on'),
-    HalterDeviceModel(deviceId: 'SHIPB1223008', horseId: 'H3', status: 'off'),
-    HalterDeviceModel(deviceId: 'SHIPB1223009', horseId: 'H4', status: 'on'),
-    HalterDeviceModel(deviceId: 'SHIPB1223010', horseId: null, status: 'off'),
-    HalterDeviceModel(deviceId: 'SHIPB1223011', horseId: 'H5', status: 'on'),
-    HalterDeviceModel(deviceId: 'SHIPB1223012', horseId: null, status: 'off'),
-    HalterDeviceModel(deviceId: 'SHIPB1223013', horseId: 'H6', status: 'on'),
-    HalterDeviceModel(deviceId: 'SHIPB1223014', horseId: 'H7', status: 'off'),
-    HalterDeviceModel(deviceId: 'SHIPB1223015', horseId: 'H8', status: 'on'),
-    HalterDeviceModel(deviceId: 'SHIPB1223016', horseId: 'H9', status: 'off'),
-    HalterDeviceModel(deviceId: 'SHIPB1223017', horseId: 'H10', status: 'on'),
-    HalterDeviceModel(deviceId: 'SHIPB1223018', horseId: null, status: 'off'),
-    HalterDeviceModel(deviceId: 'SHIPB1223019', horseId: 'H11', status: 'on'),
-    HalterDeviceModel(deviceId: 'SHIPB1223020', horseId: 'H12', status: 'off'),
-    HalterDeviceModel(deviceId: 'SHIPB1223021', horseId: 'H13', status: 'on'),
-    HalterDeviceModel(deviceId: 'SHIPB1223022', horseId: 'H14', status: 'off'),
-    HalterDeviceModel(deviceId: 'SHIPB1223023', horseId: 'H15', status: 'on'),
-    HalterDeviceModel(deviceId: 'SHIPB1223024', horseId: null, status: 'off'),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223005',
+      horseId: 'H1',
+      status: 'on',
+      batteryPercent: 87,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223006',
+      horseId: null,
+      status: 'off',
+      batteryPercent: 35,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223007',
+      horseId: 'H2',
+      status: 'on',
+      batteryPercent: 73,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223008',
+      horseId: 'H3',
+      status: 'off',
+      batteryPercent: 19,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223009',
+      horseId: 'H4',
+      status: 'on',
+      batteryPercent: 66,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223010',
+      horseId: null,
+      status: 'off',
+      batteryPercent: 42,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223011',
+      horseId: 'H5',
+      status: 'on',
+      batteryPercent: 91,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223012',
+      horseId: null,
+      status: 'off',
+      batteryPercent: 25,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223013',
+      horseId: 'H6',
+      status: 'on',
+      batteryPercent: 54,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223014',
+      horseId: 'H7',
+      status: 'off',
+      batteryPercent: 77,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223015',
+      horseId: 'H8',
+      status: 'on',
+      batteryPercent: 68,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223016',
+      horseId: 'H9',
+      status: 'off',
+      batteryPercent: 31,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223017',
+      horseId: 'H10',
+      status: 'on',
+      batteryPercent: 81,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223018',
+      horseId: null,
+      status: 'off',
+      batteryPercent: 58,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223019',
+      horseId: 'H11',
+      status: 'on',
+      batteryPercent: 94,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223020',
+      horseId: 'H12',
+      status: 'off',
+      batteryPercent: 21,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223021',
+      horseId: 'H13',
+      status: 'on',
+      batteryPercent: 49,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223022',
+      horseId: 'H14',
+      status: 'off',
+      batteryPercent: 64,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223023',
+      horseId: 'H15',
+      status: 'on',
+      batteryPercent: 76,
+    ),
+    HalterDeviceModel(
+      deviceId: 'SHIPB1223024',
+      horseId: null,
+      status: 'off',
+      batteryPercent: 28,
+    ),
   ].obs;
 
   void setSelectedStableId(String stableId) {
     selectedStableId.value = stableId;
-    selectedRoomIndex.value = 0; // reset index ke 0 saat ganti stable
+    selectedRoomIndex.value = 0;
+  }
+
+  HalterDeviceModel getHalterDeviceByHorseId(String horseId) {
+    return halterDeviceList.firstWhere((device) => device.horseId == horseId);
   }
 
   HorseModel getHorseById(String horseId) {
@@ -647,10 +751,11 @@ class HalterDashboardController extends GetxController {
     return stable?.name ?? "Tidak diketahui";
   }
 
-  bool isHalterDeviceActive(String horseId) {
-    return halterDeviceList.any(
+  String isHalterDeviceActive(String horseId) {
+    final isActive = halterDeviceList.any(
       (device) => device.horseId == horseId && device.status == 'on',
     );
+    return isActive ? "Aktif" : "Nonaktif";
   }
 
   bool isCctvActive(String roomId) {
@@ -668,5 +773,93 @@ class HalterDashboardController extends GetxController {
   bool isRoomFilled(String roomId) {
     final room = roomList.firstWhereOrNull((r) => r.roomId == roomId);
     return room != null && room.horseId != null;
+  }
+
+  int getBatteryPercentByRoomId(String roomId) {
+    final device = halterDeviceList.firstWhereOrNull(
+      (d) =>
+          d.horseId == roomList.firstWhere((r) => r.roomId == roomId).horseId,
+    );
+    return device?.batteryPercent ?? 0;
+  }
+
+  int getFilledRoomCount() {
+    return filteredRoomList.where((room) => room.horseId != null).length;
+  }
+
+  int getEmptyRoomCount() {
+    return filteredRoomList.where((room) => room.horseId == null).length;
+  }
+
+  int getHealthyHorseCount() {
+    final filteredHorseIds = filteredRoomList
+        .where((room) => room.horseId != null)
+        .map((room) => room.horseId)
+        .toSet();
+    return horseHealthList
+        .where(
+          (health) =>
+              filteredHorseIds.contains(health.horseId) &&
+              health.bodyTemp <= 39.0 &&
+              health.heartRate <= 44,
+        )
+        .length;
+  }
+
+  int getSickHorseCount() {
+    final filteredHorseIds = filteredRoomList
+        .where((room) => room.horseId != null)
+        .map((room) => room.horseId)
+        .toSet();
+    return horseHealthList
+        .where(
+          (health) =>
+              filteredHorseIds.contains(health.horseId) &&
+              (health.bodyTemp > 39.0 || health.heartRate > 44),
+        )
+        .length;
+  }
+
+  int getDeviceOnCount() {
+    final filteredHorseIds = filteredRoomList
+        .where((room) => room.horseId != null)
+        .map((room) => room.horseId)
+        .toSet();
+    return halterDeviceList
+        .where(
+          (device) =>
+              device.status == 'on' &&
+              device.horseId != null &&
+              filteredHorseIds.contains(device.horseId),
+        )
+        .length;
+  }
+
+  int getDeviceOffCount() {
+    final filteredHorseIds = filteredRoomList
+        .where((room) => room.horseId != null)
+        .map((room) => room.horseId)
+        .toSet();
+    return halterDeviceList
+        .where(
+          (device) =>
+              device.status == 'off' &&
+              device.horseId != null &&
+              filteredHorseIds.contains(device.horseId),
+        )
+        .length;
+  }
+
+  String getHorseHealthStatusById(String horseId) {
+    final health = horseHealthList.firstWhereOrNull(
+      (h) => h.horseId == horseId,
+    );
+    if (health == null) return "Tidak Ada Data";
+
+    // Threshold dummy: kalau suhu > 39 atau heartRate > 44, status = Sakit
+    if (health.bodyTemp > 39.0 || health.heartRate > 44) {
+      return "Sakit";
+    }
+    return "Sehat";
   }
 }

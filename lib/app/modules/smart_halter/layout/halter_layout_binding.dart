@@ -6,6 +6,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/ca
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/device/halter_device_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/horse/halter_horse_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/room/halter_room_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
 
 class HalterLayoutBinding extends Bindings {
   @override
@@ -17,5 +18,6 @@ class HalterLayoutBinding extends Bindings {
     Get.lazyPut<HalterDeviceController>(() => HalterDeviceController());
     Get.lazyPut<HalterCameraController>(() => HalterCameraController());
     Get.lazyPut<HalterHorseController>(() => HalterHorseController());
+    Get.lazyPut<HalterSettingController>(() => HalterSettingController());
   }
 }

@@ -42,7 +42,7 @@ class _CustomSidebarState extends State<CustomSidebar> {
         children: [
           // HEADER: Logo, Title, Date, Timer
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.all(20),
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -58,21 +58,36 @@ class _CustomSidebarState extends State<CustomSidebar> {
                       children: [
                         Image.asset(
                           'assets/images/ipb.png',
-                          height: 80,
-                          width: 80,
+                          height: 70,
+                          width: 70,
                         ),
                         Container(
+                          margin: EdgeInsets.symmetric(horizontal: 4),
                           width: 2,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: AppColors.primary,
+                            color: AppColors.primary.withOpacity(0.4),
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         Image.asset(
                           'assets/images/biofarma.png',
-                          height: 120,
-                          width: 120,
+                          height: 110,
+                          width: 110,
+                        ),
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 4),
+                          width: 2,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        Image.asset(
+                          'assets/images/lpdp.png',
+                          height: 90,
+                          width: 90,
                         ),
                       ],
                     ),
@@ -182,7 +197,7 @@ class _CustomSidebarState extends State<CustomSidebar> {
             icon: Icons.logout,
             title: 'Kembali Ke Menu',
             fontSize: 20,
-            onTap: () => showConfirmationDialog(
+            onTap: () => showCustomDialog(
               context: context,
               title: 'Konfirmasi Kembali',
               message: 'Apakah kamu yakin ingin kembali ke menu?',
@@ -200,7 +215,7 @@ class _CustomSidebarState extends State<CustomSidebar> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                '© 2024 IPB University',
+                '© 2025 IPB University',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.7),
                   fontSize: 14,

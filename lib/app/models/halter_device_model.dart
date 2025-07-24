@@ -1,11 +1,13 @@
 class HalterDeviceModel {
-  final String deviceId;  // serial number
-  final String? horseId;  // relasi ke horse, null = tidak digunakan
+  final String deviceId;
+  final String? horseId;
   final String status;
+  final int batteryPercent;
 
   HalterDeviceModel({
     required this.deviceId,
     this.horseId,
     required this.status,
+    required this.batteryPercent,
   });
 }

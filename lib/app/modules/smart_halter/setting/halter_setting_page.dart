@@ -1,8 +1,14 @@
+import 'package:delightful_toast/delight_toast.dart';
+import 'package:delightful_toast/toast/components/toast_card.dart';
+import 'package:delightful_toast/toast/utils/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashbboard_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:toastification/toastification.dart';
 
 class HalterSettingPage extends StatefulWidget {
   const HalterSettingPage({super.key});
@@ -13,19 +19,25 @@ class HalterSettingPage extends StatefulWidget {
 
 class HalterSettingPageState extends State<HalterSettingPage> {
   final HalterDashboardController controller = Get.find();
-  
-  // Dummy controllers
+  final HalterSettingController settingController = Get.find();
+
   final TextEditingController _cloudUrlController = TextEditingController(
     text: 'https://smarthalter.ipb.ac.id',
   );
-  final TextEditingController _loraPortController = TextEditingController(
-    text: 'COM3',
-  );
+
+  String? _selectedLoraPort;
+  bool _loraConnected = false;
 
   String? _selectedJenisPengiriman = 'LoRa';
-  String? _selectedStable = 'Kandang A';
-  final bool _cloudConnected = true;
-  final bool _loraConnected = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedLoraPort = settingController.setting.value.loraPort.isEmpty
+        ? null
+        : settingController.setting.value.loraPort;
+    _loraConnected = settingController.setting.value.loraConnected;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,24 +101,65 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  settingController.updateCloud(
+                                    url: _cloudUrlController.text,
+                                    isConnected: true,
+                                  );
+                                  toastification.show(
+                                    context: context,
+                                    title: Text(
+                                      'Koneksi Cloud Berhasil',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    type: ToastificationType.success,
+                                    description: Text(
+                                      'Cloud URL: ${_cloudUrlController.text}',
+                                    ),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.black26,
+                                        blurRadius: 8,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                    alignment: Alignment.topCenter,
+                                    autoCloseDuration: const Duration(
+                                      seconds: 2,
+                                    ),
+                                  );
+                                },
                                 child: const Text('Check Connection'),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        LinearProgressIndicator(
-                          value: _cloudConnected ? 1.0 : 0.2,
-                          minHeight: 8,
-                          color: _cloudConnected ? Colors.green : Colors.orange,
-                          backgroundColor: Colors.grey[300],
+                        Obx(
+                          () => LinearProgressIndicator(
+                            value:
+                                settingController.setting.value.cloudConnected
+                                ? 1.0
+                                : 0.2,
+                            minHeight: 8,
+                            color:
+                                settingController.setting.value.cloudConnected
+                                ? Colors.green
+                                : Colors.orange,
+                            backgroundColor: Colors.grey[300],
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          _cloudConnected ? 'Terhubung' : 'Tidak Terhubung',
+                          settingController.setting.value.cloudConnected
+                              ? 'Terhubung'
+                              : 'Tidak Terhubung',
                           style: TextStyle(
-                            color: _cloudConnected
+                            color:
+                                settingController.setting.value.cloudConnected
                                 ? Colors.green
                                 : Colors.orange,
                             fontWeight: FontWeight.bold,
@@ -132,7 +185,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                         const Text('Port'),
                         const SizedBox(height: 4),
                         DropdownButtonFormField<String>(
-                          value: _loraPortController.text,
+                          value: _selectedLoraPort,
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             isDense: true,
@@ -147,13 +200,20 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                               .toList(),
                           onChanged: (val) {
                             setState(() {
-                              _loraPortController.text = val ?? '';
+                              _selectedLoraPort = val;
+                              _loraConnected = false;
+                              settingController.updateLora(
+                                port: _selectedLoraPort!,
+                                isConnected: false,
+                              );
                             });
                           },
+                          hint: const Text('Pilih Port'),
                         ),
                         const SizedBox(height: 12),
                         Row(
                           children: [
+                            // Tombol Simpan Port (optional, bisa diisi logic simpan port ke controller)
                             Expanded(
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
@@ -163,27 +223,102 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                onPressed: () {},
+                                onPressed: _selectedLoraPort == null
+                                    ? null
+                                    : () {
+                                        // Logic simpan port jika perlu
+                                      },
                                 child: const Text('Simpan Port'),
                               ),
                             ),
                             const SizedBox(width: 10),
+                            // Tombol Connect/Disconnect
                             Expanded(
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
+                                  backgroundColor: _selectedLoraPort == null
+                                      ? Colors.grey.shade400
+                                      : _loraConnected
+                                      ? Colors.red
+                                      : Colors.green,
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                onPressed: () {},
-                                child: const Text('Disconnect'),
+                                onPressed: _selectedLoraPort == null
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          _loraConnected = !_loraConnected;
+                                          settingController.updateLora(
+                                            port: _selectedLoraPort!,
+                                            isConnected: _loraConnected,
+                                          );
+                                          if (_loraConnected) {
+                                            toastification.show(
+                                              context: context,
+                                              title: const Text(
+                                                'Koneksi Lora Berhasil',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              type: ToastificationType.success,
+                                              description: Text(
+                                                'Port: $_selectedLoraPort',
+                                              ),
+                                              boxShadow: const [
+                                                BoxShadow(
+                                                  color: Colors.black26,
+                                                  blurRadius: 8,
+                                                  offset: Offset(0, 2),
+                                                ),
+                                              ],
+                                              alignment: Alignment.topCenter,
+                                              autoCloseDuration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                            );
+                                          } else {
+                                            toastification.show(
+                                              context: context,
+                                              title: const Text(
+                                                'Koneksi Lora Terputus',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              type: ToastificationType.error,
+                                              description: const Text(
+                                                'Lora telah terputus.',
+                                              ),
+                                              boxShadow: const [
+                                                BoxShadow(
+                                                  color: Colors.black26,
+                                                  blurRadius: 8,
+                                                  offset: Offset(0, 2),
+                                                ),
+                                              ],
+                                              alignment: Alignment.topCenter,
+                                              autoCloseDuration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                            );
+                                          }
+                                        });
+                                      },
+                                child: Text(
+                                  _loraConnected ? 'Disconnect' : 'Connect',
+                                ),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 12),
+                        // Status Bar
                         LinearProgressIndicator(
                           value: _loraConnected ? 1.0 : 0.2,
                           minHeight: 8,
@@ -249,28 +384,39 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              settingController.updateJenisPengiriman(
+                                _selectedJenisPengiriman!,
+                              );
+                              toastification.show(
+                                context: context,
+                                title: const Text(
+                                  'Pengaturan Jenis Pengiriman Berhasil',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                type: ToastificationType.success,
+                                description: Text(
+                                  'Jenis Pengiriman: $_selectedJenisPengiriman',
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 8,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                                alignment: Alignment.topCenter,
+                                autoCloseDuration: const Duration(seconds: 2),
+                              );
+                            },
                             child: const Text(
                               'Simpan',
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        LinearProgressIndicator(
-                          value: 0.2, // contoh dummy
-                          minHeight: 8,
-                          color: Colors.orange,
-                          backgroundColor: Colors.grey[300],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Not Connected',
-                          style: const TextStyle(
-                            color: Colors.orange,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.right,
                         ),
                       ],
                     ),
@@ -325,10 +471,28 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                               ),
                             ),
                             onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Kandang berhasil disimpan!'),
+                              toastification.show(
+                                context: context,
+                                title: Text(
+                                  'Pengaturan Kandang Berhasil',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
+                                type: ToastificationType.success,
+                                description: Text(
+                                  'Kandang: ${controller.selectedStableId.value}',
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 8,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                                alignment: Alignment.topCenter,
+                                autoCloseDuration: const Duration(seconds: 2),
                               );
                             },
                             child: const Text(

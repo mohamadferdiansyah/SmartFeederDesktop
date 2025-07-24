@@ -3,11 +3,12 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/feeder_device_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/feeder_device_controller.dart';
+import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 
 class FeederDevicePage extends StatefulWidget {
-  const FeederDevicePage({Key? key}) : super(key: key);
+  const FeederDevicePage({super.key});
 
   @override
   State<FeederDevicePage> createState() => _FeederDevicePageState();
@@ -25,13 +26,43 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
   @override
   void initState() {
     super.initState();
-    _dataSource = DeviceDataTableSource(devices: _controller.feederDeviceList);
-    _searchController.addListener(() {
-      setState(() {
-        _searchText = _searchController.text.trim().toLowerCase();
-        _dataSource.updateFilter(_searchText);
-      });
-    });
+    _dataSource = DeviceDataTableSource(
+      devices: _controller.feederDeviceList,
+      onDelete: (context, device) {
+        showCustomDialog(
+          context: context,
+          title: 'Hapus',
+          icon: Icons.delete_forever,
+          iconColor: Colors.red,
+          content: Text("Hapus ${device.deviceId}?"),
+          onConfirm: () {
+            // _controller.deleteDevice(device);
+          },
+        );
+      },
+      onDetail: (context, device) {
+        showCustomDialog(
+          context: context,
+          title: 'Detail Perangkat',
+          icon: Icons.info_outline_rounded,
+          iconColor: Colors.blue,
+          showConfirmButton: false, // Tidak perlu tombol OK, cukup batal
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "ID: ${device.deviceId}",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text("Tipe: ${device.type}"),
+              Text("Status: ${device.status}"),
+              // Tambah info lain jika perlu
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -241,7 +272,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                                               ),
                                               child: Center(
                                                 child: const Text(
-                                                  'Nama',
+                                                  'Di Ruangan',
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                   ),
@@ -402,10 +433,16 @@ class DeviceDataTableSource extends DataTableSource {
   int _selectedCount = 0;
   int? hoveredColumnIndex;
 
+  final void Function(BuildContext context, FeederDeviceModel device) onDelete;
+  final void Function(BuildContext context, FeederDeviceModel device) onDetail;
+
   final FeederDeviceController controller = Get.find<FeederDeviceController>();
 
-  DeviceDataTableSource({required this.devices})
-    : filteredDevices = List.from(devices);
+  DeviceDataTableSource({
+    required this.devices,
+    required this.onDelete,
+    required this.onDetail,
+  }) : filteredDevices = List.from(devices);
 
   void updateFilter(String searchText) {
     if (searchText.isEmpty) {
@@ -457,22 +494,26 @@ class DeviceDataTableSource extends DataTableSource {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CustomButton(
-                width: 80,
-                height: 30,
-                text: 'Detail',
-                borderRadius: 6,
-                onPressed: () {
-                  // TODO: aksi detail
-                },
+              Builder(
+                builder: (context) => CustomButton(
+                  width: 80,
+                  height: 30,
+                  text: 'Detail',
+                  borderRadius: 6,
+                  onPressed: () {
+                    onDetail(context, device);
+                  },
+                ),
               ),
               SizedBox(width: 8),
-              IconButton(
-                icon: Icon(Icons.delete, color: Colors.red),
-                tooltip: 'Hapus',
-                onPressed: () {
-                  // TODO: aksi hapus
-                },
+              Builder(
+                builder: (context) => IconButton(
+                  icon: Icon(Icons.delete, color: Colors.red),
+                  tooltip: 'Hapus Data',
+                  onPressed: () {
+                    onDelete(context, device);
+                  },
+                ),
               ),
             ],
           ),

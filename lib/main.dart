@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:window_manager/window_manager.dart';
 import 'app/routes/app_pages.dart';
 import 'app/constants/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting(
-    'id_ID',
-    null,
-  ); // Inisialisasi locale Indonesia
+  await initializeDateFormatting('id_ID', null);
+
+  // await windowManager.ensureInitialized();
+
+  windowManager.waitUntilReadyToShow().then((_) async {
+    await windowManager.setFullScreen(true);
+    // Atau jika ingin menonaktifkan resize/minimize dll:
+    // await windowManager.setResizable(false);
+    // await windowManager.setMinimizable(false);
+  });
+
   runApp(SmartFeederApp());
 }
 
@@ -18,14 +26,14 @@ class SmartFeederApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  return GetMaterialApp(
+    return GetMaterialApp(
       title: 'SmartFeeder Desktop',
       debugShowCheckedModeBanner: false,
       initialRoute: '/login',
       getPages: AppPages.pages,
       theme: ThemeData(
         primaryColor: AppColors.primary,
-        colorScheme: ColorScheme.fromSeed(  
+        colorScheme: ColorScheme.fromSeed(
           seedColor: AppColors.primary,
           primary: AppColors.primary,
           secondary: const Color.fromARGB(255, 213, 79, 79),
