@@ -6,6 +6,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_feeder/control_schedule/c
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
+import 'package:toastification/toastification.dart';
 
 class ControlSchedulePage extends StatefulWidget {
   final int roomSelected;
@@ -228,10 +229,9 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                           ),
                                         ),
                                         Text(
-                                          controller
-                                                  .selectedRoom
-                                                  .lastFeedText ??
-                                              'Belum Ada Pengisian',
+                                          controller.getLastFeedText(
+                                            controller.selectedRoom,
+                                          ),
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -624,7 +624,48 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                         Spacer(),
                         CustomButton(
                           text: 'Simpan Jadwal',
-                          onPressed: () {},
+                          onPressed: () {
+                            toastification.show(
+                              context: context,
+                              title: const Text(
+                                'Jadwal Tersimpan',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              type: ToastificationType.success,
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 8,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                              alignment: Alignment.topCenter,
+                              autoCloseDuration: const Duration(seconds: 2),
+                            );
+                            if(_selectedTab == 0){
+                              controller.updateRoomSchedule(
+                                room: controller.selectedRoom,
+                                isWater: true,
+                                scheduleType: selectedMode,
+                                intervalJam: selectedMode == "Penjadwalan"
+                                    ? intervalJam
+                                    : null,
+                              );
+                            }
+                            else {
+                              controller.updateRoomSchedule(
+                                room: controller.selectedRoom,
+                                isWater: false,
+                                scheduleType: selectedMode,
+                                intervalJam: selectedMode == "Penjadwalan"
+                                    ? intervalJam
+                                    : null,
+                              );
+                            }
+                          },
                           backgroundColor: Colors.green,
                           textColor: Colors.white,
                           fontSize: 20,

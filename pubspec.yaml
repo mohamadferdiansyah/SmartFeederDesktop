@@ -14,6 +14,7 @@ dependencies:
     sdk: flutter
   get: ^4.7.2
   intl: ^0.20.2
+  mqtt_client: ^10.10.0
   syncfusion_flutter_datagrid: ^30.1.40
   toastification: ^3.0.3
   top_snackbar_flutter: ^3.3.0

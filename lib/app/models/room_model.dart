@@ -5,13 +5,16 @@ class RoomModel {
   final String name;
   final String deviceSerial;
   final String status;
-  final List<String> cctvIds; // Relasi ke 2 CCTV
-  final String stableId;      // Relasi ke StableModel
-  final String? horseId;      // Relasi ke HorseModel
+  final List<String> cctvIds;
+  final String stableId;
+  final String? horseId;
   final RxDouble remainingWater;
   final RxDouble remainingFeed;
-  final String scheduleType;
-  final String? lastFeedText;
+  RxString waterScheduleType;
+  RxString feedScheduleType;
+  final Rxn<DateTime> lastFeedText;
+  final RxnInt waterScheduleIntervalHour;
+  final RxnInt feedScheduleIntervalHour;
 
   RoomModel({
     required this.roomId,
@@ -21,10 +24,18 @@ class RoomModel {
     required this.cctvIds,
     required this.stableId,
     this.horseId,
+    int? waterScheduleIntervalHour,
+    int? feedScheduleIntervalHour,
     required double remainingWater,
     required double remainingFeed,
-    required this.scheduleType,
-    this.lastFeedText,
-  })  : remainingWater = remainingWater.obs,
-        remainingFeed = remainingFeed.obs;
+    required String waterScheduleType,
+    required String feedScheduleType,
+    DateTime? lastFeedText,
+  })  : waterScheduleType = waterScheduleType.obs,
+        feedScheduleType = feedScheduleType.obs,
+        remainingWater = remainingWater.obs,
+        remainingFeed = remainingFeed.obs,
+        waterScheduleIntervalHour = RxnInt(waterScheduleIntervalHour),
+        feedScheduleIntervalHour = RxnInt(feedScheduleIntervalHour),
+        lastFeedText = Rxn<DateTime>(lastFeedText);
 }

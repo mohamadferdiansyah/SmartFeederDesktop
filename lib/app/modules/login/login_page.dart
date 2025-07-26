@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: MediaQuery.of(context).size.width * 0.4,
+                width: MediaQuery.of(context).size.width * 0.3,
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -73,12 +73,6 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(width: 16),
                     Image.asset(
                       'assets/images/biofarma.png',
-                      height: 250,
-                      width: 250,
-                    ),
-                    SizedBox(width: 16),
-                    Image.asset(
-                      'assets/images/lpdp.png',
                       height: 250,
                       width: 250,
                     ),
@@ -185,7 +179,7 @@ class _LoginPageState extends State<LoginPage> {
                         children: [
                           // Logo CassMaTech
                           Image.asset(
-                            'assets/images/cassmatech.png',
+                            'assets/images/lpdp_full.png',
                             height: 200,
                           ),
                           const SizedBox(height: 12),

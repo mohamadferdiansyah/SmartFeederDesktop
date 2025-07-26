@@ -64,9 +64,9 @@
 //   HalterDeviceModel(deviceId: 'SHIPB1223006', horseId: null, status: HalterDeviceStatus.off),
 // ].obs;
 
-// final RxList<FeederDeviceModel> feederDeviceList = <FeederDeviceModel>[
-//   FeederDeviceModel(deviceId: 'SFIPB1223005', roomId: 'R1', status: FeederDeviceStatus.on, type: FeederDeviceType.actuator),
-//   FeederDeviceModel(deviceId: 'SFIPB1223006', roomId: null, status: FeederDeviceStatus.off, type: FeederDeviceType.sensor),
+// final RxList<FeederRoomDeviceModel> feederRoomDeviceList = <FeederRoomDeviceModel>[
+//   FeederRoomDeviceModel(deviceId: 'SFIPB1223005', roomId: 'R1', status: FeederDeviceStatus.on, type: FeederDeviceType.actuator),
+//   FeederRoomDeviceModel(deviceId: 'SFIPB1223006', roomId: null, status: FeederDeviceStatus.off, type: FeederDeviceType.sensor),
 // ].obs;
 
 // final RxList<FeedModel> feedList = <FeedModel>[

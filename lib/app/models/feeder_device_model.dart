@@ -1,14 +1,14 @@
+import 'package:get/get.dart';
 
 class FeederDeviceModel {
   final String deviceId;
-  final String? roomId; // relasi ke room
-  final String status;
-  final String type;
+  final RxString status;
+  final RxInt batteryPercent;
 
   FeederDeviceModel({
     required this.deviceId,
-    this.roomId,
-    required this.status,
-    required this.type,
-  });
+    required String status,
+    required int batteryPercent,
+  }) : status = status.obs,
+      batteryPercent = batteryPercent.obs;
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
-import 'package:smart_feeder_desktop/app/models/feeder_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder_room_device_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/feeder_device_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
@@ -18,7 +18,6 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
   final TextEditingController _searchController = TextEditingController();
   final FeederDeviceController _controller = Get.find<FeederDeviceController>();
   late DeviceDataTableSource _dataSource;
-  String _searchText = "";
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   int? _sortColumnIndex;
   bool _sortAscending = true;
@@ -27,7 +26,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
   void initState() {
     super.initState();
     _dataSource = DeviceDataTableSource(
-      devices: _controller.feederDeviceList,
+      devices: _controller.feederRoomDeviceList,
       onDelete: (context, device) {
         showCustomDialog(
           context: context,
@@ -428,13 +427,15 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
 
 // DataTableSource untuk PaginatedDataTable
 class DeviceDataTableSource extends DataTableSource {
-  List<FeederDeviceModel> devices;
-  List<FeederDeviceModel> filteredDevices;
+  List<FeederRoomDeviceModel> devices;
+  List<FeederRoomDeviceModel> filteredDevices;
   int _selectedCount = 0;
   int? hoveredColumnIndex;
 
-  final void Function(BuildContext context, FeederDeviceModel device) onDelete;
-  final void Function(BuildContext context, FeederDeviceModel device) onDetail;
+  final void Function(BuildContext context, FeederRoomDeviceModel device)
+  onDelete;
+  final void Function(BuildContext context, FeederRoomDeviceModel device)
+  onDetail;
 
   final FeederDeviceController controller = Get.find<FeederDeviceController>();
 
@@ -459,7 +460,7 @@ class DeviceDataTableSource extends DataTableSource {
   }
 
   void sort<T>(
-    Comparable<T> Function(FeederDeviceModel d) getField,
+    Comparable<T> Function(FeederRoomDeviceModel d) getField,
     bool ascending,
   ) {
     filteredDevices.sort((a, b) {

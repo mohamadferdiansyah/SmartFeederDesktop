@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:window_manager/window_manager.dart';
 import 'app/routes/app_pages.dart';
 import 'app/constants/app_colors.dart';
@@ -11,13 +12,13 @@ void main() async {
 
   // await windowManager.ensureInitialized();
 
-  windowManager.waitUntilReadyToShow().then((_) async {
+  windowManager.waitUntilReadyToShow().then((_) async { 
     await windowManager.setFullScreen(true);
     // Atau jika ingin menonaktifkan resize/minimize dll:
     // await windowManager.setResizable(false);
     // await windowManager.setMinimizable(false);
   });
-
+    Get.put(DataController());
   runApp(SmartFeederApp());
 }
 
