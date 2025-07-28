@@ -9,7 +9,7 @@ import 'feeder_layout_controller.dart';
 class FeederLayoutBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put<MqttService>(MqttService()..init());
+    Get.lazyPut<MqttService>(() => MqttService());
     Get.lazyPut<FeederLayoutController>(() => FeederLayoutController());
     Get.lazyPut<FeederDashboardController>(() => FeederDashboardController());
     Get.lazyPut<FeederDeviceController>(() => FeederDeviceController());

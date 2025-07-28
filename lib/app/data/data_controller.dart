@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/models/cctv_model.dart';
-import 'package:smart_feeder_desktop/app/models/data_serial_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/models/feed_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder_room_device_model.dart';
@@ -592,11 +592,11 @@ class DataController extends GetxController {
 
   // Data Feeder Device
   final RxList<FeederDeviceModel> feederDeviceList = <FeederDeviceModel>[
-    FeederDeviceModel(
-      deviceId: 'feeder1',
-      status: 'on',
-      batteryPercent: 85,
-    ),
+    // FeederDeviceModel(
+    //   deviceId: 'feeder1',
+    //   status: 'on',
+    //   batteryPercent: 85,
+    // ),
   ].obs;
 
   // Data History Entry
@@ -1023,7 +1023,7 @@ class DataController extends GetxController {
   // Data Halter Device
   final RxList<HalterDeviceModel> halterDeviceList = <HalterDeviceModel>[
     HalterDeviceModel(
-      deviceId: 'SHIPB1223005',
+      deviceId: 'SHIPB1223002',
       horseId: 'H1',
       status: 'on',
       batteryPercent: 87,
@@ -1289,22 +1289,22 @@ class DataController extends GetxController {
   ].obs;
 
   // Data Raw Halter
-  RxList<DataSerialModel> dataSerialList = <DataSerialModel>[
-    DataSerialModel(
+  RxList<HalterRawDataModel> dataSerialList = <HalterRawDataModel>[
+    HalterRawDataModel(
       no: 1,
       data:
           "SHIPB1223004,-6.967736500,107.659127167,683.50,0.00,211.00,1.79,-0.40,10.20,-0.00,0.00,0.00,-15.62,45.94,17.79,-10,-177,-66,NAN,0.00,0.00,0.00,29.77,*",
       tanggal: "2025-07-23",
       waktu: "18:26:00",
     ),
-    DataSerialModel(
+    HalterRawDataModel(
       no: 2,
       data:
           "SHIPB1223005,-6.967800,107.659200,700.12,1.00,205.00,1.81,-0.30,15.30,-0.10,0.10,0.00,-12.62,48.94,14.79,-12,-150,-60,NAN,1.00,1.00,1.00,28.77,*",
       tanggal: "2025-07-23",
       waktu: "18:27:01",
     ),
-    DataSerialModel(
+    HalterRawDataModel(
       no: 3,
       data:
           "SHIPB1223006,-6.968000,107.659300,710.00,2.00,220.00,2.00,-0.20,11.20,-0.20,0.20,0.10,-14.00,46.00,18.00,-14,-160,-70,NAN,2.00,2.00,2.00,30.00,*",

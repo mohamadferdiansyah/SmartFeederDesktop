@@ -18,7 +18,7 @@ void main() async {
     // await windowManager.setResizable(false);
     // await windowManager.setMinimizable(false);
   });
-    Get.put(DataController());
+    Get.put(DataController());  
   runApp(SmartFeederApp());
 }
 

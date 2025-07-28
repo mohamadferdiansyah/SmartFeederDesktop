@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
-import 'package:smart_feeder_desktop/app/models/data_serial_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/raw_data/halter_raw_data_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
@@ -15,9 +15,8 @@ class HalterRawDataPage extends StatefulWidget {
 
 class _HalterRawDataPageState extends State<HalterRawDataPage> {
   final TextEditingController _searchController = TextEditingController();
-  final HalterRawDataController _controller = Get.put(
-    HalterRawDataController(),
-  );
+  final HalterRawDataController _controller =
+      Get.find<HalterRawDataController>();
   late HalterRawDataTableSource _dataSource;
   String _searchText = "";
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
@@ -319,13 +318,13 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
 }
 
 class HalterRawDataTableSource extends DataTableSource {
-  List<DataSerialModel> data;
-  List<DataSerialModel> filteredData;
+  List<HalterRawDataModel> data;
+  List<HalterRawDataModel> filteredData;
 
   HalterRawDataTableSource({required this.data})
     : filteredData = List.from(data);
 
-  void updateFilter(List<DataSerialModel> filtered) {
+  void updateFilter(List<HalterRawDataModel> filtered) {
     filteredData = filtered;
     notifyListeners();
   }

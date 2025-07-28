@@ -1014,20 +1014,38 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                               child: Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Colors.teal.withOpacity(0.2),
+                                  color:
+                                      controller
+                                              .getFeederDeviceBatteryPercent() <
+                                          20
+                                      ? Colors.red.withOpacity(0.2)
+                                      : Colors.teal.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: Colors.teal,
+                                    color:
+                                        controller
+                                                .getFeederDeviceBatteryPercent() <
+                                            20
+                                        ? Colors.red
+                                        : Colors.teal,
                                     width: 1,
                                   ),
                                 ),
                                 child: Center(
                                   child: Text(
-                                    '${controller.getFeederDeviceBatteryPercent()}%',
+                                    controller.getFeederDeviceBatteryPercent() ==
+                                            0
+                                        ? '- %'
+                                        : '${controller.getFeederDeviceBatteryPercent()}%',
                                     style: TextStyle(
                                       fontSize: 35,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.teal,
+                                      color:
+                                          controller
+                                                  .getFeederDeviceBatteryPercent() <
+                                              20
+                                          ? Colors.red
+                                          : Colors.teal,
                                     ),
                                   ),
                                 ),
@@ -1051,9 +1069,10 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    controller.getFeederDeviceStatus() == 'on'
+                                    controller.getFeederDeviceStatus() ==
+                                            'ready'
                                         ? 'Aktif'
-                                        : 'Tidak Aktif',
+                                        : 'Mati',
                                     style: TextStyle(
                                       fontSize: 35,
                                       fontWeight: FontWeight.bold,

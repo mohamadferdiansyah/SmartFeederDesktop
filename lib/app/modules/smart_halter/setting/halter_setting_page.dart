@@ -4,7 +4,7 @@ import 'package:delightful_toast/toast/utils/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashbboard_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
@@ -190,7 +190,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                             border: OutlineInputBorder(),
                             isDense: true,
                           ),
-                          items: ['COM1', 'COM2', 'COM3', 'COM4']
+                          items: settingController.availablePorts
                               .map(
                                 (port) => DropdownMenuItem(
                                   value: port,

@@ -2,10 +2,14 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashbboard_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_battery_chart.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_biometric_chart.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_biometric_legend.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_horse_card.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_movement_chart%20.dart';
 
 class HalterDashboardPage extends StatefulWidget {
   const HalterDashboardPage({super.key});
@@ -817,8 +821,11 @@ class _DetailKudaView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // IoT Info dan Gambar Kuda
-              Obx(
-                () => Row(
+              Obx(() {
+                // final detail = controller.serialService.latestDetail.value;
+                final detail = controller.getSelectedHorseDetail();
+
+                return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // IoT Info
@@ -859,7 +866,7 @@ class _DetailKudaView extends StatelessWidget {
                                   Text('Tegangan'),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'NaN',
+                                    '${detail?.voltase ?? 'NaN'} mV',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue,
@@ -872,7 +879,7 @@ class _DetailKudaView extends StatelessWidget {
                                   Text('RSSI'),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'NaN',
+                                    '${detail?.arus ?? 0} mA',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue,
@@ -1018,7 +1025,7 @@ class _DetailKudaView extends StatelessWidget {
                                           Text('Posisi:'),
                                           const SizedBox(width: 8),
                                           Text(
-                                            'NaN',
+                                            '${detail?.latitude ?? 'NaN'}',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               color: Colors.blue,
@@ -1090,8 +1097,8 @@ class _DetailKudaView extends StatelessWidget {
                       ),
                     ),
                   ],
-                ),
-              ),
+                );
+              }),
               const SizedBox(height: 16),
               // Divider
               Container(height: 4, color: Colors.blue[100]),
@@ -1106,77 +1113,133 @@ class _DetailKudaView extends StatelessWidget {
                 height: 170,
                 color: Colors.grey[100],
                 alignment: Alignment.center,
-                child: const Text("Biometrik Chart Placeholder"),
+                child: CustomBiometricChart(),
               ),
               const SizedBox(height: 12),
               const Divider(thickness: 1.2),
-              // LEGEND BIOMETRIK
-              _BiometrikLegendList(),
+              Obx(() {
+                // final detail = controller.serialService.latestDetail.value;
+                final detail = controller.getSelectedHorseDetail();
+                return CustomBiometricLegend(
+                  items: [
+                    BiometrikLegendItem(
+                      color: Color(0xFF23272F),
+                      label: "Detak Jantung (BPM)",
+                      value: detail?.bpm?.toString() ?? "-",
+                    ),
+                    BiometrikLegendItem(
+                      color: Color(0xFFD34B40),
+                      label: "Suhu Badan (°C)",
+                      value: detail?.suhu?.toString() ?? "-",
+                    ),
+                    BiometrikLegendItem(
+                      color: Color(0xFF6A7891),
+                      label: "Kadar Oksigen Dalam Darah (%)",
+                      value: detail?.spo?.toString() ?? "-",
+                    ),
+                    BiometrikLegendItem(
+                      color: Color(0xFFE28B1B),
+                      label: "Respirasi (BPM)",
+                      value: detail?.respirasi?.toString() ?? "-",
+                    ),
+                  ],
+                );
+              }),
               const SizedBox(height: 12),
               Container(height: 4, color: Colors.blue[100]),
               const SizedBox(height: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    "Postur Kuda",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Keterangan Postur
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
-                              "Berdiri Kepala Tegak",
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              "Akurasi : 98%",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ],
-                        ),
+              const Text(
+                "Pergerakan Kuda",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                height: 170,
+                color: Colors.grey[100],
+                alignment: Alignment.center,
+                child: CustomMovementChart(),
+              ),
+              const SizedBox(height: 12),
+              Container(height: 4, color: Colors.blue[100]),
+              const SizedBox(height: 8),
+              Obx(() {
+                final detail = controller.getSelectedHorseDetail();
+                final posture = detail == null
+                    ? "Tidak ada data"
+                    : controller.getHorseHeadPosture(
+                        detail.roll ?? 0,
+                        detail.pitch ?? 0,
+                        detail.yaw ?? 0,
+                      );
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      "Postur Kuda",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
-                      // Gambar kuda
-                      Expanded(
-                        flex: 1,
-                        child: Padding(
-                          padding: EdgeInsets.only(right: 24.0),
-                          child: Image(
-                            image: AssetImage('assets/images/horse.png'),
-                            height: 200,
-                            fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Keterangan Postur
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Postur Kepala Kuda: $posture",
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                "Akurasi : 98%",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ],
                           ),
                         ),
+                        // Gambar kuda
+                        Expanded(
+                          flex: 1,
+                          child: Padding(
+                            padding: EdgeInsets.only(right: 24.0),
+                            child: Image(
+                              image: AssetImage('assets/images/horse.png'),
+                              height: 200,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    Container(height: 4, color: Colors.blue[100]),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Persentase Baterai IoT Halter",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-                  Container(height: 4, color: Colors.blue[100]),
-                  const SizedBox(height: 8),
-                  const Text(
-                    "Persentase Baterai IoT Halter",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    height: 120,
-                    color: Colors.grey[100],
-                    alignment: Alignment.center,
-                    child: const Text("Chart Persentase Baterai Placeholder"),
-                  ),
-                ],
-              ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 120,
+                      color: Colors.grey[100],
+                      alignment: Alignment.center,
+                      child: CustomBatteryChart(),
+                    ),
+                  ],
+                );
+              }),
             ],
           ),
         ),

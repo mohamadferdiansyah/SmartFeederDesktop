@@ -1,7 +1,11 @@
+import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/models/halter_setting_model.dart';
+import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
 class HalterSettingController extends GetxController {
+  final HalterSerialService serialService = Get.find<HalterSerialService>();
+  
   // Observable state
   final Rx<HalterSettingModel> setting = HalterSettingModel(
     cloudUrl: 'https://smarthalter.ipb.ac.id',
@@ -10,6 +14,8 @@ class HalterSettingController extends GetxController {
     loraConnected: false,
     jenisPengiriman: 'LoRa',
   ).obs;
+
+  RxList<String> get availablePorts => RxList<String>(SerialPort.availablePorts);
 
   // Update Cloud
   void updateCloud({required String url, required bool isConnected}) {
@@ -29,6 +35,7 @@ class HalterSettingController extends GetxController {
         val.loraConnected = isConnected;
       }
     });
+    serialService.initSerial(port, 115200);
   }
 
   // Update Jenis Pengiriman

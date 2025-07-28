@@ -1,10 +1,13 @@
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/models/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/horse_health_model.dart';
 import 'package:smart_feeder_desktop/app/models/horse_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'package:smart_feeder_desktop/app/models/stable_model.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
+import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
 class HalterDashboardController extends GetxController {
   RxInt selectedStableIndex = 0.obs;
@@ -16,11 +19,18 @@ class HalterDashboardController extends GetxController {
           filteredRoomList.length - 1,
         )]
       : roomList[0];
+
+
+
   List<RoomModel> get filteredRoomList => roomList
       .where((room) => room.stableId == selectedStableId.value)
       .toList();
 
+  final serialService = Get.find<HalterSerialService>();
+
   final DataController dataController = Get.find<DataController>();
+
+  final HalterSettingController settingController = Get.find<HalterSettingController>();
 
   List<StableModel> get stableList => dataController.stableList;
 
@@ -30,7 +40,53 @@ class HalterDashboardController extends GetxController {
 
   List<HorseHealthModel> get horseHealthList => dataController.horseHealthList;
 
-  List<HalterDeviceModel> get halterDeviceList => dataController.halterDeviceList;
+  List<HalterDeviceModel> get halterDeviceList =>
+      dataController.halterDeviceList;
+
+  RxList<HalterDeviceDetailModel> get halterDeviceDetailList =>
+      serialService.detailHistory;
+
+  int? getSelectedHorseBatteryPercent() {
+  final selectedHorseId = selectedRoom.horseId;
+  if (selectedHorseId == null) return null;
+
+  final device = halterDeviceList.firstWhereOrNull(
+    (d) => d.horseId == selectedHorseId,
+  );
+  return device?.batteryPercent;
+}
+
+  List<HalterDeviceDetailModel> getSelectedHorseDetailHistory() {
+  final selectedHorseId = selectedRoom.horseId;
+  if (selectedHorseId == null) return [];
+  final device = halterDeviceList.firstWhereOrNull(
+      (d) => d.horseId == selectedHorseId);
+  if (device == null) return [];
+  // Filter history sesuai deviceId
+  return halterDeviceDetailList
+      .where((detail) => detail.deviceId == device.deviceId)
+      .toList();
+}
+
+  @override
+  void onInit() {
+    super.onInit();
+    serialService.initSerial(settingController.setting.value.loraPort, 115200);
+    ever<HalterDeviceDetailModel?>(serialService.latestDetail, (detail) {
+      if (detail != null) {
+        // Tambahkan data baru, batasi max 100
+        halterDeviceDetailList.add(detail);
+        if (halterDeviceDetailList.length > 100)
+          halterDeviceDetailList.removeAt(0);
+      }
+    });
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
+    serialService.closeSerial();
+  }
 
   void setSelectedStableId(String stableId) {
     selectedStableId.value = stableId;
@@ -43,6 +99,21 @@ class HalterDashboardController extends GetxController {
 
   HorseModel getHorseById(String horseId) {
     return horseList.firstWhere((horse) => horse.horseId == horseId);
+  }
+
+  HalterDeviceDetailModel? getSelectedHorseDetail() {
+    final selectedHorseId = selectedRoom.horseId;
+    if (selectedHorseId == null) return null;
+
+    final device = halterDeviceList.firstWhereOrNull(
+      (d) => d.horseId == selectedHorseId,
+    );
+    if (device == null) return null;
+
+    final list = halterDeviceDetailList.toList();
+    return list.isNotEmpty
+        ? list.lastWhere((detail) => detail.deviceId == device.deviceId)
+        : null;
   }
 
   String getStableNameById(String stableId) {
@@ -161,4 +232,13 @@ class HalterDashboardController extends GetxController {
     }
     return "Sehat";
   }
+
+  String getHorseHeadPosture(int roll, int pitch, int yaw) {
+  // Threshold bisa kamu sesuaikan, ini contoh kasar:
+  if (pitch < -30) return "Menunduk";
+  if (pitch > 30) return "Mendongak";
+  if (roll > 30) return "Miring kanan";
+  if (roll < -30) return "Miring kiri";
+  return "Tegak";
+}
 }
