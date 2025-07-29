@@ -38,7 +38,7 @@ class DataController extends GetxController {
     RoomModel(
       roomId: 'R1',
       name: 'Ruangan 1',
-      deviceSerial: 'SRIPB1223001',
+      deviceSerial: 'SRIPB1223003',
       status: 'used',
       cctvIds: ['CCTV1', 'CCTV2'],
       stableId: 'S1',
@@ -70,7 +70,7 @@ class DataController extends GetxController {
     RoomModel(
       roomId: 'R3',
       name: 'Ruangan 3',
-      deviceSerial: 'SRIPB1223003',
+      deviceSerial: 'SRIPB1223001',
       status: 'used',
       cctvIds: ['CCTV5', 'CCTV6'],
       stableId: 'S1',

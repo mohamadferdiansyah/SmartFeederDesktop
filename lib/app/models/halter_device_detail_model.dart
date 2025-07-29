@@ -23,6 +23,7 @@ class HalterDeviceDetailModel {
   final double? spo;
   final double? suhu;
   final double? respirasi;
+  final DateTime? time;
 
   HalterDeviceDetailModel({
     required this.deviceId,
@@ -49,6 +50,7 @@ class HalterDeviceDetailModel {
     this.spo,
     this.suhu,
     this.respirasi,
+    this.time,
   });
 
   factory HalterDeviceDetailModel.fromSerial(String line) {
@@ -82,6 +84,7 @@ class HalterDeviceDetailModel {
       spo: _toDouble(parts[21]),
       suhu: _toDouble(parts[22]),
       respirasi: _toDouble(parts[23]),
+      time: DateTime.now(),
     );
   }
 

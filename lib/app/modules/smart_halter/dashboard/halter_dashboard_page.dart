@@ -824,6 +824,7 @@ class _DetailKudaView extends StatelessWidget {
               Obx(() {
                 // final detail = controller.serialService.latestDetail.value;
                 final detail = controller.getSelectedHorseDetail();
+                final nodeRoom = controller.getSelectedNodeRoom();
 
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -879,7 +880,7 @@ class _DetailKudaView extends StatelessWidget {
                                   Text('RSSI'),
                                   const SizedBox(width: 8),
                                   Text(
-                                    '${detail?.arus ?? 0} mA',
+                                    '${nodeRoom?.lightIntensity ?? 0} mA',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue,
@@ -1110,10 +1111,59 @@ class _DetailKudaView extends StatelessWidget {
               const SizedBox(height: 8),
               // Dummy biometrik chart
               Container(
-                height: 170,
+                height: 400,
+                width: double.infinity,
                 color: Colors.grey[100],
                 alignment: Alignment.center,
-                child: CustomBiometricChart(),
+                child: Obx(() {
+                  final data = controller.getSelectedHorseDetailHistory();
+                  const maxData = 10;
+                  if (data.isEmpty) {
+                    return const Text(
+                      "Tidak ada data biometrik yang tersedia",
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    );
+                  }
+
+                  // Ambil hanya 10 data terakhir
+                  final displayData = data.length > maxData
+                      ? data.sublist(data.length - maxData)
+                      : data;
+
+                  List<FlSpot> bpmSpots = [];
+                  List<FlSpot> suhuSpots = [];
+                  List<FlSpot> spoSpots = [];
+                  List<FlSpot> respirasiSpots = [];
+                  List<String> timeLabels = [];
+
+                  for (int i = 0; i < displayData.length; i++) {
+                    final d = displayData[i];
+                    bpmSpots.add(FlSpot(i.toDouble(), (d.bpm ?? 0).toDouble()));
+                    suhuSpots.add(FlSpot(i.toDouble(), (d.suhu ?? 0)));
+                    spoSpots.add(FlSpot(i.toDouble(), (d.spo ?? 0)));
+                    respirasiSpots.add(
+                      FlSpot(i.toDouble(), (d.respirasi ?? 0)),
+                    );
+
+                    if (d.time != null) {
+                      final timeStr = d.time!
+                          .toIso8601String()
+                          .split('T')[1]
+                          .split('.')[0];
+                      timeLabels.add(timeStr);
+                    } else {
+                      timeLabels.add('${i + 1}');
+                    }
+                  }
+
+                  return CustomBiometricChart(
+                    bpmSpots: bpmSpots,
+                    suhuSpots: suhuSpots,
+                    spoSpots: spoSpots,
+                    respirasiSpots: respirasiSpots,
+                    timeLabels: timeLabels,
+                  );
+                }),
               ),
               const SizedBox(height: 12),
               const Divider(thickness: 1.2),

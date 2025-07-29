@@ -2,8 +2,10 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter_device_model.dart';
+import 'package:collection/collection.dart';
 import 'package:smart_feeder_desktop/app/models/horse_health_model.dart';
 import 'package:smart_feeder_desktop/app/models/horse_model.dart';
+import 'package:smart_feeder_desktop/app/models/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'package:smart_feeder_desktop/app/models/stable_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
@@ -20,8 +22,6 @@ class HalterDashboardController extends GetxController {
         )]
       : roomList[0];
 
-
-
   List<RoomModel> get filteredRoomList => roomList
       .where((room) => room.stableId == selectedStableId.value)
       .toList();
@@ -30,7 +30,8 @@ class HalterDashboardController extends GetxController {
 
   final DataController dataController = Get.find<DataController>();
 
-  final HalterSettingController settingController = Get.find<HalterSettingController>();
+  final HalterSettingController settingController =
+      Get.find<HalterSettingController>();
 
   List<StableModel> get stableList => dataController.stableList;
 
@@ -46,32 +47,35 @@ class HalterDashboardController extends GetxController {
   RxList<HalterDeviceDetailModel> get halterDeviceDetailList =>
       serialService.detailHistory;
 
-  int? getSelectedHorseBatteryPercent() {
-  final selectedHorseId = selectedRoom.horseId;
-  if (selectedHorseId == null) return null;
+  RxList<NodeRoomModel> get nodeRoomList => serialService.nodeRoomList;
 
-  final device = halterDeviceList.firstWhereOrNull(
-    (d) => d.horseId == selectedHorseId,
-  );
-  return device?.batteryPercent;
-}
+  int? getSelectedHorseBatteryPercent() {
+    final selectedHorseId = selectedRoom.horseId;
+    if (selectedHorseId == null) return null;
+
+    final device = halterDeviceList.firstWhereOrNull(
+      (d) => d.horseId == selectedHorseId,
+    );
+    return device?.batteryPercent;
+  }
 
   List<HalterDeviceDetailModel> getSelectedHorseDetailHistory() {
-  final selectedHorseId = selectedRoom.horseId;
-  if (selectedHorseId == null) return [];
-  final device = halterDeviceList.firstWhereOrNull(
-      (d) => d.horseId == selectedHorseId);
-  if (device == null) return [];
-  // Filter history sesuai deviceId
-  return halterDeviceDetailList
-      .where((detail) => detail.deviceId == device.deviceId)
-      .toList();
-}
+    final selectedHorseId = selectedRoom.horseId;
+    if (selectedHorseId == null) return [];
+    final device = halterDeviceList.firstWhereOrNull(
+      (d) => d.horseId == selectedHorseId,
+    );
+    if (device == null) return [];
+    // Filter history sesuai deviceId
+    return halterDeviceDetailList
+        .where((detail) => detail.deviceId == device.deviceId)
+        .toList();
+  }
 
   @override
   void onInit() {
     super.onInit();
-    serialService.initSerial(settingController.setting.value.loraPort, 115200);
+    // serialService.initSerial(settingController.setting.value.loraPort, 115200);
     ever<HalterDeviceDetailModel?>(serialService.latestDetail, (detail) {
       if (detail != null) {
         // Tambahkan data baru, batasi max 100
@@ -102,18 +106,27 @@ class HalterDashboardController extends GetxController {
   }
 
   HalterDeviceDetailModel? getSelectedHorseDetail() {
-    final selectedHorseId = selectedRoom.horseId;
-    if (selectedHorseId == null) return null;
+  final selectedHorseId = selectedRoom.horseId;
+  if (selectedHorseId == null) return null;
 
-    final device = halterDeviceList.firstWhereOrNull(
-      (d) => d.horseId == selectedHorseId,
+  final device = halterDeviceList.firstWhereOrNull(
+    (d) => d.horseId == selectedHorseId,
+  );
+  if (device == null) return null;
+
+  final list = halterDeviceDetailList.toList();
+  return list.isNotEmpty
+      ? list.lastWhereOrNull((detail) => detail.deviceId == device.deviceId)
+      : null;
+}
+
+  NodeRoomModel? getSelectedNodeRoom() {
+    final deviceSerial = selectedRoom.deviceSerial;
+    if (deviceSerial == null) return null;
+
+    return nodeRoomList.firstWhereOrNull(
+      (node) => node.deviceId == deviceSerial,
     );
-    if (device == null) return null;
-
-    final list = halterDeviceDetailList.toList();
-    return list.isNotEmpty
-        ? list.lastWhere((detail) => detail.deviceId == device.deviceId)
-        : null;
   }
 
   String getStableNameById(String stableId) {
@@ -234,11 +247,11 @@ class HalterDashboardController extends GetxController {
   }
 
   String getHorseHeadPosture(int roll, int pitch, int yaw) {
-  // Threshold bisa kamu sesuaikan, ini contoh kasar:
-  if (pitch < -30) return "Menunduk";
-  if (pitch > 30) return "Mendongak";
-  if (roll > 30) return "Miring kanan";
-  if (roll < -30) return "Miring kiri";
-  return "Tegak";
-}
+    // Threshold bisa kamu sesuaikan, ini contoh kasar:
+    if (pitch < -30) return "Menunduk";
+    if (pitch > 30) return "Mendongak";
+    if (roll > 30) return "Miring kanan";
+    if (roll < -30) return "Miring kiri";
+    return "Tegak";
+  }
 }
