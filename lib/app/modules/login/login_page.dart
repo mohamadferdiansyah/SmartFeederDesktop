@@ -1,10 +1,9 @@
-import 'dart:io'; // <-- Tambahkan ini
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
-
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 
@@ -18,6 +17,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool rememberMe = false; // Tambahkan ini
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: MediaQuery.of(context).size.width * 0.3,
+                width: MediaQuery.of(context).size.width * 0.4,
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -73,6 +73,12 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(width: 16),
                     Image.asset(
                       'assets/images/biofarma.png',
+                      height: 250,
+                      width: 250,
+                    ),
+                    SizedBox(width: 16),
+                    Image.asset(
+                      'assets/images/lpdp.png',
                       height: 250,
                       width: 250,
                     ),
@@ -134,7 +140,30 @@ class _LoginPageState extends State<LoginPage> {
                             icon: Icons.lock,
                             isPassword: true,
                           ),
-                          SizedBox(height: 32),
+                          // ========== Tambahkan Checkbox Remember Me di sini ==========
+                          SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Checkbox(
+                                value: rememberMe,
+                                onChanged: (value) {
+                                  setState(() {
+                                    rememberMe = value ?? false;
+                                  });
+                                },
+                                activeColor: AppColors.primary,
+                              ),
+                              const Text(
+                                "Remember Me",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          // ===========================================================
+                          SizedBox(height: 16),
                           CustomButton(
                             text: 'Login',
                             onPressed: () {
@@ -183,8 +212,24 @@ class _LoginPageState extends State<LoginPage> {
                             height: 200,
                           ),
                           const SizedBox(height: 12),
-                          const Text(
-                            "Dibiayai dengan Hibah Riset Inovatif Produktif (RISPRO), LPDP Tahun II dengan nomor kontrak PRJ-31/LPDP/2021",
+                          const Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text:
+                                      'Dibiayai dengan Hibah Riset Inovatif Produktif (RISPRO) ',
+                                ),
+                                TextSpan(
+                                  text:
+                                      '"Sistem Perangkat Cerdas Monitoring dan Klasifikasi Kesehatan Kuda Berbasis AIoT Untuk Mendukung Indonesia 4.0 dalam Pembuatan Antisera"',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(
+                                  text:
+                                      ', Kontrak Nomor PRJ-15/LPDP/LPDP.4/2022 tanggal 7 Oktober 2022', // tambahkan kalimat lanjutan jika ada
+                                ),
+                              ],
+                            ),
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors.black87,
@@ -225,6 +270,36 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   );
                 },
+              ),
+            ),
+          ),
+
+          Positioned(
+            bottom: 30,
+            left: 0,
+            right: 0,
+            height: 50,
+            child: Center(
+              child: Column(
+                children: [
+                  Text(
+                    'Copyright IPB University © 2025',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Versi 2.0',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

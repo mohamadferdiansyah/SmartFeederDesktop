@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/models/cctv_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter_horse_log_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/models/feed_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder_device_model.dart';
@@ -466,8 +467,33 @@ class DataController extends GetxController {
     ),
   ].obs;
 
+  // Data Log Halter
+  final RxList<HalterHorseLogModel> halterLogList = <HalterHorseLogModel>[
+    HalterHorseLogModel(
+      horseId: 'H1',
+      message: 'Suhu Kuda rendah : 27.5°C',
+      time: DateTime.now(),
+    ),
+    HalterHorseLogModel(
+      horseId: 'H1',
+      message: 'Kadar Oksigen Kuda Rendah : 23%',
+      time: DateTime.now(),
+    ),
+    HalterHorseLogModel(
+      horseId: 'H2',
+      message: 'Kadar Oksigen Kuda Rendah : 18%',
+      time: DateTime.now(),
+    ),
+    HalterHorseLogModel(
+      horseId: 'H3',
+      message: 'Suhu Kuda rendah : 19.5°C',
+      time: DateTime.now(),
+    ),
+  ].obs;
+
   // Data Feeder Room Device
-  final RxList<FeederRoomDeviceModel> feederRoomDeviceList = <FeederRoomDeviceModel>[
+  final RxList<FeederRoomDeviceModel> feederRoomDeviceList =
+      <FeederRoomDeviceModel>[
         FeederRoomDeviceModel(
           deviceId: 'SFIPB1223005',
           roomId: 'R1',

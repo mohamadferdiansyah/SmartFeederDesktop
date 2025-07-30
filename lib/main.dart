@@ -22,7 +22,7 @@ void main() async {
   runApp(SmartFeederApp());
 }
 
-class SmartFeederApp extends StatelessWidget {
+class SmartFeederApp extends StatelessWidget {  
   const SmartFeederApp({super.key});
 
   @override

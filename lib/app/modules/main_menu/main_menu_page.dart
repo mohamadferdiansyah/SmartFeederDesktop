@@ -37,7 +37,8 @@ class MainMenuPage extends StatelessWidget {
               children: [
                 // Logo row
                 Container(
-                  width: MediaQuery.of(context).size.width * 0.4,
+                  height: 160,
+                  width: MediaQuery.of(context).size.width * 0.32,
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
@@ -56,20 +57,20 @@ class MainMenuPage extends StatelessWidget {
                     children: [
                       Image.asset(
                         'assets/images/ipb.png',
-                        height: 150,
-                        width: 150,
+                        height: 100,
+                        width: 100,
                       ),
                       SizedBox(width: 16),
                       Image.asset(
                         'assets/images/biofarma.png',
-                        height: 250,
-                        width: 250,
+                        height: 200,
+                        width: 200,
                       ),
                       SizedBox(width: 16),
                       Image.asset(
                         'assets/images/lpdp.png',
-                        height: 250,
-                        width: 250,
+                        height: 200,
+                        width: 200,
                       ),
                     ],
                   ),
@@ -77,7 +78,7 @@ class MainMenuPage extends StatelessWidget {
                 SizedBox(height: 10),
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 20, horizontal: 32),
-                  width: MediaQuery.of(context).size.width * 0.7,
+                  width: MediaQuery.of(context).size.width * 0.62,
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.88),
                     borderRadius: BorderRadius.circular(32),
@@ -91,56 +92,24 @@ class MainMenuPage extends StatelessWidget {
                     ],
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
+                      Column(
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Smart Horse App',
-                                style: TextStyle(
-                                  fontSize: 40,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                'Pilih Menu Terlebih Dahulu',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.grey[700],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            'Smart Horse App',
+                            style: TextStyle(
+                              fontSize: 40,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          Spacer(),
-                          CustomButton(
-                            text: 'Logout',
-                            onPressed: () {
-                              showCustomDialog(
-                                context: context,
-                                title: 'Konfirmasi Logout',
-                                message: 'Apakah kamu yakin ingin logout?',
-                                confirmText: 'Keluar',
-                                cancelText: 'Batal',
-                                icon: Icons.logout,
-                                iconColor: AppColors.primary,
-                                onConfirm: () {
-                                  Get.offAllNamed('/login');
-                                },
-                              );
-                            },
-                            width: 200,
-                            height: 60,
-                            fontSize: 24,
-                            iconSize: 28,
-                            icon: Icons.logout,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
+                          Text(
+                            'Pilih Menu Terlebih Dahulu',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey[700],
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
@@ -190,7 +159,7 @@ class MainMenuPage extends StatelessWidget {
                           SizedBox(
                             width: MediaQuery.of(context).size.width * 0.28,
                             child: CustomMainMenuCard(
-                              title: 'Monitoring Room',
+                              title: 'Room Monitoring',
                               description: 'Monitor Ruangan Kuda.',
                               imageAsset: 'assets/images/monitoring.jpg',
                               onTap: () {
@@ -204,6 +173,67 @@ class MainMenuPage extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+          Positioned(
+            right: 40,
+            bottom: 51,
+            child: SizedBox(
+              width: 200,
+              height: 50,
+              child: CustomButton(
+                text: 'Logout',
+                onPressed: () {
+                  showCustomDialog(
+                    context: context,
+                    title: 'Konfirmasi Logout',
+                    message: 'Apakah kamu yakin ingin logout?',
+                    confirmText: 'Keluar',
+                    cancelText: 'Batal',
+                    icon: Icons.logout,
+                    iconColor: AppColors.primary,
+                    onConfirm: () {
+                      Get.offAllNamed('/login');
+                    },
+                  );
+                },
+                width: 200,
+                height: 60,
+                fontSize: 20,
+                iconSize: 24,
+                icon: Icons.logout,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 30,
+            left: 0,
+            right: 0,
+            height: 50,
+            child: Center(
+              child: Column(
+                children: [
+                  Text(
+                    'Copyright IPB University © 2025',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Versi 2.0',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

@@ -13,7 +13,13 @@ class HalterSerialService extends GetxService {
       Rxn<HalterDeviceDetailModel>();
   final Rxn<NodeRoomModel> latestNodeRoomData = Rxn<NodeRoomModel>();
   final RxList<HalterDeviceDetailModel> detailHistory =
-      <HalterDeviceDetailModel>[].obs;
+      <HalterDeviceDetailModel>[
+        HalterDeviceDetailModel(bpm: 40, suhu: 37.5, spo: 97.5, respirasi: 12, time: DateTime.now().subtract(Duration(minutes: 4)), deviceId: 'SHIPB1223002'),
+    HalterDeviceDetailModel(bpm: 42, suhu: 37.6, spo: 98.2, respirasi: 13, time: DateTime.now().subtract(Duration(minutes: 3)), deviceId: 'SHIPB1223002'),
+    HalterDeviceDetailModel(bpm: 41, suhu: 37.7, spo: 97.9, respirasi: 14, time: DateTime.now().subtract(Duration(minutes: 2)), deviceId: 'SHIPB1223002'),
+    HalterDeviceDetailModel(bpm: 43, suhu: 37.8, spo: 98.5, respirasi: 13, time: DateTime.now().subtract(Duration(minutes: 1)), deviceId: 'SHIPB1223002'),
+    HalterDeviceDetailModel(bpm: 44, suhu: 37.9, spo: 98.1, respirasi: 12, time: DateTime.now(), deviceId: 'SHIPB1223002'),
+      ].obs;
   final RxList<HalterRawDataModel> rawData = <HalterRawDataModel>[].obs;
   final RxList<NodeRoomModel> nodeRoomList =
       <NodeRoomModel>[].obs; // Tambah list untuk node room

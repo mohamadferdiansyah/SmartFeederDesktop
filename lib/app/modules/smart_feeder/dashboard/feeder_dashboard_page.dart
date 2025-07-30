@@ -7,6 +7,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_feeder/control_schedule/c
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/layout/feeder_layout_controller.dart';
 import 'package:smart_feeder_desktop/app/services/mqtt_service.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_battery_indicator.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_history_card.dart';
@@ -1032,7 +1033,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                   ),
                                 ),
                                 child: Center(
-                                  child: BatteryIndicator(
+                                  child: CustomBatteryIndicator(
                                     percent: controller
                                         .getFeederDeviceBatteryPercent(),
                                   ),
@@ -1143,61 +1144,6 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class BatteryIndicator extends StatelessWidget {
-  final int percent;
-  final double iconSize;
-  final Color? iconColor;
-
-  const BatteryIndicator({
-    Key? key,
-    required this.percent,
-    this.iconSize = 50,
-    this.iconColor,
-  }) : super(key: key);
-
-  IconData _getBatteryIcon(int percent) {
-    if (percent <= 5) return Icons.battery_0_bar;
-    if (percent <= 15) return Icons.battery_1_bar;
-    if (percent <= 25) return Icons.battery_2_bar;
-    if (percent <= 35) return Icons.battery_3_bar;
-    if (percent <= 50) return Icons.battery_4_bar;
-    if (percent <= 65) return Icons.battery_5_bar;
-    if (percent <= 80) return Icons.battery_6_bar;
-    if (percent <= 95) return Icons.battery_full;
-    return Icons.battery_full;
-  }
-
-  Color _getBatteryColor(int percent) {
-    if (percent <= 15) return Colors.red;
-    if (percent <= 40) return Colors.orange;
-    return Colors.green;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Icon(
-          _getBatteryIcon(percent),
-          color: iconColor ?? _getBatteryColor(percent),
-          size: iconSize,
-        ),
-        const SizedBox(width: 6),
-        Text(
-          "$percent%",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: iconSize * 0.68,
-            color: iconColor ?? _getBatteryColor(percent),
-          ),
-        ),
-      ],
     );
   }
 }

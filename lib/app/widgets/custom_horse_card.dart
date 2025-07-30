@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_battery_indicator.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 
 class CustomHorseCard extends StatelessWidget {
   final String horseName;
+  final String horseId;
+  final String horseRoom;
   final bool isRoomFilled;
   final int batteryPercent;
   final String deviceActive;
@@ -17,6 +20,8 @@ class CustomHorseCard extends StatelessWidget {
     required this.isRoomFilled,
     required this.batteryPercent,
     required this.deviceActive,
+    required this.horseId,
+    required this.horseRoom,
     required this.cctvActive,
     this.onSelectHorse,
     this.onTapCctv,
@@ -52,79 +57,121 @@ class CustomHorseCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                horseName,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              Tooltip(
-                message: isRoomFilled
-                    ? 'Ruangan Terisi Kuda'
-                    : 'Ruangan Kosong',
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 7,
-                    horizontal: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isRoomFilled ? Colors.green : Colors.red,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    isRoomFilled ? Icons.check_rounded : Icons.close_rounded,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Tooltip(
-                message: 'Baterai Device',
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: batteryPercent > 20 ? Colors.green : Colors.red,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '$batteryPercent%',
+              Row(
+                children: [
+                  Text(
+                    horseName,
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Tooltip(
-                message: 'Status Device',
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: deviceActive == "Aktif" ? Colors.green : Colors.red,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    deviceActive,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  Text(' | '),
+                  Text(
+                    horseId,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.grey[600],
                     ),
                   ),
-                ),
+                  Text(' | '),
+                  Text(
+                    horseRoom,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Tooltip(
+                    message: isRoomFilled
+                        ? 'Kuda Di Kandang'
+                        : 'Kuda Tidak Di Kandang',
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 7,
+                        horizontal: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isRoomFilled ? Colors.green : Colors.red,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isRoomFilled
+                                ? Icons.check_rounded
+                                : Icons.close_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Tooltip(
+                    message: 'Baterai Device',
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color: batteryPercent > 20 ? Colors.green : Colors.red,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: CustomBatteryIndicator(
+                        percent: batteryPercent,
+                        iconSize: 20,
+                        iconColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Tooltip(
+                    message: 'Status Device',
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: deviceActive == "Aktif"
+                            ? Colors.green
+                            : Colors.red,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.power_settings_new_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            deviceActive,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
