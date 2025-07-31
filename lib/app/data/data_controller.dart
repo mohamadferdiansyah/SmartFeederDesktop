@@ -470,23 +470,51 @@ class DataController extends GetxController {
   // Data Log Halter
   final RxList<HalterHorseLogModel> halterLogList = <HalterHorseLogModel>[
     HalterHorseLogModel(
-      horseId: 'H1',
+      deviceId: 'SHIPB1223002',
       message: 'Suhu Kuda rendah : 27.5°C',
+      type: 'temperature',
       time: DateTime.now(),
     ),
     HalterHorseLogModel(
-      horseId: 'H1',
+      deviceId: 'SHIPB1223002',
       message: 'Kadar Oksigen Kuda Rendah : 23%',
+      type: 'spo',
       time: DateTime.now(),
     ),
     HalterHorseLogModel(
-      horseId: 'H2',
+      deviceId: 'SHIPB1223007',
       message: 'Kadar Oksigen Kuda Rendah : 18%',
+      type: 'spo',
       time: DateTime.now(),
     ),
     HalterHorseLogModel(
-      horseId: 'H3',
+      deviceId: 'SHIPB1223008',
       message: 'Suhu Kuda rendah : 19.5°C',
+      type: 'temperature',
+      time: DateTime.now(),
+    ),
+    HalterHorseLogModel(
+      deviceId: 'SHIPB1223002',
+      message: 'Suhu Kuda rendah : 27.5°C',
+      type: 'temperature',
+      time: DateTime.now(),
+    ),
+    HalterHorseLogModel(
+      deviceId: 'SHIPB1223002',
+      message: 'Kadar Oksigen Kuda Rendah : 23%',
+      type: 'spo',
+      time: DateTime.now(),
+    ),
+    HalterHorseLogModel(
+      deviceId: 'SHIPB1223007',
+      message: 'Kadar Oksigen Kuda Rendah : 18%',
+      type: 'spo',
+      time: DateTime.now(),
+    ),
+    HalterHorseLogModel(
+      deviceId: 'SHIPB1223008',
+      message: 'Suhu Kuda rendah : 19.5°C',
+      type: 'temperature',
       time: DateTime.now(),
     ),
   ].obs;

@@ -81,7 +81,7 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                               'Daftar Kuda',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 20,
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -278,7 +278,7 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                           children: [
                             // Header
                             Container(
-                              height: 40,
+                              height: 50,
                               width: double.infinity,
                               decoration: BoxDecoration(
                                 color: AppColors.primary,
@@ -306,7 +306,7 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                         'Status Koneksi Ke Cloud & LoRa',
                                         style: TextStyle(
                                           color: Colors.white,
-                                          fontSize: 16,
+                                          fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -447,7 +447,7 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                       'Informasi Detail Kuda',
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 24,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -611,7 +611,7 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                       'Log Kondisi Kuda & Ruangan',
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 16,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -627,12 +627,16 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                 top: 8,
                               ),
                               child: Obx(() {
-                                final selectedHorse =
-                                    controller.selectedRoom.horseId;
+                                final selectedHorse = controller
+                                    .getHalterDeviceByHorseId(
+                                      controller.selectedRoom.horseId ?? '',
+                                    );
                                 final selectedLog = controller
                                     .halterHorseLogList
                                     .where(
-                                      (log) => log.horseId == selectedHorse,
+                                      (log) =>
+                                          log.deviceId ==
+                                          selectedHorse.deviceId,
                                     )
                                     .toList();
 
@@ -653,8 +657,9 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                   itemBuilder: (context, index) {
                                     final log = selectedLog[index];
                                     return CustomHalterLogCard(
-                                      horseName: log.horseId,
+                                      horseName: log.deviceId,
                                       roomName: 'ruangan 1',
+                                      type: log.type,
                                       logMessage: log.message,
                                       time: log.time,
                                     );
@@ -937,7 +942,6 @@ class _DetailKudaView extends StatelessWidget {
               Obx(() {
                 // final detail = controller.serialService.latestDetail.value;
                 final detail = controller.getSelectedHorseDetail();
-                final nodeRoom = controller.getSelectedNodeRoom();
 
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -993,7 +997,7 @@ class _DetailKudaView extends StatelessWidget {
                                   Text('RSSI'),
                                   const SizedBox(width: 8),
                                   Text(
-                                    '${nodeRoom?.lightIntensity ?? 0} dBm',
+                                    '${detail?.respirasi ?? 0} dBm',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue,
@@ -1317,10 +1321,31 @@ class _DetailKudaView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Container(
-                height: 170,
+                height: 250,
                 color: Colors.grey[100],
                 alignment: Alignment.center,
                 child: CustomMovementChart(),
+              ),
+              const SizedBox(height: 12),
+              Divider(thickness: 1.2),
+              CustomBiometricLegend(
+                items: [
+                  BiometrikLegendItem(
+                    color: Colors.red,
+                    label: "acceX",
+                    value: "-",
+                  ),
+                  BiometrikLegendItem(
+                    color: Colors.green,
+                    label: "acceY",
+                    value: "-",
+                  ),
+                  BiometrikLegendItem(
+                    color: Colors.blue,
+                    label: "acceZ",
+                    value: "-",
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               Container(height: 4, color: Colors.blue[100]),

@@ -58,36 +58,18 @@ class _CustomSidebarState extends State<CustomSidebar> {
                       children: [
                         Image.asset(
                           'assets/images/ipb.png',
-                          height: 70,
-                          width: 70,
-                        ),
-                        Container(
-                          margin: EdgeInsets.symmetric(horizontal: 4),
-                          width: 2,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.4),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                          height: 60,
+                          width: 60,
                         ),
                         Image.asset(
                           'assets/images/biofarma.png',
-                          height: 110,
-                          width: 110,
-                        ),
-                        Container(
-                          margin: EdgeInsets.symmetric(horizontal: 4),
-                          width: 2,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.4),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                          height: 90,
+                          width: 90,
                         ),
                         Image.asset(
                           'assets/images/lpdp.png',
-                          height: 90,
-                          width: 90,
+                          height: 75,
+                          width: 75,
                         ),
                       ],
                     ),
@@ -95,7 +77,7 @@ class _CustomSidebarState extends State<CustomSidebar> {
                       widget.sidebarTitle,
                       style: TextStyle(
                         color: AppColors.primary,
-                        fontSize: 30,
+                        fontSize: 40,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

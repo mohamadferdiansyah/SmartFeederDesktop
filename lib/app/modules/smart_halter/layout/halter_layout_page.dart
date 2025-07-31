@@ -8,6 +8,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/de
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/horse/halter_horse_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/room/halter_room_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/raw_data/halter_raw_data_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/halter_rule_engine_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/sync/halter_sync_page.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_sidebar.dart';
@@ -28,22 +29,10 @@ class HalterLayoutPage extends StatelessWidget {
       title: "Monitoring Data",
       icon: Icons.storage_rounded,
       children: [
-        SidebarMenuItem(
-          title: "Data Kuda",
-          page: HalterHorsePage(),
-        ),
-        SidebarMenuItem(
-          title: "Data Iot Node Halter",
-          page: HalterDevicePage()
-        ),
-        SidebarMenuItem(
-          title: "Data Ruang",
-          page: HalterRoomPage()
-        ),
-        SidebarMenuItem(
-          title: "Data CCTV",
-          page: HalterCameraPage()
-        ),
+        SidebarMenuItem(title: "Data Kuda", page: HalterHorsePage()),
+        SidebarMenuItem(title: "Data Halter Device", page: HalterDevicePage()),
+        SidebarMenuItem(title: "Data Ruang", page: HalterRoomPage()),
+        SidebarMenuItem(title: "Data CCTV", page: HalterCameraPage()),
       ],
     ),
     SidebarMenuItem(
@@ -54,7 +43,12 @@ class HalterLayoutPage extends StatelessWidget {
     SidebarMenuItem(
       title: "Pengaturan Aplikasi",
       icon: Icons.settings,
-      page: HalterSettingPage()
+      page: HalterSettingPage(),
+    ),
+    SidebarMenuItem(
+      title: "Rule Engine",
+      icon: Icons.rule,
+      page: HalterRuleEnginePage(),
     ),
     SidebarMenuItem(
       title: "Bantuan",

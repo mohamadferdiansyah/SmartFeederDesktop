@@ -3,15 +3,17 @@ import 'package:intl/intl.dart';
 
 class CustomHalterLogCard extends StatelessWidget {
   final String horseName;
-  final String roomName;
+  final String? roomName;
   final String logMessage;
+  final String type;
   final DateTime time;
   final Color iconBgColor;
 
   const CustomHalterLogCard({
     super.key,
     required this.horseName,
-    required this.roomName,
+    this.roomName,
+    required this.type,
     required this.logMessage,
     required this.time,
     this.iconBgColor = const Color(0xFFD34B40),
@@ -33,7 +35,9 @@ class CustomHalterLogCard extends StatelessWidget {
               Text(
                 dateText,
                 style: const TextStyle(
-                  fontSize: 13, color: Colors.grey, fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
@@ -74,7 +78,19 @@ class CustomHalterLogCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   padding: const EdgeInsets.all(8),
-                  child: const Icon(Icons.pets, color: Colors.white, size: 26),
+                  child: Icon(
+                    type == 'temperature'
+                        ? Icons.thermostat_outlined
+                        : type == 'spo'
+                            ? Icons.monitor_heart_outlined
+                            : type == 'bpm'
+                                ? Icons.monitor_weight_outlined
+                                : type == 'respirasi'
+                                    ? Icons.air_outlined
+                                    : Icons.error,
+                    color: Colors.white,
+                    size: 26,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -88,13 +104,15 @@ class CustomHalterLogCard extends StatelessWidget {
                           fontSize: 15,
                         ),
                       ),
-                      Text(
-                        roomName,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey,
+                      if (roomName != null) ...[
+                        Text(
+                          roomName!,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
+                      ],
                       const SizedBox(height: 2),
                       Text(
                         logMessage,
@@ -110,7 +128,7 @@ class CustomHalterLogCard extends StatelessWidget {
               ],
             ),
           ),
-        )
+        ),
       ],
     );
   }

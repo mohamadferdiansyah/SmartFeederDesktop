@@ -3,11 +3,14 @@ import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/models/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter_raw_data_model.dart';
-import 'package:smart_feeder_desktop/app/models/node_room_model.dart'; // import model baru
+import 'package:smart_feeder_desktop/app/models/node_room_model.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/halter_rule_engine_controller.dart'; // import model baru
 
 class HalterSerialService extends GetxService {
   SerialPort? port;
   SerialPortReader? reader;
+
+  final HalterRuleEngineController controller = Get.find<HalterRuleEngineController>();
 
   final Rxn<HalterDeviceDetailModel> latestDetail =
       Rxn<HalterDeviceDetailModel>();
@@ -22,7 +25,29 @@ class HalterSerialService extends GetxService {
       ].obs;
   final RxList<HalterRawDataModel> rawData = <HalterRawDataModel>[].obs;
   final RxList<NodeRoomModel> nodeRoomList =
-      <NodeRoomModel>[].obs; // Tambah list untuk node room
+      <NodeRoomModel>[
+    NodeRoomModel(
+      deviceId: 'SRIPB1223003',
+      temperature: 25.0,
+      humidity: 60.0,
+      lightIntensity: 300.0,
+      time: DateTime.now().subtract(Duration(minutes: 4)),
+    ),
+    NodeRoomModel(
+      deviceId: 'SRIPB1223003',
+      temperature: 35.0,
+      humidity: 49.0,
+      lightIntensity: 291.0,
+      time: DateTime.now().subtract(Duration(minutes: 4)),
+    ),
+    NodeRoomModel(
+      deviceId: 'SRIPB1223003',
+      temperature: 31.0,
+      humidity: 45.0,
+      lightIntensity: 210.0,
+      time: DateTime.now(). subtract(Duration(minutes: 4)),
+    ),
+      ].obs; // Tambah list untuk node room
 
   RxList<String> get availablePorts =>
       RxList<String>(SerialPort.availablePorts);
@@ -69,6 +94,14 @@ class HalterSerialService extends GetxService {
               final detail = HalterDeviceDetailModel.fromSerial(line);
               latestDetail.value = detail;
               detailHistory.add(detail);
+              controller.checkAndLog(
+                detail.deviceId,
+                suhu: detail.suhu,
+                spo: detail.spo,
+                bpm: detail.bpm,
+                respirasi: detail.respirasi,
+                time: detail.time,
+              );
               rawData.add(
                 HalterRawDataModel(
                   no: rawData.length + 1,

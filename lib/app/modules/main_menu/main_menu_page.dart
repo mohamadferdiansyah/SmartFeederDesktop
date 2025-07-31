@@ -40,7 +40,7 @@ class MainMenuPage extends StatelessWidget {
                   height: 160,
                   width: MediaQuery.of(context).size.width * 0.32,
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.white.withOpacity(0.95),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -80,7 +80,7 @@ class MainMenuPage extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 20, horizontal: 32),
                   width: MediaQuery.of(context).size.width * 0.62,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.88),
+                    color: Colors.white.withOpacity(0.95),
                     borderRadius: BorderRadius.circular(32),
                     boxShadow: [
                       BoxShadow(

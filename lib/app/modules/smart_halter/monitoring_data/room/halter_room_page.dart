@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // Ganti import berikut sesuai struktur project-mu
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/models/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/room/halter_room_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
@@ -28,6 +29,7 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
     super.initState();
     // Pastikan cctv controller sudah diinisialisasi sebelum HalterRoomController
     _dataSource = RoomDataTableSource(
+      context: context,
       rooms: _controller.roomList,
       getCctvNames: _controller.getCctvNames,
     );
@@ -135,17 +137,35 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                             child: Column(
                               children: [
                                 Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
+                                    Text(
+                                      'Export Data :',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(width: 12),
                                     CustomButton(
                                       width:
                                           MediaQuery.of(context).size.width *
-                                          0.15,
-                                      height: 70,
+                                          0.1,
+                                      height: 50,
                                       backgroundColor: Colors.green,
-                                      fontSize: 24,
+                                      fontSize: 18,
                                       icon: Icons.table_view_rounded,
                                       text: 'Export Excel',
+                                      onPressed: () {},
+                                    ),
+                                    const SizedBox(width: 12),
+                                    CustomButton(
+                                      width:
+                                          MediaQuery.of(context).size.width *
+                                          0.1,
+                                      height: 50,
+                                      backgroundColor: Colors.redAccent,
+                                      fontSize: 18,
+                                      icon: Icons.picture_as_pdf,
+                                      text: 'Export PDF',
                                       onPressed: () {},
                                     ),
                                   ],
@@ -319,13 +339,18 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
 
 // DataTableSource untuk PaginatedDataTable
 class RoomDataTableSource extends DataTableSource {
+  final BuildContext context;
   List<RoomModel> rooms;
   List<RoomModel> filteredRooms;
   final String Function(List<String>) getCctvNames;
+  final HalterRoomController controller = Get.find<HalterRoomController>();
   int _selectedCount = 0;
 
-  RoomDataTableSource({required this.rooms, required this.getCctvNames})
-    : filteredRooms = List.from(rooms);
+  RoomDataTableSource({
+    required this.rooms,
+    required this.getCctvNames,
+    required this.context,
+  }) : filteredRooms = List.from(rooms);
 
   void updateFilter(String searchText) {
     if (searchText.isEmpty) {
@@ -376,7 +401,16 @@ class RoomDataTableSource extends DataTableSource {
                 text: 'Detail',
                 borderRadius: 6,
                 onPressed: () {
-                  // TODO: aksi detail
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => RoomNodeDataDialog(
+                      deviceId: room.deviceSerial,
+                      allData: controller.nodeRoomList
+                          .where((d) => d.deviceId == room.deviceSerial)
+                          .toList(),
+                    ),
+                  );
                 },
               ),
               const SizedBox(width: 8),
@@ -402,4 +436,390 @@ class RoomDataTableSource extends DataTableSource {
 
   @override
   int get selectedRowCount => _selectedCount;
+}
+
+class RoomNodeDataDialog extends StatefulWidget {
+  final String deviceId;
+  final List<NodeRoomModel> allData;
+
+  const RoomNodeDataDialog({
+    super.key,
+    required this.deviceId,
+    required this.allData,
+  });
+
+  @override
+  State<RoomNodeDataDialog> createState() => _RoomNodeDataDialogState();
+}
+
+class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
+  DateTime? tanggalAwal;
+  DateTime? tanggalAkhir;
+
+  List<NodeRoomModel> get filteredData {
+    // Filter by deviceId
+    var data = widget.allData
+        .where((d) => d.deviceId == widget.deviceId)
+        .toList();
+    // Jika NodeRoomModel punya timestamp, bisa filter tanggal di sini.
+    // Namun model sekarang tidak punya field time, jadi filter tanggal diabaikan.
+    return data;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: const EdgeInsets.all(32),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.9,
+        height: MediaQuery.of(context).size.height * 0.8,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Container(
+              height: 80,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  topRight: Radius.circular(8),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Detail Data Node Device ${widget.deviceId}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Filter tanggal + Export
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  // Tanggal Awal (disabled/readonly, karena NodeRoomModel tidak ada time)
+                  Flexible(
+                    child: TextField(
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: "Tanggal Awal",
+                        hintText: "Pilih tanggal awal",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.primary.withOpacity(0.5),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: AppColors.primary,
+                            width: 1.5,
+                          ),
+                        ),
+                        prefixIcon: const Icon(Icons.calendar_today),
+                      ),
+                      controller: TextEditingController(
+                        text: tanggalAwal != null
+                            ? "${tanggalAwal!.toIso8601String().split('T').first}"
+                            : "",
+                      ),
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: tanggalAwal ?? DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null)
+                          setState(() => tanggalAwal = picked);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Tanggal Akhir
+                  Flexible(
+                    child: TextField(
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: "Tanggal Akhir",
+                        hintText: "Pilih tanggal akhir",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.primary.withOpacity(0.5),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: AppColors.primary,
+                            width: 1.5,
+                          ),
+                        ),
+                        prefixIcon: const Icon(Icons.calendar_today),
+                      ),
+                      controller: TextEditingController(
+                        text: tanggalAkhir != null
+                            ? "${tanggalAkhir!.toIso8601String().split('T').first}"
+                            : "",
+                      ),
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: tanggalAkhir ?? DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null)
+                          setState(() => tanggalAkhir = picked);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  CustomButton(
+                    onPressed: () {
+                      setState(() {});
+                    },
+                    text: "Pilih Tanggal",
+                    width: 150,
+                    height: 50,
+                    backgroundColor: AppColors.primary,
+                    fontSize: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  CustomButton(
+                    onPressed: () {
+                      setState(() {
+                        tanggalAwal = null;
+                        tanggalAkhir = null;
+                      });
+                    },
+                    text: "Reset Tanggal",
+                    width: 150,
+                    height: 50,
+                    backgroundColor: Colors.grey,
+                  ),
+                  const Spacer(),
+                  Text('Export Data :', style: const TextStyle(fontSize: 16)),
+                  const SizedBox(width: 12),
+                  CustomButton(
+                    width: MediaQuery.of(context).size.width * 0.1,
+                    height: 50,
+                    backgroundColor: Colors.green,
+                    fontSize: 18,
+                    icon: Icons.table_view_rounded,
+                    text: 'Export Excel',
+                    onPressed: () {},
+                  ),
+                  const SizedBox(width: 12),
+                  CustomButton(
+                    width: MediaQuery.of(context).size.width * 0.1,
+                    height: 50,
+                    backgroundColor: Colors.redAccent,
+                    fontSize: 18,
+                    icon: Icons.picture_as_pdf,
+                    text: 'Export PDF',
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Tabel data
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final tableWidth = constraints.maxWidth;
+                  final noW = tableWidth * 0.05; // 10%
+                  final devIdW = tableWidth * 0.15; // 18%
+                  final tempW = tableWidth * 0.15; // 18%
+                  final humidityW = tableWidth * 0.15; // 18%
+                  final lightW = tableWidth * 0.15; // 18%
+                  final timeW = tableWidth * 0.15; // 18%
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columns: [
+                        DataColumn(
+                          label: SizedBox(
+                            width: noW,
+                            child: const Text(
+                              "No",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: devIdW,
+                            child: const Text(
+                              "Device Id",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: tempW,
+                            child: const Text(
+                              "Temperature (°C)",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: humidityW,
+                            child: const Text(
+                              "Humidity (%)",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: lightW,
+                            child: const Text(
+                              "Light Intensity",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: timeW,
+                            child: const Text(
+                              "Time",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ],
+                      rows: List.generate(filteredData.length, (i) {
+                        final d = filteredData[i];
+                        return DataRow(
+                          cells: [
+                            DataCell(
+                              SizedBox(
+                                width: noW,
+                                child: Text(
+                                  '${i + 1}',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: devIdW,
+                                child: Text(
+                                  d.deviceId,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: tempW,
+                                child: Text(
+                                  d.temperature.value.toStringAsFixed(2),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: humidityW,
+                                child: Text(
+                                  d.humidity.value.toStringAsFixed(2),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: lightW,
+                                child: Text(
+                                  d.lightIntensity.value.toStringAsFixed(2),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: timeW,
+                                child: Text(
+                                  d.time != null
+                                      ? d.time!
+                                            .toIso8601String()
+                                            .split('T')[1]
+                                            .split('.')[0]
+                                      : '-',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                    ),
+                  );
+                },
+              ),
+            ),
+            // Tombol Tutup
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CustomButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  text: "Tutup",
+                  width: 150,
+                  height: 50,
+                  backgroundColor: AppColors.primary,
+                  fontSize: 20,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

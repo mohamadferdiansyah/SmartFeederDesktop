@@ -535,7 +535,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                             controller.selectedRoom.name,
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 24,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -581,7 +581,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                       "Aktif"
                                   ? Colors.green
                                   : Colors.red,
-                              fontSize: 24,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -589,8 +589,8 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                       ],
                     ),
                   ),
-                  titleFontSize: 26,
-                  headerHeight: 80,
+                  titleFontSize: 20,
+                  headerHeight: 70,
                   content: Obx(() {
                     if (controller.filteredRoomList.isEmpty) {
                       return Center(
@@ -837,6 +837,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                                         'otomatis'
                                                   ? Colors.blue
                                                   : Colors.orange,
+                                              // color: Colors.black,
                                             ),
                                           ),
                                         ),
@@ -902,6 +903,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                                         'otomatis'
                                                   ? Colors.blue
                                                   : Colors.orange,
+                                              // color: Colors.black,
                                             ),
                                           ),
                                         ),

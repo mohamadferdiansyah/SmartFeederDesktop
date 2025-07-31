@@ -50,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
               Container(
                 width: MediaQuery.of(context).size.width * 0.4,
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.white.withOpacity(0.95),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
@@ -209,9 +209,9 @@ class _LoginPageState extends State<LoginPage> {
                           // Logo CassMaTech
                           Image.asset(
                             'assets/images/lpdp_full.png',
-                            height: 200,
+                            height: 150,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 20),
                           const Text.rich(
                             TextSpan(
                               children: [

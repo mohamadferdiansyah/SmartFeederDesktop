@@ -180,10 +180,11 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 12),
                         CustomButton(
                           text: 'Reset',
-                          width: 200,
+                          width: 195,
+                          fontSize: 18,
                           height: 48,
                           onPressed: () {
                             _controller.setSelectedDate('');
@@ -191,6 +192,37 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                             _searchController.clear();
                             _dataSource.updateFilter(_controller.filteredList);
                           },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          'Export Data :',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(width: 12),
+                        CustomButton(
+                          width: MediaQuery.of(context).size.width * 0.1,
+                          height: 50,
+                          backgroundColor: Colors.green,
+                          fontSize: 18,
+                          icon: Icons.table_view_rounded,
+                          text: 'Export Excel',
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 12),
+                        CustomButton(
+                          width: MediaQuery.of(context).size.width * 0.1,
+                          height: 50,
+                          backgroundColor: Colors.redAccent,
+                          fontSize: 18,
+                          icon: Icons.picture_as_pdf,
+                          text: 'Export PDF',
+                          onPressed: () {},
                         ),
                       ],
                     ),
@@ -204,8 +236,8 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                         final noW = tableWidth * 0.04;
                         final dataW = tableWidth * 0.47;
                         final tglW = tableWidth * 0.1;
-                        final waktuW = tableWidth * 0.05;
-                        final aksiW = tableWidth * 0.1;
+                        final waktuW = tableWidth * 0.07;
+                        final aksiW = tableWidth * 0.12;
 
                         return Theme(
                           data: Theme.of(context).copyWith(

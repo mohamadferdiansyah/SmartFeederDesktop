@@ -82,7 +82,14 @@ class CustomCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 12),
-                    if (trailing != null) trailing!,
+                    if (trailing != null)
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: trailing,
+                        ),
+                      ),
+                    // if (trailing != null) trailing!,
                   ],
                 ),
               ),

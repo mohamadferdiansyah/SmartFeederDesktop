@@ -131,17 +131,35 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
                             child: Column(
                               children: [
                                 Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
+                                    Text(
+                                      'Export Data :',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(width: 12),
                                     CustomButton(
                                       width:
                                           MediaQuery.of(context).size.width *
-                                          0.15,
-                                      height: 70,
+                                          0.1,
+                                      height: 50,
                                       backgroundColor: Colors.green,
-                                      fontSize: 24,
+                                      fontSize: 18,
                                       icon: Icons.table_view_rounded,
                                       text: 'Export Excel',
+                                      onPressed: () {},
+                                    ),
+                                    const SizedBox(width: 12),
+                                    CustomButton(
+                                      width:
+                                          MediaQuery.of(context).size.width *
+                                          0.1,
+                                      height: 50,
+                                      backgroundColor: Colors.redAccent,
+                                      fontSize: 18,
+                                      icon: Icons.picture_as_pdf,
+                                      text: 'Export PDF',
                                       onPressed: () {},
                                     ),
                                   ],

@@ -1,9 +1,5 @@
-import 'package:delightful_toast/delight_toast.dart';
-import 'package:delightful_toast/toast/components/toast_card.dart';
-import 'package:delightful_toast/toast/utils/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
@@ -46,40 +42,42 @@ class HalterSettingPageState extends State<HalterSettingPage> {
       padding: const EdgeInsets.all(16.0),
       child: CustomCard(
         title: 'Pengaturan Aplikasi Halter',
-        content: Column(
-          children: [
-            SingleChildScrollView(
-              child: Wrap(
-                spacing: 24,
-                runSpacing: 24,
-                children: [
-                  // Card 1: Cloud Connection
-                  CustomCard(
-                    title: 'Cloud Connection',
-                    headerColor: AppColors.primary,
-                    headerHeight: 50,
-                    titleFontSize: 18,
-                    width: MediaQuery.of(context).size.width * 0.25,
-                    height: MediaQuery.of(context).size.height * 0.27,
-                    borderRadius: 16,
-                    scrollable: false,
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text('Cloud URL'),
-                        const SizedBox(height: 4),
-                        TextField(
-                          controller: _cloudUrlController,
-                          decoration: const InputDecoration(
-                            isDense: true,
-                            border: OutlineInputBorder(),
+        withExpanded: false,
+        content: Center(
+          child: Column(
+            children: [
+              SingleChildScrollView(
+                child: Wrap(
+                  spacing: 24,
+                  runSpacing: 24,
+                  children: [
+                    // Card 1: Cloud Connection
+                    CustomCard(
+                      withExpanded: false,
+                      title: 'Cloud Connection',
+                      headerColor: AppColors.primary,
+                      headerHeight: 50,
+                      titleFontSize: 18,
+                      width: MediaQuery.of(context).size.width * 0.25,
+                      height: MediaQuery.of(context).size.height * 0.27,
+                      borderRadius: 16,
+                      scrollable: false,
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text('Cloud URL'),
+                          const SizedBox(height: 4),
+                          TextField(
+                            controller: _cloudUrlController,
+                            decoration: const InputDecoration(
+                              isDense: true,
+                              border: OutlineInputBorder(),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary,
                                   foregroundColor: Colors.white,
@@ -90,10 +88,8 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                 onPressed: () {},
                                 child: const Text('Simpan'),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: ElevatedButton(
+                              const SizedBox(width: 10),
+                              ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.blueGrey,
                                   foregroundColor: Colors.white,
@@ -134,88 +130,88 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                 },
                                 child: const Text('Check Connection'),
                               ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Obx(
+                            () => LinearProgressIndicator(
+                              value:
+                                  settingController.setting.value.cloudConnected
+                                  ? 1.0
+                                  : 0.2,
+                              minHeight: 8,
+                              color:
+                                  settingController.setting.value.cloudConnected
+                                  ? Colors.green
+                                  : Colors.orange,
+                              backgroundColor: Colors.grey[300],
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Obx(
-                          () => LinearProgressIndicator(
-                            value:
-                                settingController.setting.value.cloudConnected
-                                ? 1.0
-                                : 0.2,
-                            minHeight: 8,
-                            color:
-                                settingController.setting.value.cloudConnected
-                                ? Colors.green
-                                : Colors.orange,
-                            backgroundColor: Colors.grey[300],
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          settingController.setting.value.cloudConnected
-                              ? 'Terhubung'
-                              : 'Tidak Terhubung',
-                          style: TextStyle(
-                            color:
-                                settingController.setting.value.cloudConnected
-                                ? Colors.green
-                                : Colors.orange,
-                            fontWeight: FontWeight.bold,
+                          const SizedBox(height: 4),
+                          Text(
+                            settingController.setting.value.cloudConnected
+                                ? 'Terhubung'
+                                : 'Tidak Terhubung',
+                            style: TextStyle(
+                              color:
+                                  settingController.setting.value.cloudConnected
+                                  ? Colors.green
+                                  : Colors.orange,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.right,
                           ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  // Card 2: Lora Connection
-                  CustomCard(
-                    title: 'Lora Connection',
-                    headerColor: AppColors.primary,
-                    headerHeight: 50,
-                    titleFontSize: 18,
-                    width: MediaQuery.of(context).size.width * 0.25,
-                    height: MediaQuery.of(context).size.height * 0.27,
-                    borderRadius: 16,
-                    scrollable: false,
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text('Port'),
-                        const SizedBox(height: 4),
-                        DropdownButtonFormField<String>(
-                          value: _selectedLoraPort,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            isDense: true,
+                    // Card 2: Lora Connection
+                    CustomCard(
+                      title: 'Lora Connection',
+                      headerColor: AppColors.primary,
+                      withExpanded: false,
+
+                      headerHeight: 50,
+                      titleFontSize: 18,
+                      width: MediaQuery.of(context).size.width * 0.25,
+                      height: MediaQuery.of(context).size.height * 0.27,
+                      borderRadius: 16,
+                      scrollable: false,
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text('Port'),
+                          const SizedBox(height: 4),
+                          DropdownButtonFormField<String>(
+                            value: _selectedLoraPort,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                            items: settingController.availablePorts
+                                .map(
+                                  (port) => DropdownMenuItem(
+                                    value: port,
+                                    child: Text(port),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (val) {
+                              setState(() {
+                                _selectedLoraPort = val;
+                                _loraConnected = false;
+                                settingController.updateLora(
+                                  port: _selectedLoraPort!,
+                                  isConnected: false,
+                                );
+                              });
+                            },
+                            hint: const Text('Pilih Port'),
                           ),
-                          items: settingController.availablePorts
-                              .map(
-                                (port) => DropdownMenuItem(
-                                  value: port,
-                                  child: Text(port),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (val) {
-                            setState(() {
-                              _selectedLoraPort = val;
-                              _loraConnected = false;
-                              settingController.updateLora(
-                                port: _selectedLoraPort!,
-                                isConnected: false,
-                              );
-                            });
-                          },
-                          hint: const Text('Pilih Port'),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            // Tombol Simpan Port (optional, bisa diisi logic simpan port ke controller)
-                            Expanded(
-                              child: ElevatedButton(
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              // Tombol Simpan Port (optional, bisa diisi logic simpan port ke controller)
+                              ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary,
                                   foregroundColor: Colors.white,
@@ -230,11 +226,9 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                       },
                                 child: const Text('Simpan Port'),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            // Tombol Connect/Disconnect
-                            Expanded(
-                              child: ElevatedButton(
+                              const SizedBox(width: 10),
+                              // Tombol Connect/Disconnect
+                              ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: _selectedLoraPort == null
                                       ? Colors.grey.shade400
@@ -314,216 +308,220 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                   _loraConnected ? 'Disconnect' : 'Connect',
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        // Status Bar
-                        LinearProgressIndicator(
-                          value: _loraConnected ? 1.0 : 0.2,
-                          minHeight: 8,
-                          color: _loraConnected ? Colors.green : Colors.red,
-                          backgroundColor: Colors.grey[300],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _loraConnected ? 'Terhubung' : 'Not Connected',
-                          style: TextStyle(
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          // Status Bar
+                          LinearProgressIndicator(
+                            value: _loraConnected ? 1.0 : 0.2,
+                            minHeight: 8,
                             color: _loraConnected ? Colors.green : Colors.red,
-                            fontWeight: FontWeight.bold,
+                            backgroundColor: Colors.grey[300],
                           ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Card 3: Pengiriman Data Halter
-                  CustomCard(
-                    title: 'Pengiriman Data Halter',
-                    headerColor: AppColors.primary,
-                    headerHeight: 50,
-                    titleFontSize: 18,
-                    width: MediaQuery.of(context).size.width * 0.25,
-                    height: MediaQuery.of(context).size.height * 0.27,
-                    borderRadius: 16,
-                    scrollable: false,
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text('Jenis Pengiriman'),
-                        const SizedBox(height: 4),
-                        DropdownButtonFormField<String>(
-                          value: _selectedJenisPengiriman,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            isDense: true,
-                          ),
-                          items: ['LoRa', 'Http', 'LoRa + Http']
-                              .map(
-                                (jenis) => DropdownMenuItem(
-                                  value: jenis,
-                                  child: Text(jenis),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (val) {
-                            setState(() {
-                              _selectedJenisPengiriman = val;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 40,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _loraConnected ? 'Terhubung' : 'Not Connected',
+                            style: TextStyle(
+                              color: _loraConnected ? Colors.green : Colors.red,
+                              fontWeight: FontWeight.bold,
                             ),
-                            onPressed: () {
-                              settingController.updateJenisPengiriman(
-                                _selectedJenisPengiriman!,
-                              );
-                              toastification.show(
-                                context: context,
-                                title: const Text(
-                                  'Pengaturan Jenis Pengiriman Berhasil',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                type: ToastificationType.success,
-                                description: Text(
-                                  'Jenis Pengiriman: $_selectedJenisPengiriman',
-                                ),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 8,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                                alignment: Alignment.topCenter,
-                                autoCloseDuration: const Duration(seconds: 2),
-                              );
-                            },
-                            child: const Text(
-                              'Simpan',
-                              style: TextStyle(fontSize: 16),
-                            ),
+                            textAlign: TextAlign.right,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  CustomCard(
-                    title: 'Pilih Kandang',
-                    headerColor: AppColors.primary,
-                    headerHeight: 50,
-                    titleFontSize: 18,
-                    width: MediaQuery.of(context).size.width * 0.25,
-                    height: MediaQuery.of(context).size.height * 0.27,
-                    borderRadius: 16,
-                    scrollable: false,
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text('Kandang'),
-                        const SizedBox(height: 4),
-                        Obx(
-                          () => DropdownButtonFormField<String>(
-                            value: controller.selectedStableId.value,
+                    // Card 3: Pengiriman Data Halter
+                    CustomCard(
+                      title: 'Pengiriman Data Halter',
+                      headerColor: AppColors.primary,
+                      withExpanded: false,
+
+                      headerHeight: 50,
+                      titleFontSize: 18,
+                      width: MediaQuery.of(context).size.width * 0.25,
+                      height: MediaQuery.of(context).size.height * 0.27,
+                      borderRadius: 16,
+                      scrollable: false,
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text('Jenis Pengiriman'),
+                          const SizedBox(height: 4),
+                          DropdownButtonFormField<String>(
+                            value: _selectedJenisPengiriman,
                             decoration: const InputDecoration(
                               border: OutlineInputBorder(),
                               isDense: true,
                             ),
-                            items: controller.stableList
+                            items: ['LoRa', 'Http', 'LoRa + Http']
                                 .map(
-                                  (stable) => DropdownMenuItem(
-                                    value: stable.stableId,
-                                    child: Text(stable.name),
+                                  (jenis) => DropdownMenuItem(
+                                    value: jenis,
+                                    child: Text(jenis),
                                   ),
                                 )
                                 .toList(),
                             onChanged: (val) {
-                              print('Selected stable: $val');
-                              if (val != null) {
-                                controller.setSelectedStableId(val);
-                              }
+                              setState(() {
+                                _selectedJenisPengiriman = val;
+                              });
                             },
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 40,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 40,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () {
+                                settingController.updateJenisPengiriman(
+                                  _selectedJenisPengiriman!,
+                                );
+                                toastification.show(
+                                  context: context,
+                                  title: const Text(
+                                    'Pengaturan Jenis Pengiriman Berhasil',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  type: ToastificationType.success,
+                                  description: Text(
+                                    'Jenis Pengiriman: $_selectedJenisPengiriman',
+                                  ),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 8,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                  alignment: Alignment.topCenter,
+                                  autoCloseDuration: const Duration(seconds: 2),
+                                );
+                              },
+                              child: const Text(
+                                'Simpan',
+                                style: TextStyle(fontSize: 16),
                               ),
                             ),
-                            onPressed: () {
-                              toastification.show(
-                                context: context,
-                                title: Text(
-                                  'Pengaturan Kandang Berhasil',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                type: ToastificationType.success,
-                                description: Text(
-                                  'Kandang: ${controller.selectedStableId.value}',
-                                ),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 8,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                                alignment: Alignment.topCenter,
-                                autoCloseDuration: const Duration(seconds: 2),
-                              );
-                            },
-                            child: const Text(
-                              'Simpan',
-                              style: TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+                    CustomCard(
+                      title: 'Pilih Kandang',
+                      headerColor: AppColors.primary,
+                      withExpanded: false,
+
+                      headerHeight: 50,
+                      titleFontSize: 18,
+                      width: MediaQuery.of(context).size.width * 0.25,
+                      height: MediaQuery.of(context).size.height * 0.27,
+                      borderRadius: 16,
+                      scrollable: false,
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text('Kandang'),
+                          const SizedBox(height: 4),
+                          Obx(
+                            () => DropdownButtonFormField<String>(
+                              value: controller.selectedStableId.value,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                isDense: true,
+                              ),
+                              items: controller.stableList
+                                  .map(
+                                    (stable) => DropdownMenuItem(
+                                      value: stable.stableId,
+                                      child: Text(stable.name),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (val) {
+                                print('Selected stable: $val');
+                                if (val != null) {
+                                  controller.setSelectedStableId(val);
+                                }
+                              },
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        LinearProgressIndicator(
-                          value: 1, // contoh dummy
-                          minHeight: 8,
-                          color: Colors.green,
-                          backgroundColor: Colors.grey[300],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Connected',
-                          style: const TextStyle(
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 40,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () {
+                                toastification.show(
+                                  context: context,
+                                  title: Text(
+                                    'Pengaturan Kandang Berhasil',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  type: ToastificationType.success,
+                                  description: Text(
+                                    'Kandang: ${controller.selectedStableId.value}',
+                                  ),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 8,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                  alignment: Alignment.topCenter,
+                                  autoCloseDuration: const Duration(seconds: 2),
+                                );
+                              },
+                              child: const Text(
+                                'Simpan',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
                           ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ],
+                          const SizedBox(height: 12),
+                          LinearProgressIndicator(
+                            value: 1, // contoh dummy
+                            minHeight: 8,
+                            color: Colors.green,
+                            backgroundColor: Colors.grey[300],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Connected',
+                            style: const TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.right,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

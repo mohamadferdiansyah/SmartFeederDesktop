@@ -10,19 +10,21 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID', null);
 
-  // await windowManager.ensureInitialized();
+  await windowManager.ensureInitialized();
 
-  windowManager.waitUntilReadyToShow().then((_) async { 
+  windowManager.waitUntilReadyToShow().then((_) async {
+    await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
     await windowManager.setFullScreen(true);
-    // Atau jika ingin menonaktifkan resize/minimize dll:
-    // await windowManager.setResizable(false);
-    // await windowManager.setMinimizable(false);
+    await windowManager.center();
+    await windowManager.show();
+    await windowManager.setSkipTaskbar(false);
   });
-    Get.put(DataController());  
+  
+  Get.put(DataController());
   runApp(SmartFeederApp());
 }
 
-class SmartFeederApp extends StatelessWidget {  
+class SmartFeederApp extends StatelessWidget {
   const SmartFeederApp({super.key});
 
   @override

@@ -5,12 +5,14 @@ class NodeRoomModel {
   final RxDouble temperature;
   final RxDouble humidity;
   final RxDouble lightIntensity;
+  final DateTime? time;
 
   NodeRoomModel({
     required this.deviceId,
     required double temperature,
     required double humidity,
     required double lightIntensity,
+    this.time,
   })  : temperature = temperature.obs,
         humidity = humidity.obs,
         lightIntensity = lightIntensity.obs;
