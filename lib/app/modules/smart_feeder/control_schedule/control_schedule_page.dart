@@ -49,6 +49,7 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: CustomCard(
+        withExpanded: false,
         title: 'Kontrol Penjadwalan',
         content: Stack(
           children: [
@@ -56,14 +57,14 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Pilih Kandang dan Menu Untuk Mengatur Jadwal',
+                  'Pilih Ruangan',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 // Dropdown Pilih Kandang di atas
                 SizedBox(
                   width: 350,
@@ -97,38 +98,45 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                   ),
                 ),
                 const SizedBox(height: 20),
+                Text(
+                  'Pilih Menu Kontrol',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 10),
                 Row(
                   children: [
-                    Expanded(
-                      child: CustomButton(
-                        text: 'Air',
-                        onPressed: () {
-                          setState(() => _selectedTab = 0);
-                        },
-                        backgroundColor: airBg,
-                        textColor: airText,
-                        borderColor: airBorder,
-                        fontSize: 32,
-                        height: 80,
-                        borderRadius: 12,
-                        hasShadow: false,
-                      ),
+                    CustomButton(
+                      text: 'Air',
+                      width: 150,
+                      onPressed: () {
+                        setState(() => _selectedTab = 0);
+                      },
+                      backgroundColor: airBg,
+                      textColor: airText,
+                      borderColor: airBorder,
+                      fontSize: 26,
+                      height: 60,
+                      borderRadius: 12,
+                      hasShadow: false,
                     ),
                     const SizedBox(width: 16),
-                    Expanded(
-                      child: CustomButton(
-                        text: 'Pakan',
-                        onPressed: () {
-                          setState(() => _selectedTab = 1);
-                        },
-                        backgroundColor: pakanBg,
-                        textColor: pakanText,
-                        fontSize: 32,
-                        height: 80,
-                        borderRadius: 12,
-                        hasShadow: false,
-                        borderColor: pakanBorder,
-                      ),
+                    CustomButton(
+                      width: 150,
+                      text: 'Pakan',
+                      onPressed: () {
+                        setState(() => _selectedTab = 1);
+                      },
+                      backgroundColor: pakanBg,
+                      textColor: pakanText,
+                      fontSize: 26,
+                      height: 60,
+                      borderRadius: 12,
+                      hasShadow: false,
+                      borderColor: pakanBorder,
                     ),
                   ],
                 ),
@@ -136,6 +144,7 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.63,
                   child: CustomCard(
+                    withExpanded: false,
                     title: 'Atur Jadwal',
                     scrollable: false,
                     titleFontSize: 20,
@@ -585,7 +594,6 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        const SizedBox(height: 6),
                                         SizedBox(
                                           width: 300,
                                           child: DropdownButtonFormField<int>(
@@ -614,65 +622,69 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                             ),
                                           ),
                                         ),
+                                        const SizedBox(height: 20),
                                       ],
                                     ),
+                                  CustomButton(
+                                    text: 'Simpan Jadwal',
+                                    width: 350,
+                                    onPressed: () {
+                                      toastification.show(
+                                        context: context,
+                                        title: const Text(
+                                          'Jadwal Tersimpan',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        type: ToastificationType.success,
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 8,
+                                            offset: Offset(0, 2),
+                                          ),
+                                        ],
+                                        alignment: Alignment.topCenter,
+                                        autoCloseDuration: const Duration(
+                                          seconds: 2,
+                                        ),
+                                      );
+                                      if (_selectedTab == 0) {
+                                        controller.updateRoomSchedule(
+                                          room: controller.selectedRoom,
+                                          isWater: true,
+                                          scheduleType: selectedMode,
+                                          intervalJam:
+                                              selectedMode == "Penjadwalan"
+                                              ? intervalJam
+                                              : null,
+                                        );
+                                      } else {
+                                        controller.updateRoomSchedule(
+                                          room: controller.selectedRoom,
+                                          isWater: false,
+                                          scheduleType: selectedMode,
+                                          intervalJam:
+                                              selectedMode == "Penjadwalan"
+                                              ? intervalJam
+                                              : null,
+                                        );
+                                      }
+                                    },
+                                    backgroundColor: Colors.green,
+                                    textColor: Colors.white,
+                                    fontSize: 20,
+                                    height: 60,
+                                    borderRadius: 16,
+                                    icon: Icons.save,
+                                    iconSize: 24,
+                                  ),
                                 ],
                               ),
                             ),
                           ],
-                        ),
-                        Spacer(),
-                        CustomButton(
-                          text: 'Simpan Jadwal',
-                          onPressed: () {
-                            toastification.show(
-                              context: context,
-                              title: const Text(
-                                'Jadwal Tersimpan',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              type: ToastificationType.success,
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  blurRadius: 8,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                              alignment: Alignment.topCenter,
-                              autoCloseDuration: const Duration(seconds: 2),
-                            );
-                            if(_selectedTab == 0){
-                              controller.updateRoomSchedule(
-                                room: controller.selectedRoom,
-                                isWater: true,
-                                scheduleType: selectedMode,
-                                intervalJam: selectedMode == "Penjadwalan"
-                                    ? intervalJam
-                                    : null,
-                              );
-                            }
-                            else {
-                              controller.updateRoomSchedule(
-                                room: controller.selectedRoom,
-                                isWater: false,
-                                scheduleType: selectedMode,
-                                intervalJam: selectedMode == "Penjadwalan"
-                                    ? intervalJam
-                                    : null,
-                              );
-                            }
-                          },
-                          backgroundColor: Colors.green,
-                          textColor: Colors.white,
-                          fontSize: 20,
-                          height: 80,
-                          borderRadius: 8,
-                          icon: Icons.save,
-                          iconSize: 24,
                         ),
                       ],
                     ),

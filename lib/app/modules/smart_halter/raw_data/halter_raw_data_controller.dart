@@ -1,4 +1,9 @@
+import 'dart:io';
+
+import 'package:excel/excel.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter_raw_data_model.dart';
@@ -32,8 +37,7 @@ class HalterRawDataController extends GetxController {
 
   final serialService = Get.find<HalterSerialService>();
 
-  RxList<HalterRawDataModel> get dataSerialList =>
-      serialService.rawData;
+  RxList<HalterRawDataModel> get dataSerialList => serialService.rawData;
 
   RxString searchText = ''.obs;
   RxString selectedDate = ''.obs;
@@ -57,5 +61,58 @@ class HalterRawDataController extends GetxController {
 
   void setSelectedDate(String date) {
     selectedDate.value = date;
+  }
+
+  Future<void> exportRawExcel(List<HalterRawDataModel> data) async {
+    var excel = Excel.createExcel();
+    Sheet sheet = excel['Sheet1'];
+    sheet.appendRow([
+      TextCellValue('No'),
+      TextCellValue('Data'),
+      TextCellValue('Tanggal'),
+      TextCellValue('Waktu'),
+    ]);
+    for (var d in data) {
+      sheet.appendRow([
+        TextCellValue(d.no.toString()),
+        TextCellValue(d.data),
+        TextCellValue(d.tanggal),
+        TextCellValue(d.waktu),
+      ]);
+    }
+    final fileBytes = excel.encode();
+    String? path = await FilePicker.platform.saveFile(
+      dialogTitle: 'Simpan file Excel Data Serial',
+      fileName: 'Data_Serial_Monitor.xlsx',
+      type: FileType.custom,
+      allowedExtensions: ['xlsx'],
+    );
+    if (path != null) {
+      await File(path).writeAsBytes(fileBytes!);
+    }
+  }
+
+  /// Export data raw ke PDF
+  Future<void> exportRawPDF(List<HalterRawDataModel> data) async {
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.Page(
+        build: (context) => pw.Table.fromTextArray(
+          headers: ['No', 'Data', 'Tanggal', 'Waktu'],
+          data: data
+              .map((d) => [d.no.toString(), d.data, d.tanggal, d.waktu])
+              .toList(),
+        ),
+      ),
+    );
+    String? path = await FilePicker.platform.saveFile(
+      dialogTitle: 'Simpan file PDF Data Serial',
+      fileName: 'Data_Serial_Monitor.pdf',
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    if (path != null) {
+      await File(path).writeAsBytes(await pdf.save());
+    }
   }
 }

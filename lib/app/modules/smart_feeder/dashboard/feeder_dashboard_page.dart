@@ -607,7 +607,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.27,
+                          width: MediaQuery.of(context).size.width * 0.26,
                           child: Column(
                             children: [
                               CustomStableTankCard(
@@ -1004,7 +1004,27 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                   height: 170,
                   child: CustomCard(
                     title: 'Status Feeder Device',
+                    trailing: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.green, width: 1),
+                      ),
+                      child: Text(
+                        'Terhubung',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                     headerHeight: 50,
+                    withExpanded: false,
                     titleFontSize: 20,
                     scrollable: false,
                     content: Obx(
@@ -1106,7 +1126,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                     ),
                   ),
                   content: SizedBox(
-                    height: 1000,
+                    height: MediaQuery.of(context).size.height * 0.7,
                     child: Scrollbar(
                       thumbVisibility: true,
                       child: ListView.builder(

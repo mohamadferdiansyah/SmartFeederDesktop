@@ -45,6 +45,7 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: CustomCard(
+        withExpanded: false,
         title: 'Rule Engine',
         content: Center(
           child: Column(
@@ -254,6 +255,7 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
   ) {
     return CustomCard(
       title: title,
+      withExpanded: false,
       trailing: Icon(icon, color: Colors.white, size: 24),
       headerColor: AppColors.primary,
       headerHeight: 50,

@@ -32,6 +32,7 @@ class FeederSettingPageState extends State<FeederSettingPage> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: CustomCard(
+        withExpanded: false,
         title: 'Pengaturan Aplikasi Feeder',
         content: Column(
           children: [
@@ -42,6 +43,7 @@ class FeederSettingPageState extends State<FeederSettingPage> {
                 children: [
                   // Card 1: Cloud Connection
                   CustomCard(
+                    withExpanded: false,
                     title: 'Cloud Connection',
                     headerColor: AppColors.primary,
                     headerHeight: 50,
@@ -89,7 +91,7 @@ class FeederSettingPageState extends State<FeederSettingPage> {
                                   ),
                                 ),
                                 onPressed: () {},
-                                child: const Text('Check Connection'),
+                                child: const Text('Cek Koneksi'),
                               ),
                             ),
                           ],
@@ -117,6 +119,7 @@ class FeederSettingPageState extends State<FeederSettingPage> {
                   ),
                   // Card 2: Lora Connection
                   CustomCard(
+                    withExpanded: false,
                     title: 'Lora Connection',
                     headerColor: AppColors.primary,
                     headerHeight: 50,
@@ -184,14 +187,14 @@ class FeederSettingPageState extends State<FeederSettingPage> {
                         ),
                         const SizedBox(height: 12),
                         LinearProgressIndicator(
-                          value: _loraConnected ? 1.0 : 0.2,
+                          value: 1,
                           minHeight: 8,
                           color: _loraConnected ? Colors.green : Colors.red,
                           backgroundColor: Colors.grey[300],
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          _loraConnected ? 'Terhubung' : 'Not Connected',
+                          _loraConnected ? 'Terhubung' : 'Tidak Terhubung',
                           style: TextStyle(
                             color: _loraConnected ? Colors.green : Colors.red,
                             fontWeight: FontWeight.bold,
@@ -203,6 +206,7 @@ class FeederSettingPageState extends State<FeederSettingPage> {
                   ),
                   // Card 3: Pengiriman Data Halter
                   CustomCard(
+                    withExpanded: false,
                     title: 'Pengiriman Data Halter',
                     headerColor: AppColors.primary,
                     headerHeight: 50,
@@ -257,16 +261,16 @@ class FeederSettingPageState extends State<FeederSettingPage> {
                         ),
                         const SizedBox(height: 12),
                         LinearProgressIndicator(
-                          value: 0.2, // contoh dummy
+                          value: 1,
                           minHeight: 8,
-                          color: Colors.orange,
+                          color: Colors.red,
                           backgroundColor: Colors.grey[300],
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Not Connected',
+                          'Tidak Terhubung',
                           style: const TextStyle(
-                            color: Colors.orange,
+                            color: Colors.red,
                             fontWeight: FontWeight.bold,
                           ),
                           textAlign: TextAlign.right,
@@ -275,6 +279,7 @@ class FeederSettingPageState extends State<FeederSettingPage> {
                     ),
                   ),
                   CustomCard(
+                    withExpanded: false,
                     title: 'Pilih Kandang',
                     headerColor: AppColors.primary,
                     headerHeight: 50,
@@ -345,7 +350,7 @@ class FeederSettingPageState extends State<FeederSettingPage> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Connected',
+                          'Terhubung',
                           style: const TextStyle(
                             color: Colors.green,
                             fontWeight: FontWeight.bold,

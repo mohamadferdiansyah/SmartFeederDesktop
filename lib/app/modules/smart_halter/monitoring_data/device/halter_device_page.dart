@@ -18,7 +18,7 @@ class HalterDevicePage extends StatefulWidget {
 
 class _HalterDevicePageState extends State<HalterDevicePage> {
   final TextEditingController _searchController = TextEditingController();
-  final HalterDeviceController _controller = Get.put(HalterDeviceController());
+  final HalterDeviceController _controller = Get.find<HalterDeviceController>();
   late HalterDeviceDataTableSource _dataSource;
   String _searchText = "";
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
@@ -152,7 +152,12 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                       fontSize: 18,
                                       icon: Icons.table_view_rounded,
                                       text: 'Export Excel',
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        _controller.exportDeviceExcel(
+                                          _dataSource.filteredDevices,
+                                          _controller.getHorseNameById,
+                                        );
+                                      },
                                     ),
                                     const SizedBox(width: 12),
                                     CustomButton(
@@ -164,7 +169,12 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                       fontSize: 18,
                                       icon: Icons.picture_as_pdf,
                                       text: 'Export PDF',
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        _controller.exportDevicePDF(
+                                          _dataSource.filteredDevices,
+                                          _controller.getHorseNameById,
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),
@@ -436,6 +446,7 @@ class HalterRawDataDialog extends StatefulWidget {
 class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
   DateTime? tanggalAwal;
   DateTime? tanggalAkhir;
+  final HalterDeviceController _controller = Get.find<HalterDeviceController>();
 
   List<HalterDeviceDetailModel> get filteredData {
     // Filter by deviceId
@@ -633,7 +644,9 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                     fontSize: 18,
                     icon: Icons.table_view_rounded,
                     text: 'Export Excel',
-                    onPressed: () {},
+                    onPressed: () {
+                      _controller.exportDetailExcel(filteredData);
+                    },
                   ),
                   const SizedBox(width: 12),
                   CustomButton(
@@ -643,7 +656,9 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                     fontSize: 18,
                     icon: Icons.picture_as_pdf,
                     text: 'Export PDF',
-                    onPressed: () {},
+                    onPressed: () {
+                      _controller.exportDetailPDF(filteredData);
+                    },
                   ),
                 ],
               ),

@@ -15,7 +15,7 @@ class HalterHorsePage extends StatefulWidget {
 
 class _HalterHorsePageState extends State<HalterHorsePage> {
   final TextEditingController _searchController = TextEditingController();
-  final HalterHorseController _controller = Get.put(HalterHorseController());
+  final HalterHorseController _controller = Get.find<HalterHorseController>();
   late HorseDataTableSource _dataSource;
   String _searchText = "";
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
@@ -148,7 +148,11 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                                       fontSize: 18,
                                       icon: Icons.table_view_rounded,
                                       text: 'Export Excel',
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        _controller.exportToExcel(
+                                          _controller.horseList,
+                                        );
+                                      },
                                     ),
                                     const SizedBox(width: 12),
                                     CustomButton(
@@ -160,7 +164,11 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                                       fontSize: 18,
                                       icon: Icons.picture_as_pdf,
                                       text: 'Export PDF',
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        _controller.exportToPDF(
+                                          _controller.horseList,
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),

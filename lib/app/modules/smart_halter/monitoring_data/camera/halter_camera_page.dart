@@ -148,7 +148,11 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
                                       fontSize: 18,
                                       icon: Icons.table_view_rounded,
                                       text: 'Export Excel',
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        _controller.exportCctvExcel(
+                                          _dataSource.filteredCctvs,
+                                        );
+                                      },
                                     ),
                                     const SizedBox(width: 12),
                                     CustomButton(
@@ -160,7 +164,11 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
                                       fontSize: 18,
                                       icon: Icons.picture_as_pdf,
                                       text: 'Export PDF',
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        _controller.exportCctvPDF(
+                                          _dataSource.filteredCctvs,
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),

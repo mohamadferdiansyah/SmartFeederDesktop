@@ -77,58 +77,62 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                           const SizedBox(height: 12),
                           Row(
                             children: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
+                                  onPressed: () {},
+                                  child: const Text('Simpan'),
                                 ),
-                                onPressed: () {},
-                                child: const Text('Simpan'),
                               ),
                               const SizedBox(width: 10),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blueGrey,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blueGrey,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
+                                  onPressed: () {
+                                    settingController.updateCloud(
+                                      url: _cloudUrlController.text,
+                                      isConnected: true,
+                                    );
+                                    toastification.show(
+                                      context: context,
+                                      title: Text(
+                                        'Koneksi Cloud Berhasil',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      type: ToastificationType.success,
+                                      description: Text(
+                                        'Cloud URL: ${_cloudUrlController.text}',
+                                      ),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black26,
+                                          blurRadius: 8,
+                                          offset: Offset(0, 2),
+                                        ),
+                                      ],
+                                      alignment: Alignment.topCenter,
+                                      autoCloseDuration: const Duration(
+                                        seconds: 2,
+                                      ),
+                                    );
+                                  },
+                                  child: const Text('Cek Koneksi'),
                                 ),
-                                onPressed: () {
-                                  settingController.updateCloud(
-                                    url: _cloudUrlController.text,
-                                    isConnected: true,
-                                  );
-                                  toastification.show(
-                                    context: context,
-                                    title: Text(
-                                      'Koneksi Cloud Berhasil',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    type: ToastificationType.success,
-                                    description: Text(
-                                      'Cloud URL: ${_cloudUrlController.text}',
-                                    ),
-                                    boxShadow: const [
-                                      BoxShadow(
-                                        color: Colors.black26,
-                                        blurRadius: 8,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
-                                    alignment: Alignment.topCenter,
-                                    autoCloseDuration: const Duration(
-                                      seconds: 2,
-                                    ),
-                                  );
-                                },
-                                child: const Text('Check Connection'),
                               ),
                             ],
                           ),
@@ -211,101 +215,104 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                           Row(
                             children: [
                               // Tombol Simpan Port (optional, bisa diisi logic simpan port ke controller)
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
+                                  onPressed: _selectedLoraPort == null
+                                      ? null
+                                      : () {
+                                          // Logic simpan port jika perlu
+                                        },
+                                  child: const Text('Simpan Port'),
                                 ),
-                                onPressed: _selectedLoraPort == null
-                                    ? null
-                                    : () {
-                                        // Logic simpan port jika perlu
-                                      },
-                                child: const Text('Simpan Port'),
                               ),
                               const SizedBox(width: 10),
                               // Tombol Connect/Disconnect
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: _selectedLoraPort == null
-                                      ? Colors.grey.shade400
-                                      : _loraConnected
-                                      ? Colors.red
-                                      : Colors.green,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: _selectedLoraPort == null
+                                        ? Colors.grey.shade400
+                                        : _loraConnected
+                                        ? Colors.red
+                                        : Colors.green,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
-                                ),
-                                onPressed: _selectedLoraPort == null
-                                    ? null
-                                    : () {
-                                        setState(() {
-                                          _loraConnected = !_loraConnected;
-                                          settingController.updateLora(
-                                            port: _selectedLoraPort!,
-                                            isConnected: _loraConnected,
-                                          );
-                                          if (_loraConnected) {
-                                            toastification.show(
-                                              context: context,
-                                              title: const Text(
-                                                'Koneksi Lora Berhasil',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              type: ToastificationType.success,
-                                              description: Text(
-                                                'Port: $_selectedLoraPort',
-                                              ),
-                                              boxShadow: const [
-                                                BoxShadow(
-                                                  color: Colors.black26,
-                                                  blurRadius: 8,
-                                                  offset: Offset(0, 2),
-                                                ),
-                                              ],
-                                              alignment: Alignment.topCenter,
-                                              autoCloseDuration: const Duration(
-                                                seconds: 2,
-                                              ),
+                                  onPressed: _selectedLoraPort == null
+                                      ? null
+                                      : () {
+                                          setState(() {
+                                            _loraConnected = !_loraConnected;
+                                            settingController.updateLora(
+                                              port: _selectedLoraPort!,
+                                              isConnected: _loraConnected,
                                             );
-                                          } else {
-                                            toastification.show(
-                                              context: context,
-                                              title: const Text(
-                                                'Koneksi Lora Terputus',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
+                                            if (_loraConnected) {
+                                              toastification.show(
+                                                context: context,
+                                                title: const Text(
+                                                  'Koneksi Lora Berhasil',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
-                                              ),
-                                              type: ToastificationType.error,
-                                              description: const Text(
-                                                'Lora telah terputus.',
-                                              ),
-                                              boxShadow: const [
-                                                BoxShadow(
-                                                  color: Colors.black26,
-                                                  blurRadius: 8,
-                                                  offset: Offset(0, 2),
+                                                type:
+                                                    ToastificationType.success,
+                                                description: Text(
+                                                  'Port: $_selectedLoraPort',
                                                 ),
-                                              ],
-                                              alignment: Alignment.topCenter,
-                                              autoCloseDuration: const Duration(
-                                                seconds: 2,
-                                              ),
-                                            );
-                                          }
-                                        });
-                                      },
-                                child: Text(
-                                  _loraConnected ? 'Disconnect' : 'Connect',
+                                                boxShadow: const [
+                                                  BoxShadow(
+                                                    color: Colors.black26,
+                                                    blurRadius: 8,
+                                                    offset: Offset(0, 2),
+                                                  ),
+                                                ],
+                                                alignment: Alignment.topCenter,
+                                                autoCloseDuration:
+                                                    const Duration(seconds: 2),
+                                              );
+                                            } else {
+                                              toastification.show(
+                                                context: context,
+                                                title: const Text(
+                                                  'Koneksi Lora Terputus',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                type: ToastificationType.error,
+                                                description: const Text(
+                                                  'Lora telah terputus.',
+                                                ),
+                                                boxShadow: const [
+                                                  BoxShadow(
+                                                    color: Colors.black26,
+                                                    blurRadius: 8,
+                                                    offset: Offset(0, 2),
+                                                  ),
+                                                ],
+                                                alignment: Alignment.topCenter,
+                                                autoCloseDuration:
+                                                    const Duration(seconds: 2),
+                                              );
+                                            }
+                                          });
+                                        },
+                                  child: Text(
+                                    _loraConnected ? 'Putuskan' : 'Hubungkan',
+                                  ),
                                 ),
                               ),
                             ],
@@ -313,14 +320,14 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                           const SizedBox(height: 12),
                           // Status Bar
                           LinearProgressIndicator(
-                            value: _loraConnected ? 1.0 : 0.2,
+                            value: 1,
                             minHeight: 8,
                             color: _loraConnected ? Colors.green : Colors.red,
                             backgroundColor: Colors.grey[300],
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            _loraConnected ? 'Terhubung' : 'Not Connected',
+                            _loraConnected ? 'Terhubung' : 'Tidak Terhubung',
                             style: TextStyle(
                               color: _loraConnected ? Colors.green : Colors.red,
                               fontWeight: FontWeight.bold,
@@ -507,7 +514,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Connected',
+                            'Terhubung',
                             style: const TextStyle(
                               color: Colors.green,
                               fontWeight: FontWeight.bold,

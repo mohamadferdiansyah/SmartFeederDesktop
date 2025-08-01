@@ -32,11 +32,12 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
       padding: const EdgeInsets.all(16.0),
       child: CustomCard(
         title: 'Dashboard',
+        withExpanded: false,
         content: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              constraints: BoxConstraints(maxWidth: 350),
+              constraints: BoxConstraints(maxWidth: 335),
               height: MediaQuery.of(context).size.height * 0.85,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -401,7 +402,7 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      width: MediaQuery.of(context).size.width * 0.42,
+                      width: MediaQuery.of(context).size.width * 0.423,
                       height: MediaQuery.of(context).size.height * 0.66,
                       decoration: BoxDecoration(
                         color: Colors.white,

@@ -128,328 +128,98 @@ class _FeederHistoryPageState extends State<FeederHistoryPage> {
                           final feedW = tableWidth * 0.10;
                           final actionW = tableWidth * 0.17;
 
-                          return Expanded(
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      CustomButton(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                            0.15,
-                                        height: 70,
-                                        backgroundColor: Colors.green,
-                                        fontSize: 24,
-                                        icon: Icons.table_view_rounded,
-                                        text: 'Export Excel',
-                                        onPressed: () {},
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 12),
-                                  Theme(
-                                    data: Theme.of(context).copyWith(
-                                      cardColor: Colors.white,
-                                      dataTableTheme: DataTableThemeData(
-                                        headingRowColor:
-                                            MaterialStateProperty.all(
-                                              Colors.grey[200]!,
-                                            ),
-                                        dataRowColor: MaterialStateProperty.all(
-                                          Colors.white,
-                                        ),
+                          return SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      'Export Data :',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    CustomButton(
+                                      width:
+                                          MediaQuery.of(context).size.width *
+                                          0.1,
+                                      height: 50,
+                                      backgroundColor: Colors.green,
+                                      fontSize: 18,
+                                      icon: Icons.table_view_rounded,
+                                      text: 'Export Excel',
+                                      onPressed: () {
+                                        controller.exportHistoryExcel(
+                                          _dataSource.filteredEntries,
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 12),
+                                    CustomButton(
+                                      width:
+                                          MediaQuery.of(context).size.width *
+                                          0.1,
+                                      height: 50,
+                                      backgroundColor: Colors.redAccent,
+                                      fontSize: 18,
+                                      icon: Icons.picture_as_pdf,
+                                      text: 'Export PDF',
+                                      onPressed: () {
+                                        controller.exportHistoryPDF(
+                                          _dataSource.filteredEntries,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 12),
+                                Theme(
+                                  data: Theme.of(context).copyWith(
+                                    cardColor: Colors.white,
+                                    dataTableTheme: DataTableThemeData(
+                                      headingRowColor:
+                                          MaterialStateProperty.all(
+                                            Colors.grey[200]!,
+                                          ),
+                                      dataRowColor: MaterialStateProperty.all(
+                                        Colors.white,
                                       ),
                                     ),
-                                    child: PaginatedDataTable(
-                                      columnSpacing: 0,
-                                      horizontalMargin: 0,
-                                      sortColumnIndex: _sortColumnIndex,
-                                      sortAscending: _sortAscending,
-                                      columns: [
-                                        DataColumn(
-                                          label: MouseRegion(
-                                            onEnter: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  0;
-                                            }),
-                                            onExit: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  null;
-                                            }),
-                                            child: AnimatedContainer(
-                                              duration: Duration(
-                                                milliseconds: 150,
-                                              ),
-                                              width: stableW,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    _dataSource
-                                                            .hoveredColumnIndex ==
-                                                        0
-                                                    ? Colors.blue.withOpacity(
-                                                        0.15,
-                                                      )
-                                                    : Colors.transparent,
-                                              ),
-                                              child: Center(
-                                                child: const Text(
-                                                  'Kandang',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
+                                  ),
+                                  child: PaginatedDataTable(
+                                    columnSpacing: 0,
+                                    horizontalMargin: 0,
+                                    sortColumnIndex: _sortColumnIndex,
+                                    sortAscending: _sortAscending,
+                                    columns: [
+                                      DataColumn(
+                                        label: MouseRegion(
+                                          onEnter: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex = 0;
+                                          }),
+                                          onExit: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex =
+                                                null;
+                                          }),
+                                          child: AnimatedContainer(
+                                            duration: Duration(
+                                              milliseconds: 150,
                                             ),
-                                          ),
-                                          onSort: (columnIndex, ascending) {
-                                            setState(() {
-                                              _sortColumnIndex = columnIndex;
-                                              _sortAscending = ascending;
-                                              _dataSource.sort(
-                                                (e) => e.stableId,
-                                                ascending,
-                                              );
-                                            });
-                                          },
-                                        ),
-                                        DataColumn(
-                                          label: MouseRegion(
-                                            onEnter: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  0;
-                                            }),
-                                            onExit: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  null;
-                                            }),
-                                            child: AnimatedContainer(
-                                              duration: Duration(
-                                                milliseconds: 150,
-                                              ),
-                                              width: stableW,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    _dataSource
-                                                            .hoveredColumnIndex ==
-                                                        0
-                                                    ? Colors.blue.withOpacity(
-                                                        0.15,
-                                                      )
-                                                    : Colors.transparent,
-                                              ),
-                                              child: Center(
-                                                child: const Text(
-                                                  'Ruangan',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
+                                            width: stableW,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  _dataSource
+                                                          .hoveredColumnIndex ==
+                                                      0
+                                                  ? Colors.blue.withOpacity(
+                                                      0.15,
+                                                    )
+                                                  : Colors.transparent,
                                             ),
-                                          ),
-                                          onSort: (columnIndex, ascending) {
-                                            setState(() {
-                                              _sortColumnIndex = columnIndex;
-                                              _sortAscending = ascending;
-                                              _dataSource.sort(
-                                                (e) => e.roomId,
-                                                ascending,
-                                              );
-                                            });
-                                          },
-                                        ),
-                                        DataColumn(
-                                          label: MouseRegion(
-                                            onEnter: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  1;
-                                            }),
-                                            onExit: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  null;
-                                            }),
-                                            child: AnimatedContainer(
-                                              duration: Duration(
-                                                milliseconds: 150,
-                                              ),
-                                              width: dateW,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    _dataSource
-                                                            .hoveredColumnIndex ==
-                                                        1
-                                                    ? Colors.blue.withOpacity(
-                                                        0.15,
-                                                      )
-                                                    : Colors.transparent,
-                                              ),
-                                              child: Center(
-                                                child: const Text(
-                                                  'Tanggal',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          onSort: (columnIndex, ascending) {
-                                            setState(() {
-                                              _sortColumnIndex = columnIndex;
-                                              _sortAscending = ascending;
-                                              _dataSource.sort(
-                                                (e) => e.date,
-                                                ascending,
-                                              );
-                                            });
-                                          },
-                                        ),
-                                        DataColumn(
-                                          label: MouseRegion(
-                                            onEnter: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  2;
-                                            }),
-                                            onExit: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  null;
-                                            }),
-                                            child: AnimatedContainer(
-                                              duration: Duration(
-                                                milliseconds: 150,
-                                              ),
-                                              width: scheduleW,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    _dataSource
-                                                            .hoveredColumnIndex ==
-                                                        2
-                                                    ? Colors.blue.withOpacity(
-                                                        0.15,
-                                                      )
-                                                    : Colors.transparent,
-                                              ),
-                                              child: Center(
-                                                child: const Text(
-                                                  'Jadwal',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          onSort: (columnIndex, ascending) {
-                                            setState(() {
-                                              _sortColumnIndex = columnIndex;
-                                              _sortAscending = ascending;
-                                              _dataSource.sort(
-                                                (e) => e.type,
-                                                ascending,
-                                              );
-                                            });
-                                          },
-                                        ),
-                                        DataColumn(
-                                          label: MouseRegion(
-                                            onEnter: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  3;
-                                            }),
-                                            onExit: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  null;
-                                            }),
-                                            child: AnimatedContainer(
-                                              duration: Duration(
-                                                milliseconds: 150,
-                                              ),
-                                              width: waterW,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    _dataSource
-                                                            .hoveredColumnIndex ==
-                                                        3
-                                                    ? Colors.blue.withOpacity(
-                                                        0.15,
-                                                      )
-                                                    : Colors.transparent,
-                                              ),
-                                              child: Center(
-                                                child: const Text(
-                                                  'Air (L)',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          onSort: (columnIndex, ascending) {
-                                            setState(() {
-                                              _sortColumnIndex = columnIndex;
-                                              _sortAscending = ascending;
-                                              _dataSource.sort(
-                                                (e) => e.water,
-                                                ascending,
-                                              );
-                                            });
-                                          },
-                                        ),
-                                        DataColumn(
-                                          label: MouseRegion(
-                                            onEnter: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  4;
-                                            }),
-                                            onExit: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  null;
-                                            }),
-                                            child: AnimatedContainer(
-                                              duration: Duration(
-                                                milliseconds: 150,
-                                              ),
-                                              width: feedW,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    _dataSource
-                                                            .hoveredColumnIndex ==
-                                                        4
-                                                    ? Colors.blue.withOpacity(
-                                                        0.15,
-                                                      )
-                                                    : Colors.transparent,
-                                              ),
-                                              child: Center(
-                                                child: const Text(
-                                                  'Pakan (g)',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          onSort: (columnIndex, ascending) {
-                                            setState(() {
-                                              _sortColumnIndex = columnIndex;
-                                              _sortAscending = ascending;
-                                              _dataSource.sort(
-                                                (e) => e.feed,
-                                                ascending,
-                                              );
-                                            });
-                                          },
-                                        ),
-                                        DataColumn(
-                                          label: SizedBox(
-                                            width: actionW,
                                             child: Center(
-                                              child: Text(
-                                                'Aksi',
+                                              child: const Text(
+                                                'Kandang',
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                 ),
@@ -457,20 +227,268 @@ class _FeederHistoryPageState extends State<FeederHistoryPage> {
                                             ),
                                           ),
                                         ),
-                                      ],
-                                      source: _dataSource,
-                                      rowsPerPage: _rowsPerPage,
-                                      availableRowsPerPage: const [5, 10, 20],
-                                      onRowsPerPageChanged: (value) {
-                                        setState(() {
-                                          _rowsPerPage = value ?? 5;
-                                        });
-                                      },
-                                      showCheckboxColumn: false,
-                                    ),
+                                        onSort: (columnIndex, ascending) {
+                                          setState(() {
+                                            _sortColumnIndex = columnIndex;
+                                            _sortAscending = ascending;
+                                            _dataSource.sort(
+                                              (e) => e.stableId,
+                                              ascending,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                      DataColumn(
+                                        label: MouseRegion(
+                                          onEnter: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex = 0;
+                                          }),
+                                          onExit: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex =
+                                                null;
+                                          }),
+                                          child: AnimatedContainer(
+                                            duration: Duration(
+                                              milliseconds: 150,
+                                            ),
+                                            width: stableW,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  _dataSource
+                                                          .hoveredColumnIndex ==
+                                                      0
+                                                  ? Colors.blue.withOpacity(
+                                                      0.15,
+                                                    )
+                                                  : Colors.transparent,
+                                            ),
+                                            child: Center(
+                                              child: const Text(
+                                                'Ruangan',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        onSort: (columnIndex, ascending) {
+                                          setState(() {
+                                            _sortColumnIndex = columnIndex;
+                                            _sortAscending = ascending;
+                                            _dataSource.sort(
+                                              (e) => e.roomId,
+                                              ascending,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                      DataColumn(
+                                        label: MouseRegion(
+                                          onEnter: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex = 1;
+                                          }),
+                                          onExit: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex =
+                                                null;
+                                          }),
+                                          child: AnimatedContainer(
+                                            duration: Duration(
+                                              milliseconds: 150,
+                                            ),
+                                            width: dateW,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  _dataSource
+                                                          .hoveredColumnIndex ==
+                                                      1
+                                                  ? Colors.blue.withOpacity(
+                                                      0.15,
+                                                    )
+                                                  : Colors.transparent,
+                                            ),
+                                            child: Center(
+                                              child: const Text(
+                                                'Tanggal',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        onSort: (columnIndex, ascending) {
+                                          setState(() {
+                                            _sortColumnIndex = columnIndex;
+                                            _sortAscending = ascending;
+                                            _dataSource.sort(
+                                              (e) => e.date,
+                                              ascending,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                      DataColumn(
+                                        label: MouseRegion(
+                                          onEnter: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex = 2;
+                                          }),
+                                          onExit: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex =
+                                                null;
+                                          }),
+                                          child: AnimatedContainer(
+                                            duration: Duration(
+                                              milliseconds: 150,
+                                            ),
+                                            width: scheduleW,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  _dataSource
+                                                          .hoveredColumnIndex ==
+                                                      2
+                                                  ? Colors.blue.withOpacity(
+                                                      0.15,
+                                                    )
+                                                  : Colors.transparent,
+                                            ),
+                                            child: Center(
+                                              child: const Text(
+                                                'Jadwal',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        onSort: (columnIndex, ascending) {
+                                          setState(() {
+                                            _sortColumnIndex = columnIndex;
+                                            _sortAscending = ascending;
+                                            _dataSource.sort(
+                                              (e) => e.type,
+                                              ascending,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                      DataColumn(
+                                        label: MouseRegion(
+                                          onEnter: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex = 3;
+                                          }),
+                                          onExit: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex =
+                                                null;
+                                          }),
+                                          child: AnimatedContainer(
+                                            duration: Duration(
+                                              milliseconds: 150,
+                                            ),
+                                            width: waterW,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  _dataSource
+                                                          .hoveredColumnIndex ==
+                                                      3
+                                                  ? Colors.blue.withOpacity(
+                                                      0.15,
+                                                    )
+                                                  : Colors.transparent,
+                                            ),
+                                            child: Center(
+                                              child: const Text(
+                                                'Air (L)',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        onSort: (columnIndex, ascending) {
+                                          setState(() {
+                                            _sortColumnIndex = columnIndex;
+                                            _sortAscending = ascending;
+                                            _dataSource.sort(
+                                              (e) => e.water,
+                                              ascending,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                      DataColumn(
+                                        label: MouseRegion(
+                                          onEnter: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex = 4;
+                                          }),
+                                          onExit: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex =
+                                                null;
+                                          }),
+                                          child: AnimatedContainer(
+                                            duration: Duration(
+                                              milliseconds: 150,
+                                            ),
+                                            width: feedW,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  _dataSource
+                                                          .hoveredColumnIndex ==
+                                                      4
+                                                  ? Colors.blue.withOpacity(
+                                                      0.15,
+                                                    )
+                                                  : Colors.transparent,
+                                            ),
+                                            child: Center(
+                                              child: const Text(
+                                                'Pakan (g)',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        onSort: (columnIndex, ascending) {
+                                          setState(() {
+                                            _sortColumnIndex = columnIndex;
+                                            _sortAscending = ascending;
+                                            _dataSource.sort(
+                                              (e) => e.feed,
+                                              ascending,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                      DataColumn(
+                                        label: SizedBox(
+                                          width: actionW,
+                                          child: Center(
+                                            child: Text(
+                                              'Aksi',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    source: _dataSource,
+                                    rowsPerPage: _rowsPerPage,
+                                    availableRowsPerPage: const [5, 10, 20],
+                                    onRowsPerPageChanged: (value) {
+                                      setState(() {
+                                        _rowsPerPage = value ?? 5;
+                                      });
+                                    },
+                                    showCheckboxColumn: false,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           );
                         },

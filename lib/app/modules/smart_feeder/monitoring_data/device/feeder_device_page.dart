@@ -156,238 +156,100 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                           final statusW = tableWidth * 0.15;
                           final actionW = tableWidth * 0.20;
 
-                          return Expanded(
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      CustomButton(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                            0.15,
-                                        height: 70,
-                                        backgroundColor: Colors.green,
-                                        fontSize: 24,
-                                        icon: Icons.table_view_rounded,
-                                        text: 'Export Excel',
-                                        onPressed: () {},
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 12),
-                                  Theme(
-                                    data: Theme.of(context).copyWith(
-                                      cardColor: Colors
-                                          .white, // warna area body & footer PENUH
-                                      dataTableTheme: DataTableThemeData(
-                                        headingRowColor:
-                                            MaterialStateProperty.all(
-                                              Colors.grey[200]!,
-                                            ),
-                                        dataRowColor: MaterialStateProperty.all(
-                                          Colors.white,
-                                        ),
+                          return SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      'Export Data :',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    CustomButton(
+                                      width:
+                                          MediaQuery.of(context).size.width *
+                                          0.1,
+                                      height: 50,
+                                      backgroundColor: Colors.green,
+                                      fontSize: 18,
+                                      icon: Icons.table_view_rounded,
+                                      text: 'Export Excel',
+                                      onPressed: () {
+                                        _controller.exportDeviceExcel(
+                                          _dataSource.filteredDevices,
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 12),
+                                    CustomButton(
+                                      width:
+                                          MediaQuery.of(context).size.width *
+                                          0.1,
+                                      height: 50,
+                                      backgroundColor: Colors.redAccent,
+                                      fontSize: 18,
+                                      icon: Icons.picture_as_pdf,
+                                      text: 'Export PDF',
+                                      onPressed: () {
+                                        _controller.exportDevicePDF(
+                                          _dataSource.filteredDevices,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 12),
+                                Theme(
+                                  data: Theme.of(context).copyWith(
+                                    cardColor: Colors
+                                        .white, // warna area body & footer PENUH
+                                    dataTableTheme: DataTableThemeData(
+                                      headingRowColor:
+                                          MaterialStateProperty.all(
+                                            Colors.grey[200]!,
+                                          ),
+                                      dataRowColor: MaterialStateProperty.all(
+                                        Colors.white,
                                       ),
                                     ),
-                                    child: PaginatedDataTable(
-                                      columnSpacing:
-                                          0, // karena sudah pakai SizedBox di cell
-                                      horizontalMargin: 0,
-                                      sortColumnIndex: _sortColumnIndex,
-                                      sortAscending: _sortAscending,
-                                      columns: [
-                                        DataColumn(
-                                          label: MouseRegion(
-                                            onEnter: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  0;
-                                            }),
-                                            onExit: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  null;
-                                            }),
-                                            child: AnimatedContainer(
-                                              duration: Duration(
-                                                milliseconds: 150,
-                                              ),
-                                              width: idW,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    _dataSource
-                                                            .hoveredColumnIndex ==
-                                                        0
-                                                    ? Colors.blue.withOpacity(
-                                                        0.15,
-                                                      )
-                                                    : Colors.transparent,
-                                              ),
-                                              child: Center(
-                                                child: const Text(
-                                                  'ID',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
+                                  ),
+                                  child: PaginatedDataTable(
+                                    columnSpacing:
+                                        0, // karena sudah pakai SizedBox di cell
+                                    horizontalMargin: 0,
+                                    sortColumnIndex: _sortColumnIndex,
+                                    sortAscending: _sortAscending,
+                                    columns: [
+                                      DataColumn(
+                                        label: MouseRegion(
+                                          onEnter: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex = 0;
+                                          }),
+                                          onExit: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex =
+                                                null;
+                                          }),
+                                          child: AnimatedContainer(
+                                            duration: Duration(
+                                              milliseconds: 150,
                                             ),
-                                          ),
-                                          onSort: (columnIndex, ascending) {
-                                            setState(() {
-                                              _sortColumnIndex = columnIndex;
-                                              _sortAscending = ascending;
-                                              _dataSource.sort(
-                                                (d) => d.deviceId,
-                                                ascending,
-                                              );
-                                            });
-                                          },
-                                        ),
-                                        DataColumn(
-                                          label: MouseRegion(
-                                            onEnter: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  1;
-                                            }),
-                                            onExit: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  null;
-                                            }),
-                                            child: AnimatedContainer(
-                                              duration: Duration(
-                                                milliseconds: 150,
-                                              ),
-                                              width: nameW,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    _dataSource
-                                                            .hoveredColumnIndex ==
-                                                        1
-                                                    ? Colors.blue.withOpacity(
-                                                        0.15,
-                                                      )
-                                                    : Colors.transparent,
-                                              ),
-                                              child: Center(
-                                                child: const Text(
-                                                  'Di Ruangan',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
+                                            width: idW,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  _dataSource
+                                                          .hoveredColumnIndex ==
+                                                      0
+                                                  ? Colors.blue.withOpacity(
+                                                      0.15,
+                                                    )
+                                                  : Colors.transparent,
                                             ),
-                                          ),
-                                          onSort: (columnIndex, ascending) {
-                                            setState(() {
-                                              _sortColumnIndex = columnIndex;
-                                              _sortAscending = ascending;
-                                              _dataSource.sort(
-                                                (d) => d.deviceId,
-                                                ascending,
-                                              );
-                                            });
-                                          },
-                                        ),
-                                        DataColumn(
-                                          label: MouseRegion(
-                                            onEnter: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  2;
-                                            }),
-                                            onExit: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  null;
-                                            }),
-                                            child: AnimatedContainer(
-                                              duration: Duration(
-                                                milliseconds: 150,
-                                              ),
-                                              width: typeW,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    _dataSource
-                                                            .hoveredColumnIndex ==
-                                                        2
-                                                    ? Colors.blue.withOpacity(
-                                                        0.15,
-                                                      )
-                                                    : Colors.transparent,
-                                              ),
-                                              child: Center(
-                                                child: const Text(
-                                                  'Tipe',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          onSort: (columnIndex, ascending) {
-                                            setState(() {
-                                              _sortColumnIndex = columnIndex;
-                                              _sortAscending = ascending;
-                                              _dataSource.sort(
-                                                (d) => d.deviceId,
-                                                ascending,
-                                              );
-                                            });
-                                          },
-                                        ),
-                                        DataColumn(
-                                          label: MouseRegion(
-                                            onEnter: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  3;
-                                            }),
-                                            onExit: (_) => setState(() {
-                                              _dataSource.hoveredColumnIndex =
-                                                  null;
-                                            }),
-                                            child: AnimatedContainer(
-                                              duration: Duration(
-                                                milliseconds: 150,
-                                              ),
-                                              width: statusW,
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    _dataSource
-                                                            .hoveredColumnIndex ==
-                                                        3
-                                                    ? Colors.blue.withOpacity(
-                                                        0.15,
-                                                      )
-                                                    : Colors.transparent,
-                                              ),
-                                              child: Center(
-                                                child: const Text(
-                                                  'Status',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          onSort: (columnIndex, ascending) {
-                                            setState(() {
-                                              _sortColumnIndex = columnIndex;
-                                              _sortAscending = ascending;
-                                              _dataSource.sort(
-                                                (d) => d.deviceId,
-                                                ascending,
-                                              );
-                                            });
-                                          },
-                                        ),
-                                        DataColumn(
-                                          label: SizedBox(
-                                            width: actionW, // atur lebar
                                             child: Center(
-                                              child: Text(
-                                                'Aksi',
+                                              child: const Text(
+                                                'ID',
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                 ),
@@ -395,20 +257,178 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                                             ),
                                           ),
                                         ),
-                                      ],
-                                      source: _dataSource,
-                                      rowsPerPage: _rowsPerPage,
-                                      availableRowsPerPage: const [5, 10, 20],
-                                      onRowsPerPageChanged: (value) {
-                                        setState(() {
-                                          _rowsPerPage = value ?? 5;
-                                        });
-                                      },
-                                      showCheckboxColumn: false,
-                                    ),
+                                        onSort: (columnIndex, ascending) {
+                                          setState(() {
+                                            _sortColumnIndex = columnIndex;
+                                            _sortAscending = ascending;
+                                            _dataSource.sort(
+                                              (d) => d.deviceId,
+                                              ascending,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                      DataColumn(
+                                        label: MouseRegion(
+                                          onEnter: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex = 1;
+                                          }),
+                                          onExit: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex =
+                                                null;
+                                          }),
+                                          child: AnimatedContainer(
+                                            duration: Duration(
+                                              milliseconds: 150,
+                                            ),
+                                            width: nameW,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  _dataSource
+                                                          .hoveredColumnIndex ==
+                                                      1
+                                                  ? Colors.blue.withOpacity(
+                                                      0.15,
+                                                    )
+                                                  : Colors.transparent,
+                                            ),
+                                            child: Center(
+                                              child: const Text(
+                                                'Di Ruangan',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        onSort: (columnIndex, ascending) {
+                                          setState(() {
+                                            _sortColumnIndex = columnIndex;
+                                            _sortAscending = ascending;
+                                            _dataSource.sort(
+                                              (d) => d.deviceId,
+                                              ascending,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                      DataColumn(
+                                        label: MouseRegion(
+                                          onEnter: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex = 2;
+                                          }),
+                                          onExit: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex =
+                                                null;
+                                          }),
+                                          child: AnimatedContainer(
+                                            duration: Duration(
+                                              milliseconds: 150,
+                                            ),
+                                            width: typeW,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  _dataSource
+                                                          .hoveredColumnIndex ==
+                                                      2
+                                                  ? Colors.blue.withOpacity(
+                                                      0.15,
+                                                    )
+                                                  : Colors.transparent,
+                                            ),
+                                            child: Center(
+                                              child: const Text(
+                                                'Tipe',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        onSort: (columnIndex, ascending) {
+                                          setState(() {
+                                            _sortColumnIndex = columnIndex;
+                                            _sortAscending = ascending;
+                                            _dataSource.sort(
+                                              (d) => d.deviceId,
+                                              ascending,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                      DataColumn(
+                                        label: MouseRegion(
+                                          onEnter: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex = 3;
+                                          }),
+                                          onExit: (_) => setState(() {
+                                            _dataSource.hoveredColumnIndex =
+                                                null;
+                                          }),
+                                          child: AnimatedContainer(
+                                            duration: Duration(
+                                              milliseconds: 150,
+                                            ),
+                                            width: statusW,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  _dataSource
+                                                          .hoveredColumnIndex ==
+                                                      3
+                                                  ? Colors.blue.withOpacity(
+                                                      0.15,
+                                                    )
+                                                  : Colors.transparent,
+                                            ),
+                                            child: Center(
+                                              child: const Text(
+                                                'Status',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        onSort: (columnIndex, ascending) {
+                                          setState(() {
+                                            _sortColumnIndex = columnIndex;
+                                            _sortAscending = ascending;
+                                            _dataSource.sort(
+                                              (d) => d.deviceId,
+                                              ascending,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                      DataColumn(
+                                        label: SizedBox(
+                                          width: actionW, // atur lebar
+                                          child: Center(
+                                            child: Text(
+                                              'Aksi',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    source: _dataSource,
+                                    rowsPerPage: _rowsPerPage,
+                                    availableRowsPerPage: const [5, 10, 20],
+                                    onRowsPerPageChanged: (value) {
+                                      setState(() {
+                                        _rowsPerPage = value ?? 5;
+                                      });
+                                    },
+                                    showCheckboxColumn: false,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           );
                         },

@@ -212,7 +212,11 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                           fontSize: 18,
                           icon: Icons.table_view_rounded,
                           text: 'Export Excel',
-                          onPressed: () {},
+                          onPressed: () {
+                            _controller.exportRawExcel(
+                              _controller.filteredList,
+                            );
+                          },
                         ),
                         const SizedBox(width: 12),
                         CustomButton(
@@ -222,7 +226,9 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                           fontSize: 18,
                           icon: Icons.picture_as_pdf,
                           text: 'Export PDF',
-                          onPressed: () {},
+                          onPressed: () {
+                            _controller.exportRawPDF(_controller.filteredList);
+                          },
                         ),
                       ],
                     ),

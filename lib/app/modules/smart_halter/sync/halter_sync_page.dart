@@ -38,6 +38,7 @@ class _HalterSyncPageState extends State<HalterSyncPage> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: CustomCard(
+        withExpanded: false,
         title: 'Singkronisasi Data dengan Cloud',
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.center,

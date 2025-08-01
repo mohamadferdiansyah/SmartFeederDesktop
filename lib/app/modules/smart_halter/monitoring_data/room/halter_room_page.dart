@@ -17,7 +17,7 @@ class HalterRoomPage extends StatefulWidget {
 
 class _HalterRoomPageState extends State<HalterRoomPage> {
   final TextEditingController _searchController = TextEditingController();
-  final HalterRoomController _controller = Get.put(HalterRoomController());
+  final HalterRoomController _controller = Get.find<HalterRoomController>();
   late RoomDataTableSource _dataSource;
   String _searchText = "";
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
@@ -154,7 +154,12 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                                       fontSize: 18,
                                       icon: Icons.table_view_rounded,
                                       text: 'Export Excel',
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        _controller.exportRoomExcel(
+                                          _dataSource.filteredRooms,
+                                          _controller.getCctvNames,
+                                        );
+                                      },
                                     ),
                                     const SizedBox(width: 12),
                                     CustomButton(
@@ -166,7 +171,12 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                                       fontSize: 18,
                                       icon: Icons.picture_as_pdf,
                                       text: 'Export PDF',
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        _controller.exportRoomPDF(
+                                          _dataSource.filteredRooms,
+                                          _controller.getCctvNames,
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),
@@ -455,6 +465,7 @@ class RoomNodeDataDialog extends StatefulWidget {
 class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
   DateTime? tanggalAwal;
   DateTime? tanggalAkhir;
+  final HalterRoomController _controller = Get.find<HalterRoomController>();
 
   List<NodeRoomModel> get filteredData {
     // Filter by deviceId
@@ -643,7 +654,9 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                     fontSize: 18,
                     icon: Icons.table_view_rounded,
                     text: 'Export Excel',
-                    onPressed: () {},
+                    onPressed: () {
+                      _controller.exportNodeRoomExcel(filteredData);
+                    },
                   ),
                   const SizedBox(width: 12),
                   CustomButton(
@@ -653,7 +666,9 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                     fontSize: 18,
                     icon: Icons.picture_as_pdf,
                     text: 'Export PDF',
-                    onPressed: () {},
+                    onPressed: () {
+                      _controller.exportNodeRoomPDF(filteredData);
+                    },
                   ),
                 ],
               ),
