@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/models/feeder_device_model.dart';
-import 'package:smart_feeder_desktop/app/models/feeder_room_device_model.dart';
-import 'package:smart_feeder_desktop/app/models/history_entry_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/history_entry_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'dart:async';
 import 'package:smart_feeder_desktop/app/models/stable_model.dart';

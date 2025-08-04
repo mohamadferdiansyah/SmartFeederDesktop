@@ -5,7 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/models/water_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/water_model.dart';
 
 class WaterContorller extends GetxController {
   final DataController dataController = Get.find<DataController>();

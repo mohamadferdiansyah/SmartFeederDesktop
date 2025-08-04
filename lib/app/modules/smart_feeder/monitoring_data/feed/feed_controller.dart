@@ -5,7 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/models/feed_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feed_model.dart';
 
 class FeedController extends GetxController {
   final DataController dataController = Get.find<DataController>();

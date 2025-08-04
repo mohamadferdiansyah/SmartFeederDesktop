@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/data/data_halter_setting.dart';
-import 'package:smart_feeder_desktop/app/models/halter_horse_log_model.dart';
-import 'package:smart_feeder_desktop/app/models/halter_rule_engine_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_horse_log_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_rule_engine_model.dart';
 
 class HalterRuleEngineController extends GetxController {
   var setting = HalterRuleEngineModel.defaultValue().obs;

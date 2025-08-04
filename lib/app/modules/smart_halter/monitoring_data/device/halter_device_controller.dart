@@ -5,8 +5,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/models/halter_device_detail_model.dart';
-import 'package:smart_feeder_desktop/app/models/halter_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/horse_model.dart';
 import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 

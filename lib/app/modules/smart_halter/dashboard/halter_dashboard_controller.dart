@@ -1,12 +1,12 @@
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/models/halter_device_detail_model.dart';
-import 'package:smart_feeder_desktop/app/models/halter_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:collection/collection.dart';
-import 'package:smart_feeder_desktop/app/models/halter_horse_log_model.dart';
-import 'package:smart_feeder_desktop/app/models/horse_health_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_horse_log_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/horse_health_model.dart';
 import 'package:smart_feeder_desktop/app/models/horse_model.dart';
-import 'package:smart_feeder_desktop/app/models/node_room_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'package:smart_feeder_desktop/app/models/stable_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';

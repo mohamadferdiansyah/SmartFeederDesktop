@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:smart_feeder_desktop/app/models/water_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/water_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/water/water_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';

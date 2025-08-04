@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
-import 'package:smart_feeder_desktop/app/models/halter_device_detail_model.dart';
-import 'package:smart_feeder_desktop/app/models/halter_raw_data_model.dart';
-import 'package:smart_feeder_desktop/app/models/node_room_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/halter_rule_engine_controller.dart'; // import model baru
 
 class HalterSerialService extends GetxService {

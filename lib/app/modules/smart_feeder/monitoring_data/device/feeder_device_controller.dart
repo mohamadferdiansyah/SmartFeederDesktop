@@ -5,7 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/models/feeder_room_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 
 class FeederDeviceController extends GetxController {

@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import '../models/feeder_device_model.dart';
+import '../models/feeder/feeder_device_model.dart';
 
 class MqttService extends GetxService {
   late MqttServerClient client;

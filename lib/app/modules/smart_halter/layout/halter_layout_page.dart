@@ -29,10 +29,26 @@ class HalterLayoutPage extends StatelessWidget {
       title: "Monitoring Data",
       icon: Icons.storage_rounded,
       children: [
-        SidebarMenuItem(title: "Data Kuda", page: HalterHorsePage()),
-        SidebarMenuItem(title: "Data Halter Device", page: HalterDevicePage()),
-        SidebarMenuItem(title: "Data Ruang", page: HalterRoomPage()),
-        SidebarMenuItem(title: "Data CCTV", page: HalterCameraPage()),
+        SidebarMenuItem(
+          title: "Data Kuda",
+          page: HalterHorsePage(),
+          icon: Icons.pets_rounded,
+        ),
+        SidebarMenuItem(
+          title: "Data Halter Device",
+          page: HalterDevicePage(),
+          icon: Icons.device_hub_rounded,
+        ),
+        SidebarMenuItem(
+          title: "Data Ruang",
+          page: HalterRoomPage(),
+          icon: Icons.meeting_room_rounded,
+        ),
+        SidebarMenuItem(
+          title: "Data CCTV",
+          page: HalterCameraPage(),
+          icon: Icons.camera_rounded,
+        ),
       ],
     ),
     SidebarMenuItem(

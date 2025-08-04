@@ -1,5 +1,5 @@
 import 'package:get_storage/get_storage.dart';
-import 'package:smart_feeder_desktop/app/models/halter_rule_engine_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_rule_engine_model.dart';
 
 // Inisialisasi di main.dart: await GetStorage.init();
 

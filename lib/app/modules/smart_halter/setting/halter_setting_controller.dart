@@ -1,6 +1,6 @@
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
-import 'package:smart_feeder_desktop/app/models/halter_setting_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_setting_model.dart';
 import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
 class HalterSettingController extends GetxController {

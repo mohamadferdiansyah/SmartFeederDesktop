@@ -1,17 +1,17 @@
 import 'package:get/get.dart';
-import 'package:smart_feeder_desktop/app/models/cctv_model.dart';
-import 'package:smart_feeder_desktop/app/models/halter_horse_log_model.dart';
-import 'package:smart_feeder_desktop/app/models/halter_raw_data_model.dart';
-import 'package:smart_feeder_desktop/app/models/feed_model.dart';
-import 'package:smart_feeder_desktop/app/models/feeder_device_model.dart';
-import 'package:smart_feeder_desktop/app/models/feeder_room_device_model.dart';
-import 'package:smart_feeder_desktop/app/models/halter_device_model.dart';
-import 'package:smart_feeder_desktop/app/models/history_entry_model.dart';
-import 'package:smart_feeder_desktop/app/models/horse_health_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/cctv_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_horse_log_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feed_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/history_entry_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/horse_health_model.dart';
 import 'package:smart_feeder_desktop/app/models/horse_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'package:smart_feeder_desktop/app/models/stable_model.dart';
-import 'package:smart_feeder_desktop/app/models/water_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/water_model.dart';
 
 class DataController extends GetxController {
   // Data Stable
