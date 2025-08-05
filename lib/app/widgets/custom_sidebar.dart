@@ -73,7 +73,7 @@ class _CustomSidebarState extends State<CustomSidebar> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Padding(
-                  padding: EdgeInsets.all(8),
+                  padding: EdgeInsets.fromLTRB(8, 8, 8, 16),
                   child: Column(
                     children: [
                       Row(

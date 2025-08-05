@@ -33,11 +33,11 @@ class _CustomBatteryChartState extends State<CustomBatteryChart> {
 
         for (int i = 0; i < data.length; i++) {
           final d = data[i];
-          bpmSpots.add(FlSpot(i.toDouble(), (d.bpm ?? 0).toDouble()));
-          suhuSpots.add(FlSpot(i.toDouble(), (d.suhu ?? 0)));
+          bpmSpots.add(FlSpot(i.toDouble(), (d.heartRate ?? 0).toDouble()));
+          suhuSpots.add(FlSpot(i.toDouble(), (d.temperature ?? 0)));
           spoSpots.add(FlSpot(i.toDouble(), (d.spo ?? 0)));
-          respirasiSpots.add(FlSpot(i.toDouble(), (d.respirasi ?? 0)));
-          timeLabels.add((d.time ?? '${i + 1}').toString());
+          respirasiSpots.add(FlSpot(i.toDouble(), (d.respiratoryRate ?? 0)));
+          timeLabels.add((d.time).toString());
         }
 
         double minY = [

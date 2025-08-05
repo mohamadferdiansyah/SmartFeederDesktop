@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
@@ -10,44 +11,102 @@ class HalterSerialService extends GetxService {
   SerialPort? port;
   SerialPortReader? reader;
 
-  final HalterRuleEngineController controller = Get.find<HalterRuleEngineController>();
+  final HalterRuleEngineController controller =
+      Get.find<HalterRuleEngineController>();
 
   final Rxn<HalterDeviceDetailModel> latestDetail =
       Rxn<HalterDeviceDetailModel>();
+
   final Rxn<NodeRoomModel> latestNodeRoomData = Rxn<NodeRoomModel>();
+
   final RxList<HalterDeviceDetailModel> detailHistory =
       <HalterDeviceDetailModel>[
-        HalterDeviceDetailModel(bpm: 40, suhu: 37.5, spo: 97.5, respirasi: 12, time: DateTime.now().subtract(Duration(minutes: 4)), deviceId: 'SHIPB1223002'),
-    HalterDeviceDetailModel(bpm: 42, suhu: 37.6, spo: 98.2, respirasi: 13, time: DateTime.now().subtract(Duration(minutes: 3)), deviceId: 'SHIPB1223002'),
-    HalterDeviceDetailModel(bpm: 41, suhu: 37.7, spo: 97.9, respirasi: 14, time: DateTime.now().subtract(Duration(minutes: 2)), deviceId: 'SHIPB1223002'),
-    HalterDeviceDetailModel(bpm: 43, suhu: 37.8, spo: 98.5, respirasi: 13, time: DateTime.now().subtract(Duration(minutes: 1)), deviceId: 'SHIPB1223002'),
-    HalterDeviceDetailModel(bpm: 44, suhu: 37.9, spo: 98.1, respirasi: 12, time: DateTime.now(), deviceId: 'SHIPB1223002'),
+        // HalterDeviceDetailModel(
+        //   detailId: 1,
+        //   heartRate: 40,
+        //   temperature: 37.5,
+        //   spo: 97.5,
+        //   respiratoryRate: 12,
+        //   time: DateTime.now().subtract(Duration(minutes: 4)),
+        //   deviceId: 'SHIPB1223002',
+        // ),
+        // HalterDeviceDetailModel(
+        //   detailId: 2,
+        //   heartRate: 42,
+        //   temperature: 37.6,
+        //   spo: 98.2,
+        //   respiratoryRate: 13,
+        //   time: DateTime.now().subtract(Duration(minutes: 3)),
+        //   deviceId: 'SHIPB1223002',
+        // ),
+        // HalterDeviceDetailModel(
+        //   detailId: 3,
+        //   heartRate: 41,
+        //   temperature: 37.7,
+        //   spo: 97.9,
+        //   respiratoryRate: 14,
+        //   time: DateTime.now().subtract(Duration(minutes: 2)),
+        //   deviceId: 'SHIPB1223002',
+        // ),
+        // HalterDeviceDetailModel(
+        //   detailId: 4,
+        //   heartRate: 43,
+        //   temperature: 37.8,
+        //   spo: 98.5,
+        //   respiratoryRate: 13,
+        //   time: DateTime.now().subtract(Duration(minutes: 1)),
+        //   deviceId: 'SHIPB1223002',
+        // ),
+        // HalterDeviceDetailModel(
+        //   detailId: 5,
+        //   heartRate: 44,
+        //   temperature: 37.9,
+        //   spo: 98.1,
+        //   respiratoryRate: 12,
+        //   time: DateTime.now(),
+        //   deviceId: 'SHIPB1223002',
+        // ),
       ].obs;
+
   final RxList<HalterRawDataModel> rawData = <HalterRawDataModel>[].obs;
-  final RxList<NodeRoomModel> nodeRoomList =
-      <NodeRoomModel>[
-    NodeRoomModel(
-      deviceId: 'SRIPB1223003',
-      temperature: 25.0,
-      humidity: 60.0,
-      lightIntensity: 300.0,
-      time: DateTime.now().subtract(Duration(minutes: 4)),
-    ),
-    NodeRoomModel(
-      deviceId: 'SRIPB1223003',
-      temperature: 35.0,
-      humidity: 49.0,
-      lightIntensity: 291.0,
-      time: DateTime.now().subtract(Duration(minutes: 4)),
-    ),
-    NodeRoomModel(
-      deviceId: 'SRIPB1223003',
-      temperature: 31.0,
-      humidity: 45.0,
-      lightIntensity: 210.0,
-      time: DateTime.now(). subtract(Duration(minutes: 4)),
-    ),
-      ].obs; // Tambah list untuk node room
+
+  final RxList<NodeRoomModel> nodeRoomList = <NodeRoomModel>[
+    // NodeRoomModel(
+    //   deviceId: 'SRIPB1223003',
+    //   temperature: 25.0,
+    //   humidity: 60.0,
+    //   lightIntensity: 300.0,
+    //   time: DateTime.now().subtract(Duration(minutes: 4)),
+    // ),
+    // NodeRoomModel(
+    //   deviceId: 'SRIPB1223003',
+    //   temperature: 35.0,
+    //   humidity: 49.0,
+    //   lightIntensity: 291.0,
+    //   time: DateTime.now().subtract(Duration(minutes: 4)),
+    // ),
+    // NodeRoomModel(
+    //   deviceId: 'SRIPB1223003',
+    //   temperature: 31.0,
+    //   humidity: 45.0,
+    //   lightIntensity: 210.0,
+    //   time: DateTime.now().subtract(Duration(minutes: 4)),
+    // ),
+    // NodeRoomModel(
+    //   deviceId: 'SRIPB1223003',
+    //   temperature: 25.0,
+    //   humidity: 60.0,
+    //   lightIntensity: 300.0,
+    //   time: DateTime.now().subtract(Duration(minutes: 4)),
+    // ),
+    // NodeRoomModel(
+    //   deviceId: 'SRIPB1223003',
+    //   temperature: 35.0,
+    //   humidity: 49.0,
+    //   lightIntensity: 291.0,
+    //   time: DateTime.now().subtract(Duration(minutes: 4)),
+    // ),
+  ].obs; // Tambah list untuk node room
 
   RxList<String> get availablePorts =>
       RxList<String>(SerialPort.availablePorts);
@@ -93,26 +152,34 @@ class HalterSerialService extends GetxService {
             try {
               final detail = HalterDeviceDetailModel.fromSerial(line);
               latestDetail.value = detail;
-              detailHistory.add(detail);
+
+              // Ganti dengan pattern replace, bukan edit field
+              final index = detailHistory.indexWhere(
+                (d) => d.deviceId == detail.deviceId,
+              );
+              if (index == -1) {
+                detailHistory.add(detail);
+              } else {
+                detailHistory[index] = detail;
+              }
+
               controller.checkAndLog(
                 detail.deviceId,
-                suhu: detail.suhu,
+                suhu: detail.temperature,
                 spo: detail.spo,
-                bpm: detail.bpm,
-                respirasi: detail.respirasi,
+                bpm: detail.heartRate,
+                respirasi: detail.respiratoryRate,
                 time: detail.time,
               );
+
               rawData.add(
                 HalterRawDataModel(
-                  no: rawData.length + 1,
+                  rawId: rawData.length + 1,
                   data: line,
-                  tanggal: DateTime.now().toIso8601String().split('T')[0],
-                  waktu: DateTime.now()
-                      .toIso8601String()
-                      .split('T')[1]
-                      .split('.')[0],
+                  time: DateTime.now(),
                 ),
               );
+
               print('Parsed detail: $detail');
             } catch (e) {
               print('Parsing error: $e');
@@ -124,16 +191,22 @@ class HalterSerialService extends GetxService {
             try {
               final nodeRoom = NodeRoomModel.fromSerial(line);
               latestNodeRoomData.value = nodeRoom;
-              final existing = nodeRoomList.firstWhereOrNull(
+              final index = nodeRoomList.indexWhere(
                 (n) => n.deviceId == nodeRoom.deviceId,
               );
-              if (existing == null) {
+              if (index == -1) {
                 nodeRoomList.add(nodeRoom);
               } else {
-                existing.temperature.value = nodeRoom.temperature.value;
-                existing.humidity.value = nodeRoom.humidity.value;
-                existing.lightIntensity.value = nodeRoom.lightIntensity.value;
+                nodeRoomList[index] = nodeRoom;
               }
+
+              rawData.add(
+                HalterRawDataModel(
+                  rawId: rawData.length + 1,
+                  data: line,
+                  time: DateTime.now(),
+                ),
+              );
             } catch (e) {
               print('NodeRoom parsing error: $e');
             }
@@ -159,4 +232,43 @@ class HalterSerialService extends GetxService {
       print('Sent to serial: $message');
     }
   }
+
+  // Tambahkan di class HalterSerialService:
+  // Timer? _dummyTimer;
+
+  // void startDummyData() {
+  //   _dummyTimer?.cancel(); // jika sudah ada, matikan dulu
+  //   _dummyTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+  //     // Simulasi detail baru
+  //     final newDetail = HalterDeviceDetailModel(
+  //       detailId: detailHistory.length + 1,
+  //       heartRate: 40 + detailHistory.length % 10,
+  //       temperature: 37.5 + (detailHistory.length % 5) * 0.1,
+  //       spo: 96.0 + (detailHistory.length % 5),
+  //       respiratoryRate: 12 + (detailHistory.length % 3),
+  //       time: DateTime.now(),
+  //       deviceId: 'SHIPB1223002',
+  //     );
+  //     latestDetail.value = newDetail;
+  //     detailHistory.add(newDetail);
+
+  //     // Simulasi node room baru
+  //     final newNodeRoom = NodeRoomModel(
+  //       deviceId: 'SRIPB1223003',
+  //       temperature: 25 + (nodeRoomList.length % 10) * 0.5,
+  //       humidity: 50 + (nodeRoomList.length % 10) * 1.1,
+  //       lightIntensity: 200 + (nodeRoomList.length % 10) * 5.0,
+  //       time: DateTime.now(),
+  //     );
+  //     latestNodeRoomData.value = newNodeRoom;
+  //     nodeRoomList.add(newNodeRoom);
+
+  //     print('Dummy data injected!');
+  //   });
+  // }
+
+  // void stopDummyData() {
+  //   _dummyTimer?.cancel();
+  //   _dummyTimer = null;
+  // }
 }

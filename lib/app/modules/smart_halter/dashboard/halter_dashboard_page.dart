@@ -4,13 +4,15 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
-import 'package:smart_feeder_desktop/app/widgets/custom_battery_chart.dart';
+import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_battery_indicator.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_biometric_chart.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_biometric_legend.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_halter_log_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_horse_card.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_lingkungan_chart.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_lingkungan_legend.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_movement_chart%20.dart';
 
 class HalterDashboardPage extends StatefulWidget {
@@ -25,6 +27,12 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
   final HalterSettingController settingController = Get.find();
 
   int selectedTab = 0; // 0: Detail Kuda, 1: Detail Ruangan
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   Get.find<HalterSerialService>().startDummyData();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -355,13 +363,13 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                           ),
                                           Spacer(),
                                           Text(
-                                            setting.loraConnected
+                                            setting.loraPort != ''
                                                 ? "Terhubung"
                                                 : "Tidak Terhubung",
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 16,
-                                              color: setting.loraConnected
+                                              color: setting.loraPort != ''
                                                   ? Colors.green
                                                   : Colors.red,
                                             ),
@@ -662,7 +670,7 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                       roomName: 'ruangan 1',
                                       type: log.type,
                                       logMessage: log.message,
-                                      time: log.time,
+                                      time: log.time ?? DateTime.now(),
                                     );
                                   },
                                 );
@@ -985,7 +993,7 @@ class _DetailKudaView extends StatelessWidget {
                                   Text('Tegangan'),
                                   const SizedBox(width: 8),
                                   Text(
-                                    '${detail?.voltase ?? 'NaN'} mV',
+                                    '${detail?.voltage ?? 0} mV',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue,
@@ -998,7 +1006,7 @@ class _DetailKudaView extends StatelessWidget {
                                   Text('RSSI'),
                                   const SizedBox(width: 8),
                                   Text(
-                                    '${detail?.respirasi ?? 0} dBm',
+                                    '${detail?.respiratoryRate ?? 0} dBm',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue,
@@ -1066,14 +1074,7 @@ class _DetailKudaView extends StatelessWidget {
                                           Text('Umur:'),
                                           const SizedBox(width: 8),
                                           Text(
-                                            controller
-                                                .getHorseById(
-                                                  controller
-                                                          .selectedRoom
-                                                          .horseId ??
-                                                      '',
-                                                )
-                                                .age,
+                                            '${controller.getHorseById(controller.selectedRoom.horseId ?? '').age} tahun',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               color: Colors.blue,
@@ -1144,7 +1145,11 @@ class _DetailKudaView extends StatelessWidget {
                                           Text('Posisi:'),
                                           const SizedBox(width: 8),
                                           Text(
-                                            '${detail?.latitude ?? 'NaN'}',
+                                            controller.getHorseHeadPosture(
+                                              detail?.roll ?? 0,
+                                              detail?.pitch ?? 0,
+                                              detail?.yaw ?? 0,
+                                            ),
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               color: Colors.blue,
@@ -1236,12 +1241,6 @@ class _DetailKudaView extends StatelessWidget {
                 child: Obx(() {
                   final data = controller.getSelectedHorseDetailHistory();
                   const maxData = 5;
-                  // if (data.isEmpty) {
-                  //   return const Text(
-                  //     "Tidak ada data biometrik yang tersedia",
-                  //     style: TextStyle(fontSize: 16, color: Colors.grey),
-                  //   );
-                  // }
 
                   // Ambil hanya 10 data terakhir
                   final displayData = data.length > maxData
@@ -1256,22 +1255,20 @@ class _DetailKudaView extends StatelessWidget {
 
                   for (int i = 0; i < displayData.length; i++) {
                     final d = displayData[i];
-                    bpmSpots.add(FlSpot(i.toDouble(), (d.bpm ?? 0).toDouble()));
-                    suhuSpots.add(FlSpot(i.toDouble(), (d.suhu ?? 0)));
+                    bpmSpots.add(
+                      FlSpot(i.toDouble(), (d.heartRate ?? 0).toDouble()),
+                    );
+                    suhuSpots.add(FlSpot(i.toDouble(), (d.temperature ?? 0)));
                     spoSpots.add(FlSpot(i.toDouble(), (d.spo ?? 0)));
                     respirasiSpots.add(
-                      FlSpot(i.toDouble(), (d.respirasi ?? 0)),
+                      FlSpot(i.toDouble(), (d.respiratoryRate ?? 0)),
                     );
 
-                    if (d.time != null) {
-                      final timeStr = d.time!
-                          .toIso8601String()
-                          .split('T')[1]
-                          .split('.')[0];
-                      timeLabels.add(timeStr);
-                    } else {
-                      timeLabels.add('${i + 1}');
-                    }
+                    final timeStr = d.time
+                        .toIso8601String()
+                        .split('T')[1]
+                        .split('.')[0];
+                    timeLabels.add(timeStr);
                   }
 
                   return BiometricChartTabSection(
@@ -1293,12 +1290,12 @@ class _DetailKudaView extends StatelessWidget {
                     BiometrikLegendItem(
                       color: Color(0xFF23272F),
                       label: "Detak Jantung (BPM)",
-                      value: detail?.bpm?.toString() ?? "-",
+                      value: detail?.heartRate?.toString() ?? "-",
                     ),
                     BiometrikLegendItem(
                       color: Color(0xFFD34B40),
                       label: "Suhu Badan (°C)",
-                      value: detail?.suhu?.toString() ?? "-",
+                      value: detail?.temperature?.toString() ?? "-",
                     ),
                     BiometrikLegendItem(
                       color: Color(0xFF6A7891),
@@ -1308,7 +1305,7 @@ class _DetailKudaView extends StatelessWidget {
                     BiometrikLegendItem(
                       color: Color(0xFFE28B1B),
                       label: "Respirasi (BPM)",
-                      value: detail?.respirasi?.toString() ?? "-",
+                      value: detail?.respiratoryRate?.toString() ?? "-",
                     ),
                   ],
                 );
@@ -1524,7 +1521,6 @@ class _DetailRuanganView extends StatelessWidget {
                   // Profil List
                   Obx(() {
                     final room = controller.selectedRoom;
-                    final nodeRoom = controller.getSelectedNodeRoom();
 
                     return Row(
                       children: [
@@ -1549,7 +1545,7 @@ class _DetailRuanganView extends StatelessWidget {
                                   Text('No Serial Node:'),
                                   const SizedBox(width: 8),
                                   Text(
-                                    nodeRoom?.deviceId ?? '-',
+                                    room.deviceSerial,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue,
@@ -1604,193 +1600,73 @@ class _DetailRuanganView extends StatelessWidget {
               const SizedBox(height: 8),
               // Dummy lingkungan chart
               Container(
-                height: 120,
+                height: 400,
                 color: Colors.grey[100],
                 alignment: Alignment.center,
-                child: const Text("Chart Kondisi Lingkungan Placeholder"),
+                child: Obx(() {
+                  final data = controller.getSelectedNodeRoomHistory();
+                  const maxData = 5;
+
+                  final displayData = data.length > maxData
+                      ? data.sublist(data.length - maxData)
+                      : data;
+
+                  List<FlSpot> suhuSpots = [];
+                  List<FlSpot> kelembapanSpots = [];
+                  List<FlSpot> cahayaSpots = [];
+                  List<String> timeLabels = [];
+
+                  for (int i = 0; i < displayData.length; i++) {
+                    final d = displayData[i];
+                    suhuSpots.add(FlSpot(i.toDouble(), d.temperature));
+                    kelembapanSpots.add(FlSpot(i.toDouble(), d.humidity));
+                    cahayaSpots.add(FlSpot(i.toDouble(), d.lightIntensity));
+                    final timeStr = d.time != null
+                        ? d.time!.toIso8601String().split('T')[1].split('.')[0]
+                        : '-';
+                    timeLabels.add(timeStr);
+                  }
+
+                  return LingkunganChartTabSection(
+                    suhuSpots: suhuSpots,
+                    kelembapanSpots: kelembapanSpots,
+                    cahayaSpots: cahayaSpots,
+                    timeLabels: timeLabels,
+                  );
+                }),
               ),
               const SizedBox(height: 16),
               const Divider(thickness: 1.2),
 
               // LEGEND LINGKUNGAN
-              _LingkunganLegendList(),
-
-              const SizedBox(height: 16),
-              // Divider
-              Container(height: 4, color: Colors.blue[100]),
-              const SizedBox(height: 8),
-              const Text(
-                "Pakan",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              // Pakan List
-              _PakanBar(
-                label: "Rumput",
-                valueLabel: "30 kg dari 100",
-                percent: 0.3,
-                color: Colors.green,
-              ),
-              const SizedBox(height: 12),
-              _PakanBar(
-                label: "Vitamin",
-                valueLabel: "10 kg dari 40",
-                percent: 0.25,
-                color: Colors.orange,
-              ),
-              const SizedBox(height: 12),
-              _PakanBar(
-                label: "Air",
-                valueLabel: "43 Liter dari 100",
-                percent: 0.43,
-                color: Colors.blue,
-              ),
-              const SizedBox(height: 24),
+              Obx(() {
+                final nodeRoom = controller.getSelectedNodeRoom(
+                  controller.selectedRoom.deviceSerial,
+                );
+                return CustomLingkunganLegend(
+                  items: [
+                    LingkunganLegendItem(
+                      color: Color(0xFF23272F),
+                      label: "Suhu (°C)",
+                      value: nodeRoom?.temperature.toStringAsFixed(1) ?? "-",
+                    ),
+                    LingkunganLegendItem(
+                      color: Color(0xFFD34B40),
+                      label: "Kelembapan (%)",
+                      value: nodeRoom?.humidity.toStringAsFixed(1) ?? "-",
+                    ),
+                    LingkunganLegendItem(
+                      color: Color(0xFF2F3E53),
+                      label: "Indeks Cahaya (Lux)",
+                      value: nodeRoom?.lightIntensity.toStringAsFixed(1) ?? "-",
+                    ),
+                  ],
+                );
+              }),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-// Legend Lingkungan
-class _LingkunganLegendList extends StatelessWidget {
-  final List<_LingkunganLegend> items = const [
-    _LingkunganLegend(color: Color(0xFF23272F), label: "Suhu (°C)", value: "0"),
-    _LingkunganLegend(
-      color: Color(0xFFD34B40),
-      label: "Kelembapan (%)",
-      value: "0",
-    ),
-    _LingkunganLegend(
-      color: Color(0xFF6A7891),
-      label: "Kualitas Udara",
-      value: "0",
-    ),
-    _LingkunganLegend(
-      color: Color(0xFF2F3E53),
-      label: "Indeks Cahaya (Lux)",
-      value: "0",
-    ),
-  ];
-
-  const _LingkunganLegendList({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ...items
-            .map(
-              (item) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 18,
-                      height: 18,
-                      decoration: BoxDecoration(
-                        color: item.color,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        item.label,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      item.value,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-            .toList(),
-      ],
-    );
-  }
-}
-
-class _LingkunganLegend {
-  final Color color;
-  final String label;
-  final String value;
-  const _LingkunganLegend({
-    required this.color,
-    required this.label,
-    required this.value,
-  });
-}
-
-// Widget Bar Pakan
-class _PakanBar extends StatelessWidget {
-  final String label;
-  final String valueLabel;
-  final double percent; // 0.0 - 1.0
-  final Color color;
-
-  const _PakanBar({
-    super.key,
-    required this.label,
-    required this.valueLabel,
-    required this.percent,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 6,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: const TextStyle(fontSize: 15)),
-              const SizedBox(height: 6),
-              Stack(
-                children: [
-                  Container(
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(7),
-                    ),
-                  ),
-                  Container(
-                    height: 12,
-                    width: MediaQuery.of(context).size.width * 0.23 * percent,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(7),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 12),
-        SizedBox(
-          width: 110,
-          child: Text(
-            valueLabel,
-            textAlign: TextAlign.right,
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
-          ),
-        ),
-      ],
     );
   }
 }
@@ -1858,6 +1734,95 @@ class _BiometricChartTabSectionState extends State<BiometricChartTabSection> {
             titleY: currentTab.$3, // String
             titleX: currentTab.$4, // String
             lineColor: currentTab.$5, // Color
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(tabList.length, (i) {
+            final isSelected = i == selectedIndex;
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isSelected
+                      ? tabList[i].$5
+                      : Colors.grey[200],
+                  foregroundColor: isSelected ? Colors.white : Colors.black87,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: isSelected ? 2 : 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 8,
+                  ),
+                ),
+                onPressed: () => setState(() => selectedIndex = i),
+                child: Text(tabList[i].$1),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+}
+
+class LingkunganChartTabSection extends StatefulWidget {
+  final List<FlSpot> suhuSpots;
+  final List<FlSpot> kelembapanSpots;
+  final List<FlSpot> cahayaSpots;
+  final List<String> timeLabels;
+
+  const LingkunganChartTabSection({
+    super.key,
+    required this.suhuSpots,
+    required this.kelembapanSpots,
+    required this.cahayaSpots,
+    required this.timeLabels,
+  });
+
+  @override
+  State<LingkunganChartTabSection> createState() =>
+      _LingkunganChartTabSectionState();
+}
+
+class _LingkunganChartTabSectionState extends State<LingkunganChartTabSection> {
+  int selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final tabList = [
+      ("Suhu", widget.suhuSpots, "Suhu (°C)", "Waktu", const Color(0xFF23272F)),
+      (
+        "Kelembapan",
+        widget.kelembapanSpots,
+        "Kelembapan (%)",
+        "Waktu",
+        const Color(0xFFD34B40),
+      ),
+      (
+        "Cahaya",
+        widget.cahayaSpots,
+        "Indeks Cahaya (Lux)",
+        "Waktu",
+        const Color(0xFF2F3E53),
+      ),
+    ];
+
+    final currentTab = tabList[selectedIndex];
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 320,
+          child: CustomLingkunganChart(
+            spots: currentTab.$2,
+            timeLabels: widget.timeLabels,
+            titleY: currentTab.$3,
+            titleX: currentTab.$4,
+            lineColor: currentTab.$5,
           ),
         ),
         const SizedBox(height: 10),

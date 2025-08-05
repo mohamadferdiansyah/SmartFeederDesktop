@@ -29,7 +29,7 @@ class HalterHorseController extends GetxController {
         TextCellValue(horse.name),
         TextCellValue(horse.type),
         TextCellValue(horse.gender),
-        TextCellValue(horse.age),
+        TextCellValue(horse.age as String),
         TextCellValue(horse.roomId ?? 'Tidak Digunakan'),
       ]);
     }

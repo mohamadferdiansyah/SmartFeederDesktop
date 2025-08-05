@@ -76,6 +76,14 @@ class HalterDashboardController extends GetxController {
         .toList();
   }
 
+  List<NodeRoomModel> getSelectedNodeRoomHistory() {
+    final selectedSerialId = selectedRoom.deviceSerial;
+    // Filter history sesuai deviceId
+    return nodeRoomList
+        .where((node) => node.deviceId == selectedSerialId)
+        .toList();
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -128,13 +136,13 @@ class HalterDashboardController extends GetxController {
         : null;
   }
 
-  NodeRoomModel? getSelectedNodeRoom() {
-    final deviceSerial = selectedRoom.deviceSerial;
-
-    return nodeRoomList.firstWhereOrNull(
-      (node) => node.deviceId == deviceSerial,
-    );
-  }
+  NodeRoomModel? getSelectedNodeRoom(String serialId) {
+  return nodeRoomList
+      .where((node) => node.deviceId == serialId)
+      .toList()
+      .sorted((a, b) => (a.time ?? DateTime(0)).compareTo(b.time ?? DateTime(0)))
+      .lastOrNull;
+}
 
   String getStableNameById(String stableId) {
     final stable = stableList.firstWhereOrNull((s) => s.stableId == stableId);
@@ -150,7 +158,7 @@ class HalterDashboardController extends GetxController {
 
   bool isCctvActive(String roomId) {
     final room = roomList.firstWhereOrNull((r) => r.roomId == roomId);
-    return room?.cctvIds.isNotEmpty ?? false;
+    return room?.cctvId.isNotEmpty ?? false;
   }
 
   String getHorseNameByRoomId(String roomId) {

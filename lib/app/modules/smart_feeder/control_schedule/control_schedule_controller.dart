@@ -55,34 +55,45 @@ class ControlScheduleController extends GetxController {
     return DateFormat('dd-MM-yyyy HH:mm').format(lastFeed);
   }
 
+  /// FIX: Update field final hanya dengan membuat objek baru, lalu replace di list!
   void updateRoomSchedule({
     required RoomModel room,
     required bool isWater,
     required String scheduleType,
     required int? intervalJam,
   }) {
-    if (isWater) {
-      room.waterScheduleType.value = scheduleType.toLowerCase();
+    final index = roomList.indexWhere((r) => r.roomId == room.roomId);
+    if (index == -1) return;
 
-      if (scheduleType == "Penjadwalan" && intervalJam != null) {
-        room.waterScheduleIntervalHour.value = intervalJam;
-      } else if (scheduleType == "Manual") {
-        room.waterScheduleIntervalHour.value = 0;
-      } else if (scheduleType == "Otomatis" && intervalJam != null) {
-        room.waterScheduleIntervalHour.value = intervalJam;
-      }
+    final newRoom = RoomModel(
+      roomId: room.roomId,
+      name: room.name,
+      deviceSerial: room.deviceSerial,
+      status: room.status,
+      cctvId: room.cctvId,
+      stableId: room.stableId,
+      horseId: room.horseId,
+      remainingWater: room.remainingWater,
+      remainingFeed: room.remainingFeed,
+      waterScheduleType: isWater ? scheduleType.toLowerCase() : room.waterScheduleType,
+      feedScheduleType: !isWater ? scheduleType.toLowerCase() : room.feedScheduleType,
+      lastFeedText: room.lastFeedText.value,
+      waterScheduleIntervalHour: isWater
+          ? (scheduleType == "Penjadwalan" && intervalJam != null)
+              ? intervalJam
+              : (scheduleType == "Manual"
+                  ? 0
+                  : (scheduleType == "Otomatis" && intervalJam != null ? intervalJam : room.waterScheduleIntervalHour.value))
+          : room.waterScheduleIntervalHour.value,
+      feedScheduleIntervalHour: !isWater
+          ? (scheduleType == "Penjadwalan" && intervalJam != null)
+              ? intervalJam
+              : (scheduleType == "Manual"
+                  ? 0
+                  : (scheduleType == "Otomatis" && intervalJam != null ? intervalJam : room.feedScheduleIntervalHour.value))
+          : room.feedScheduleIntervalHour.value,
+    );
 
-    } else {
-      room.feedScheduleType.value = scheduleType.toLowerCase();
-
-      if (scheduleType == "Penjadwalan" && intervalJam != null) {
-        room.feedScheduleIntervalHour.value = intervalJam;
-      } else if (scheduleType == "Manual") {
-        room.feedScheduleIntervalHour.value = 0;
-      } else if (scheduleType == "Otomatis" && intervalJam != null) {
-        room.feedScheduleIntervalHour.value = intervalJam;
-      }
-      
-    }
+    roomList[index] = newRoom;
   }
 }

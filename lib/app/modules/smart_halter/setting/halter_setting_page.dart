@@ -32,7 +32,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
     _selectedLoraPort = settingController.setting.value.loraPort.isEmpty
         ? null
         : settingController.setting.value.loraPort;
-    _loraConnected = settingController.setting.value.loraConnected;
+    _loraConnected = settingController.setting.value.loraPort.isNotEmpty;
   }
 
   @override
@@ -103,7 +103,6 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                   onPressed: () {
                                     settingController.updateCloud(
                                       url: _cloudUrlController.text,
-                                      isConnected: true,
                                     );
                                     toastification.show(
                                       context: context,
@@ -140,12 +139,12 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                           Obx(
                             () => LinearProgressIndicator(
                               value:
-                                  settingController.setting.value.cloudConnected
+                                  settingController.setting.value.cloudUrl.isNotEmpty
                                   ? 1.0
                                   : 0.2,
                               minHeight: 8,
                               color:
-                                  settingController.setting.value.cloudConnected
+                                  settingController.setting.value.cloudUrl.isNotEmpty
                                   ? Colors.green
                                   : Colors.orange,
                               backgroundColor: Colors.grey[300],
@@ -153,12 +152,12 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            settingController.setting.value.cloudConnected
+                            settingController.setting.value.cloudUrl.isNotEmpty
                                 ? 'Terhubung'
                                 : 'Tidak Terhubung',
                             style: TextStyle(
                               color:
-                                  settingController.setting.value.cloudConnected
+                                  settingController.setting.value.cloudUrl.isNotEmpty
                                   ? Colors.green
                                   : Colors.orange,
                               fontWeight: FontWeight.bold,
@@ -205,7 +204,6 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                 _loraConnected = false;
                                 settingController.updateLora(
                                   port: _selectedLoraPort!,
-                                  isConnected: false,
                                 );
                               });
                             },
@@ -254,7 +252,6 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                             _loraConnected = !_loraConnected;
                                             settingController.updateLora(
                                               port: _selectedLoraPort!,
-                                              isConnected: _loraConnected,
                                             );
                                             if (_loraConnected) {
                                               toastification.show(

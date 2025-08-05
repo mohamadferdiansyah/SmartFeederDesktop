@@ -371,7 +371,7 @@ class RoomDataTableSource extends DataTableSource {
             d.name.toLowerCase().contains(searchText) ||
             d.deviceSerial.toLowerCase().contains(searchText) ||
             d.status.toLowerCase().contains(searchText) ||
-            getCctvNames(d.cctvIds).toLowerCase().contains(searchText);
+            getCctvNames(d.cctvId).toLowerCase().contains(searchText);
       }).toList();
     }
     notifyListeners();
@@ -400,7 +400,7 @@ class RoomDataTableSource extends DataTableSource {
         DataCell(
           Center(child: Text(room.status == 'used' ? 'Aktif' : 'Tidak Aktif')),
         ),
-        DataCell(Center(child: Text(getCctvNames(room.cctvIds)))),
+        DataCell(Center(child: Text(getCctvNames(room.cctvId)))),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -770,7 +770,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                               SizedBox(
                                 width: tempW,
                                 child: Text(
-                                  d.temperature.value.toStringAsFixed(2),
+                                  d.temperature.toStringAsFixed(2),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
@@ -779,7 +779,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                               SizedBox(
                                 width: humidityW,
                                 child: Text(
-                                  d.humidity.value.toStringAsFixed(2),
+                                  d.humidity.toStringAsFixed(2),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
@@ -788,7 +788,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                               SizedBox(
                                 width: lightW,
                                 child: Text(
-                                  d.lightIntensity.value.toStringAsFixed(2),
+                                  d.lightIntensity.toStringAsFixed(2),
                                   textAlign: TextAlign.center,
                                 ),
                               ),

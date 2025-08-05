@@ -2,13 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:window_manager/window_manager.dart';
 import 'app/routes/app_pages.dart';
 import 'app/constants/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
+  
   await initializeDateFormatting('id_ID', null);
+
+  await DBHelper.database;
 
   await windowManager.ensureInitialized();
 
@@ -19,7 +27,6 @@ void main() async {
     await windowManager.show();
     await windowManager.setSkipTaskbar(false);
   });
-  
   Get.put(DataController());
   runApp(SmartFeederApp());
 }

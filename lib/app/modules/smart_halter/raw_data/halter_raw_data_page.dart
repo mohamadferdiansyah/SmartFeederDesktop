@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/raw_data/halter_raw_data_controller.dart';
+import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
+import 'package:toastification/toastification.dart';
 
 class HalterRawDataPage extends StatefulWidget {
   const HalterRawDataPage({super.key});
@@ -26,7 +28,10 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
   @override
   void initState() {
     super.initState();
-    _dataSource = HalterRawDataTableSource(data: _controller.dataSerialList);
+    _dataSource = HalterRawDataTableSource(
+      data: _controller.dataSerialList,
+      context: context,
+    );
     _searchController.addListener(() {
       setState(() {
         _searchText = _searchController.text.trim().toLowerCase();
@@ -240,9 +245,8 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                         final tableWidth =
                             MediaQuery.of(context).size.width - 72;
                         final noW = tableWidth * 0.04;
-                        final dataW = tableWidth * 0.47;
-                        final tglW = tableWidth * 0.1;
-                        final waktuW = tableWidth * 0.07;
+                        final dataW = tableWidth * 0.52;
+                        final tglW = tableWidth * 0.12;
                         final aksiW = tableWidth * 0.12;
 
                         return Theme(
@@ -304,19 +308,6 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                               ),
                               DataColumn(
                                 label: SizedBox(
-                                  width: waktuW,
-                                  child: const Center(
-                                    child: Text(
-                                      'Waktu',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              DataColumn(
-                                label: SizedBox(
                                   width: aksiW,
                                   child: const Center(
                                     child: Text(
@@ -331,6 +322,7 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                             ],
                             source: HalterRawDataTableSource(
                               data: filteredList,
+                              context: context,
                             ),
                             rowsPerPage: _rowsPerPage,
                             availableRowsPerPage: const [5, 10, 20],
@@ -358,8 +350,11 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
 class HalterRawDataTableSource extends DataTableSource {
   List<HalterRawDataModel> data;
   List<HalterRawDataModel> filteredData;
+  BuildContext context;
+  final HalterRawDataController controller =
+      Get.find<HalterRawDataController>();
 
-  HalterRawDataTableSource({required this.data})
+  HalterRawDataTableSource({required this.data, required this.context})
     : filteredData = List.from(data);
 
   void updateFilter(List<HalterRawDataModel> filtered) {
@@ -373,34 +368,53 @@ class HalterRawDataTableSource extends DataTableSource {
     return DataRow.byIndex(
       index: index,
       cells: [
-        DataCell(Center(child: Text(item.no.toString()))),
+        DataCell(Center(child: Text(item.rawId.toString()))),
         DataCell(
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Text(item.data),
           ),
         ),
-        DataCell(Center(child: Text(item.tanggal))),
-        DataCell(Center(child: Text(item.waktu))),
+        DataCell(Center(child: Text(item.time.toString()))),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CustomButton(
-                width: 80,
-                height: 30,
-                text: 'Detail',
-                borderRadius: 6,
-                onPressed: () {
-                  // TODO: aksi detail
-                },
-              ),
-              const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
                 tooltip: 'Hapus',
                 onPressed: () {
-                  // TODO: aksi hapus
+                  showCustomDialog(
+                    context: context,
+                    title: 'Hapus Data',
+                    icon: Icons.delete,
+                    iconColor: Colors.red,
+                    confirmText: 'Hapus',
+                    message: 'Apakah Anda yakin ingin menghapus data ini?',
+                    onConfirm: () {
+                      controller.deleteRawDataById(item.rawId);
+                      toastification.show(
+                        context: context,
+                        title: const Text(
+                          'Berhasil Menghapus Data',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        type: ToastificationType.success,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                        alignment: Alignment.topCenter,
+                        autoCloseDuration: const Duration(seconds: 2),
+                      );
+                    },
+                  );
                 },
               ),
             ],

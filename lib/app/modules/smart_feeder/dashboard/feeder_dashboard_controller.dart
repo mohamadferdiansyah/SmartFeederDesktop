@@ -10,8 +10,6 @@ import 'package:smart_feeder_desktop/app/models/stable_model.dart';
 import 'package:smart_feeder_desktop/app/services/mqtt_service.dart';
 
 class FeederDashboardController extends GetxController {
-  // RxInt secondsRemaining = 9390.obs;
-
   RxInt nowTick = DateTime.now().millisecondsSinceEpoch.obs;
 
   Timer? _timer;
@@ -22,6 +20,7 @@ class FeederDashboardController extends GetxController {
 
   RxString selectedStableId = 'S1'.obs;
   RxInt selectedRoomIndex = 0.obs;
+
   RoomModel get selectedRoom => filteredRoomList.isNotEmpty
       ? filteredRoomList[selectedRoomIndex.value.clamp(
           0,
@@ -36,22 +35,13 @@ class FeederDashboardController extends GetxController {
       .toList();
 
   final DataController dataController = Get.find<DataController>();
-
   final mqttService = Get.find<MqttService>();
 
-
   List<RoomModel> get roomList => dataController.roomList;
-
   List<StableModel> get stableList => dataController.stableList;
-
-  List<FeederDeviceModel> get feederDeviceList =>
-      dataController.feederDeviceList;
-
-  List<FeederRoomDeviceModel> get feederRoomDeviceList =>
-      dataController.feederRoomDeviceList;
-
-  List<HistoryEntryModel> get historyEntryList =>
-      dataController.historyEntryList;
+  List<FeederDeviceModel> get feederDeviceList => dataController.feederDeviceList;
+  List<FeederRoomDeviceModel> get feederRoomDeviceList => dataController.feederRoomDeviceList;
+  List<HistoryEntryModel> get historyEntryList => dataController.historyEntryList;
 
   @override
   void onInit() {
@@ -62,42 +52,40 @@ class FeederDashboardController extends GetxController {
     });
     // Simulasi update isi tanki tiap detik untuk demo realtime
     Timer.periodic(Duration(seconds: 10), (timer) {
-      // Update air tank turun 10, feed naik 15 misal
       phCurrent.value = (phCurrent.value + 0.01).clamp(6.5, 8.5);
       airTankCurrent.value = (airTankCurrent.value - 5).clamp(0, tankMax);
       feedTankCurrent.value = (feedTankCurrent.value + 5).clamp(0, tankMax);
     });
 
+    // FIX: update remainingWater dan remainingFeed dengan cara replace objek RoomModel
     Timer.periodic(Duration(seconds: 10), (timer) {
-      for (final room in roomList) {
-        // Misal air berkurang, pakan bertambah
-        room.remainingWater.value = (room.remainingWater.value - 0.1).clamp(
-          0,
-          5,
-        ); // jika max 5L
-        room.remainingFeed.value = (room.remainingFeed.value - 0.5).clamp(
-          0,
-          50,
-        ); // jika max 50Kg
+      for (int i = 0; i < roomList.length; i++) {
+        final room = roomList[i];
+        final newRoom = RoomModel(
+          roomId: room.roomId,
+          name: room.name,
+          deviceSerial: room.deviceSerial,
+          status: room.status,
+          cctvId: room.cctvId,
+          stableId: room.stableId,
+          horseId: room.horseId,
+          remainingWater: (room.remainingWater - 0.1).clamp(0, 5),
+          remainingFeed: (room.remainingFeed - 0.5).clamp(0, 50),
+          waterScheduleType: room.waterScheduleType,
+          feedScheduleType: room.feedScheduleType,
+          lastFeedText: room.lastFeedText.value,
+          waterScheduleIntervalHour: room.waterScheduleIntervalHour.value,
+          feedScheduleIntervalHour: room.feedScheduleIntervalHour.value,
+        );
+        roomList[i] = newRoom;
       }
     });
   }
 
   void setSelectedStableId(String stableId) {
     selectedStableId.value = stableId;
-    selectedRoomIndex.value = 0; // reset index ke 0 saat ganti stable
+    selectedRoomIndex.value = 0;
   }
-
-  // void startCountdown() {
-  //   _timer?.cancel();
-  //   _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-  //     if (secondsRemaining.value > 0) {
-  //       secondsRemaining.value--;
-  //     } else {
-  //       timer.cancel();
-  //     }
-  //   });
-  // }
 
   @override
   void onClose() {
@@ -118,7 +106,7 @@ class FeederDashboardController extends GetxController {
   String getTankImageAsset({
     required double current,
     required double max,
-    required bool isWater, // true = air, false = pakan
+    required bool isWater,
   }) {
     final folder = isWater ? "water_tank" : "feed_tank";
     if (current <= 0) return "assets/images/$folder/fill_0.png";
@@ -127,7 +115,6 @@ class FeederDashboardController extends GetxController {
   }
 
   String getStableTankImageAsset(double current, double max, bool isWater) {
-    // Folder: stable_feed atau stable_water
     final folder = isWater ? "stable_water" : "stable_feed";
     int level = 0;
     if (max > 0) {
@@ -135,8 +122,6 @@ class FeederDashboardController extends GetxController {
     }
     return "assets/images/$folder/fill_$level.png";
   }
-
-  // Di FeederDashboardController
 
   String getAirTankCurrentText() {
     return "${airTankCurrent.value.toStringAsFixed(1)}L";
@@ -183,7 +168,7 @@ class FeederDashboardController extends GetxController {
       return 0;
     }
     final lastFeed = room.lastFeedText.value;
-    if (lastFeed == null) return room.waterScheduleIntervalHour.value! * 3600;
+    if (lastFeed == null) return (room.waterScheduleIntervalHour.value ?? 0) * 3600;
     final nextFeedTime = lastFeed.add(
       Duration(hours: room.waterScheduleIntervalHour.value ?? 0),
     );
@@ -198,7 +183,7 @@ class FeederDashboardController extends GetxController {
       return 0;
     }
     final lastFeed = room.lastFeedText.value;
-    if (lastFeed == null) return room.feedScheduleIntervalHour.value! * 3600;
+    if (lastFeed == null) return (room.feedScheduleIntervalHour.value ?? 0) * 3600;
     final nextFeedTime = lastFeed.add(
       Duration(hours: room.feedScheduleIntervalHour.value ?? 0),
     );
@@ -227,13 +212,13 @@ class FeederDashboardController extends GetxController {
     final device = feederDeviceList.firstWhereOrNull(
       (d) => d.deviceId == 'feeder1',
     );
-    return device?.batteryPercent.value ?? 0;
+    return device?.batteryPercent ?? 0;
   }
 
   String getFeederDeviceStatus() {
     final device = feederDeviceList.firstWhereOrNull(
       (d) => d.deviceId == 'feeder1',
     );
-    return device?.status.value ?? 'unknown';
+    return device?.status ?? 'unknown';
   }
 }

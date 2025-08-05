@@ -24,6 +24,7 @@ class HalterRuleEngineController extends GetxController {
 
   void checkAndLog(
     String deviceId, {
+    int? logId,
     double? suhu,
     double? spo,
     int? bpm,
@@ -32,9 +33,10 @@ class HalterRuleEngineController extends GetxController {
   }) {
     final s = setting.value;
     final now = time ?? DateTime.now();
-    if (suhu != null && (suhu < s.suhuMin || suhu > s.suhuMax)) {
+    if (suhu != null && (suhu < s.tempMin || suhu > s.tempMax)) {
       halterHorseLogList.add(
         HalterHorseLogModel(
+          logId: logId ?? 0,
           deviceId: deviceId,
           message: 'Suhu kuda tidak normal ($suhu°C)',
           time: now,
@@ -45,6 +47,7 @@ class HalterRuleEngineController extends GetxController {
     if (spo != null && (spo < s.spoMin || spo > s.spoMax)) {
       halterHorseLogList.add(
         HalterHorseLogModel(
+          logId: logId ?? 0,
           deviceId: deviceId,
           message: 'Kadar oksigen tidak normal ($spo%)',
           time: now,
@@ -52,9 +55,10 @@ class HalterRuleEngineController extends GetxController {
         ),
       );
     }
-    if (bpm != null && (bpm < s.bpmMin || bpm > s.bpmMax)) {
+    if (bpm != null && (bpm < s.heartRateMin || bpm > s.heartRateMax)) {
       halterHorseLogList.add(
         HalterHorseLogModel(
+          logId: logId ?? 0,
           deviceId: deviceId,
           message: 'Detak jantung tidak normal ($bpm bpm)',
           time: now,
@@ -62,9 +66,10 @@ class HalterRuleEngineController extends GetxController {
         ),
       );
     }
-    if (respirasi != null && (respirasi > s.respirasiMax)) {
+    if (respirasi != null && (respirasi > s.respiratoryMax)) {
       halterHorseLogList.add(
         HalterHorseLogModel(
+          logId: logId ?? 0,
           deviceId: deviceId,
           message: 'Respirasi tinggi ($respirasi)',
           time: now,

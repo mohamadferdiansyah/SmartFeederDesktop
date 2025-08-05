@@ -10,25 +10,26 @@ class DataHalterSetting {
     final map = _box.read('halter_rule_setting');
     if (map == null) return HalterRuleEngineModel.defaultValue();
     return HalterRuleEngineModel(
-      suhuMin: map['suhuMin'],
-      suhuMax: map['suhuMax'],
+      tempMin: map['tempMin'],
+      tempMax: map['tempMax'],
       spoMin: map['spoMin'],
       spoMax: map['spoMax'],
-      bpmMin: map['bpmMin'],
-      bpmMax: map['bpmMax'],
-      respirasiMax: map['respirasiMax'],
+      heartRateMin: map['heartRateMin'],
+      heartRateMax: map['heartRateMax'],
+      respiratoryMax: map['respiratoryMax'],
+      ruleId: 1,
     );
   }
 
   static void saveSetting(HalterRuleEngineModel setting) {
     _box.write('halter_rule_setting', {
-      'suhuMin': setting.suhuMin,
-      'suhuMax': setting.suhuMax,
+      'tempMin': setting.tempMin,
+      'tempMax': setting.tempMax,
       'spoMin': setting.spoMin,
       'spoMax': setting.spoMax,
-      'bpmMin': setting.bpmMin,
-      'bpmMax': setting.bpmMax,
-      'respirasiMax': setting.respirasiMax,
+      'heartRateMin': setting.heartRateMin,
+      'heartRateMax': setting.heartRateMax,
+      'respiratoryMax': setting.respiratoryMax,
     });
   }
 }

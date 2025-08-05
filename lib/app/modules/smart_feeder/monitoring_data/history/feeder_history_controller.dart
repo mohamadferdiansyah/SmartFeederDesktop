@@ -43,8 +43,8 @@ class FeederHistoryController extends GetxController {
       sheet.appendRow([
         TextCellValue(getStableName(e.stableId)),
         TextCellValue(getRoomName(e.roomId)),
-        TextCellValue(DateFormat('yyyy-MM-dd HH:mm').format(e.date)),
-        TextCellValue(e.type.toString()),
+        TextCellValue(DateFormat('yyyy-MM-dd HH:mm').format(e.time)),
+        TextCellValue(e.scheduleType.toString()),
         TextCellValue(e.water.toStringAsFixed(1)),
         TextCellValue(e.feed.toStringAsFixed(1)),
       ]);
@@ -78,8 +78,8 @@ class FeederHistoryController extends GetxController {
           data: data.map((e) => [
             getStableName(e.stableId),
             getRoomName(e.roomId),
-            DateFormat('yyyy-MM-dd HH:mm').format(e.date),
-            e.type.toString(),
+            DateFormat('yyyy-MM-dd HH:mm').format(e.time),
+            e.scheduleType.toString(),
             e.water.toStringAsFixed(1),
             e.feed.toStringAsFixed(1),
           ]).toList(),

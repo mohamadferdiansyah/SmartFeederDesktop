@@ -1,11 +1,10 @@
-
 class HorseModel {
   final String horseId;
   final String name;
   final String type;
   final String gender;
-  final String age;      // Contoh: 1,47 tahun
-  final String? roomId;  // Relasi ke RoomModel
+  final int age;      // BIGINT di DB, jadi int
+  final String? roomId;
 
   HorseModel({
     required this.horseId,
@@ -15,13 +14,22 @@ class HorseModel {
     required this.age,
     this.roomId,
   });
-  // int getAgeInYears() {
-  //   final now = DateTime.now();
-  //   int years = now.year - dateOfBirth.year;
-  //   if (now.month < dateOfBirth.month ||
-  //       (now.month == dateOfBirth.month && now.day < dateOfBirth.day)) {
-  //     years--;
-  //   }
-  //   return years;
-  // }
+
+  factory HorseModel.fromMap(Map<String, dynamic> map) => HorseModel(
+        horseId: map['horse_id'],
+        name: map['name'],
+        type: map['type'],
+        gender: map['gender'],
+        age: map['age'] ?? 0,
+        roomId: map['room_id'],
+      );
+
+  Map<String, dynamic> toMap() => {
+        'horse_id': horseId,
+        'name': name,
+        'type': type,
+        'gender': gender,
+        'age': age,
+        'room_id': roomId,
+      };
 }

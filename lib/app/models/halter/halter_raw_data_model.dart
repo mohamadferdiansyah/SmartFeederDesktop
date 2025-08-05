@@ -1,13 +1,23 @@
 class HalterRawDataModel {
-  final int no;
-  final String data; // data raw/mentah seperti dari serial monitor
-  final String tanggal; // format: yyyy-MM-dd
-  final String waktu; // format: HH:mm:ss
+  final int rawId;
+  final String data;
+  final DateTime? time;
 
   HalterRawDataModel({
-    required this.no,
+    required this.rawId,
     required this.data,
-    required this.tanggal,
-    required this.waktu,
+    this.time,
   });
+
+  factory HalterRawDataModel.fromMap(Map<String, dynamic> map) => HalterRawDataModel(
+    rawId: map['raw_id'],
+    data: map['data'],
+    time: map['time'] != null ? DateTime.tryParse(map['time']) : null,
+  );
+
+  Map<String, dynamic> toMap() => {
+    'raw_id': rawId,
+    'data': data,
+    'time': time?.toIso8601String(),
+  };
 }

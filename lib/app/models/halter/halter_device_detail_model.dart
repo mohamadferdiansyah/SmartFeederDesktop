@@ -1,5 +1,5 @@
 class HalterDeviceDetailModel {
-  final String deviceId;
+  final int detailId;
   final double? latitude;
   final double? longitude;
   final double? altitude;
@@ -17,16 +17,17 @@ class HalterDeviceDetailModel {
   final int? roll;
   final int? pitch;
   final int? yaw;
-  final double? arus;
-  final int? voltase;
-  final int? bpm;
+  final double? current;
+  final int? voltage;
+  final int? heartRate;
   final double? spo;
-  final double? suhu;
-  final double? respirasi;
-  final DateTime? time;
+  final double? temperature;
+  final double? respiratoryRate;
+  final String deviceId;
+  final DateTime time;
 
   HalterDeviceDetailModel({
-    required this.deviceId,
+    required this.detailId,
     this.latitude,
     this.longitude,
     this.altitude,
@@ -44,22 +45,84 @@ class HalterDeviceDetailModel {
     this.roll,
     this.pitch,
     this.yaw,
-    this.arus,
-    this.voltase,
-    this.bpm,
+    this.current,
+    this.heartRate,
     this.spo,
-    this.suhu,
-    this.respirasi,
-    this.time,
+    this.voltage,
+    this.temperature,
+    this.respiratoryRate,
+    required this.deviceId,
+    required this.time,
   });
 
-  factory HalterDeviceDetailModel.fromSerial(String line) {
-    if (line.endsWith('*')) {
-      line = line.substring(0, line.length - 1);
-    }
-    final parts = line.split(',');
+  factory HalterDeviceDetailModel.fromMap(Map<String, dynamic> map) => HalterDeviceDetailModel(
+        detailId: map['detail_id'],
+        latitude: (map['latitude'] as num?)?.toDouble(),
+        longitude: (map['longitude'] as num?)?.toDouble(),
+        altitude: (map['altitude'] as num?)?.toDouble(),
+        sog: (map['sog'] as num?)?.toInt(),
+        cog: (map['cog'] as num?)?.toInt(),
+        acceX: (map['acce_x'] as num?)?.toDouble(),
+        acceY: (map['acce_y'] as num?)?.toDouble(),
+        acceZ: (map['acce_z'] as num?)?.toDouble(),
+        gyroX: (map['gyro_x'] as num?)?.toDouble(),
+        gyroY: (map['gyro_y'] as num?)?.toDouble(),
+        gyroZ: (map['gyro_z'] as num?)?.toDouble(),
+        magX: (map['mag_x'] as num?)?.toDouble(),
+        magY: (map['mag_y'] as num?)?.toDouble(),
+        magZ: (map['mag_z'] as num?)?.toDouble(),
+        roll: (map['roll'] as num?)?.toInt(),
+        pitch: (map['pitch'] as num?)?.toInt(),
+        yaw: (map['yaw'] as num?)?.toInt(),
+        current: (map['current'] as num?)?.toDouble(),
+        heartRate: map['heart_rate'] as int?,
+        spo: (map['spo'] as num?)?.toDouble(),
+        temperature: (map['temperature'] as num?)?.toDouble(),
+        respiratoryRate: (map['respiratory_rate'] as num?)?.toDouble(),
+        deviceId: map['device_id'],
+        time: map['time'],
+      );
 
+  Map<String, dynamic> toMap() => {
+        'detail_id': detailId,
+        'latitude': latitude,
+        'longitude': longitude,
+        'altitude': altitude,
+        'sog': sog,
+        'cog': cog,
+        'acce_x': acceX,
+        'acce_y': acceY,
+        'acce_z': acceZ,
+        'gyro_x': gyroX,
+        'gyro_y': gyroY,
+        'gyro_z': gyroZ,
+        'mag_x': magX,
+        'mag_y': magY,
+        'mag_z': magZ,
+        'roll': roll,
+        'pitch': pitch,
+        'yaw': yaw,
+        'current': current,
+        'heart_rate': heartRate,
+        'spo': spo,
+        'temperature': temperature,
+        'respiratory_rate': respiratoryRate,
+        'device_id': deviceId,
+        'time': time,
+      };
+
+  /// Factory untuk parsing dari serial string (format: SHIPBxxxx,...*)
+  /// detailId diisi -1 (atau kamu bisa isi auto increment dari DB)
+  factory HalterDeviceDetailModel.fromSerial(String line) {
+    String raw = line;
+    if (raw.endsWith('*')) {
+      raw = raw.substring(0, raw.length - 1);
+    }
+    final parts = raw.split(',');
+
+    // Sesuaikan urutan index dengan data dari serial (pastikan sama)
     return HalterDeviceDetailModel(
+      detailId: -1, // -1 karena dari serial belum ada id, nanti isi dari DB
       deviceId: parts[0],
       latitude: _toDouble(parts[1]),
       longitude: _toDouble(parts[2]),
@@ -78,12 +141,11 @@ class HalterDeviceDetailModel {
       roll: _toInt(parts[15]),
       pitch: _toInt(parts[16]),
       yaw: _toInt(parts[17]),
-      arus: _toDouble(parts[18]),
-      voltase: _toInt(parts[19]),
-      bpm: _toInt(parts[20]),
-      spo: _toDouble(parts[21]),
-      suhu: _toDouble(parts[22]),
-      respirasi: _toDouble(parts[23]),
+      current: _toDouble(parts[18]),
+      heartRate: _toInt(parts[19]),
+      spo: _toDouble(parts[20]),
+      temperature: _toDouble(parts[21]),
+      respiratoryRate: _toDouble(parts[22]),
       time: DateTime.now(),
     );
   }

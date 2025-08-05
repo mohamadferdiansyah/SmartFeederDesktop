@@ -4,8 +4,6 @@ import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
@@ -48,7 +46,7 @@ class HalterRawDataController extends GetxController {
           searchText.value.isEmpty ||
           item.data.toLowerCase().contains(searchText.value.toLowerCase());
       final matchDate =
-          selectedDate.value.isEmpty || item.tanggal == selectedDate.value;
+          selectedDate.value.isEmpty || item.time == selectedDate.value;
       return matchSearch && matchDate;
     }).toList();
   }
@@ -70,14 +68,12 @@ class HalterRawDataController extends GetxController {
       TextCellValue('No'),
       TextCellValue('Data'),
       TextCellValue('Tanggal'),
-      TextCellValue('Waktu'),
     ]);
     for (var d in data) {
       sheet.appendRow([
-        TextCellValue(d.no.toString()),
+        TextCellValue(d.rawId.toString()),
         TextCellValue(d.data),
-        TextCellValue(d.tanggal),
-        TextCellValue(d.waktu),
+        TextCellValue(d.time as String),
       ]);
     }
     final fileBytes = excel.encode();
@@ -100,7 +96,7 @@ class HalterRawDataController extends GetxController {
         build: (context) => pw.Table.fromTextArray(
           headers: ['No', 'Data', 'Tanggal', 'Waktu'],
           data: data
-              .map((d) => [d.no.toString(), d.data, d.tanggal, d.waktu])
+              .map((d) => [d.rawId.toString(), d.data, d.time])
               .toList(),
         ),
       ),
@@ -115,4 +111,8 @@ class HalterRawDataController extends GetxController {
       await File(path).writeAsBytes(await pdf.save());
     }
   }
+
+void deleteRawDataById(int rawId) {
+  dataSerialList.removeWhere((item) => item.rawId == rawId);
+}
 }

@@ -15,7 +15,6 @@ import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_stable_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_stable_tank_card.dart';
 
-// ignore: unrelated_type_equality_checks
 
 class FeederDashboardPage extends StatefulWidget {
   const FeederDashboardPage({super.key});
@@ -612,7 +611,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                             children: [
                               CustomStableTankCard(
                                 isWater: true,
-                                current: room.remainingWater.value,
+                                current: room.remainingWater,
                                 max: 5,
                                 phLevel: 7.2,
                                 lastText: controller.getLastFeedText(room),
@@ -622,7 +621,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                               SizedBox(height: 16),
                               CustomStableTankCard(
                                 isWater: false,
-                                current: room.remainingFeed.value,
+                                current: room.remainingFeed,
                                 max: 50,
                                 lastText: controller.getLastFeedText(room),
                                 getTankImageAsset:
@@ -975,10 +974,10 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                         itemBuilder: (context, index) {
                                           final item = selectedHistory[index];
                                           return HistoryEntryCard(
-                                            datetime: item.date,
+                                            datetime: item.time,
                                             water: item.water,
                                             feed: item.feed,
-                                            scheduleText: item.type,
+                                            scheduleText: item.scheduleType,
                                           );
                                         },
                                       );
@@ -1138,8 +1137,8 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                             child: CustomStableCard(
                               stableName: room.name,
                               imageAsset: 'assets/images/stable.jpg',
-                              feedScheduleText: room.feedScheduleType.value,
-                              waterScheduleText: room.waterScheduleType.value,
+                              feedScheduleText: room.feedScheduleType,
+                              waterScheduleText: room.waterScheduleType,
                               isActive:
                                   controller.getDeviceStatusByRoom(
                                         room.roomId,
@@ -1147,8 +1146,8 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                       "Aktif"
                                   ? true
                                   : false,
-                              remainingWater: room.remainingWater,
-                              remainingFeed: room.remainingFeed,
+                              remainingWater: room.remainingWater.obs,
+                              remainingFeed: room.remainingFeed.obs,
                               lastFeedText: controller.getLastFeedText(room),
                               onSelect: () {
                                 controller.selectedRoomIndex.value = index;

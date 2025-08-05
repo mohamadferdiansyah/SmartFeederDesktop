@@ -31,13 +31,13 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
   void initState() {
     super.initState();
     final s = controller.setting.value;
-    suhuMinCtrl = TextEditingController(text: s.suhuMin.toString());
-    suhuMaxCtrl = TextEditingController(text: s.suhuMax.toString());
+    suhuMinCtrl = TextEditingController(text: s.tempMin.toString());
+    suhuMaxCtrl = TextEditingController(text: s.tempMax.toString());
     spoMinCtrl = TextEditingController(text: s.spoMin.toString());
     spoMaxCtrl = TextEditingController(text: s.spoMax.toString());
-    bpmMinCtrl = TextEditingController(text: s.bpmMin.toString());
-    bpmMaxCtrl = TextEditingController(text: s.bpmMax.toString());
-    respMaxCtrl = TextEditingController(text: s.respirasiMax.toString());
+    bpmMinCtrl = TextEditingController(text: s.heartRateMin.toString());
+    bpmMaxCtrl = TextEditingController(text: s.heartRateMax.toString());
+    respMaxCtrl = TextEditingController(text: s.respiratoryMax.toString());
   }
 
   @override
@@ -65,13 +65,14 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
                       () {
                         controller.updateSetting(
                           HalterRuleEngineModel(
-                            suhuMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
-                            suhuMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
+                            ruleId: controller.setting.value.ruleId,
+                            tempMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
+                            tempMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
                             spoMin: double.tryParse(spoMinCtrl.text) ?? 95.0,
                             spoMax: double.tryParse(spoMaxCtrl.text) ?? 100.0,
-                            bpmMin: int.tryParse(bpmMinCtrl.text) ?? 28,
-                            bpmMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
-                            respirasiMax:
+                            heartRateMin: int.tryParse(bpmMinCtrl.text) ?? 28,
+                            heartRateMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
+                            respiratoryMax:
                                 double.tryParse(respMaxCtrl.text) ?? 20.0,
                           ),
                         );
@@ -87,13 +88,14 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
                       () {
                         controller.updateSetting(
                           HalterRuleEngineModel(
-                            suhuMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
-                            suhuMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
+                            ruleId: controller.setting.value.ruleId,
+                            tempMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
+                            tempMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
                             spoMin: double.tryParse(spoMinCtrl.text) ?? 95.0,
                             spoMax: double.tryParse(spoMaxCtrl.text) ?? 100.0,
-                            bpmMin: int.tryParse(bpmMinCtrl.text) ?? 28,
-                            bpmMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
-                            respirasiMax:
+                            heartRateMin: int.tryParse(bpmMinCtrl.text) ?? 28,
+                            heartRateMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
+                            respiratoryMax:
                                 double.tryParse(respMaxCtrl.text) ?? 20.0,
                           ),
                         );
@@ -109,13 +111,14 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
                       () {
                         controller.updateSetting(
                           HalterRuleEngineModel(
-                            suhuMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
-                            suhuMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
+                            ruleId: controller.setting.value.ruleId,
+                            tempMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
+                            tempMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
                             spoMin: double.tryParse(spoMinCtrl.text) ?? 95.0,
                             spoMax: double.tryParse(spoMaxCtrl.text) ?? 100.0,
-                            bpmMin: int.tryParse(bpmMinCtrl.text) ?? 28,
-                            bpmMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
-                            respirasiMax:
+                            heartRateMin: int.tryParse(bpmMinCtrl.text) ?? 28,
+                            heartRateMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
+                            respiratoryMax:
                                 double.tryParse(respMaxCtrl.text) ?? 20.0,
                           ),
                         );
@@ -131,13 +134,14 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
                       () {
                         controller.updateSetting(
                           HalterRuleEngineModel(
-                            suhuMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
-                            suhuMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
+                            ruleId: controller.setting.value.ruleId,
+                            tempMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
+                            tempMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
                             spoMin: double.tryParse(spoMinCtrl.text) ?? 95.0,
                             spoMax: double.tryParse(spoMaxCtrl.text) ?? 100.0,
-                            bpmMin: int.tryParse(bpmMinCtrl.text) ?? 28,
-                            bpmMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
-                            respirasiMax:
+                            heartRateMin: int.tryParse(bpmMinCtrl.text) ?? 28,
+                            heartRateMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
+                            respiratoryMax:
                                 double.tryParse(respMaxCtrl.text) ?? 20.0,
                           ),
                         );
@@ -223,7 +227,7 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
                                     return CustomHalterLogCard(
                                       horseName: log.deviceId,
                                       logMessage: log.message,
-                                      time: log.time,
+                                      time: log.time ?? DateTime.now(),
                                       type: log.type,
                                     );
                                   },

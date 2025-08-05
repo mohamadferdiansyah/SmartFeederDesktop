@@ -391,7 +391,7 @@ class HorseDataTableSource extends DataTableSource {
             d.name.toLowerCase().contains(searchText) ||
             d.type.toLowerCase().contains(searchText) ||
             d.gender.toLowerCase().contains(searchText) ||
-            d.age.toLowerCase().contains(searchText) ||
+            d.age.toString().toLowerCase().contains(searchText) ||
             (d.roomId ?? '').toLowerCase().contains(searchText);
       }).toList();
     }
@@ -419,7 +419,7 @@ class HorseDataTableSource extends DataTableSource {
         DataCell(Center(child: Text(horse.name))),
         DataCell(Center(child: Text(horse.type))),
         DataCell(Center(child: Text(horse.gender))),
-        DataCell(Center(child: Text(horse.age))),
+        DataCell(Center(child: Text(horse.age.toString()))),
         DataCell(Center(child: Text(horse.roomId ?? "Tidak Digunakan"))),
         DataCell(
           Row(

@@ -456,12 +456,12 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
     // Filter tanggal jika dipilih
     if (tanggalAwal != null) {
       data = data
-          .where((d) => d.time != null && d.time!.isAfter(tanggalAwal!))
+          .where((d) => d.time.isAfter(tanggalAwal!))
           .toList();
     }
     if (tanggalAkhir != null) {
       data = data
-          .where((d) => d.time != null && d.time!.isBefore(tanggalAkhir!))
+          .where((d) => d.time.isBefore(tanggalAkhir!))
           .toList();
     }
     return data;
@@ -720,15 +720,15 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                         DataCell(Text('${d.roll ?? "-"}')),
                         DataCell(Text('${d.pitch ?? "-"}')),
                         DataCell(Text('${d.yaw ?? "-"}')),
-                        DataCell(Text('${d.arus ?? "-"}')),
-                        DataCell(Text('${d.voltase ?? "-"}')),
-                        DataCell(Text('${d.bpm ?? "-"}')),
+                        DataCell(Text('${d.current ?? "-"}')),
+                        DataCell(Text('${d.voltage ?? "-"}')),
+                        DataCell(Text('${d.heartRate ?? "-"}')),
                         DataCell(Text('${d.spo ?? "-"}')),
-                        DataCell(Text('${d.suhu ?? "-"}')),
-                        DataCell(Text('${d.respirasi ?? "-"}')),
+                        DataCell(Text('${d.temperature ?? "-"}')),
+                        DataCell(Text('${d.respiratoryRate ?? "-"}')),
                         DataCell(
                           Text(
-                            d.time != null ? d.time!.toIso8601String() : "-",
+                            d.time != null ? d.time.toIso8601String() : "-",
                           ),
                         ),
                       ],

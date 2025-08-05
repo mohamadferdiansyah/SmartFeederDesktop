@@ -322,7 +322,7 @@ class _FeederHistoryPageState extends State<FeederHistoryPage> {
                                             _sortColumnIndex = columnIndex;
                                             _sortAscending = ascending;
                                             _dataSource.sort(
-                                              (e) => e.date,
+                                              (e) => e.time,
                                               ascending,
                                             );
                                           });
@@ -367,7 +367,7 @@ class _FeederHistoryPageState extends State<FeederHistoryPage> {
                                             _sortColumnIndex = columnIndex;
                                             _sortAscending = ascending;
                                             _dataSource.sort(
-                                              (e) => e.type,
+                                              (e) => e.scheduleType,
                                               ascending,
                                             );
                                           });
@@ -527,8 +527,8 @@ class HistoryDataTableSource extends DataTableSource {
             e.roomId.toLowerCase().contains(searchText) ||
             DateFormat(
               'yyyy-MM-dd HH:mm',
-            ).format(e.date).contains(searchText) ||
-            e.type.toString().contains(searchText) ||
+            ).format(e.time).contains(searchText) ||
+            e.scheduleType.toString().contains(searchText) ||
             e.water.toString().contains(searchText) ||
             e.feed.toString().contains(searchText);
       }).toList();
@@ -560,10 +560,10 @@ class HistoryDataTableSource extends DataTableSource {
         DataCell(Center(child: Text(controller.getRoomName(entry.roomId)))),
         DataCell(
           Center(
-            child: Text(DateFormat('yyyy-MM-dd HH:mm').format(entry.date)),
+            child: Text(DateFormat('yyyy-MM-dd HH:mm').format(entry.time)),
           ),
         ),
-        DataCell(Center(child: Text(entry.type.toString()))),
+        DataCell(Center(child: Text(entry.scheduleType.toString()))),
         DataCell(Center(child: Text(entry.water.toStringAsFixed(1)))),
         DataCell(Center(child: Text(entry.feed.toStringAsFixed(1)))),
         DataCell(

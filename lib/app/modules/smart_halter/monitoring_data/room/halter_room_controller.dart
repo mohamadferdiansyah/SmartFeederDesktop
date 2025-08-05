@@ -40,7 +40,7 @@ class HalterRoomController extends GetxController {
         TextCellValue(d.name),
         TextCellValue(d.deviceSerial),
         TextCellValue(d.status == 'used' ? 'Aktif' : 'Tidak Aktif'),
-        TextCellValue(getCctvNames(d.cctvIds)),
+        TextCellValue(getCctvNames(d.cctvId)),
       ]);
     }
     final fileBytes = excel.encode();
@@ -72,7 +72,7 @@ class HalterRoomController extends GetxController {
                   d.name,
                   d.deviceSerial,
                   d.status == 'used' ? 'Aktif' : 'Tidak Aktif',
-                  getCctvNames(d.cctvIds),
+                  getCctvNames(d.cctvId),
                 ],
               )
               .toList(),
@@ -107,9 +107,9 @@ class HalterRoomController extends GetxController {
       sheet.appendRow([
         TextCellValue('${i + 1}'),
         TextCellValue(d.deviceId),
-        TextCellValue(d.temperature.value.toStringAsFixed(2)),
-        TextCellValue(d.humidity.value.toStringAsFixed(2)),
-        TextCellValue(d.lightIntensity.value.toStringAsFixed(2)),
+        TextCellValue(d.temperature.toStringAsFixed(2)),
+        TextCellValue(d.humidity.toStringAsFixed(2)),
+        TextCellValue(d.lightIntensity.toStringAsFixed(2)),
         TextCellValue(
           d.time != null
               ? d.time!.toIso8601String().split('T')[1].split('.')[0]
@@ -148,9 +148,9 @@ class HalterRoomController extends GetxController {
             return [
               '${i + 1}',
               d.deviceId,
-              d.temperature.value.toStringAsFixed(2),
-              d.humidity.value.toStringAsFixed(2),
-              d.lightIntensity.value.toStringAsFixed(2),
+              d.temperature.toStringAsFixed(2),
+              d.humidity.toStringAsFixed(2),
+              d.lightIntensity.toStringAsFixed(2),
               d.time != null
                   ? d.time!.toIso8601String().split('T')[1].split('.')[0]
                   : '-',

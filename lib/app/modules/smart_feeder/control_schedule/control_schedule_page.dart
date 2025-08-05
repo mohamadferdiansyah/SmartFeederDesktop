@@ -278,13 +278,9 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                                       .value];
                                               final lessContent = isAir
                                                   ? controller.maxWater -
-                                                        room
-                                                            .remainingWater
-                                                            .value
+                                                        room.remainingWater
                                                   : controller.maxFeed -
-                                                        room
-                                                            .remainingFeed
-                                                            .value;
+                                                        room.remainingFeed;
 
                                               return Column(
                                                 crossAxisAlignment:
@@ -302,8 +298,8 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                                   ),
                                                   Text(
                                                     isAir
-                                                        ? '${room.remainingWater.value.toStringAsFixed(1)} $satuan'
-                                                        : '${room.remainingFeed.value.toStringAsFixed(1)} $satuan',
+                                                        ? '${room.remainingWater.toStringAsFixed(1)} $satuan'
+                                                        : '${room.remainingFeed.toStringAsFixed(1)} $satuan',
                                                     style: TextStyle(
                                                       fontSize: 26,
                                                       fontWeight:
@@ -400,13 +396,8 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                                         ),
                                                       ),
                                                       TextSpan(
-                                                        text: controller
-                                                            .getHorseById(
-                                                              controller
-                                                                  .selectedRoom
-                                                                  .horseId!,
-                                                            )
-                                                            .age,
+                                                        text:
+                                                            '${controller.getHorseById(controller.selectedRoom.horseId!).age} tahun',
                                                         style: TextStyle(
                                                           color: colorMain,
                                                           fontWeight:

@@ -81,42 +81,44 @@ class MqttService extends GetxService {
   // }
 
   void _handleIna219Payload(String payload) {
-    // Format: V=8.19V I=0.0mA P=0.0mW
-    final regex = RegExp(r'V=([\d\.]+)V I=([\d\.]+)mA P=([\d\.]+)mW');
-    final match = regex.firstMatch(payload);
-    if (match != null) {
-      final volt = double.tryParse(match.group(1) ?? '0') ?? 0.0;
-      print('MqttService: Voltase = $volt');
-      final current = double.tryParse(match.group(2) ?? '0') ?? 0.0;
-      final power = double.tryParse(match.group(3) ?? '0') ?? 0.0;
+  // Format: V=8.19V I=0.0mA P=0.0mW
+  final regex = RegExp(r'V=([\d\.]+)V I=([\d\.]+)mA P=([\d\.]+)mW');
+  final match = regex.firstMatch(payload);
+  if (match != null) {
+    final volt = double.tryParse(match.group(1) ?? '0') ?? 0.0;
+    print('MqttService: Voltase = $volt');
+    final current = double.tryParse(match.group(2) ?? '0') ?? 0.0;
+    final power = double.tryParse(match.group(3) ?? '0') ?? 0.0;
 
-      // Konversi voltase ke persen baterai (misal: 6V = 0%, 8.4V = 100%)
-      final batteryPercent = _voltToPercent(volt, minVolt: 3.0, maxVolt: 12.0);
+    // Konversi voltase ke persen baterai (misal: 6V = 0%, 8.4V = 100%)
+    final batteryPercent = _voltToPercent(volt, minVolt: 3.0, maxVolt: 12.0);
 
-      final deviceId = 'feeder1'; // kamu bisa ganti jika ada multiple device
-      final existing = feederDeviceList.firstWhereOrNull(
-        (d) => d.deviceId == deviceId,
+    final deviceId = 'feeder1'; // kamu bisa ganti jika ada multiple device
+    final index = feederDeviceList.indexWhere((d) => d.deviceId == deviceId);
+    if (index == -1) {
+      feederDeviceList.add(
+        FeederDeviceModel(
+          deviceId: deviceId,
+          status: 'ready',
+          batteryPercent: batteryPercent,
+          voltage: volt,
+          current: current,
+          power: power,
+        ),
       );
-      if (existing == null) {
-        feederDeviceList.add(
-          FeederDeviceModel(
-            deviceId: deviceId,
-            status: 'ready',
-            batteryPercent: batteryPercent,
-            voltase: volt,
-            current: current,
-            power: power,
-          ),
-        );
-      } else {
-        existing.voltase.value = volt;
-        existing.current.value = current;
-        existing.power.value = power;
-        existing.batteryPercent.value = batteryPercent;
-        feederDeviceList.refresh();
-      }
+    } else {
+      final old = feederDeviceList[index];
+      feederDeviceList[index] = FeederDeviceModel(
+        deviceId: old.deviceId,
+        status: old.status,
+        batteryPercent: batteryPercent,
+        voltage: volt,
+        current: current,
+        power: power,
+      );
     }
   }
+}
 
   int _voltToPercent(
     double volt, {
@@ -130,18 +132,22 @@ class MqttService extends GetxService {
   }
 
   void activateDevice(String roomId) {
-    publish('feeder/control', 'ISI $roomId');
-    print('MQTT: Published "ISI $roomId" to feeder/control');
+  publish('feeder/control', 'ISI $roomId');
+  print('MQTT: Published "ISI $roomId" to feeder/control');
 
-    final device = feederDeviceList.firstWhereOrNull(
-      (d) => d.deviceId == 'feeder1',
+  final index = feederDeviceList.indexWhere((d) => d.deviceId == 'feeder1');
+  if (index != -1) {
+    final old = feederDeviceList[index];
+    feederDeviceList[index] = FeederDeviceModel(
+      deviceId: old.deviceId,
+      status: 'process',
+      batteryPercent: old.batteryPercent,
+      voltage: old.voltage,
+      current: old.current,
+      power: old.power,
     );
-
-    if (device != null) {
-      device.status.value = 'process';
-      feederDeviceList.refresh();
-    }
   }
+}
 
   void publish(String topic, String payload) {
     final builder = MqttClientPayloadBuilder();
