@@ -3,7 +3,7 @@ import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:collection/collection.dart';
-import 'package:smart_feeder_desktop/app/models/halter/halter_horse_log_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_log_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/horse_health_model.dart';
 import 'package:smart_feeder_desktop/app/models/horse_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
@@ -50,8 +50,7 @@ class HalterDashboardController extends GetxController {
 
   RxList<NodeRoomModel> get nodeRoomList => serialService.nodeRoomList;
 
-  RxList<HalterHorseLogModel> get halterHorseLogList =>
-      dataController.halterLogList;
+  RxList<HalterLogModel> get halterHorseLogList => dataController.halterLogList;
 
   int? getSelectedHorseBatteryPercent() {
     final selectedHorseId = selectedRoom.horseId;
@@ -113,8 +112,8 @@ class HalterDashboardController extends GetxController {
     return stableList.firstWhere((stable) => stable.stableId == stableId);
   }
 
-  HalterDeviceModel getHalterDeviceByHorseId(String horseId) {
-    return halterDeviceList.firstWhere((device) => device.horseId == horseId);
+  HalterDeviceModel? getHalterDeviceByHorseId(String horseId) {
+    return halterDeviceList.firstWhereOrNull((d) => d.horseId == horseId);
   }
 
   HorseModel getHorseById(String horseId) {
@@ -137,12 +136,14 @@ class HalterDashboardController extends GetxController {
   }
 
   NodeRoomModel? getSelectedNodeRoom(String serialId) {
-  return nodeRoomList
-      .where((node) => node.deviceId == serialId)
-      .toList()
-      .sorted((a, b) => (a.time ?? DateTime(0)).compareTo(b.time ?? DateTime(0)))
-      .lastOrNull;
-}
+    return nodeRoomList
+        .where((node) => node.deviceId == serialId)
+        .toList()
+        .sorted(
+          (a, b) => (a.time ?? DateTime(0)).compareTo(b.time ?? DateTime(0)),
+        )
+        .lastOrNull;
+  }
 
   String getStableNameById(String stableId) {
     final stable = stableList.firstWhereOrNull((s) => s.stableId == stableId);
@@ -158,14 +159,14 @@ class HalterDashboardController extends GetxController {
 
   bool isCctvActive(String roomId) {
     final room = roomList.firstWhereOrNull((r) => r.roomId == roomId);
-    return room?.cctvId.isNotEmpty ?? false;
+    return room?.cctvId?.isNotEmpty ?? false;
   }
 
   String getHorseNameByRoomId(String roomId) {
     final room = roomList.firstWhereOrNull((r) => r.roomId == roomId);
     return room != null && room.horseId != null
         ? getHorseById(room.horseId!).name
-        : "Tidak diketahui";
+        : "-";
   }
 
   bool isRoomFilled(String roomId) {
@@ -267,6 +268,8 @@ class HalterDashboardController extends GetxController {
     if (pitch > 30) return "Mendongak";
     if (roll > 30) return "Miring kanan";
     if (roll < -30) return "Miring kiri";
+    if (yaw > 30) return "Belok kanan";
+    if (yaw < -30) return "Belok kiri";
     return "Tegak";
   }
 }

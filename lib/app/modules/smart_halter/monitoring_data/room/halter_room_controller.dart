@@ -5,21 +5,54 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
 import 'package:smart_feeder_desktop/app/models/halter/cctv_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
+import 'package:smart_feeder_desktop/app/models/horse_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
-import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
+import 'package:smart_feeder_desktop/app/models/stable_model.dart';
 
 class HalterRoomController extends GetxController {
   final DataController dataController = Get.find<DataController>();
-  final HalterSerialService halterSerialService =
-      Get.find<HalterSerialService>();
 
-  List<RoomModel> get roomList => dataController.roomList;
+  RxList<RoomModel> get roomList => dataController.roomList;
+
+  RxList<HorseModel> get horseList => dataController.horseList;
 
   List<CctvModel> get cctvList => dataController.cctvList;
 
-  RxList<NodeRoomModel> get nodeRoomList => halterSerialService.nodeRoomList;
+  RxList<StableModel> get stableList => dataController.stableList;
+
+  RxList<NodeRoomModel> get nodeRoomList => dataController.nodeRoomList;
+
+  @override
+  void onInit() {
+    super.onInit();
+    DBHelper.database.then((db) {
+      dataController.initRoomDao(db);
+      loadRooms();
+    });
+  }
+
+  Future<void> loadRooms() async {
+    await dataController.loadRoomsFromDb();
+  }
+
+  Future<void> addRoom(RoomModel model) async {
+    await dataController.addRoom(model);
+  }
+
+  Future<void> updateRoom(RoomModel model) async {
+    await dataController.updateRoom(model);
+  }
+
+  Future<void> deleteRoom(String roomId) async {
+    await dataController.deleteRoom(roomId);
+  }
+
+  Future<String> getNextRoomId() async {
+    return await dataController.getNextRoomId();
+  }
 
   Future<void> exportRoomExcel(
     List<RoomModel> data,
@@ -38,9 +71,9 @@ class HalterRoomController extends GetxController {
       sheet.appendRow([
         TextCellValue(d.roomId),
         TextCellValue(d.name),
-        TextCellValue(d.deviceSerial),
+        TextCellValue(d.deviceSerial ?? 'Tidak ada'),
         TextCellValue(d.status == 'used' ? 'Aktif' : 'Tidak Aktif'),
-        TextCellValue(getCctvNames(d.cctvId)),
+        TextCellValue(getCctvNames(d.cctvId ?? [])),
       ]);
     }
     final fileBytes = excel.encode();
@@ -72,7 +105,7 @@ class HalterRoomController extends GetxController {
                   d.name,
                   d.deviceSerial,
                   d.status == 'used' ? 'Aktif' : 'Tidak Aktif',
-                  getCctvNames(d.cctvId),
+                  getCctvNames(d.cctvId ?? []),
                 ],
               )
               .toList(),

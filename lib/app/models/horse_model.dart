@@ -3,7 +3,7 @@ class HorseModel {
   final String name;
   final String type;
   final String gender;
-  final int age;      // BIGINT di DB, jadi int
+  final int age;
   final String? roomId;
 
   HorseModel({

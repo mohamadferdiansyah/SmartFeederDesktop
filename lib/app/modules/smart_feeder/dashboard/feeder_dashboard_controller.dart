@@ -39,9 +39,12 @@ class FeederDashboardController extends GetxController {
 
   List<RoomModel> get roomList => dataController.roomList;
   List<StableModel> get stableList => dataController.stableList;
-  List<FeederDeviceModel> get feederDeviceList => dataController.feederDeviceList;
-  List<FeederRoomDeviceModel> get feederRoomDeviceList => dataController.feederRoomDeviceList;
-  List<HistoryEntryModel> get historyEntryList => dataController.historyEntryList;
+  RxList<FeederDeviceModel> get feederDeviceList =>
+      dataController.feederDeviceList;
+  List<FeederRoomDeviceModel> get feederRoomDeviceList =>
+      dataController.feederRoomDeviceList;
+  List<HistoryEntryModel> get historyEntryList =>
+      dataController.historyEntryList;
 
   @override
   void onInit() {
@@ -168,7 +171,8 @@ class FeederDashboardController extends GetxController {
       return 0;
     }
     final lastFeed = room.lastFeedText.value;
-    if (lastFeed == null) return (room.waterScheduleIntervalHour.value ?? 0) * 3600;
+    if (lastFeed == null)
+      return (room.waterScheduleIntervalHour.value ?? 0) * 3600;
     final nextFeedTime = lastFeed.add(
       Duration(hours: room.waterScheduleIntervalHour.value ?? 0),
     );
@@ -183,7 +187,8 @@ class FeederDashboardController extends GetxController {
       return 0;
     }
     final lastFeed = room.lastFeedText.value;
-    if (lastFeed == null) return (room.feedScheduleIntervalHour.value ?? 0) * 3600;
+    if (lastFeed == null)
+      return (room.feedScheduleIntervalHour.value ?? 0) * 3600;
     final nextFeedTime = lastFeed.add(
       Duration(hours: room.feedScheduleIntervalHour.value ?? 0),
     );

@@ -15,7 +15,6 @@ import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_stable_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_stable_tank_card.dart';
 
-
 class FeederDashboardPage extends StatefulWidget {
   const FeederDashboardPage({super.key});
 
@@ -517,8 +516,31 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                 CustomCard(
                   scrollable: false,
                   title: 'Informasi Detail',
-                  trailing: Obx(
-                    () => Row(
+                  trailing: Obx(() {
+                    if (controller.selectedRoomIndex.value < 0 ||
+                        controller.filteredRoomList.isEmpty) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.white, width: 1),
+                        ),
+                        child: Text(
+                          '-',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    }
+
+                    return Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -586,8 +608,8 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                           ),
                         ),
                       ],
-                    ),
-                  ),
+                    );
+                  }),
                   titleFontSize: 20,
                   headerHeight: 70,
                   content: Obx(() {
@@ -1003,25 +1025,25 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                   height: 170,
                   child: CustomCard(
                     title: 'Status Feeder Device',
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.green, width: 1),
-                      ),
-                      child: Text(
-                        'Terhubung',
-                        style: TextStyle(
-                          color: Colors.green,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    // trailing: Container(
+                    //   padding: const EdgeInsets.symmetric(
+                    //     horizontal: 8,
+                    //     vertical: 4,
+                    //   ),
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.green.withOpacity(0.2),
+                    //     borderRadius: BorderRadius.circular(8),
+                    //     border: Border.all(color: Colors.green, width: 1),
+                    //   ),
+                    //   child: Text(
+                    //     'Terhubung',
+                    //     style: TextStyle(
+                    //       color: Colors.green,
+                    //       fontSize: 16,
+                    //       fontWeight: FontWeight.bold,
+                    //     ),
+                    //   ),
+                    // ),
                     headerHeight: 50,
                     withExpanded: false,
                     titleFontSize: 20,
@@ -1070,10 +1092,18 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                               child: Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Colors.blue.withOpacity(0.2),
+                                  color:
+                                      controller.getFeederDeviceStatus() ==
+                                          'ready'
+                                      ? Colors.blue.withOpacity(0.2)
+                                      : Colors.grey.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: Colors.blue,
+                                    color:
+                                        controller.getFeederDeviceStatus() ==
+                                            'ready'
+                                        ? Colors.blue
+                                        : Colors.grey,
                                     width: 1,
                                   ),
                                 ),
@@ -1086,7 +1116,11 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                     style: TextStyle(
                                       fontSize: 35,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.blue,
+                                      color:
+                                          controller.getFeederDeviceStatus() ==
+                                              'ready'
+                                          ? Colors.blue
+                                          : Colors.grey,
                                     ),
                                   ),
                                 ),

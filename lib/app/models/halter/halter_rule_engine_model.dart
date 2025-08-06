@@ -7,6 +7,13 @@ class HalterRuleEngineModel {
   final int heartRateMax;
   final int heartRateMin;
   final double respiratoryMax;
+  final double batteryMin;
+  final double tempRoomMin;
+  final double tempRoomMax;
+  final double humidityMin;
+  final double humidityMax;
+  final double lightIntensityMin;
+  final double lightIntensityMax;
 
   HalterRuleEngineModel({
     required this.ruleId,
@@ -17,6 +24,13 @@ class HalterRuleEngineModel {
     required this.heartRateMax,
     required this.heartRateMin,
     required this.respiratoryMax,
+    required this.batteryMin,
+    required this.tempRoomMin,
+    required this.tempRoomMax,
+    required this.humidityMin,
+    required this.humidityMax,
+    required this.lightIntensityMin,
+    required this.lightIntensityMax,
   });
 
   factory HalterRuleEngineModel.fromMap(Map<String, dynamic> map) => HalterRuleEngineModel(
@@ -28,6 +42,13 @@ class HalterRuleEngineModel {
     heartRateMax: map['heart_rate_max'] ?? 0,
     heartRateMin: map['heart_rate_min'] ?? 0,
     respiratoryMax: (map['respiratory_max'] ?? 0).toDouble(),
+    batteryMin: (map['battery_min'] ?? 0).toDouble(),
+    tempRoomMin: (map['temp_room_min'] ?? 0).toDouble(),
+    tempRoomMax: (map['temp_room_max'] ?? 0).toDouble(),
+    humidityMin: (map['humidity_min'] ?? 0).toDouble(),
+    humidityMax: (map['humidity_max'] ?? 0).toDouble(),
+    lightIntensityMin: (map['light_intensity_min'] ?? 0).toDouble(),
+    lightIntensityMax: (map['light_intensity_max'] ?? 0).toDouble(),
   );
 
   Map<String, dynamic> toMap() => {
@@ -51,6 +72,13 @@ class HalterRuleEngineModel {
       heartRateMin: 28,
       heartRateMax: 44,
       respiratoryMax: 20.0,
+      batteryMin: 20.0,
+      tempRoomMin: 20.0,
+      tempRoomMax: 30.0,
+      humidityMin: 30.0,
+      humidityMax: 70.0,
+      lightIntensityMin: 100.0,
+      lightIntensityMax: 1000.0,
     );
   }
 }

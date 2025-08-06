@@ -139,12 +139,20 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                           Obx(
                             () => LinearProgressIndicator(
                               value:
-                                  settingController.setting.value.cloudUrl.isNotEmpty
+                                  settingController
+                                      .setting
+                                      .value
+                                      .cloudUrl
+                                      .isNotEmpty
                                   ? 1.0
                                   : 0.2,
                               minHeight: 8,
                               color:
-                                  settingController.setting.value.cloudUrl.isNotEmpty
+                                  settingController
+                                      .setting
+                                      .value
+                                      .cloudUrl
+                                      .isNotEmpty
                                   ? Colors.green
                                   : Colors.orange,
                               backgroundColor: Colors.grey[300],
@@ -157,7 +165,11 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                 : 'Tidak Terhubung',
                             style: TextStyle(
                               color:
-                                  settingController.setting.value.cloudUrl.isNotEmpty
+                                  settingController
+                                      .setting
+                                      .value
+                                      .cloudUrl
+                                      .isNotEmpty
                                   ? Colors.green
                                   : Colors.orange,
                               fontWeight: FontWeight.bold,
@@ -436,14 +448,32 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                         children: [
                           const Text('Kandang'),
                           const SizedBox(height: 4),
-                          Obx(
-                            () => DropdownButtonFormField<String>(
-                              value: controller.selectedStableId.value,
+                          Obx(() {
+                            final list = controller.stableList;
+                            // Cari apakah selectedStableId ada di list, kalau tidak, set null
+                            final selected =
+                                list.any(
+                                  (s) =>
+                                      s.stableId ==
+                                      controller.selectedStableId.value,
+                                )
+                                ? controller.selectedStableId.value
+                                : null;
+
+                            if (selected == null && list.isNotEmpty) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                controller.setSelectedStableId(
+                                  list.first.stableId,
+                                );
+                              });
+                            }
+                            return DropdownButtonFormField<String>(
+                              value: selected,
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                                 isDense: true,
                               ),
-                              items: controller.stableList
+                              items: list
                                   .map(
                                     (stable) => DropdownMenuItem(
                                       value: stable.stableId,
@@ -452,13 +482,13 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                   )
                                   .toList(),
                               onChanged: (val) {
-                                print('Selected stable: $val');
                                 if (val != null) {
                                   controller.setSelectedStableId(val);
                                 }
                               },
-                            ),
-                          ),
+                              hint: const Text('Pilih Kandang'),
+                            );
+                          }),
                           const SizedBox(height: 16),
                           SizedBox(
                             width: double.infinity,

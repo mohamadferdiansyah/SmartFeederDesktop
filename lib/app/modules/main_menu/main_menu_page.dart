@@ -115,59 +115,62 @@ class MainMenuPage extends StatelessWidget {
                       ),
                       SizedBox(height: 16),
                       // ganti SingleChildScrollView + Row dengan ini:
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        alignment: WrapAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.28,
-                            child: CustomMainMenuCard(
-                              title: 'Smart Halter',
-                              description:
-                                  'Pantau kesehatan dan posisi kuda secara realtime.',
-                              imageAsset: 'assets/images/smart_halter.jpg',
-                              onTap: () {
-                                Get.toNamed('/smart-halter');
-                              },
+                      SizedBox(
+                        height:
+                            MediaQuery.of(context).size.height *
+                            0.5, // Atur sesuai kebutuhan
+                        child: GridView.count(
+                          crossAxisCount: 2, // 2 kolom
+                          mainAxisSpacing: 10,
+                          crossAxisSpacing: 10,
+                          childAspectRatio:
+                              1.7, // Atur agar proporsional dengan card
+                          children: [
+                            SizedBox(
+                              child: CustomMainMenuCard(
+                                title: 'Smart Halter',
+                                description:
+                                    'Pantau kesehatan dan posisi kuda secara realtime.',
+                                imageAsset: 'assets/images/smart_halter.jpg',
+                                onTap: () {
+                                  Get.toNamed('/smart-halter');
+                                },
+                              ),
                             ),
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.28,
-                            child: CustomMainMenuCard(
-                              title: 'Smart Feeder',
-                              description:
-                                  'Atur pemberian pakan & air otomatis untuk kuda.',
-                              imageAsset: 'assets/images/smart_feeder.jpg',
-                              onTap: () {
-                                Get.toNamed('/smart-feeder');
-                              },
+                            SizedBox(
+                              child: CustomMainMenuCard(
+                                title: 'Smart Feeder',
+                                description:
+                                    'Atur pemberian pakan & air otomatis untuk kuda.',
+                                imageAsset: 'assets/images/smart_feeder.jpg',
+                                onTap: () {
+                                  Get.toNamed('/smart-feeder');
+                                },
+                              ),
                             ),
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.28,
-                            child: CustomMainMenuCard(
-                              title: 'Horse Walker',
-                              description:
-                                  'Kontrol dan monitor aktivitas berjalan kuda.',
-                              imageAsset: 'assets/images/horse_walker.jpg',
-                              onTap: () {
-                                Get.toNamed('/horse-walker');
-                              },
+                            SizedBox(
+                              child: CustomMainMenuCard(
+                                title: 'Horse Walker',
+                                description:
+                                    'Kontrol dan monitor aktivitas berjalan kuda.',
+                                imageAsset: 'assets/images/horse_walker.jpg',
+                                onTap: () {
+                                  Get.toNamed('/horse-walker');
+                                },
+                              ),
                             ),
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.28,
-                            child: CustomMainMenuCard(
-                              title: 'Room Monitoring',
-                              description: 'Monitor Ruangan Kuda.',
-                              imageAsset: 'assets/images/monitoring.jpg',
-                              onTap: () {
-                                Get.toNamed('/monitoring-room');
-                              },
+                            SizedBox(
+                              child: CustomMainMenuCard(
+                                title: 'Room Monitoring',
+                                description: 'Monitor Ruangan Kuda.',
+                                imageAsset: 'assets/images/monitoring.jpg',
+                                onTap: () {
+                                  Get.toNamed('/monitoring-room');
+                                },
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),

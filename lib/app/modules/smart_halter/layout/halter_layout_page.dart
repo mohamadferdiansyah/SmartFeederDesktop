@@ -7,6 +7,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/ca
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/device/halter_device_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/horse/halter_horse_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/room/halter_room_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/stable/halter_stable_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/raw_data/halter_raw_data_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/halter_rule_engine_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_page.dart';
@@ -26,7 +27,7 @@ class HalterLayoutPage extends StatelessWidget {
       page: HalterDashboardPage(),
     ),
     SidebarMenuItem(
-      title: "Monitoring Data",
+      title: "Data Master",
       icon: Icons.storage_rounded,
       children: [
         SidebarMenuItem(
@@ -45,6 +46,11 @@ class HalterLayoutPage extends StatelessWidget {
           icon: Icons.meeting_room_rounded,
         ),
         SidebarMenuItem(
+          title: "Data Kandang",
+          page: HalterStablePage(),
+          icon: Icons.meeting_room_rounded,
+        ),
+        SidebarMenuItem(
           title: "Data CCTV",
           page: HalterCameraPage(),
           icon: Icons.camera_rounded,
@@ -52,18 +58,18 @@ class HalterLayoutPage extends StatelessWidget {
       ],
     ),
     SidebarMenuItem(
-      title: "Data Raw",
+      title: "Raw Data",
       icon: Icons.data_object,
       page: HalterRawDataPage(),
     ),
     SidebarMenuItem(
-      title: "Pengaturan Aplikasi",
+      title: "Pengaturan",
       icon: Icons.settings,
       page: HalterSettingPage(),
     ),
     SidebarMenuItem(
       title: "Rule Engine",
-      icon: Icons.rule,
+      icon: Icons.rule_rounded,
       page: HalterRuleEnginePage(),
     ),
     SidebarMenuItem(
@@ -72,7 +78,7 @@ class HalterLayoutPage extends StatelessWidget {
       page: HalterHelpPage(),
     ),
     SidebarMenuItem(
-      title: "Sinkronisasi data",
+      title: "Sinkronisasi Data Cloud",
       icon: Icons.sync,
       page: HalterSyncPage(),
     ),

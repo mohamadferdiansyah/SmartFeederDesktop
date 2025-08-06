@@ -8,6 +8,7 @@ class CustomHalterLogCard extends StatelessWidget {
   final String type;
   final DateTime time;
   final Color iconBgColor;
+  final bool isHigh;
 
   const CustomHalterLogCard({
     super.key,
@@ -15,8 +16,9 @@ class CustomHalterLogCard extends StatelessWidget {
     this.roomName,
     required this.type,
     required this.logMessage,
+    this.isHigh = false,
     required this.time,
-    this.iconBgColor = const Color(0xFFD34B40),
+    this.iconBgColor = const Color(0xFF1565C0), // biru tua/dingin
   });
 
   @override
@@ -74,20 +76,30 @@ class CustomHalterLogCard extends StatelessWidget {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: iconBgColor,
+                    color: isHigh ? Colors.red : iconBgColor,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   padding: const EdgeInsets.all(8),
                   child: Icon(
-                    type == 'temperature'
+                    type == 'temperature' && isHigh
                         ? Icons.thermostat_outlined
+                        : type == 'temperature' && !isHigh
+                        ? Icons.thermostat_auto_outlined
                         : type == 'spo'
-                            ? Icons.monitor_heart_outlined
-                            : type == 'bpm'
-                                ? Icons.monitor_weight_outlined
-                                : type == 'respirasi'
-                                    ? Icons.air_outlined
-                                    : Icons.error,
+                        ? Icons.local_fire_department_outlined
+                        : type == 'bpm'
+                        ? Icons.monitor_weight_outlined
+                        : type == 'respirasi'
+                        ? Icons.air_outlined
+                        : type == 'room_temperature'
+                        ? Icons.house_siding_rounded
+                        : type == 'humidity'
+                        ? Icons.opacity_outlined
+                        : type == 'light_intensity'
+                        ? Icons.light_mode_outlined
+                        : type == 'battery'
+                        ? Icons.battery_alert_outlined
+                        : Icons.info_outline,
                     color: Colors.white,
                     size: 26,
                   ),
@@ -116,9 +128,9 @@ class CustomHalterLogCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         logMessage,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13.5,
-                          color: Color(0xFFD34B40),
+                          color: isHigh ? Colors.red : Color(0xFF1565C0),
                           fontWeight: FontWeight.w600,
                         ),
                       ),

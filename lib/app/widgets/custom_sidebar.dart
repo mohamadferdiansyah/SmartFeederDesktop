@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
@@ -225,8 +227,8 @@ class _CustomSidebarState extends State<CustomSidebar> {
             Divider(color: Colors.white.withOpacity(0.2)),
             _buildMenuItem(
               index: 999,
-              bgColor: Colors.red.withOpacity(0.8),
-              icon: Icons.logout,
+              bgColor: Colors.blueGrey,
+              icon: Icons.arrow_back_rounded,
               title: 'Kembali Ke Menu',
               fontSize: 20,
               onTap: () => showCustomDialog(
@@ -239,6 +241,26 @@ class _CustomSidebarState extends State<CustomSidebar> {
                 iconColor: AppColors.primary,
                 onConfirm: () {
                   Get.back();
+                },
+              ),
+            ),
+            SizedBox(height: 8),
+            _buildMenuItem(
+              index: 999,
+              bgColor: Colors.red.withOpacity(0.8),
+              icon: Icons.logout,
+              title: 'Keluar Aplikasi',
+              fontSize: 20,
+              onTap: () => showCustomDialog(
+                context: context,
+                title: 'Konfirmasi Keluar',
+                message: 'Apakah kamu yakin ingin keluar dari aplikasi?',
+                confirmText: 'Keluar',
+                cancelText: 'Batal',
+                icon: Icons.logout,
+                iconColor: Colors.red,
+                onConfirm: () {
+                  exit(0);
                 },
               ),
             ),

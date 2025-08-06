@@ -3,9 +3,9 @@ import 'package:get/get_rx/src/rx_types/rx_types.dart';
 class RoomModel {
   final String roomId;
   final String name;
-  final String deviceSerial;
+  final String? deviceSerial;
   final String status;
-  final List<String> cctvId; // Simpan sebagai string. Jika ingin array, simpan JSON string.
+  final List<String>? cctvId; // Simpan sebagai string. Jika ingin array, simpan JSON string.
   final String stableId;
   final String? horseId;
   final double remainingWater;

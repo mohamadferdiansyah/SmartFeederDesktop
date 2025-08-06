@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/history/feeder_history_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/rule_engine/feeder_rule_engine_page.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_sidebar.dart';
 import 'package:smart_feeder_desktop/app/models/sidebar_menu_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/layout/feeder_layout_controller.dart';
@@ -28,7 +29,7 @@ class FeederLayoutPage extends StatelessWidget {
       page: ControlSchedulePage(),
     ),
     SidebarMenuItem(
-      title: "Monitoring Data",
+      title: "Data Master",
       icon: Icons.storage_rounded,
       children: [
         SidebarMenuItem(
@@ -46,15 +47,20 @@ class FeederLayoutPage extends StatelessWidget {
           icon: Icons.water,
           page: WaterPage(),
         ),
-        SidebarMenuItem(
-          title: "Data Riwayat Pengisian",
-          icon: Icons.history_rounded,
-          page: FeederHistoryPage(),
-        ),
       ],
     ),
     SidebarMenuItem(
-      title: "Pengaturan Perangkat",
+      title: "Riwayat Pengisian",
+      icon: Icons.history_rounded,
+      page: FeederHistoryPage(),
+    ),
+    SidebarMenuItem(
+      title: "Rule Engine",
+      icon: Icons.rule_rounded,
+      page: FeederRuleEnginePage(),
+    ),
+    SidebarMenuItem(
+      title: "Pengaturan",
       icon: Icons.settings_rounded,
       page: FeederSettingPage(),
     ),

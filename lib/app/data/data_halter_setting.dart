@@ -17,6 +17,13 @@ class DataHalterSetting {
       heartRateMin: map['heartRateMin'],
       heartRateMax: map['heartRateMax'],
       respiratoryMax: map['respiratoryMax'],
+      batteryMin: map['batteryMin'],
+      tempRoomMin: map['tempRoomMin'],
+      tempRoomMax: map['tempRoomMax'],
+      humidityMin: map['humidityMin'],
+      humidityMax: map['humidityMax'],
+      lightIntensityMin: map['lightIntensityMin'],
+      lightIntensityMax: map['lightIntensityMax'],
       ruleId: 1,
     );
   }
@@ -30,6 +37,13 @@ class DataHalterSetting {
       'heartRateMin': setting.heartRateMin,
       'heartRateMax': setting.heartRateMax,
       'respiratoryMax': setting.respiratoryMax,
+      'batteryMin': setting.batteryMin,
+      'tempRoomMin': setting.tempRoomMin,
+      'tempRoomMax': setting.tempRoomMax,
+      'humidityMin': setting.humidityMin,
+      'humidityMax': setting.humidityMax,
+      'lightIntensityMin': setting.lightIntensityMin,
+      'lightIntensityMax': setting.lightIntensityMax,
     });
   }
 }

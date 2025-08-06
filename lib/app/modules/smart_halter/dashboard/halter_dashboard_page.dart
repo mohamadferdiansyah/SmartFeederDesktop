@@ -133,6 +133,7 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                         itemCount: controller.filteredRoomList.length,
                         itemBuilder: (context, index) {
                           final room = controller.filteredRoomList[index];
+
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 16.0),
                             child: CustomHorseCard(
@@ -145,7 +146,7 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                               horseName: controller.getHorseNameByRoomId(
                                 room.roomId,
                               ),
-                              horseId: room.horseId ?? 'Tidak diketahui',
+                              horseId: room.horseId ?? '-',
                               horseRoom: room.roomId,
                               isRoomFilled: controller.isRoomFilled(
                                 room.roomId,
@@ -181,8 +182,9 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                             filledCount: controller.getFilledRoomCount(),
                             emptyCount: controller.getEmptyRoomCount(),
                           ),
-                          title:
-                              'Ruangan Di ${controller.getStableNameById(controller.selectedStableId.value)}',
+                          title: controller.getStableNameById(
+                            controller.selectedStableId.value,
+                          ),
                           subtitle:
                               'Total Ruang: ${controller.filteredRoomList.length}',
                           legend: [
@@ -461,8 +463,43 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                       ),
                                     ),
                                     SizedBox(width: 8),
-                                    Obx(
-                                      () => Container(
+                                    Obx(() {
+                                      // Cek jika filteredRoomList kosong
+                                      if (controller.filteredRoomList.isEmpty) {
+                                        return Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 6,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(
+                                              0.2,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 1,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            '-',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        );
+                                      }
+
+                                      // Jika tidak kosong, tampilkan nama kuda
+                                      final horseName = controller
+                                          .getHorseNameByRoomId(
+                                            controller.selectedRoom.roomId,
+                                          );
+                                      return Container(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 12,
                                           vertical: 6,
@@ -478,17 +515,17 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                           ),
                                         ),
                                         child: Text(
-                                          controller.getHorseNameByRoomId(
-                                            controller.selectedRoom.roomId,
-                                          ),
+                                          horseName.isNotEmpty
+                                              ? horseName
+                                              : '-',
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      ),
-                                    ),
+                                      );
+                                    }),
                                   ],
                                 ),
                               ),
@@ -636,16 +673,59 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                 top: 8,
                               ),
                               child: Obx(() {
+                                // Cek jika tidak ada ruangan sama sekali
+                                if (controller.filteredRoomList.isEmpty) {
+                                  return Center(
+                                    child: Text(
+                                      'Tidak ada log untuk kuda ini',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                final horseId = controller.selectedRoom.horseId;
+                                if (horseId == null || horseId.isEmpty) {
+                                  return Center(
+                                    child: Text(
+                                      'Tidak ada log untuk kuda ini',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  );
+                                }
+
                                 final selectedHorse = controller
-                                    .getHalterDeviceByHorseId(
-                                      controller.selectedRoom.horseId ?? '',
+                                    .halterDeviceList
+                                    .firstWhereOrNull(
+                                      (d) => d.horseId == horseId,
                                     );
+                                final nodeRoomDeviceId =
+                                    controller.selectedRoom.deviceSerial;
+
+                                if (selectedHorse == null) {
+                                  return Center(
+                                    child: Text(
+                                      'Tidak ada log untuk kuda ini',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  );
+                                }
+
                                 final selectedLog = controller
                                     .halterHorseLogList
                                     .where(
                                       (log) =>
                                           log.deviceId ==
-                                          selectedHorse.deviceId,
+                                              selectedHorse.deviceId ||
+                                          log.deviceId == nodeRoomDeviceId,
                                     )
                                     .toList();
 
@@ -671,6 +751,7 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                       type: log.type,
                                       logMessage: log.message,
                                       time: log.time ?? DateTime.now(),
+                                      isHigh: log.isHigh,
                                     );
                                   },
                                 );
@@ -950,6 +1031,18 @@ class _DetailKudaView extends StatelessWidget {
               // IoT Info dan Gambar Kuda
               Obx(() {
                 // final detail = controller.serialService.latestDetail.value;
+
+                if (controller.filteredRoomList.isEmpty ||
+                    controller.selectedRoom.horseId == null ||
+                    controller.selectedRoom.horseId!.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'Tidak ada data kuda',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  );
+                }
+
                 final detail = controller.getSelectedHorseDetail();
 
                 return Row(
@@ -977,10 +1070,12 @@ class _DetailKudaView extends StatelessWidget {
                                   const SizedBox(width: 8),
                                   Text(
                                     controller
-                                        .getHalterDeviceByHorseId(
-                                          controller.selectedRoom.horseId ?? '',
-                                        )
-                                        .deviceId,
+                                            .getHalterDeviceByHorseId(
+                                              controller.selectedRoom.horseId ??
+                                                  '',
+                                            )
+                                            ?.deviceId ??
+                                        '-',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue,
@@ -1084,7 +1179,7 @@ class _DetailKudaView extends StatelessWidget {
                                       ),
                                       Row(
                                         children: [
-                                          Text('Kelamin:'),
+                                          Text('Gender:'),
                                           const SizedBox(width: 8),
                                           Text(
                                             controller
@@ -1239,6 +1334,17 @@ class _DetailKudaView extends StatelessWidget {
                 color: Colors.grey[100],
                 alignment: Alignment.center,
                 child: Obx(() {
+                  if (controller.filteredRoomList.isEmpty ||
+                      controller.selectedRoom.horseId == null ||
+                      controller.selectedRoom.horseId!.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'Tidak ada data kuda',
+                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                      ),
+                    );
+                  }
+
                   final data = controller.getSelectedHorseDetailHistory();
                   const maxData = 5;
 
@@ -1246,6 +1352,15 @@ class _DetailKudaView extends StatelessWidget {
                   final displayData = data.length > maxData
                       ? data.sublist(data.length - maxData)
                       : data;
+
+                  // if (displayData.isEmpty) {
+                  //   return Center(
+                  //     child: Text(
+                  //       'Belum ada data biometrik',
+                  //       style: TextStyle(color: Colors.grey),
+                  //     ),
+                  //   );
+                  // }
 
                   List<FlSpot> bpmSpots = [];
                   List<FlSpot> suhuSpots = [];
@@ -1283,7 +1398,17 @@ class _DetailKudaView extends StatelessWidget {
               const SizedBox(height: 12),
               const Divider(thickness: 1.2),
               Obx(() {
-                // final detail = controller.serialService.latestDetail.value;
+                if (controller.filteredRoomList.isEmpty ||
+                    controller.selectedRoom.horseId == null ||
+                    controller.selectedRoom.horseId!.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'Tidak ada data kuda',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  );
+                }
+
                 final detail = controller.getSelectedHorseDetail();
                 return CustomBiometricLegend(
                   items: [
@@ -1326,29 +1451,54 @@ class _DetailKudaView extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Divider(thickness: 1.2),
-              CustomBiometricLegend(
-                items: [
-                  BiometrikLegendItem(
-                    color: Colors.red,
-                    label: "acceX",
-                    value: "-",
-                  ),
-                  BiometrikLegendItem(
-                    color: Colors.green,
-                    label: "acceY",
-                    value: "-",
-                  ),
-                  BiometrikLegendItem(
-                    color: Colors.blue,
-                    label: "acceZ",
-                    value: "-",
-                  ),
-                ],
-              ),
+              Obx(() {
+                if (controller.filteredRoomList.isEmpty ||
+                    controller.selectedRoom.horseId == null ||
+                    controller.selectedRoom.horseId!.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'Tidak ada data kuda',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  );
+                }
+
+                final detail = controller.getSelectedHorseDetail();
+
+                return CustomBiometricLegend(
+                  items: [
+                    BiometrikLegendItem(
+                      color: Colors.red,
+                      label: "Roll",
+                      value: (detail?.roll?.toString() ?? "-"),
+                    ),
+                    BiometrikLegendItem(
+                      color: Colors.green,
+                      label: "Pitch",
+                      value: (detail?.pitch?.toString() ?? "-"),
+                    ),
+                    BiometrikLegendItem(
+                      color: Colors.blue,
+                      label: "Yaw",
+                      value: (detail?.yaw?.toString() ?? "-"),
+                    ),
+                  ],
+                );
+              }),
               const SizedBox(height: 12),
               Container(height: 4, color: Colors.blue[100]),
               const SizedBox(height: 8),
               Obx(() {
+                if (controller.filteredRoomList.isEmpty ||
+                    controller.selectedRoom.horseId == null ||
+                    controller.selectedRoom.horseId!.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'Tidak ada data kuda',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  );
+                }
                 final detail = controller.getSelectedHorseDetail();
                 final posture = detail == null
                     ? "Tidak ada data"
@@ -1520,6 +1670,15 @@ class _DetailRuanganView extends StatelessWidget {
                   const SizedBox(height: 4),
                   // Profil List
                   Obx(() {
+                    if (controller.filteredRoomList.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'Tidak ada data ruangan',
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
+                        ),
+                      );
+                    }
+
                     final room = controller.selectedRoom;
 
                     return Row(
@@ -1545,7 +1704,7 @@ class _DetailRuanganView extends StatelessWidget {
                                   Text('No Serial Node:'),
                                   const SizedBox(width: 8),
                                   Text(
-                                    room.deviceSerial,
+                                    room.deviceSerial ?? 'Tidak ada',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue,
@@ -1604,6 +1763,15 @@ class _DetailRuanganView extends StatelessWidget {
                 color: Colors.grey[100],
                 alignment: Alignment.center,
                 child: Obx(() {
+                  if (controller.filteredRoomList.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'Tidak ada data ruangan',
+                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                      ),
+                    );
+                  }
+
                   final data = controller.getSelectedNodeRoomHistory();
                   const maxData = 5;
 
@@ -1640,8 +1808,17 @@ class _DetailRuanganView extends StatelessWidget {
 
               // LEGEND LINGKUNGAN
               Obx(() {
+                if (controller.filteredRoomList.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'Tidak ada data ruangan',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  );
+                }
+
                 final nodeRoom = controller.getSelectedNodeRoom(
-                  controller.selectedRoom.deviceSerial,
+                  controller.selectedRoom.deviceSerial ?? '',
                 );
                 return CustomLingkunganLegend(
                   items: [

@@ -5,6 +5,7 @@ import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/room/halter_room_controller.dart';
+import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 
@@ -18,26 +19,471 @@ class HalterRoomPage extends StatefulWidget {
 class _HalterRoomPageState extends State<HalterRoomPage> {
   final TextEditingController _searchController = TextEditingController();
   final HalterRoomController _controller = Get.find<HalterRoomController>();
-  late RoomDataTableSource _dataSource;
-  String _searchText = "";
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   int? _sortColumnIndex;
   bool _sortAscending = true;
+  String _searchText = "";
 
   @override
   void initState() {
     super.initState();
-    // Pastikan cctv controller sudah diinisialisasi sebelum HalterRoomController
-    _dataSource = RoomDataTableSource(
-      context: context,
-      rooms: _controller.roomList,
-      getCctvNames: _controller.getCctvNames,
-    );
+    _controller.loadRooms();
     _searchController.addListener(() {
       setState(() {
         _searchText = _searchController.text.trim().toLowerCase();
-        _dataSource.updateFilter(_searchText);
       });
+    });
+  }
+
+  // Filter rooms untuk search
+  List<RoomModel> _filteredRooms(List<RoomModel> rooms) {
+    if (_searchText.isEmpty) return rooms;
+    return rooms.where((d) {
+      return d.roomId.toLowerCase().contains(_searchText) ||
+          d.name.toLowerCase().contains(_searchText) ||
+          (d.deviceSerial?.toLowerCase() ?? '').contains(_searchText) ||
+          d.status.toLowerCase().contains(_searchText) ||
+          _controller
+              .getCctvNames(d.cctvId ?? [])
+              .toLowerCase()
+              .contains(_searchText);
+    }).toList();
+  }
+
+  // Modal Tambah/Edit Ruangan (tidak diubah)
+  void _showRoomFormModal({
+    RoomModel? room,
+    required bool isEdit,
+    required Function(RoomModel) onSubmit,
+    BuildContext? parentContext,
+  }) async {
+    String newId = room?.roomId ?? '';
+    if (!isEdit) {
+      newId = await _controller.getNextRoomId();
+    }
+    final nameCtrl = TextEditingController(text: room?.name ?? '');
+    String? selectedStableId = room?.stableId;
+    String? selectedDeviceSerial = room?.deviceSerial;
+    String? selectedHorseId = room?.horseId;
+    String? selectedCctv = room?.cctvId?.isNotEmpty == true
+        ? room!.cctvId!.first
+        : null;
+
+    showCustomDialog(
+      context: parentContext ?? context,
+      title: isEdit ? 'Edit Ruangan' : 'Tambah Ruangan',
+      icon: isEdit ? Icons.edit : Icons.add_circle_rounded,
+      iconColor: isEdit ? Colors.amber : Colors.green,
+      showConfirmButton: true,
+      confirmText: isEdit ? "Simpan" : "Tambah",
+      cancelText: "Batal",
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isEdit || newId.isNotEmpty) ...[
+            Row(
+              children: [
+                const Text(
+                  "ID Ruangan: ",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                ),
+                Text(
+                  newId,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+          CustomInput(
+            label: "Nama Ruangan (Wajib diisi)",
+            controller: nameCtrl,
+            hint: "Masukkan nama ruangan",
+          ),
+          const SizedBox(height: 16),
+          Obx(() {
+            final stableList = _controller.stableList;
+            return DropdownButtonFormField<String>(
+              value: selectedStableId,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                labelText: "Kandang (Wajib diisi)",
+              ),
+              items: stableList
+                  .map(
+                    (s) => DropdownMenuItem(
+                      value: s.stableId,
+                      child: Text("${s.stableId} - ${s.name}"),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (v) {
+                setState(() {
+                  selectedStableId = v;
+                });
+              },
+            );
+          }),
+          const SizedBox(height: 16),
+          Obx(() {
+            final nodeRoomList = _controller.nodeRoomList;
+            return DropdownButtonFormField<String>(
+              value: selectedDeviceSerial,
+              isExpanded: true,
+              decoration: const InputDecoration(labelText: "Device Id"),
+              items: nodeRoomList
+                  .map(
+                    (n) => DropdownMenuItem(
+                      value: n.deviceId,
+                      child: Text(n.deviceId),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (v) {
+                setState(() {
+                  selectedDeviceSerial = v;
+                });
+              },
+            );
+          }),
+          const SizedBox(height: 16),
+          // Obx(() {
+          //   final horseList = _controller.horseList;
+          //   return DropdownButtonFormField<String>(
+          //     value: selectedHorseId,
+          //     isExpanded: true,
+          //     decoration: const InputDecoration(labelText: "Kuda"),
+          //     items: [
+          //       ...horseList
+          //           .map(
+          //             (h) => DropdownMenuItem(
+          //               value: h.horseId,
+          //               child: Text("${h.horseId} - ${h.name}"),
+          //             ),
+          //           )
+          //           .toList(),
+          //     ],
+          //     onChanged: (v) {
+          //       setState(() {
+          //         selectedHorseId = v;
+          //       });
+          //     },
+          //   );
+          // }),
+          // SizedBox(height: 16),
+          Obx(() {
+            final cctvList = _controller.cctvList;
+            return DropdownButtonFormField<String>(
+              value: selectedHorseId,
+              isExpanded: true,
+              decoration: const InputDecoration(labelText: "CCTV"),
+              items: [
+                ...cctvList
+                    .map(
+                      (h) => DropdownMenuItem(
+                        value: h.cctvId,
+                        child: Text("${h.cctvId} - ${h.ipAddress}"),
+                      ),
+                    )
+                    .toList(),
+              ],
+              onChanged: (v) {
+                setState(() {
+                  selectedHorseId = v;
+                });
+              },
+            );
+          }),
+        ],
+      ),
+      onConfirm: () {
+        if (nameCtrl.text.trim().isEmpty ||
+            selectedStableId == null ||
+            selectedStableId!.isEmpty) {
+          Get.snackbar(
+            "Input Tidak Lengkap",
+            "Nama Ruangan dan Kandang wajib diisi.",
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
+          );
+          return;
+        }
+
+        final String status =
+            (selectedHorseId != null && selectedHorseId!.isNotEmpty)
+            ? "used"
+            : "available";
+
+        final newRoom = RoomModel(
+          roomId: newId,
+          name: nameCtrl.text.trim(),
+          deviceSerial: selectedDeviceSerial,
+          status: status,
+          cctvId: selectedCctv != null ? [selectedCctv] : ['Tidak Ada CCTV'],
+          stableId: selectedStableId ?? "",
+          horseId: selectedHorseId,
+          remainingWater: 0,
+          remainingFeed: 0,
+          waterScheduleType: "",
+          feedScheduleType: "",
+        );
+        onSubmit(newRoom);
+      },
+    );
+  }
+
+  void _showDetailModal(RoomModel room) {
+    showCustomDialog(
+      context: context,
+      title: "Detail Ruangan",
+      icon: Icons.info_outline,
+      iconColor: Colors.blueGrey,
+      showConfirmButton: false,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _detailRow("ID", room.roomId),
+          const SizedBox(height: 8),
+          _detailRow("Nama", room.name),
+          const SizedBox(height: 8),
+          _detailRow("Kandang", room.stableId),
+          const SizedBox(height: 8),
+          _detailRow("Device Id", room.deviceSerial ?? "-"),
+          const SizedBox(height: 8),
+          _detailRow("Kuda", room.horseId ?? "-"),
+          const SizedBox(height: 8),
+          _detailRow("Status", room.status),
+        ],
+      ),
+    );
+  }
+
+  void _showRoomFormModalEdit(
+    RoomModel room,
+    Function(RoomModel) onSubmit, {
+    BuildContext? parentContext,
+  }) async {
+    final nameCtrl = TextEditingController(text: room.name);
+    String? selectedStableId = room.stableId;
+    String? selectedDeviceSerial = room.deviceSerial;
+    String? selectedHorseId = room.horseId;
+    String? selectedCctv = room.cctvId?.isNotEmpty == true
+        ? room.cctvId!.first
+        : null;
+
+    showCustomDialog(
+      context: parentContext ?? context,
+      title: 'Edit Ruangan',
+      icon: Icons.edit,
+      iconColor: Colors.amber,
+      showConfirmButton: true,
+      confirmText: "Simpan",
+      cancelText: "Batal",
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              const Text(
+                "ID Ruangan: ",
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
+              Text(
+                room.roomId,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          CustomInput(
+            label: "Nama Ruangan (Wajib diisi)",
+            controller: nameCtrl,
+            hint: "Masukkan nama ruangan",
+          ),
+          const SizedBox(height: 16),
+          Obx(() {
+            final stableList = _controller.stableList;
+            return DropdownButtonFormField<String>(
+              value: selectedStableId,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                labelText: "Kandang (Wajib diisi)",
+              ),
+              items: stableList
+                  .map(
+                    (s) => DropdownMenuItem(
+                      value: s.stableId,
+                      child: Text("${s.stableId} - ${s.name}"),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (v) {
+                setState(() {
+                  selectedStableId = v;
+                });
+              },
+            );
+          }),
+          const SizedBox(height: 16),
+          Obx(() {
+            final nodeRoomList = _controller.nodeRoomList;
+            return DropdownButtonFormField<String>(
+              value: selectedDeviceSerial,
+              isExpanded: true,
+              decoration: const InputDecoration(labelText: "Device Id"),
+              items: nodeRoomList
+                  .map(
+                    (n) => DropdownMenuItem(
+                      value: n.deviceId,
+                      child: Text(n.deviceId),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (v) {
+                setState(() {
+                  selectedDeviceSerial = v;
+                });
+              },
+            );
+          }),
+          const SizedBox(height: 16),
+          Obx(() {
+            final horseList = _controller.horseList;
+            return DropdownButtonFormField<String>(
+              value: selectedHorseId,
+              isExpanded: true,
+              decoration: const InputDecoration(labelText: "Kuda"),
+              items: [
+                ...horseList
+                    .map(
+                      (h) => DropdownMenuItem(
+                        value: h.horseId,
+                        child: Text("${h.horseId} - ${h.name}"),
+                      ),
+                    )
+                    .toList(),
+              ],
+              onChanged: (v) {
+                setState(() {
+                  selectedHorseId = v;
+                });
+              },
+            );
+          }),
+          const SizedBox(height: 16),
+          Obx(() {
+            final cctvList = _controller.cctvList;
+            return DropdownButtonFormField<String>(
+              value: selectedCctv,
+              isExpanded: true,
+              decoration: const InputDecoration(labelText: "CCTV"),
+              items: [
+                ...cctvList
+                    .map(
+                      (h) => DropdownMenuItem(
+                        value: h.cctvId,
+                        child: Text("${h.cctvId} - ${h.ipAddress}"),
+                      ),
+                    )
+                    .toList(),
+              ],
+              onChanged: (v) {
+                setState(() {
+                  selectedCctv = v;
+                });
+              },
+            );
+          }),
+        ],
+      ),
+      onConfirm: () {
+        if (nameCtrl.text.trim().isEmpty ||
+            selectedStableId == null ||
+            selectedStableId!.isEmpty) {
+          Get.snackbar(
+            "Input Tidak Lengkap",
+            "Nama Ruangan dan Kandang wajib diisi.",
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
+          );
+          return;
+        }
+
+        final String status =
+            (selectedHorseId != null && selectedHorseId!.isNotEmpty)
+            ? "used"
+            : "available";
+
+        final editedRoom = RoomModel(
+          roomId: room.roomId,
+          name: nameCtrl.text.trim(),
+          deviceSerial: selectedDeviceSerial,
+          status: status,
+          cctvId: selectedCctv != null ? [?selectedCctv] : ['Tidak Ada CCTV'],
+          stableId: selectedStableId ?? "",
+          horseId: selectedHorseId,
+          remainingWater: room.remainingWater,
+          remainingFeed: room.remainingFeed,
+          waterScheduleType: room.waterScheduleType,
+          feedScheduleType: room.feedScheduleType,
+        );
+        onSubmit(editedRoom);
+      },
+    );
+  }
+
+  Widget _detailRow(String label, String value) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 2),
+    child: Row(
+      children: [
+        Text(
+          "$label: ",
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        Flexible(child: Text(value, style: const TextStyle(fontSize: 16))),
+      ],
+    ),
+  );
+
+  void _confirmDelete(RoomModel room) {
+    showCustomDialog(
+      context: context,
+      title: "Konfirmasi Hapus",
+      icon: Icons.delete_forever,
+      iconColor: Colors.red,
+      message: 'Hapus ruangan "${room.name}"?',
+      showConfirmButton: true,
+      confirmText: "Hapus",
+      cancelText: "Batal",
+      onConfirm: () async {
+        await _controller.deleteRoom(room.roomId);
+      },
+    );
+  }
+
+  // Proses sort
+  void _sort<T>(
+    List<RoomModel> rooms,
+    Comparable<T> Function(RoomModel d) getField,
+    bool ascending,
+  ) {
+    rooms.sort((a, b) {
+      final aValue = getField(a);
+      final bValue = getField(b);
+      return ascending
+          ? Comparable.compare(aValue, bValue)
+          : Comparable.compare(bValue, aValue);
     });
   }
 
@@ -122,219 +568,265 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                     ),
                     // Table
                     Expanded(
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final tableWidth = constraints.maxWidth;
-                          // Kolom: [ID, Nama, Serial, Status, CCTV, Sisa Air, Sisa Pakan, Jadwal, Aksi]
-                          final idW = tableWidth * 0.10;
-                          final nameW = tableWidth * 0.15;
-                          final serialW = tableWidth * 0.15;
-                          final statusW = tableWidth * 0.10;
-                          final cctvW = tableWidth * 0.30;
-                          final actionW = tableWidth * 0.15;
+                      child: Obx(() {
+                        List<RoomModel> rooms = _filteredRooms(
+                          _controller.roomList.toList(),
+                        );
 
-                          return SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      'Export Data :',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    CustomButton(
-                                      width:
-                                          MediaQuery.of(context).size.width *
-                                          0.1,
-                                      height: 50,
-                                      backgroundColor: Colors.green,
-                                      fontSize: 18,
-                                      icon: Icons.table_view_rounded,
-                                      text: 'Export Excel',
-                                      onPressed: () {
-                                        _controller.exportRoomExcel(
-                                          _dataSource.filteredRooms,
-                                          _controller.getCctvNames,
-                                        );
+                        // Sort
+                        if (_sortColumnIndex != null) {
+                          switch (_sortColumnIndex!) {
+                            case 0:
+                              _sort<String>(
+                                rooms,
+                                (d) => d.roomId,
+                                _sortAscending,
+                              );
+                              break;
+                            case 1:
+                              _sort<String>(
+                                rooms,
+                                (d) => d.name,
+                                _sortAscending,
+                              );
+                              break;
+                            case 2:
+                              _sort<String>(
+                                rooms,
+                                (d) => d.deviceSerial ?? '',
+                                _sortAscending,
+                              );
+                              break;
+                            case 3:
+                              _sort<String>(
+                                rooms,
+                                (d) => d.status,
+                                _sortAscending,
+                              );
+                              break;
+                          }
+                        }
+
+                        final tableWidth =
+                            MediaQuery.of(context).size.width - 72.0;
+                        final idW = tableWidth * 0.05;
+                        final nameW = tableWidth * 0.10;
+                        final serialW = tableWidth * 0.10;
+                        final statusW = tableWidth * 0.05;
+                        final cctvW = tableWidth * 0.15;
+                        final actionW = tableWidth * 0.30;
+
+                        // DataTableSource dibuat ulang setiap build
+                        final dataSource = RoomDataTableSource(
+                          context: context,
+                          rooms: rooms,
+                          getCctvNames: _controller.getCctvNames,
+                          onDetail: _showDetailModal,
+                          onDelete: _confirmDelete,
+                          onEdit: (room) =>
+                              _showRoomFormModalEdit(room, (editedRoom) async {
+                                await _controller.updateRoom(editedRoom);
+                              }),
+                        );
+
+                        return SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  CustomButton(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.1,
+                                    height: 50,
+                                    backgroundColor: Colors.green,
+                                    fontSize: 18,
+                                    icon: Icons.add_circle_rounded,
+                                    text: 'Tambah Data',
+                                    onPressed: () => _showRoomFormModal(
+                                      isEdit: false,
+                                      onSubmit: (RoomModel newRoom) async {
+                                        await _controller.addRoom(newRoom);
                                       },
                                     ),
-                                    const SizedBox(width: 12),
-                                    CustomButton(
-                                      width:
-                                          MediaQuery.of(context).size.width *
-                                          0.1,
-                                      height: 50,
-                                      backgroundColor: Colors.redAccent,
-                                      fontSize: 18,
-                                      icon: Icons.picture_as_pdf,
-                                      text: 'Export PDF',
-                                      onPressed: () {
-                                        _controller.exportRoomPDF(
-                                          _dataSource.filteredRooms,
-                                          _controller.getCctvNames,
-                                        );
+                                  ),
+                                  Spacer(),
+                                  Text(
+                                    'Export Data :',
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  CustomButton(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.1,
+                                    height: 50,
+                                    backgroundColor: Colors.green,
+                                    fontSize: 18,
+                                    icon: Icons.table_view_rounded,
+                                    text: 'Export Excel',
+                                    onPressed: () {
+                                      _controller.exportRoomExcel(
+                                        rooms,
+                                        _controller.getCctvNames,
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 12),
+                                  CustomButton(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.1,
+                                    height: 50,
+                                    backgroundColor: Colors.redAccent,
+                                    fontSize: 18,
+                                    icon: Icons.picture_as_pdf,
+                                    text: 'Export PDF',
+                                    onPressed: () {
+                                      _controller.exportRoomPDF(
+                                        rooms,
+                                        _controller.getCctvNames,
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  cardColor: Colors.white,
+                                  dataTableTheme: DataTableThemeData(
+                                    headingRowColor: MaterialStateProperty.all(
+                                      Colors.grey[200]!,
+                                    ),
+                                    dataRowColor: MaterialStateProperty.all(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                child: PaginatedDataTable(
+                                  columnSpacing: 0,
+                                  horizontalMargin: 0,
+                                  sortColumnIndex: _sortColumnIndex,
+                                  sortAscending: _sortAscending,
+                                  columns: [
+                                    DataColumn(
+                                      label: SizedBox(
+                                        width: idW,
+                                        child: const Center(
+                                          child: Text(
+                                            'ID',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      onSort: (columnIndex, ascending) {
+                                        setState(() {
+                                          _sortColumnIndex = columnIndex;
+                                          _sortAscending = ascending;
+                                        });
                                       },
+                                    ),
+                                    DataColumn(
+                                      label: SizedBox(
+                                        width: nameW,
+                                        child: const Center(
+                                          child: Text(
+                                            'Nama',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      onSort: (columnIndex, ascending) {
+                                        setState(() {
+                                          _sortColumnIndex = columnIndex;
+                                          _sortAscending = ascending;
+                                        });
+                                      },
+                                    ),
+                                    DataColumn(
+                                      label: SizedBox(
+                                        width: serialW,
+                                        child: const Center(
+                                          child: Text(
+                                            'Device Id',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      onSort: (columnIndex, ascending) {
+                                        setState(() {
+                                          _sortColumnIndex = columnIndex;
+                                          _sortAscending = ascending;
+                                        });
+                                      },
+                                    ),
+                                    DataColumn(
+                                      label: SizedBox(
+                                        width: statusW,
+                                        child: const Center(
+                                          child: Text(
+                                            'Status',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      onSort: (columnIndex, ascending) {
+                                        setState(() {
+                                          _sortColumnIndex = columnIndex;
+                                          _sortAscending = ascending;
+                                        });
+                                      },
+                                    ),
+                                    DataColumn(
+                                      label: SizedBox(
+                                        width: cctvW,
+                                        child: const Center(
+                                          child: Text(
+                                            'CCTV',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: SizedBox(
+                                        width: actionW,
+                                        child: const Center(
+                                          child: Text(
+                                            'Aksi',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ],
+                                  source: dataSource,
+                                  rowsPerPage: _rowsPerPage,
+                                  availableRowsPerPage: const [5, 10, 20],
+                                  onRowsPerPageChanged: (value) {
+                                    setState(() {
+                                      _rowsPerPage = value ?? 5;
+                                    });
+                                  },
+                                  showCheckboxColumn: false,
                                 ),
-                                const SizedBox(height: 12),
-                                Theme(
-                                  data: Theme.of(context).copyWith(
-                                    cardColor: Colors.white,
-                                    dataTableTheme: DataTableThemeData(
-                                      headingRowColor:
-                                          MaterialStateProperty.all(
-                                            Colors.grey[200]!,
-                                          ),
-                                      dataRowColor: MaterialStateProperty.all(
-                                        Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                  child: PaginatedDataTable(
-                                    columnSpacing: 0,
-                                    horizontalMargin: 0,
-                                    sortColumnIndex: _sortColumnIndex,
-                                    sortAscending: _sortAscending,
-                                    columns: [
-                                      DataColumn(
-                                        label: SizedBox(
-                                          width: idW,
-                                          child: const Center(
-                                            child: Text(
-                                              'ID',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        onSort: (columnIndex, ascending) {
-                                          setState(() {
-                                            _sortColumnIndex = columnIndex;
-                                            _sortAscending = ascending;
-                                            _dataSource.sort(
-                                              (d) => d.roomId,
-                                              ascending,
-                                            );
-                                          });
-                                        },
-                                      ),
-                                      DataColumn(
-                                        label: SizedBox(
-                                          width: nameW,
-                                          child: const Center(
-                                            child: Text(
-                                              'Nama',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        onSort: (columnIndex, ascending) {
-                                          setState(() {
-                                            _sortColumnIndex = columnIndex;
-                                            _sortAscending = ascending;
-                                            _dataSource.sort(
-                                              (d) => d.name,
-                                              ascending,
-                                            );
-                                          });
-                                        },
-                                      ),
-                                      DataColumn(
-                                        label: SizedBox(
-                                          width: serialW,
-                                          child: const Center(
-                                            child: Text(
-                                              'Device Serial',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        onSort: (columnIndex, ascending) {
-                                          setState(() {
-                                            _sortColumnIndex = columnIndex;
-                                            _sortAscending = ascending;
-                                            _dataSource.sort(
-                                              (d) => d.deviceSerial,
-                                              ascending,
-                                            );
-                                          });
-                                        },
-                                      ),
-                                      DataColumn(
-                                        label: SizedBox(
-                                          width: statusW,
-                                          child: const Center(
-                                            child: Text(
-                                              'Status',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        onSort: (columnIndex, ascending) {
-                                          setState(() {
-                                            _sortColumnIndex = columnIndex;
-                                            _sortAscending = ascending;
-                                            _dataSource.sort(
-                                              (d) => d.status,
-                                              ascending,
-                                            );
-                                          });
-                                        },
-                                      ),
-                                      DataColumn(
-                                        label: SizedBox(
-                                          width: cctvW,
-                                          child: const Center(
-                                            child: Text(
-                                              'CCTV',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      DataColumn(
-                                        label: SizedBox(
-                                          width: actionW,
-                                          child: const Center(
-                                            child: Text(
-                                              'Aksi',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                    source: _dataSource,
-                                    rowsPerPage: _rowsPerPage,
-                                    availableRowsPerPage: const [5, 10, 20],
-                                    onRowsPerPageChanged: (value) {
-                                      setState(() {
-                                        _rowsPerPage = value ?? 5;
-                                      });
-                                    },
-                                    showCheckboxColumn: false,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
                     ),
                   ],
                 ),
@@ -346,90 +838,107 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
     );
   }
 }
-
 // DataTableSource untuk PaginatedDataTable
+
 class RoomDataTableSource extends DataTableSource {
   final BuildContext context;
-  List<RoomModel> rooms;
-  List<RoomModel> filteredRooms;
+  final List<RoomModel> rooms;
   final String Function(List<String>) getCctvNames;
-  final HalterRoomController controller = Get.find<HalterRoomController>();
+  final Function(RoomModel) onDetail;
+  final Function(RoomModel) onDelete;
+  final Function(RoomModel) onEdit;
   int _selectedCount = 0;
+  final HalterRoomController _controller = Get.find<HalterRoomController>();
 
   RoomDataTableSource({
+    required this.context,
     required this.rooms,
     required this.getCctvNames,
-    required this.context,
-  }) : filteredRooms = List.from(rooms);
-
-  void updateFilter(String searchText) {
-    if (searchText.isEmpty) {
-      filteredRooms = List.from(rooms);
-    } else {
-      filteredRooms = rooms.where((d) {
-        return d.roomId.toLowerCase().contains(searchText) ||
-            d.name.toLowerCase().contains(searchText) ||
-            d.deviceSerial.toLowerCase().contains(searchText) ||
-            d.status.toLowerCase().contains(searchText) ||
-            getCctvNames(d.cctvId).toLowerCase().contains(searchText);
-      }).toList();
-    }
-    notifyListeners();
-  }
-
-  void sort<T>(Comparable<T> Function(RoomModel d) getField, bool ascending) {
-    filteredRooms.sort((a, b) {
-      final aValue = getField(a);
-      final bValue = getField(b);
-      return ascending
-          ? Comparable.compare(aValue, bValue)
-          : Comparable.compare(bValue, aValue);
-    });
-    notifyListeners();
-  }
+    required this.onDetail,
+    required this.onDelete,
+    required this.onEdit,
+  });
 
   @override
   DataRow getRow(int index) {
-    final room = filteredRooms[index];
+    final room = rooms[index];
     return DataRow.byIndex(
       index: index,
       cells: [
         DataCell(Center(child: Text(room.roomId))),
         DataCell(Center(child: Text(room.name))),
-        DataCell(Center(child: Text(room.deviceSerial))),
+        DataCell(Center(child: Text(room.deviceSerial ?? 'Tidak ada'))),
         DataCell(
-          Center(child: Text(room.status == 'used' ? 'Aktif' : 'Tidak Aktif')),
+          Center(child: Text(room.status == 'used' ? 'Terisi' : 'Kosong')),
         ),
-        DataCell(Center(child: Text(getCctvNames(room.cctvId)))),
+        DataCell(Center(child: Text(getCctvNames(room.cctvId ?? [])))),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CustomButton(
-                width: 80,
-                height: 30,
-                text: 'Detail',
+                width: 160,
+                height: 38,
+                text: 'Riwayat Node',
+                backgroundColor: Colors.blue,
+                icon: Icons.history,
                 borderRadius: 6,
+                fontSize: 14,
                 onPressed: () {
                   showDialog(
                     context: context,
-                    barrierDismissible: false,
-                    builder: (_) => RoomNodeDataDialog(
-                      deviceId: room.deviceSerial,
-                      allData: controller.nodeRoomList
-                          .where((d) => d.deviceId == room.deviceSerial)
-                          .toList(),
-                    ),
+                    builder: (context) {
+                      return RoomNodeDataDialog(
+                        deviceId: room.deviceSerial ?? '',
+                        allData: _controller.nodeRoomList.toList(),
+                      );
+                    },
                   );
                 },
               ),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                tooltip: 'Hapus',
-                onPressed: () {
-                  // TODO: aksi hapus
-                },
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Container(
+                  height: 38,
+                  width: 2,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+              ),
+              CustomButton(
+                width: 115,
+                height: 38,
+                text: 'Detail',
+                backgroundColor: Colors.blueGrey,
+                icon: Icons.info_outline,
+                borderRadius: 6,
+                fontSize: 14,
+                onPressed: () => onDetail(room),
+              ),
+              const SizedBox(width: 6),
+              CustomButton(
+                width: 115,
+                height: 38,
+                backgroundColor: Colors.amber,
+                text: 'Edit',
+                icon: Icons.edit,
+                borderRadius: 6,
+                fontSize: 14,
+                onPressed: () => onEdit(room),
+              ),
+              const SizedBox(width: 6),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  tooltip: 'Hapus',
+                  onPressed: () => onDelete(room),
+                ),
               ),
             ],
           ),
@@ -439,7 +948,7 @@ class RoomDataTableSource extends DataTableSource {
   }
 
   @override
-  int get rowCount => filteredRooms.length;
+  int get rowCount => rooms.length;
 
   @override
   bool get isRowCountApproximate => false;

@@ -9,26 +9,44 @@ class CustomMovementChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      if (controller.filteredRoomList.isEmpty ||
+          controller.selectedRoom.horseId == null ||
+          controller.selectedRoom.horseId!.isEmpty) {
+        return Center(
+          child: Text(
+            'Tidak ada data kuda',
+            style: TextStyle(fontSize: 18, color: Colors.grey),
+          ),
+        );
+      }
       final data = controller.getSelectedHorseDetailHistory();
       const maxData = 10;
       // Ambil hanya 10 data terakhir
-      final displayData = data.length > maxData ? data.sublist(data.length - maxData) : data;
+      final displayData = data.length > maxData
+          ? data.sublist(data.length - maxData)
+          : data;
 
-      List<FlSpot> acceXSpots = [];
-      List<FlSpot> acceYSpots = [];
-      List<FlSpot> acceZSpots = [];
+      List<FlSpot> rollSpots = [];
+      List<FlSpot> pitchSpots = [];
+      List<FlSpot> yawSpots = [];
       for (int i = 0; i < displayData.length; i++) {
-        acceXSpots.add(FlSpot(i.toDouble(), (displayData[i].acceX ?? 0)));
-        acceYSpots.add(FlSpot(i.toDouble(), (displayData[i].acceY ?? 0)));
-        acceZSpots.add(FlSpot(i.toDouble(), (displayData[i].acceZ ?? 0)));
+        rollSpots.add(
+          FlSpot(i.toDouble(), (displayData[i].roll ?? 0).toDouble()),
+        );
+        pitchSpots.add(
+          FlSpot(i.toDouble(), (displayData[i].pitch ?? 0).toDouble()),
+        );
+        yawSpots.add(
+          FlSpot(i.toDouble(), (displayData[i].yaw ?? 0).toDouble()),
+        );
       }
 
       return LineChart(
         LineChartData(
           lineBarsData: [
-            LineChartBarData(spots: acceXSpots, color: Colors.red),
-            LineChartBarData(spots: acceYSpots, color: Colors.green),
-            LineChartBarData(spots: acceZSpots, color: Colors.blue),
+            LineChartBarData(spots: rollSpots, color: Colors.red),
+            LineChartBarData(spots: pitchSpots, color: Colors.green),
+            LineChartBarData(spots: yawSpots, color: Colors.blue),
           ],
         ),
       );

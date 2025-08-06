@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
+import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
@@ -13,6 +14,8 @@ class HalterSerialService extends GetxService {
 
   final HalterRuleEngineController controller =
       Get.find<HalterRuleEngineController>();
+
+  final DataController dataController = Get.find<DataController>();
 
   final Rxn<HalterDeviceDetailModel> latestDetail =
       Rxn<HalterDeviceDetailModel>();
@@ -68,45 +71,49 @@ class HalterSerialService extends GetxService {
         // ),
       ].obs;
 
-  final RxList<HalterRawDataModel> rawData = <HalterRawDataModel>[].obs;
+  // final RxList<HalterRawDataModel> rawData = <HalterRawDataModel>[].obs;
 
-  final RxList<NodeRoomModel> nodeRoomList = <NodeRoomModel>[
-    // NodeRoomModel(
-    //   deviceId: 'SRIPB1223003',
-    //   temperature: 25.0,
-    //   humidity: 60.0,
-    //   lightIntensity: 300.0,
-    //   time: DateTime.now().subtract(Duration(minutes: 4)),
-    // ),
-    // NodeRoomModel(
-    //   deviceId: 'SRIPB1223003',
-    //   temperature: 35.0,
-    //   humidity: 49.0,
-    //   lightIntensity: 291.0,
-    //   time: DateTime.now().subtract(Duration(minutes: 4)),
-    // ),
-    // NodeRoomModel(
-    //   deviceId: 'SRIPB1223003',
-    //   temperature: 31.0,
-    //   humidity: 45.0,
-    //   lightIntensity: 210.0,
-    //   time: DateTime.now().subtract(Duration(minutes: 4)),
-    // ),
-    // NodeRoomModel(
-    //   deviceId: 'SRIPB1223003',
-    //   temperature: 25.0,
-    //   humidity: 60.0,
-    //   lightIntensity: 300.0,
-    //   time: DateTime.now().subtract(Duration(minutes: 4)),
-    // ),
-    // NodeRoomModel(
-    //   deviceId: 'SRIPB1223003',
-    //   temperature: 35.0,
-    //   humidity: 49.0,
-    //   lightIntensity: 291.0,
-    //   time: DateTime.now().subtract(Duration(minutes: 4)),
-    // ),
-  ].obs; // Tambah list untuk node room
+  // final RxList<NodeRoomModel> nodeRoomList = <NodeRoomModel>[
+  // NodeRoomModel(
+  //   deviceId: 'SRIPB1223003',
+  //   temperature: 25.0,
+  //   humidity: 60.0,
+  //   lightIntensity: 300.0,
+  //   time: DateTime.now().subtract(Duration(minutes: 4)),
+  // ),
+  // NodeRoomModel(
+  //   deviceId: 'SRIPB1223003',
+  //   temperature: 35.0,
+  //   humidity: 49.0,
+  //   lightIntensity: 291.0,
+  //   time: DateTime.now().subtract(Duration(minutes: 4)),
+  // ),
+  // NodeRoomModel(
+  //   deviceId: 'SRIPB1223003',
+  //   temperature: 31.0,
+  //   humidity: 45.0,
+  //   lightIntensity: 210.0,
+  //   time: DateTime.now().subtract(Duration(minutes: 4)),
+  // ),
+  // NodeRoomModel(
+  //   deviceId: 'SRIPB1223003',
+  //   temperature: 25.0,
+  //   humidity: 60.0,
+  //   lightIntensity: 300.0,
+  //   time: DateTime.now().subtract(Duration(minutes: 4)),
+  // ),
+  // NodeRoomModel(
+  //   deviceId: 'SRIPB1223003',
+  //   temperature: 35.0,
+  //   humidity: 49.0,
+  //   lightIntensity: 291.0,
+  //   time: DateTime.now().subtract(Duration(minutes: 4)),
+  // ),
+  // ].obs; // Tambah list untuk node room
+
+  RxList<NodeRoomModel> get nodeRoomList => dataController.nodeRoomList;
+
+  RxList<HalterRawDataModel> get rawData => dataController.rawData;
 
   RxList<String> get availablePorts =>
       RxList<String>(SerialPort.availablePorts);
@@ -163,13 +170,14 @@ class HalterSerialService extends GetxService {
                 detailHistory[index] = detail;
               }
 
-              controller.checkAndLog(
+              controller.checkAndLogHalter(
                 detail.deviceId,
                 suhu: detail.temperature,
                 spo: detail.spo,
                 bpm: detail.heartRate,
                 respirasi: detail.respiratoryRate,
                 time: detail.time,
+                battery: detail.voltage,
               );
 
               rawData.add(
@@ -199,6 +207,14 @@ class HalterSerialService extends GetxService {
               } else {
                 nodeRoomList[index] = nodeRoom;
               }
+
+              controller.checkAndLogNode(
+                nodeRoom.deviceId,
+                temperature: nodeRoom.temperature,
+                humidity: nodeRoom.humidity,
+                lightIntensity: nodeRoom.lightIntensity,
+                time: nodeRoom.time,
+              );
 
               rawData.add(
                 HalterRawDataModel(
