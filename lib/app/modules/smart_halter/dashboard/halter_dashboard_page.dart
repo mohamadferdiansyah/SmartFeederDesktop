@@ -87,7 +87,7 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                         child: Row(
                           children: [
                             Text(
-                              'Daftar Kuda',
+                              'Daftar Ruangan',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -1704,7 +1704,7 @@ class _DetailRuanganView extends StatelessWidget {
                                   Text('No Serial Node:'),
                                   const SizedBox(width: 8),
                                   Text(
-                                    room.deviceSerial ?? 'Tidak ada',
+                                    room.deviceSerial ?? '-',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue,

@@ -152,6 +152,28 @@ class DBHelper {
           )
         ''');
 
+        // Hardcoded insert for halter_devices
+        await db.insert(
+          'halter_devices',
+          {
+            'device_id': 'SHIPB1223002',
+            'status': 'on',
+            'battery_percent': 87,
+            'horse_id': ''
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+        await db.insert(
+          'halter_devices',
+          {
+            'device_id': 'SHIPB1223003',
+            'status': 'on',
+            'battery_percent': 61,
+            'horse_id': ''
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+
         // halter_rule_engine
         await db.execute('''
           CREATE TABLE halter_rule_engine (

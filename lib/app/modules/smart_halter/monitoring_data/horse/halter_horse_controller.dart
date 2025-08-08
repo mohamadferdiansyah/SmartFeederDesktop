@@ -28,14 +28,14 @@ class HalterHorseController extends GetxController {
   //       .toList();
   // }
 
-  @override
-  void onInit() {
-    super.onInit();
-    DBHelper.database.then((db) {
-      dataController.initHorseDao(db);
-      loadHorses();
-    });
-  }
+  // @override
+  // void onInit() {
+  //   super.onInit();
+  //   DBHelper.database.then((db) {
+  //     dataController.initHorseDao(db);
+  //     loadHorses();
+  //   });
+  // }
 
   Future<void> loadHorses() async {
     await dataController.loadHorsesFromDb();

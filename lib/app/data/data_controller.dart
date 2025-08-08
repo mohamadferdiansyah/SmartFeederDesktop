@@ -1,7 +1,11 @@
 import 'package:get/get.dart';
+import 'package:smart_feeder_desktop/app/data/dao/cctv_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter_device_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/horse_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/node_room_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/room_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/stable_dao.dart';
+import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
 import 'package:smart_feeder_desktop/app/models/halter/cctv_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_log_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
@@ -745,8 +749,11 @@ class DataController extends GetxController {
   final RxList<FeederDeviceModel> feederDeviceList = <FeederDeviceModel>[
     // FeederDeviceModel(
     //   deviceId: 'feeder1',
-    //   status: 'on',
-    //   batteryPercent: 85,
+    //   current: 1.5,
+    //   voltage: 220.0,
+    //   power: 330.0,
+    //   status: 'ready',
+    //   batteryPercent: 100,
     // ),
   ].obs;
 
@@ -1463,6 +1470,26 @@ class DataController extends GetxController {
 
   final RxList<HalterRawDataModel> rawData = <HalterRawDataModel>[].obs;
 
+  Future<void> initAllDaosAndLoadAll() async {
+    final db = await DBHelper.database;
+    initNodeRoomDao(db);
+    initRoomDao(db);
+    initStableDao(db);
+    initHorseDao(db);
+    initHalterDeviceDao(db);
+    initCctvDao(db);
+    // dst...
+    await Future.wait([
+      loadNodeRoomsFromDb(),
+      loadRoomsFromDb(),
+      loadStablesFromDb(),
+      loadHorsesFromDb(),
+      loadHalterDevicesFromDb(),
+      loadCctvsFromDb(),
+      // dst...
+    ]);
+  }
+
   // Data Stable
   late StableDao stableDao;
 
@@ -1614,5 +1641,100 @@ class DataController extends GetxController {
         .fold<int>(0, (prev, el) => el > prev ? el : prev);
     final nextNum = lastIdNum + 1;
     return "H${nextNum.toString().padLeft(3, '0')}";
+  }
+
+  // Data Halter Device
+
+  late HalterDeviceDao halterDeviceDao;
+
+  void initHalterDeviceDao(Database db) {
+    halterDeviceDao = HalterDeviceDao(db);
+  }
+
+  Future<void> loadHalterDevicesFromDb() async {
+    final allDevices = await halterDeviceDao.getAll();
+    halterDeviceList.assignAll(allDevices);
+  }
+
+  Future<void> updateHalterDevice(HalterDeviceModel model) async {
+    await halterDeviceDao.update(model);
+    await loadHalterDevicesFromDb();
+  }
+
+  Future<void> deleteHalterDevice(String deviceId) async {
+    await halterDeviceDao.delete(deviceId);
+    await loadHalterDevicesFromDb();
+  }
+
+  // Data Node Room
+  late NodeRoomDao nodeRoomDao;
+
+  void initNodeRoomDao(Database db) {
+    nodeRoomDao = NodeRoomDao(db);
+  }
+
+  Future<void> loadNodeRoomsFromDb() async {
+    final list = await nodeRoomDao.getAll();
+    nodeRoomList.assignAll(list);
+  }
+
+  Future<void> addNodeRoom(NodeRoomModel model) async {
+    await nodeRoomDao.insert(model);
+    await loadNodeRoomsFromDb();
+  }
+
+  Future<void> updateNodeRoom(NodeRoomModel model) async {
+    await nodeRoomDao.update(model);
+    await loadNodeRoomsFromDb();
+  }
+
+  Future<void> deleteNodeRoom(String nodeId) async {
+    await nodeRoomDao.deleteByDeviceId(nodeId);
+    await loadNodeRoomsFromDb();
+  }
+
+  Future<void> assignNodeToRoom(String nodeDeviceId, String roomId) async {
+    // 1. Kosongkan deviceSerial di semua room yang deviceSerial == nodeDeviceId
+    await roomDao.clearDeviceSerialInRooms(nodeDeviceId);
+
+    // 2. Set deviceSerial di room yang dipilih
+    await roomDao.updateDeviceSerial(roomId, nodeDeviceId);
+
+    // 3. Refresh list
+    await loadRoomsFromDb();
+  }
+
+  Future<void> detachNodeFromRoom(String nodeDeviceId) async {
+    // Kosongkan deviceSerial di semua room yang deviceSerial == nodeDeviceId
+    await roomDao.clearDeviceSerialInRooms(nodeDeviceId);
+    await loadRoomsFromDb();
+  }
+
+  // Data Cctv
+
+  late CctvDao cctvDao;
+
+  void initCctvDao(Database db) {
+    cctvDao = CctvDao(db);
+  }
+
+  Future<void> loadCctvsFromDb() async {
+    final list = await cctvDao.getAll();
+    cctvList.assignAll(list);
+  }
+
+  Future<void> addCctv(CctvModel model) async {
+    await cctvDao.insert(model);
+    await loadCctvsFromDb();
+  }
+
+  Future<void> updateCctv(CctvModel model) async {
+    await cctvDao.update(model);
+    await loadCctvsFromDb();
+  }
+
+  Future<void> deleteCctv(String cctvId) async {
+    await cctvDao.delete(cctvId);
+    await loadCctvsFromDb();
   }
 }

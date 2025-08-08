@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_page.dart';
 
 class HalterLayoutController extends GetxController {
@@ -12,11 +13,16 @@ class HalterLayoutController extends GetxController {
   var currentTime = ''.obs;
   var currentDate = ''.obs;
   Timer? _timer;
+  final DataController dataController = Get.find<DataController>();
 
   @override
   void onInit() {
     super.onInit();
     _startRealTimeClock();
+    dataController.initAllDaosAndLoadAll().then((_) {
+      // Setelah semua data di-load, bisa melakukan inisialisasi lain jika perlu
+      print('Semua data telah dimuat dan DAO diinisialisasi.');
+    });
   }
 
   @override

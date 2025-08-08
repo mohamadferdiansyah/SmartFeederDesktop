@@ -48,7 +48,9 @@ class RoomDao {
   Future<int> updateHorseId(String roomId, String? horseId) async {
     return await db.update(
       'rooms',
-      {'horse_id': horseId},
+      {'horse_id': horseId,
+        'status': horseId != null ? 'used' : 'available'
+      },
       where: 'room_id = ?',
       whereArgs: [roomId],
     );
@@ -62,6 +64,24 @@ class RoomDao {
       whereArgs: [horseId],
     );
   }
+
+  Future<void> clearDeviceSerialInRooms(String deviceId) async {
+  await db.update(
+    'rooms',
+    {'device_serial': null},
+    where: 'device_serial = ?',
+    whereArgs: [deviceId],
+  );
+}
+
+Future<void> updateDeviceSerial(String roomId, String? deviceSerial) async {
+  await db.update(
+    'rooms',
+    {'device_serial': deviceSerial},
+    where: 'room_id = ?',
+    whereArgs: [roomId],
+  );
+}
 
   // DELETE BY ID
   Future<int> delete(String roomId) async {

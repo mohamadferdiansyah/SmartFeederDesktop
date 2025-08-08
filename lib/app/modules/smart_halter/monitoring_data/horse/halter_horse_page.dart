@@ -150,6 +150,10 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                 isExpanded: true,
                 decoration: const InputDecoration(labelText: "Ruangan"),
                 items: [
+                  const DropdownMenuItem(
+                    value: null,
+                    child: Text("Tidak Dikandangkan"),
+                  ),
                   ...filteredRooms.map(
                     (r) => DropdownMenuItem(
                       value: r.roomId,
@@ -281,17 +285,31 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
           ),
           const SizedBox(height: 16),
           Obx(() {
-            final roomList = _controller.roomList;
+            final filteredRooms = _controller.roomList
+                .where(
+                  (r) =>
+                      r.horseId == null ||
+                      r.horseId == '' ||
+                      r.roomId == selectedRoomId,
+                )
+                .toList();
+
+            // Validasi value
+            final isValid =
+                selectedRoomId == null ||
+                filteredRooms.any((r) => r.roomId == selectedRoomId);
+            final value = isValid ? selectedRoomId : null;
+
             return DropdownButtonFormField<String>(
-              value: selectedRoomId,
+              value: value,
               isExpanded: true,
               decoration: const InputDecoration(labelText: "Ruangan"),
               items: [
                 const DropdownMenuItem(
                   value: null,
-                  child: Text("Tidak Digunakan"),
+                  child: Text("Tidak Dikandangkan"),
                 ),
-                ...roomList.map(
+                ...filteredRooms.map(
                   (r) => DropdownMenuItem(
                     value: r.roomId,
                     child: Text("${r.roomId} - ${r.name}"),
@@ -763,14 +781,14 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                                     context: context,
                                     horses: horses,
                                     onDetail: _showDetailModal,
-                                    onEdit: (horse) => _showHorseFormModal(
-                                      horse: horse,
-                                      isEdit: true,
-                                      onSubmit: (editedHorse) async {
+                                    onEdit: (horse) => _showHorseFormModalEdit(
+                                      horse,
+                                      (editedHorse) async {
                                         await _controller.updateHorse(
                                           editedHorse,
                                         );
                                       },
+                                      parentContext: context,
                                     ),
                                     onDelete: _confirmDelete,
                                   ),

@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/horse_model.dart';
@@ -12,15 +13,42 @@ import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
 class HalterDeviceController extends GetxController {
   final DataController dataController = Get.find<DataController>();
-  final HalterSerialService halterSerialService = Get.find<HalterSerialService>();
+  final HalterSerialService halterSerialService =
+      Get.find<HalterSerialService>();
 
-  List<HalterDeviceModel> get halterDeviceList => dataController.halterDeviceList;
+  RxList<HalterDeviceModel> get halterDeviceList =>
+      dataController.halterDeviceList;
 
-  List<HorseModel> get horseList => dataController.horseList;
+  RxList<HorseModel> get horseList => dataController.horseList;
 
-  RxList<HalterDeviceDetailModel> get detailHistory => halterSerialService.detailHistory;
+  RxList<HalterDeviceDetailModel> get detailHistory =>
+      halterSerialService.detailHistory;
 
-  Future<void> exportDeviceExcel(List<HalterDeviceModel> data, String Function(String?) getHorseName) async {
+  // @override
+  // void onInit() {
+  //   super.onInit();
+  //   DBHelper.database.then((db) {
+  //     dataController.initHalterDeviceDao(db);
+  //     refreshDevices();
+  //   });
+  // }
+
+  Future<void> refreshDevices() async {
+    await dataController.loadHalterDevicesFromDb();
+  }
+
+  Future<void> updateDevice(HalterDeviceModel model) async {
+    await dataController.updateHalterDevice(model);
+  }
+
+  Future<void> deleteDevice(String deviceId) async {
+    await dataController.deleteHalterDevice(deviceId);
+  }
+
+  Future<void> exportDeviceExcel(
+    List<HalterDeviceModel> data,
+    String Function(String?) getHorseName,
+  ) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
@@ -48,17 +76,24 @@ class HalterDeviceController extends GetxController {
   }
 
   /// Export data device utama ke PDF
-  Future<void> exportDevicePDF(List<HalterDeviceModel> data, String Function(String?) getHorseName) async {
+  Future<void> exportDevicePDF(
+    List<HalterDeviceModel> data,
+    String Function(String?) getHorseName,
+  ) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Table.fromTextArray(
           headers: ['ID', 'Kuda', 'Status'],
-          data: data.map((d) => [
-            d.deviceId,
-            getHorseName(d.horseId),
-            d.status == 'on' ? 'Aktif' : 'Tidak Aktif',
-          ]).toList(),
+          data: data
+              .map(
+                (d) => [
+                  d.deviceId,
+                  getHorseName(d.horseId),
+                  d.status == 'on' ? 'Aktif' : 'Tidak Aktif',
+                ],
+              )
+              .toList(),
         ),
       ),
     );
@@ -229,8 +264,7 @@ class HalterDeviceController extends GetxController {
   }
 
   String getHorseNameById(String? horseId) {
-    if (horseId == null) return "Tidak Digunakan";
-    return horseList.firstWhereOrNull((h) => h.horseId == horseId)?.name ??
-        "Tidak Diketahui";
+    if (horseId == null) return '-';
+    return horseList.firstWhereOrNull((h) => h.horseId == horseId)?.name ?? '-';
   }
 }

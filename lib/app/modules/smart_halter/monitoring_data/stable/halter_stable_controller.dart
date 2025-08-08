@@ -11,14 +11,14 @@ import 'package:smart_feeder_desktop/app/models/stable_model.dart';
 class HalterStableController extends GetxController {
   final DataController dataController = Get.find<DataController>();
 
-  @override
-  void onInit() {
-    super.onInit();
-    DBHelper.database.then((db) {
-      dataController.initStableDao(db);
-      loadStables();
-    });
-  }
+  // @override
+  // void onInit() {
+  //   super.onInit();
+  //   DBHelper.database.then((db) {
+  //     dataController.initStableDao(db);
+  //     loadStables();  
+  //   });
+  // }
 
   // Pastikan stableList di DataController adalah RxList<StableModel>
   RxList<StableModel> get stableList => dataController.stableList;

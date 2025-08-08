@@ -4,6 +4,7 @@ import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/halter_rule_engine_controller.dart'; // import model baru
@@ -113,6 +114,9 @@ class HalterSerialService extends GetxService {
 
   RxList<NodeRoomModel> get nodeRoomList => dataController.nodeRoomList;
 
+  RxList<HalterDeviceModel> get halterDeviceList =>
+      dataController.halterDeviceList;
+
   RxList<HalterRawDataModel> get rawData => dataController.rawData;
 
   RxList<String> get availablePorts =>
@@ -159,6 +163,26 @@ class HalterSerialService extends GetxService {
             try {
               final detail = HalterDeviceDetailModel.fromSerial(line);
               latestDetail.value = detail;
+
+              final indexDevice = halterDeviceList.indexWhere(
+                (d) => d.deviceId == detail.deviceId,
+              );
+
+              if (indexDevice == -1) {
+                halterDeviceList.add(
+                  HalterDeviceModel(
+                    deviceId: detail.deviceId,
+                    status: 'on',
+                    batteryPercent: detail.voltage ?? 0,
+                  ),
+                );
+              } else {
+                halterDeviceList[indexDevice] = HalterDeviceModel(
+                  deviceId: detail.deviceId,
+                  status: 'on',
+                  batteryPercent: detail.voltage ?? 0,
+                );
+              }
 
               // Ganti dengan pattern replace, bukan edit field
               final index = detailHistory.indexWhere(

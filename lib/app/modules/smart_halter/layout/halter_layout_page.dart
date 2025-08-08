@@ -6,6 +6,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_halter/layout/halter_layo
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/camera/halter_camera_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/device/halter_device_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/horse/halter_horse_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/node_room/halter_node_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/room/halter_room_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/stable/halter_stable_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/raw_data/halter_raw_data_page.dart';
@@ -41,6 +42,11 @@ class HalterLayoutPage extends StatelessWidget {
           icon: Icons.device_hub_rounded,
         ),
         SidebarMenuItem(
+          title: "Data Node Device",
+          page: HalterNodePage(),
+          icon: Icons.devices_rounded,
+        ),
+        SidebarMenuItem(
           title: "Data Ruang",
           page: HalterRoomPage(),
           icon: Icons.meeting_room_rounded,
@@ -48,7 +54,7 @@ class HalterLayoutPage extends StatelessWidget {
         SidebarMenuItem(
           title: "Data Kandang",
           page: HalterStablePage(),
-          icon: Icons.meeting_room_rounded,
+          icon: Icons.house_siding_rounded,
         ),
         SidebarMenuItem(
           title: "Data CCTV",

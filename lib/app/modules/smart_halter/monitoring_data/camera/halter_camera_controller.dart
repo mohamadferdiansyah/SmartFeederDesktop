@@ -10,6 +10,38 @@ import 'package:smart_feeder_desktop/app/models/halter/cctv_model.dart';
 class HalterCameraController extends GetxController {
   final DataController dataController = Get.find<DataController>();
 
+  RxList<CctvModel> get cctvList => dataController.cctvList;
+
+  Future<void> loadCctvs() async {
+    await dataController.loadCctvsFromDb();
+  }
+
+  Future<void> addCctv(CctvModel model) async {
+    await dataController.addCctv(model);
+    await loadCctvs();
+  }
+
+  Future<void> updateCctv(CctvModel model) async {
+    await dataController.updateCctv(model);
+    await loadCctvs();
+  }
+
+  Future<void> deleteCctv(String cctvId) async {
+    await dataController.deleteCctv(cctvId);
+    await loadCctvs();
+  }
+
+  Future<String> getNextCctvId() async {
+    final list = await dataController.cctvDao.getAll();
+    if (list.isEmpty) return "CCTV1";
+    final lastNum = list
+        .map(
+          (c) => int.tryParse(c.cctvId.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0,
+        )
+        .fold<int>(0, (prev, el) => el > prev ? el : prev);
+    return "CCTV${lastNum + 1}";
+  }
+
   Future<void> exportCctvExcel(List<CctvModel> data) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
@@ -48,13 +80,17 @@ class HalterCameraController extends GetxController {
       pw.Page(
         build: (context) => pw.Table.fromTextArray(
           headers: ['ID', 'IP Address', 'Port', 'Username', 'Password'],
-          data: data.map((d) => [
-            d.cctvId,
-            d.ipAddress,
-            d.port.toString(),
-            d.username,
-            d.password,
-          ]).toList(),
+          data: data
+              .map(
+                (d) => [
+                  d.cctvId,
+                  d.ipAddress,
+                  d.port.toString(),
+                  d.username,
+                  d.password,
+                ],
+              )
+              .toList(),
         ),
       ),
     );
@@ -68,6 +104,4 @@ class HalterCameraController extends GetxController {
       await File(path).writeAsBytes(await pdf.save());
     }
   }
-
-  List<CctvModel> get cctvList => dataController.cctvList;
 }

@@ -5,80 +5,79 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/models/halter/cctv_model.dart';
+import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
-import 'package:smart_feeder_desktop/app/models/horse_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
-import 'package:smart_feeder_desktop/app/models/stable_model.dart';
 
-class HalterRoomController extends GetxController {
+class HalterNodeController extends GetxController {
   final DataController dataController = Get.find<DataController>();
 
-  RxList<RoomModel> get roomList => dataController.roomList;
-
-  RxList<HorseModel> get horseList => dataController.horseList;
-
-  RxList<CctvModel> get cctvList => dataController.cctvList;
-
-  RxList<StableModel> get stableList => dataController.stableList;
-
   RxList<NodeRoomModel> get nodeRoomList => dataController.nodeRoomList;
+
+  RxList<RoomModel> get roomList => dataController.roomList;
 
   // @override
   // void onInit() {
   //   super.onInit();
   //   DBHelper.database.then((db) {
-  //     dataController.initRoomDao(db);
-  //     loadRooms();
+  //     dataController.initNodeRoomDao(db);
+  //     loadNode();
   //   });
   // }
 
-  Future<void> loadRooms() async {
+  Future<void> loadNode() async {
+    await dataController.loadNodeRoomsFromDb();
+  }
+
+  Future<void> addNode(NodeRoomModel model) async {
+    await dataController.addNodeRoom(model);
+  }
+
+  Future<void> updateNode(NodeRoomModel model) async {
+    await dataController.updateNodeRoom(model);
+  }
+
+  Future<void> deleteNode(String deviceId) async {
+    await dataController.deleteNodeRoom(deviceId);
+  }
+
+  Future<void> pilihRuanganUntukNode(
+    String nodeDeviceId,
+    String? roomId,
+  ) async {
+    if (roomId == null) {
+      // Lepas node dari semua ruangan
+      await dataController.detachNodeFromRoom(nodeDeviceId);
+    } else {
+      await dataController.assignNodeToRoom(nodeDeviceId, roomId);
+    }
+    // Setelah assign/clear, refresh list
     await dataController.loadRoomsFromDb();
   }
 
-  Future<void> addRoom(RoomModel model) async {
-    await dataController.addRoom(model);
-  }
-
-  Future<void> updateRoom(RoomModel model) async {
-    await dataController.updateRoom(model);
-  }
-
-  Future<void> deleteRoom(String roomId) async {
-    await dataController.deleteRoom(roomId);
-  }
-
-  Future<String> getNextRoomId() async {
-    return await dataController.getNextRoomId();
-  }
-
-  Future<void> exportRoomExcel(
-    List<RoomModel> data,
-    String Function(List<String>) getCctvNames,
+  Future<void> exportDeviceExcel(
+    List<HalterDeviceModel> data,
+    String Function(String?) getHorseName,
   ) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
       TextCellValue('ID'),
-      TextCellValue('Nama'),
-      TextCellValue('Device Serial'),
+      TextCellValue('Kuda'),
       TextCellValue('Status'),
-      TextCellValue('CCTV'),
     ]);
     for (var d in data) {
       sheet.appendRow([
-        TextCellValue(d.roomId),
-        TextCellValue(d.name),
-        TextCellValue(d.deviceSerial ?? 'Tidak ada'),
-        TextCellValue(d.status == 'used' ? 'Aktif' : 'Tidak Aktif'),
-        TextCellValue(getCctvNames(d.cctvId ?? [])),
+        TextCellValue(d.deviceId),
+        TextCellValue(getHorseName(d.horseId)),
+        TextCellValue(d.status == 'on' ? 'Aktif' : 'Tidak Aktif'),
       ]);
     }
     final fileBytes = excel.encode();
     String? path = await FilePicker.platform.saveFile(
-      dialogTitle: 'Simpan file Excel Ruangan',
-      fileName: 'Daftar_Ruangan.xlsx',
+      dialogTitle: 'Simpan file Excel (Device)',
+      fileName: 'Daftar_Halter_Device.xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );
@@ -87,24 +86,22 @@ class HalterRoomController extends GetxController {
     }
   }
 
-  /// Export tabel utama (Daftar Ruangan) ke PDF
-  Future<void> exportRoomPDF(
-    List<RoomModel> data,
-    String Function(List<String>) getCctvNames,
+  /// Export data device utama ke PDF
+  Future<void> exportDevicePDF(
+    List<HalterDeviceModel> data,
+    String Function(String?) getHorseName,
   ) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Table.fromTextArray(
-          headers: ['ID', 'Nama', 'Device Serial', 'Status', 'CCTV'],
+          headers: ['ID', 'Kuda', 'Status'],
           data: data
               .map(
                 (d) => [
-                  d.roomId,
-                  d.name,
-                  d.deviceSerial,
-                  d.status == 'used' ? 'Aktif' : 'Tidak Aktif',
-                  getCctvNames(d.cctvId ?? []),
+                  d.deviceId,
+                  getHorseName(d.horseId),
+                  d.status == 'on' ? 'Aktif' : 'Tidak Aktif',
                 ],
               )
               .toList(),
@@ -112,8 +109,8 @@ class HalterRoomController extends GetxController {
       ),
     );
     String? path = await FilePicker.platform.saveFile(
-      dialogTitle: 'Simpan file PDF Ruangan',
-      fileName: 'Daftar_Ruangan.pdf',
+      dialogTitle: 'Simpan file PDF (Device)',
+      fileName: 'Daftar_Halter_Device.pdf',
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
@@ -202,14 +199,11 @@ class HalterRoomController extends GetxController {
     }
   }
 
-  String getCctvNames(List<String> cctvIds) {
-    final names = cctvIds.map((id) {
-      final cctv = cctvList.firstWhereOrNull((c) => c.cctvId == id);
-      if (cctv != null) {
-        return '${cctv.ipAddress} (${cctv.cctvId})';
-      }
-      return id;
-    }).toList();
-    return names.join(' / ');
+  // bool isRoomHaveNode(String deviceSerial) {
+  //   return dataController.roomList.any((node) => node.deviceSerial == deviceSerial);
+  // }
+
+  RoomModel? getRoomByNodeId(String deviceId) {
+    return roomList.firstWhereOrNull((room) => room.deviceSerial == deviceId);
   }
 }

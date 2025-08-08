@@ -3,23 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // Ganti dengan import model dan widget sesuai project-mu
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
-import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
-import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/device/halter_device_controller.dart';
+import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/node_room/halter_node_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 
-class HalterDevicePage extends StatefulWidget {
-  const HalterDevicePage({Key? key}) : super(key: key);
+class HalterNodePage extends StatefulWidget {
+  const HalterNodePage({Key? key}) : super(key: key);
 
   @override
-  State<HalterDevicePage> createState() => _HalterDevicePageState();
+  State<HalterNodePage> createState() => _HalterNodePageState();
 }
 
-class _HalterDevicePageState extends State<HalterDevicePage> {
+class _HalterNodePageState extends State<HalterNodePage> {
   final TextEditingController _searchController = TextEditingController();
-  final HalterDeviceController _controller = Get.find<HalterDeviceController>();
+  final HalterNodeController _controller = Get.find<HalterNodeController>();
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   int? _sortColumnIndex;
   bool _sortAscending = true;
@@ -28,7 +27,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
   @override
   void initState() {
     super.initState();
-    _controller.refreshDevices();
+    _controller.loadNode();
     _searchController.addListener(() {
       setState(() {
         _searchText = _searchController.text.trim().toLowerCase();
@@ -36,159 +35,128 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
     });
   }
 
-  List<HalterDeviceModel> _filteredDevices(List<HalterDeviceModel> devices) {
-    if (_searchText.isEmpty) return devices;
-    return devices.where((d) {
+  List<NodeRoomModel> _filteredNodes(List<NodeRoomModel> nodes) {
+    if (_searchText.isEmpty) return nodes;
+    return nodes.where((d) {
       return d.deviceId.toLowerCase().contains(_searchText) ||
-          (d.horseId ?? '').toLowerCase().contains(_searchText) ||
-          d.status.toLowerCase().contains(_searchText) ||
-          d.batteryPercent.toString().contains(_searchText);
+          d.temperature.toString().contains(_searchText) ||
+          d.humidity.toString().contains(_searchText) ||
+          d.lightIntensity.toString().contains(_searchText);
     }).toList();
   }
 
-  // Modal, detail, dan lain-lain (SAMA seperti contoh sebelumnya)
-  void _showDetailModal(HalterDeviceModel device) {
-    showCustomDialog(
-      context: context,
-      title: "Detail Device",
-      icon: Icons.info_outline,
-      iconColor: Colors.blueGrey,
-      showConfirmButton: false,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _detailRow("Device ID", device.deviceId),
-          const SizedBox(height: 8),
-          _detailRow("Status", device.status),
-          const SizedBox(height: 8),
-          _detailRow("Battery", "${device.batteryPercent}%"),
-          const SizedBox(height: 8),
-          _detailRow("Kuda", _controller.getHorseNameById(device.horseId)),
-        ],
-      ),
-    );
-  }
+  void _showPilihRuanganModal(NodeRoomModel node) {
+    String? selectedRoomId; // atau node.roomId jika model ada field roomId
 
-  void _showPilihKudaModal(HalterDeviceModel device) {
-    String? selectedHorseId = device.horseId;
     showCustomDialog(
       context: context,
-      title: "Pilih Kuda",
-      icon: Icons.pets_rounded,
+      title: "Pilih Ruangan",
+      icon: Icons.house_siding_rounded,
       iconColor: AppColors.primary,
       showConfirmButton: true,
       confirmText: "Simpan",
       cancelText: "Batal",
       content: Obx(() {
-        final horseList = _controller.horseList;
-        final allUsedHorseIds = _controller.halterDeviceList
-            .where((d) => d.horseId != null && d.deviceId != device.deviceId)
-            .map((d) => d.horseId)
+        final roomList = _controller.roomList;
+        // Semua deviceSerial yang sudah dipakai room lain (kecuali node ini)
+        final allUsedDeviceSerials = roomList
+            .where(
+              (r) => r.deviceSerial != null && r.deviceSerial != node.deviceId,
+            )
+            .map((r) => r.deviceSerial)
             .toSet();
 
-        // Filter: hanya kuda yang belum dipakai atau yang memang sedang terpasang di device ini
-        final availableHorses = horseList
+        // Hanya ruangan yang belum dipakai atau memang sedang dipakai node ini
+        final availableRooms = roomList
             .where(
-              (h) =>
-                  h.horseId == selectedHorseId ||
-                  !allUsedHorseIds.contains(h.horseId),
+              (r) =>
+                  r.deviceSerial == node.deviceId ||
+                  r.deviceSerial == null ||
+                  r.deviceSerial == '',
             )
             .toList();
 
-        // validasi value biar nggak error Dropdown
-        final validIds = availableHorses.map((h) => h.horseId).toList();
+        // Validasi value
+        final validIds = availableRooms.map((r) => r.roomId).toList();
         final value =
-            (selectedHorseId != null && validIds.contains(selectedHorseId))
-            ? selectedHorseId
+            (selectedRoomId != null && validIds.contains(selectedRoomId))
+            ? selectedRoomId
             : null;
 
         return DropdownButtonFormField<String>(
           value: value,
           isExpanded: true,
-          decoration: const InputDecoration(labelText: "Kuda"),
+          decoration: const InputDecoration(labelText: "Ruangan"),
           items: [
             const DropdownMenuItem(value: null, child: Text("Tidak Digunakan")),
-            ...availableHorses.map(
-              (h) => DropdownMenuItem(
-                value: h.horseId,
-                child: Text("${h.horseId} - ${h.name}"),
+            ...availableRooms.map(
+              (r) => DropdownMenuItem(
+                value: r.roomId,
+                child: Text("${r.roomId} - ${r.name}"),
               ),
             ),
           ],
-          onChanged: (v) => setState(() => selectedHorseId = v),
+          onChanged: (v) => setState(() => selectedRoomId = v),
         );
       }),
       onConfirm: () async {
-        final updated = HalterDeviceModel(
-          deviceId: device.deviceId,
-          status: device.status,
-          batteryPercent: device.batteryPercent,
-          horseId: selectedHorseId,
-        );
-        await _controller.updateDevice(updated);
+        await _controller.pilihRuanganUntukNode(node.deviceId, selectedRoomId);
+        await _controller.loadNode(); // Tambahkan ini agar refresh RxList
       },
     );
   }
 
-  void _showLepasAlatModal(HalterDeviceModel device) {
+  void _showLepasRuanganModal(NodeRoomModel node) {
     showCustomDialog(
       context: context,
-      title: "Konfirmasi Lepas Alat",
+      title: "Konfirmasi Lepas Ruangan",
       icon: Icons.link_off,
       iconColor: Colors.orange,
-      message:
-          "Lepaskan alat dari kuda \"${_controller.getHorseNameById(device.horseId)}\" untuk device ${device.deviceId}?",
+      message: "Lepas node device ${node.deviceId} dari ruangan?",
       showConfirmButton: true,
       confirmText: "Lepas",
       cancelText: "Batal",
       onConfirm: () async {
-        final updated = HalterDeviceModel(
-          deviceId: device.deviceId,
-          status: device.status,
-          batteryPercent: device.batteryPercent,
-          horseId: null,
-        );
-        await _controller.updateDevice(updated);
+        await _controller.pilihRuanganUntukNode(node.deviceId, null);
+        await _controller.loadNode(); // Tambahkan ini agar refresh RxList
       },
     );
   }
 
-  void _confirmDelete(HalterDeviceModel device) {
+  void _showDetailModal(NodeRoomModel node) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return RoomNodeDataDialog(
+          deviceId: node.deviceId,
+          allData: _controller.nodeRoomList.toList(),
+        );
+      },
+    );
+  }
+
+  void _confirmDelete(NodeRoomModel node) {
     showCustomDialog(
       context: context,
       title: "Konfirmasi Hapus",
       icon: Icons.delete_forever,
       iconColor: Colors.red,
-      message: 'Hapus device "${device.deviceId}"?',
+      message: 'Hapus node device "${node.deviceId}"?',
       showConfirmButton: true,
       confirmText: "Hapus",
       cancelText: "Batal",
       onConfirm: () async {
-        await _controller.deleteDevice(device.deviceId);
+        await _controller.deleteNode(node.deviceId);
       },
     );
   }
 
-  Widget _detailRow(String label, String value) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 2),
-    child: Row(
-      children: [
-        Text(
-          "$label: ",
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        Flexible(child: Text(value, style: const TextStyle(fontSize: 16))),
-      ],
-    ),
-  );
-
   void _sort<T>(
-    List<HalterDeviceModel> devices,
-    Comparable<T> Function(HalterDeviceModel d) getField,
+    List<NodeRoomModel> nodes,
+    Comparable<T> Function(NodeRoomModel d) getField,
     bool ascending,
   ) {
-    devices.sort((a, b) {
+    nodes.sort((a, b) {
       final aValue = getField(a);
       final bValue = getField(b);
       return ascending
@@ -244,7 +212,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                   child: Row(
                     children: [
                       Text(
-                        'Daftar Halter Device',
+                        'Daftar Node Room Device',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -269,48 +237,47 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: CustomInput(
-                        label: "Cari device",
+                        label: "Cari node device",
                         controller: _searchController,
                         icon: Icons.search,
-                        hint: 'Masukkan ID, status, atau kuda',
+                        hint: 'Masukkan ID, suhu, kelembaban, light',
                         fontSize: 24,
                       ),
                     ),
                     // Table
                     Expanded(
                       child: Obx(() {
-                        List<HalterDeviceModel> devices = _filteredDevices(
-                          _controller.halterDeviceList.toList(),
+                        List<NodeRoomModel> nodes = _filteredNodes(
+                          _controller.nodeRoomList.toList(),
                         );
 
-                        // Sort
                         if (_sortColumnIndex != null) {
                           switch (_sortColumnIndex!) {
                             case 0:
                               _sort<String>(
-                                devices,
+                                nodes,
                                 (d) => d.deviceId,
                                 _sortAscending,
                               );
                               break;
                             case 1:
-                              _sort<String>(
-                                devices,
-                                (d) => d.horseId ?? '',
+                              _sort<double>(
+                                nodes,
+                                (d) => d.temperature as Comparable<double>,
                                 _sortAscending,
                               );
                               break;
                             case 2:
-                              _sort<String>(
-                                devices,
-                                (d) => d.status,
+                              _sort<double>(
+                                nodes,
+                                (d) => d.humidity as Comparable<double>,
                                 _sortAscending,
                               );
                               break;
                             case 3:
-                              _sort<int>(
-                                devices,
-                                (d) => d.batteryPercent as Comparable<int>,
+                              _sort<double>(
+                                nodes,
+                                (d) => d.lightIntensity as Comparable<double>,
                                 _sortAscending,
                               );
                               break;
@@ -320,19 +287,20 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                         final tableWidth =
                             MediaQuery.of(context).size.width - 72.0;
                         final idW = tableWidth * 0.10;
-                        final horseW = tableWidth * 0.15;
-                        final statusW = tableWidth * 0.10;
-                        final batteryW = tableWidth * 0.10;
-                        final actionW = tableWidth * 0.30;
+                        final tempW = tableWidth * 0.11;
+                        final humW = tableWidth * 0.11;
+                        final lightW = tableWidth * 0.11;
+                        final actionW = tableWidth * 0.32;
 
-                        final dataSource = HalterDeviceDataTableSource(
+                        final dataSource = NodeRoomDataTableSource(
                           context: context,
-                          devices: devices,
-                          getHorseName: _controller.getHorseNameById,
+                          nodes: nodes,
                           onDetail: _showDetailModal,
-                          onPilihKuda: _showPilihKudaModal,
-                          onLepasAlat: _showLepasAlatModal,
                           onDelete: _confirmDelete,
+                          onLepasRuangan: _showLepasRuanganModal,
+                          onSelectRoom: (node) {
+                            _showPilihRuanganModal(node);
+                          },
                         );
 
                         return SingleChildScrollView(
@@ -356,9 +324,8 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                     icon: Icons.table_view_rounded,
                                     text: 'Export Excel',
                                     onPressed: () {
-                                      _controller.exportDeviceExcel(
-                                        devices,
-                                        _controller.getHorseNameById,
+                                      _controller.exportNodeRoomExcel(
+                                        _controller.nodeRoomList.toList(),
                                       );
                                     },
                                   ),
@@ -372,9 +339,8 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                     icon: Icons.picture_as_pdf,
                                     text: 'Export PDF',
                                     onPressed: () {
-                                      _controller.exportDevicePDF(
-                                        devices,
-                                        _controller.getHorseNameById,
+                                      _controller.exportNodeRoomPDF(
+                                        _controller.nodeRoomList.toList(),
                                       );
                                     },
                                   ),
@@ -404,7 +370,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                         width: idW,
                                         child: const Center(
                                           child: Text(
-                                            'ID',
+                                            'Device ID',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -420,10 +386,10 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                     ),
                                     DataColumn(
                                       label: SizedBox(
-                                        width: horseW,
+                                        width: tempW,
                                         child: const Center(
                                           child: Text(
-                                            'Kuda',
+                                            'Suhu (°C)',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -439,10 +405,10 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                     ),
                                     DataColumn(
                                       label: SizedBox(
-                                        width: statusW,
+                                        width: humW,
                                         child: const Center(
                                           child: Text(
-                                            'Status',
+                                            'Kelembaban (%)',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -458,10 +424,10 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                     ),
                                     DataColumn(
                                       label: SizedBox(
-                                        width: batteryW,
+                                        width: lightW,
                                         child: const Center(
                                           child: Text(
-                                            'Baterai (%)',
+                                            'Cahaya',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -516,38 +482,36 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
   }
 }
 
-class HalterDeviceDataTableSource extends DataTableSource {
+class NodeRoomDataTableSource extends DataTableSource {
   final BuildContext context;
-  final List<HalterDeviceModel> devices;
-  final String Function(String?) getHorseName;
-  final void Function(HalterDeviceModel) onDetail;
-  final void Function(HalterDeviceModel) onPilihKuda;
-  final void Function(HalterDeviceModel) onDelete;
-  final void Function(HalterDeviceModel) onLepasAlat;
-  final HalterDeviceController _controller = Get.find<HalterDeviceController>();
+  final List<NodeRoomModel> nodes;
+  final void Function(NodeRoomModel) onDetail;
+  final void Function(NodeRoomModel) onSelectRoom;
+  final void Function(NodeRoomModel) onDelete;
+  final void Function(NodeRoomModel) onLepasRuangan;
+  final HalterNodeController _controller = Get.find<HalterNodeController>();
 
-  HalterDeviceDataTableSource({
+  NodeRoomDataTableSource({
     required this.context,
-    required this.devices,
-    required this.getHorseName,
+    required this.nodes,
     required this.onDetail,
-    required this.onPilihKuda,
+    required this.onSelectRoom,
     required this.onDelete,
-    required this.onLepasAlat,
+    required this.onLepasRuangan,
   });
 
   @override
   DataRow getRow(int index) {
-    final device = devices[index];
+    final node = nodes[index];
     return DataRow.byIndex(
       index: index,
       cells: [
-        DataCell(Center(child: Text(device.deviceId))),
-        DataCell(Center(child: Text(getHorseName(device.horseId)))),
+        DataCell(Center(child: Text(node.deviceId))),
+        DataCell(Center(child: Text('${node.temperature.toStringAsFixed(2)}'))),
+        DataCell(Center(child: Text('${node.humidity.toStringAsFixed(2)}'))),
         DataCell(
-          Center(child: Text(device.status == 'on' ? 'Aktif' : 'Tidak Aktif')),
+          Center(child: Text('${node.lightIntensity.toStringAsFixed(2)}')),
         ),
-        DataCell(Center(child: Text('${device.batteryPercent}%'))),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -555,7 +519,7 @@ class HalterDeviceDataTableSource extends DataTableSource {
               CustomButton(
                 width: 165,
                 height: 38,
-                text: 'Riwayat Halter',
+                text: 'Riwayat Node',
                 backgroundColor: Colors.blue,
                 icon: Icons.history,
                 borderRadius: 6,
@@ -564,9 +528,9 @@ class HalterDeviceDataTableSource extends DataTableSource {
                   showDialog(
                     context: context,
                     builder: (context) {
-                      return HalterRawDataDialog(
-                        deviceId: device.deviceId,
-                        allData: _controller.detailHistory,
+                      return RoomNodeDataDialog(
+                        deviceId: node.deviceId,
+                        allData: nodes,
                       );
                     },
                   );
@@ -583,38 +547,58 @@ class HalterDeviceDataTableSource extends DataTableSource {
                   ),
                 ),
               ),
-              CustomButton(
-                width: 115,
-                height: 38,
-                text: 'Detail',
-                backgroundColor: Colors.blueGrey,
-                icon: Icons.info_outline,
-                borderRadius: 6,
-                fontSize: 14,
-                onPressed: () => onDetail(device),
-              ),
-              const SizedBox(width: 6),
-              device.horseId == null
+
+              // _controller.isRoomHaveNode(node.deviceId)
+              node.deviceId ==
+                      _controller.getRoomByNodeId(node.deviceId)?.deviceSerial
                   ? CustomButton(
-                      width: 135,
-                      height: 38,
-                      backgroundColor: AppColors.primary,
-                      text: 'Pilih Kuda',
-                      icon: Icons.pets_rounded,
-                      borderRadius: 6,
-                      fontSize: 14,
-                      onPressed: () => onPilihKuda(device),
-                    )
-                  : CustomButton(
-                      width: 135,
+                      width: 170,
                       height: 38,
                       backgroundColor: Colors.orange,
-                      text: 'Lepas Alat',
+                      text: 'Lepas Ruangan',
                       icon: Icons.link_off,
                       borderRadius: 6,
                       fontSize: 14,
-                      onPressed: () => onLepasAlat(device),
+                      onPressed: () {
+                        onLepasRuangan(node);
+                      },
+                    )
+                  : CustomButton(
+                      width: 170,
+                      height: 38,
+                      backgroundColor: AppColors.primary,
+                      text: 'Pilih Ruangan',
+                      icon: Icons.house_siding_rounded,
+                      borderRadius: 6,
+                      fontSize: 14,
+                      onPressed: () {
+                        onSelectRoom(node);
+                      },
                     ),
+              // CustomButton(
+              //   width: 170,
+              //   height: 38,
+              //   backgroundColor: AppColors.primary,
+              //   text: 'Pilih Ruangan',
+              //   icon: Icons.house_siding_rounded,
+              //   borderRadius: 6,
+              //   fontSize: 14,
+              //   onPressed: () {
+              //     onSelectRoom(node);
+              //   },
+              // ),
+              // CustomButton(
+              //   width: 160,
+              //   height: 38,
+              //   backgroundColor: AppColors.primary,
+              //   text: 'Pilih Ruangan',
+              //   icon: Icons.house_siding_rounded,
+              //   borderRadius: 6,
+              //   fontSize: 14,
+              //   onPressed: () {
+              //     onSelectRoom(node);
+              //   },
+              // ),
               const SizedBox(width: 6),
               Container(
                 decoration: BoxDecoration(
@@ -624,7 +608,9 @@ class HalterDeviceDataTableSource extends DataTableSource {
                 child: IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
                   tooltip: 'Hapus',
-                  onPressed: () => onDelete(device),
+                  onPressed: () {
+                    onDelete(node);
+                  },
                 ),
               ),
             ],
@@ -635,7 +621,7 @@ class HalterDeviceDataTableSource extends DataTableSource {
   }
 
   @override
-  int get rowCount => devices.length;
+  int get rowCount => nodes.length;
 
   @override
   bool get isRowCountApproximate => false;
@@ -644,37 +630,32 @@ class HalterDeviceDataTableSource extends DataTableSource {
   int get selectedRowCount => 0;
 }
 
-class HalterRawDataDialog extends StatefulWidget {
+class RoomNodeDataDialog extends StatefulWidget {
   final String deviceId;
-  final List<HalterDeviceDetailModel> allData;
+  final List<NodeRoomModel> allData;
 
-  const HalterRawDataDialog({
+  const RoomNodeDataDialog({
     super.key,
     required this.deviceId,
     required this.allData,
   });
 
   @override
-  State<HalterRawDataDialog> createState() => _HalterRawDataDialogState();
+  State<RoomNodeDataDialog> createState() => _RoomNodeDataDialogState();
 }
 
-class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
+class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
   DateTime? tanggalAwal;
   DateTime? tanggalAkhir;
-  final HalterDeviceController _controller = Get.find<HalterDeviceController>();
+  final HalterNodeController _controller = Get.find<HalterNodeController>();
 
-  List<HalterDeviceDetailModel> get filteredData {
+  List<NodeRoomModel> get filteredData {
     // Filter by deviceId
     var data = widget.allData
         .where((d) => d.deviceId == widget.deviceId)
         .toList();
-    // Filter tanggal jika dipilih
-    if (tanggalAwal != null) {
-      data = data.where((d) => d.time.isAfter(tanggalAwal!)).toList();
-    }
-    if (tanggalAkhir != null) {
-      data = data.where((d) => d.time.isBefore(tanggalAkhir!)).toList();
-    }
+    // Jika NodeRoomModel punya timestamp, bisa filter tanggal di sini.
+    // Namun model sekarang tidak punya field time, jadi filter tanggal diabaikan.
     return data;
   }
 
@@ -706,7 +687,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
               width: double.infinity,
               decoration: BoxDecoration(
                 color: AppColors.primary,
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(8),
                   topRight: Radius.circular(8),
                 ),
@@ -725,8 +706,8 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                   child: Row(
                     children: [
                       Text(
-                        'Detail Data Raw Device ${widget.deviceId}',
-                        style: TextStyle(
+                        'Detail Data Node Device ${widget.deviceId}',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -742,7 +723,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
               padding: const EdgeInsets.all(20.0),
               child: Row(
                 children: [
-                  // Tanggal Awal
+                  // Tanggal Awal (disabled/readonly, karena NodeRoomModel tidak ada time)
                   Flexible(
                     child: TextField(
                       readOnly: true,
@@ -856,7 +837,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                     icon: Icons.table_view_rounded,
                     text: 'Export Excel',
                     onPressed: () {
-                      _controller.exportDetailExcel(filteredData);
+                      _controller.exportNodeRoomExcel(filteredData);
                     },
                   ),
                   const SizedBox(width: 12),
@@ -868,7 +849,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                     icon: Icons.picture_as_pdf,
                     text: 'Export PDF',
                     onPressed: () {
-                      _controller.exportDetailPDF(filteredData);
+                      _controller.exportNodeRoomPDF(filteredData);
                     },
                   ),
                 ],
@@ -877,73 +858,143 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
             const SizedBox(height: 8),
             // Tabel data
             Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  columns: const [
-                    DataColumn(label: Text("No")),
-                    DataColumn(label: Text("Device Id")),
-                    DataColumn(label: Text("Latitude")),
-                    DataColumn(label: Text("Longitude")),
-                    DataColumn(label: Text("Altitude")),
-                    DataColumn(label: Text("SoG")),
-                    DataColumn(label: Text("CoG")),
-                    DataColumn(label: Text("AcceX")),
-                    DataColumn(label: Text("AcceY")),
-                    DataColumn(label: Text("AcceZ")),
-                    DataColumn(label: Text("gyroX")),
-                    DataColumn(label: Text("gyroY")),
-                    DataColumn(label: Text("gyroZ")),
-                    DataColumn(label: Text("magX")),
-                    DataColumn(label: Text("magY")),
-                    DataColumn(label: Text("magZ")),
-                    DataColumn(label: Text("Roll")),
-                    DataColumn(label: Text("Pitch")),
-                    DataColumn(label: Text("Yaw")),
-                    DataColumn(label: Text("Arus")),
-                    DataColumn(label: Text("Voltase")),
-                    DataColumn(label: Text("BPM")),
-                    DataColumn(label: Text("SPO")),
-                    DataColumn(label: Text("Suhu")),
-                    DataColumn(label: Text("Respirasi")),
-                    DataColumn(label: Text("Time")),
-                  ],
-                  rows: List.generate(filteredData.length, (i) {
-                    final d = filteredData[i];
-                    return DataRow(
-                      cells: [
-                        DataCell(Text('${i + 1}')),
-                        DataCell(Text(d.deviceId)),
-                        DataCell(Text('${d.latitude ?? "-"}')),
-                        DataCell(Text('${d.longitude ?? "-"}')),
-                        DataCell(Text('${d.altitude ?? "-"}')),
-                        DataCell(Text('${d.sog ?? "-"}')),
-                        DataCell(Text('${d.cog ?? "-"}')),
-                        DataCell(Text('${d.acceX ?? "-"}')),
-                        DataCell(Text('${d.acceY ?? "-"}')),
-                        DataCell(Text('${d.acceZ ?? "-"}')),
-                        DataCell(Text('${d.gyroX ?? "-"}')),
-                        DataCell(Text('${d.gyroY ?? "-"}')),
-                        DataCell(Text('${d.gyroZ ?? "-"}')),
-                        DataCell(Text('${d.magX ?? "-"}')),
-                        DataCell(Text('${d.magY ?? "-"}')),
-                        DataCell(Text('${d.magZ ?? "-"}')),
-                        DataCell(Text('${d.roll ?? "-"}')),
-                        DataCell(Text('${d.pitch ?? "-"}')),
-                        DataCell(Text('${d.yaw ?? "-"}')),
-                        DataCell(Text('${d.current ?? "-"}')),
-                        DataCell(Text('${d.voltage ?? "-"}')),
-                        DataCell(Text('${d.heartRate ?? "-"}')),
-                        DataCell(Text('${d.spo ?? "-"}')),
-                        DataCell(Text('${d.temperature ?? "-"}')),
-                        DataCell(Text('${d.respiratoryRate ?? "-"}')),
-                        DataCell(
-                          Text(d.time != null ? d.time.toIso8601String() : "-"),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final tableWidth = constraints.maxWidth;
+                  final noW = tableWidth * 0.05; // 10%
+                  final devIdW = tableWidth * 0.15; // 18%
+                  final tempW = tableWidth * 0.15; // 18%
+                  final humidityW = tableWidth * 0.15; // 18%
+                  final lightW = tableWidth * 0.15; // 18%
+                  final timeW = tableWidth * 0.15; // 18%
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columns: [
+                        DataColumn(
+                          label: SizedBox(
+                            width: noW,
+                            child: const Text(
+                              "No",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: devIdW,
+                            child: const Text(
+                              "Device Id",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: tempW,
+                            child: const Text(
+                              "Temperature (°C)",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: humidityW,
+                            child: const Text(
+                              "Humidity (%)",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: lightW,
+                            child: const Text(
+                              "Light Intensity",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: timeW,
+                            child: const Text(
+                              "Time",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                         ),
                       ],
-                    );
-                  }),
-                ),
+                      rows: List.generate(filteredData.length, (i) {
+                        final d = filteredData[i];
+                        return DataRow(
+                          cells: [
+                            DataCell(
+                              SizedBox(
+                                width: noW,
+                                child: Text(
+                                  '${i + 1}',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: devIdW,
+                                child: Text(
+                                  d.deviceId,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: tempW,
+                                child: Text(
+                                  d.temperature.toStringAsFixed(2),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: humidityW,
+                                child: Text(
+                                  d.humidity.toStringAsFixed(2),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: lightW,
+                                child: Text(
+                                  d.lightIntensity.toStringAsFixed(2),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: timeW,
+                                child: Text(
+                                  d.time != null
+                                      ? d.time!
+                                            .toIso8601String()
+                                            .split('T')[1]
+                                            .split('.')[0]
+                                      : '-',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                    ),
+                  );
+                },
               ),
             ),
             // Tombol Tutup

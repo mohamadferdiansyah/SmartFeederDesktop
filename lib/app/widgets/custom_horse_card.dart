@@ -183,7 +183,7 @@ class CustomHorseCard extends StatelessWidget {
                 child: SizedBox(
                   height: 48,
                   child: CustomButton(
-                    text: 'Pilih Kuda',
+                    text: 'Pilih Ruangan',
                     onPressed: onSelectHorse ?? () {},
                     backgroundColor: AppColors.primary,
                     textColor: Colors.white,
