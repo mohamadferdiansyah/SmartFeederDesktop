@@ -10,12 +10,12 @@ import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
 class HalterRawDataController extends GetxController {
   // RxList<HalterRawDataModel> dataSerialList = <HalterRawDataModel>[
-    // HalterRawDataModel(
-    //   no: 1,
-    //   data: "SHIPB1223004,-6.967736500,107.659127167,683.50,0.00,211.00,1.79,-0.40,10.20,-0.00,0.00,0.00,-15.62,45.94,17.79,-10,-177,-66,NAN,0.00,0.00,0.00,29.77,*",
-    //   tanggal: "2025-07-23",
-    //   waktu: "18:26:00",
-    // ),
+  // HalterRawDataModel(
+  //   no: 1,
+  //   data: "SHIPB1223004,-6.967736500,107.659127167,683.50,0.00,211.00,1.79,-0.40,10.20,-0.00,0.00,0.00,-15.62,45.94,17.79,-10,-177,-66,NAN,0.00,0.00,0.00,29.77,*",
+  //   tanggal: "2025-07-23",
+  //   waktu: "18:26:00",
+  // ),
   //   HalterRawDataModel(
   //     no: 2,
   //     data: "SHIPB1223005,-6.967800,107.659200,700.12,1.00,205.00,1.81,-0.30,15.30,-0.10,0.10,0.00,-12.62,48.94,14.79,-12,-150,-60,NAN,1.00,1.00,1.00,28.77,*",
@@ -36,6 +36,7 @@ class HalterRawDataController extends GetxController {
 
   // final serialService = Get.find<HalterSerialService>();
   final DataController dataController = Get.find<DataController>();
+  final HalterSerialService serialService = Get.find<HalterSerialService>();
 
   RxList<HalterRawDataModel> get dataSerialList => dataController.rawData;
 
@@ -51,6 +52,13 @@ class HalterRawDataController extends GetxController {
           selectedDate.value.isEmpty || item.time == selectedDate.value;
       return matchSearch && matchDate;
     }).toList();
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Jika ingin langsung start dummy:
+    serialService.startDummySerial();
   }
 
   get dataList => null;

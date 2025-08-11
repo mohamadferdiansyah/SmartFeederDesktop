@@ -26,32 +26,14 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
       spoMaxCtrl,
       bpmMinCtrl,
       bpmMaxCtrl,
-      respMaxCtrl;
-
-  // Halter
-  final TextEditingController batteryMinCtrl = TextEditingController(
-    text: "20",
-  );
-
-  // Node Room
-  final TextEditingController roomTempMinCtrl = TextEditingController(
-    text: "20",
-  );
-  final TextEditingController roomTempMaxCtrl = TextEditingController(
-    text: "35",
-  );
-  final TextEditingController roomHumMinCtrl = TextEditingController(
-    text: "40",
-  );
-  final TextEditingController roomHumMaxCtrl = TextEditingController(
-    text: "75",
-  );
-  final TextEditingController roomLuxMinCtrl = TextEditingController(
-    text: "100",
-  );
-  final TextEditingController roomLuxMaxCtrl = TextEditingController(
-    text: "1000",
-  );
+      respMaxCtrl,
+      batteryMinCtrl,
+      roomTempMinCtrl,
+      roomTempMaxCtrl,
+      roomHumMinCtrl,
+      roomHumMaxCtrl,
+      roomLuxMinCtrl,
+      roomLuxMaxCtrl;
 
   @override
   void initState() {
@@ -64,6 +46,17 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
     bpmMinCtrl = TextEditingController(text: s.heartRateMin.toString());
     bpmMaxCtrl = TextEditingController(text: s.heartRateMax.toString());
     respMaxCtrl = TextEditingController(text: s.respiratoryMax.toString());
+    batteryMinCtrl = TextEditingController(text: s.batteryMin.toString());
+    roomTempMinCtrl = TextEditingController(text: s.tempRoomMin.toString());
+    roomTempMaxCtrl = TextEditingController(text: s.tempRoomMax.toString());
+    roomHumMinCtrl = TextEditingController(text: s.humidityMin.toString());
+    roomHumMaxCtrl = TextEditingController(text: s.humidityMax.toString());
+    roomLuxMinCtrl = TextEditingController(
+      text: s.lightIntensityMin.toString(),
+    );
+    roomLuxMaxCtrl = TextEditingController(
+      text: s.lightIntensityMax.toString(),
+    );
   }
 
   @override
@@ -323,6 +316,27 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
                 batteryMinCtrl,
                 null,
                 () {
+                  controller.updateSetting(
+                    HalterRuleEngineModel(
+                      ruleId: controller.setting.value.ruleId,
+                      tempMin: controller.setting.value.tempMin,
+                      tempMax: controller.setting.value.tempMax,
+                      spoMin: controller.setting.value.spoMin,
+                      spoMax: controller.setting.value.spoMax,
+                      heartRateMin: controller.setting.value.heartRateMin,
+                      heartRateMax: controller.setting.value.heartRateMax,
+                      respiratoryMax: controller.setting.value.respiratoryMax,
+                      batteryMin: double.tryParse(batteryMinCtrl.text) ?? 0.0,
+                      tempRoomMin: controller.setting.value.tempRoomMin,
+                      tempRoomMax: controller.setting.value.tempRoomMax,
+                      humidityMin: controller.setting.value.humidityMin,
+                      humidityMax: controller.setting.value.humidityMax,
+                      lightIntensityMin:
+                          controller.setting.value.lightIntensityMin,
+                      lightIntensityMax:
+                          controller.setting.value.lightIntensityMax,
+                    ),
+                  );
                   toastification.show(
                     context: context,
                     title: const Text(
@@ -367,6 +381,29 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
                 roomTempMinCtrl,
                 roomTempMaxCtrl,
                 () {
+                  controller.updateSetting(
+                    HalterRuleEngineModel(
+                      ruleId: controller.setting.value.ruleId,
+                      tempMin: controller.setting.value.tempMin,
+                      tempMax: controller.setting.value.tempMax,
+                      spoMin: controller.setting.value.spoMin,
+                      spoMax: controller.setting.value.spoMax,
+                      heartRateMin: controller.setting.value.heartRateMin,
+                      heartRateMax: controller.setting.value.heartRateMax,
+                      respiratoryMax: controller.setting.value.respiratoryMax,
+                      batteryMin: controller.setting.value.batteryMin,
+                      tempRoomMin:
+                          double.tryParse(roomTempMinCtrl.text) ?? 20.0,
+                      tempRoomMax:
+                          double.tryParse(roomTempMaxCtrl.text) ?? 30.0,
+                      humidityMin: controller.setting.value.humidityMin,
+                      humidityMax: controller.setting.value.humidityMax,
+                      lightIntensityMin:
+                          controller.setting.value.lightIntensityMin,
+                      lightIntensityMax:
+                          controller.setting.value.lightIntensityMax,
+                    ),
+                  );
                   toastification.show(
                     context: context,
                     title: const Text(
@@ -393,6 +430,27 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
                 roomHumMinCtrl,
                 roomHumMaxCtrl,
                 () {
+                  controller.updateSetting(
+                    HalterRuleEngineModel(
+                      ruleId: controller.setting.value.ruleId,
+                      tempMin: controller.setting.value.tempMin,
+                      tempMax: controller.setting.value.tempMax,
+                      spoMin: controller.setting.value.spoMin,
+                      spoMax: controller.setting.value.spoMax,
+                      heartRateMin: controller.setting.value.heartRateMin,
+                      heartRateMax: controller.setting.value.heartRateMax,
+                      respiratoryMax: controller.setting.value.respiratoryMax,
+                      batteryMin: controller.setting.value.batteryMin,
+                      tempRoomMin: controller.setting.value.tempRoomMin,
+                      tempRoomMax: controller.setting.value.tempRoomMax,
+                      humidityMin: double.tryParse(roomHumMinCtrl.text) ?? 30.0,
+                      humidityMax: double.tryParse(roomHumMaxCtrl.text) ?? 50.0,
+                      lightIntensityMin:
+                          controller.setting.value.lightIntensityMin,
+                      lightIntensityMax:
+                          controller.setting.value.lightIntensityMax,
+                    ),
+                  );
                   toastification.show(
                     context: context,
                     title: const Text(
@@ -419,6 +477,27 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
                 roomLuxMinCtrl,
                 roomLuxMaxCtrl,
                 () {
+                  controller.updateSetting(
+                    HalterRuleEngineModel(
+                      ruleId: controller.setting.value.ruleId,
+                      tempMin: controller.setting.value.tempMin,
+                      tempMax: controller.setting.value.tempMax,
+                      spoMin: controller.setting.value.spoMin,
+                      spoMax: controller.setting.value.spoMax,
+                      heartRateMin: controller.setting.value.heartRateMin,
+                      heartRateMax: controller.setting.value.heartRateMax,
+                      respiratoryMax: controller.setting.value.respiratoryMax,
+                      batteryMin: controller.setting.value.batteryMin,
+                      tempRoomMin: controller.setting.value.tempRoomMin,
+                      tempRoomMax: controller.setting.value.tempRoomMax,
+                      humidityMin: controller.setting.value.humidityMin,
+                      humidityMax: controller.setting.value.humidityMax,
+                      lightIntensityMin:
+                          double.tryParse(roomLuxMinCtrl.text) ?? 0.0,
+                      lightIntensityMax:
+                          double.tryParse(roomLuxMaxCtrl.text) ?? 100.0,
+                    ),
+                  );
                   toastification.show(
                     context: context,
                     title: const Text(

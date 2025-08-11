@@ -64,8 +64,11 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
     String? selectedStableId = room?.stableId;
     String? selectedDeviceSerial = room?.deviceSerial;
     String? selectedHorseId = room?.horseId;
-    String? selectedCctv = room?.cctvId?.isNotEmpty == true
+    String? selectedCctv1 = room?.cctvId?.isNotEmpty == true
         ? room?.cctvId?.first
+        : null;
+    String? selectedCctv2 = room?.cctvId != null && room!.cctvId!.length > 1
+        ? room.cctvId![1]
         : null;
 
     showCustomDialog(
@@ -174,29 +177,71 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
           //   );
           // }),
           // SizedBox(height: 16),
-          Obx(() {
-            final cctvList = _controller.cctvList;
-            return DropdownButtonFormField<String>(
-              value: selectedHorseId,
-              isExpanded: true,
-              decoration: const InputDecoration(labelText: "CCTV"),
-              items: [
-                ...cctvList
-                    .map(
-                      (h) => DropdownMenuItem(
-                        value: h.cctvId,
-                        child: Text("${h.cctvId} - ${h.ipAddress}"),
+          Row(
+            children: [
+              SizedBox(
+                width: 200,
+                child: Obx(() {
+                  final cctvList = _controller.cctvList;
+                  return DropdownButtonFormField<String>(
+                    value: selectedHorseId,
+                    isExpanded: true,
+                    decoration: const InputDecoration(labelText: "CCTV 1"),
+                    items: [
+                      const DropdownMenuItem(
+                        value: 'kosong',
+                        child: Text("Tidak Pakai CCTV"),
                       ),
-                    )
-                    .toList(),
-              ],
-              onChanged: (v) {
-                setState(() {
-                  selectedCctv = v;
-                });
-              },
-            );
-          }),
+                      ...cctvList
+                          .map(
+                            (h) => DropdownMenuItem(
+                              value: h.cctvId,
+                              child: Text("${h.cctvId} - ${h.ipAddress}"),
+                            ),
+                          )
+                          .toList(),
+                    ],
+                    onChanged: (v) {
+                      setState(() {
+                        selectedCctv1 = v;
+                      });
+                    },
+                  );
+                }),
+              ),
+              Spacer(),
+              SizedBox(
+                width: 200,
+                child: Obx(() {
+                  final cctvList = _controller.cctvList;
+                  return DropdownButtonFormField<String>(
+                    value: selectedHorseId,
+                    isExpanded: true,
+                    decoration: const InputDecoration(labelText: "CCTV 2"),
+                    items: [
+                      const DropdownMenuItem(
+                        value: 'kosong',
+                        child: Text("Tidak Pakai CCTV"),
+                      ),
+                      ...cctvList
+                          .map(
+                            (h) => DropdownMenuItem(
+                              value: h.cctvId,
+                              child: Text("${h.cctvId} - ${h.ipAddress}"),
+                            ),
+                          )
+                          ,
+                    ],
+                    onChanged: (v) {
+                      setState(() {
+                        selectedCctv2 = v;
+                      });
+                    },
+                  );
+                }),
+              ),
+            ],
+          ),
         ],
       ),
       onConfirm: () {
@@ -214,7 +259,7 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
         }
 
         final String status =
-            (selectedHorseId != null && selectedHorseId!.isNotEmpty)
+            (selectedHorseId != null && selectedHorseId.isNotEmpty)
             ? "used"
             : "available";
 
@@ -223,7 +268,10 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
           name: nameCtrl.text.trim(),
           deviceSerial: selectedDeviceSerial,
           status: status,
-          cctvId: selectedCctv != null ? [?selectedCctv] : ['Tidak Ada CCTV'],
+          cctvId: [
+            if (selectedCctv1 != null) selectedCctv1,
+            if (selectedCctv2 != null) selectedCctv2,
+          ].whereType<String>().toList(),
           stableId: selectedStableId ?? "",
           horseId: selectedHorseId,
           remainingWater: 0,
@@ -236,227 +284,227 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
     );
   }
 
-// void _showRoomFormModal({
-//     RoomModel? room,
-//     required bool isEdit,
-//     required Function(RoomModel) onSubmit,
-//     BuildContext? parentContext,
-//   }) async {
-//     String newId = room?.roomId ?? '';
-//     if (!isEdit) {
-//       newId = await _controller.getNextRoomId();
-//     }
-//     final nameCtrl = TextEditingController(text: room?.name ?? '');
-//     String? selectedStableId = room?.stableId;
-//     String? selectedDeviceSerial = room?.deviceSerial;
-//     String? selectedHorseId = room?.horseId;
+  // void _showRoomFormModal({
+  //     RoomModel? room,
+  //     required bool isEdit,
+  //     required Function(RoomModel) onSubmit,
+  //     BuildContext? parentContext,
+  //   }) async {
+  //     String newId = room?.roomId ?? '';
+  //     if (!isEdit) {
+  //       newId = await _controller.getNextRoomId();
+  //     }
+  //     final nameCtrl = TextEditingController(text: room?.name ?? '');
+  //     String? selectedStableId = room?.stableId;
+  //     String? selectedDeviceSerial = room?.deviceSerial;
+  //     String? selectedHorseId = room?.horseId;
 
-//     // Inisialisasi CCTV
-//     List<String> initialCctvIds = room?.cctvId ?? [];
-//     String? selectedCctv1 = initialCctvIds.isNotEmpty
-//         ? initialCctvIds[0]
-//         : null;
-//     String? selectedCctv2 = initialCctvIds.length > 1
-//         ? initialCctvIds[1]
-//         : null;
+  //     // Inisialisasi CCTV
+  //     List<String> initialCctvIds = room?.cctvId ?? [];
+  //     String? selectedCctv1 = initialCctvIds.isNotEmpty
+  //         ? initialCctvIds[0]
+  //         : null;
+  //     String? selectedCctv2 = initialCctvIds.length > 1
+  //         ? initialCctvIds[1]
+  //         : null;
 
-//     showCustomDialog(
-//       context: parentContext ?? context,
-//       title: isEdit ? 'Edit Ruangan' : 'Tambah Ruangan',
-//       icon: isEdit ? Icons.edit : Icons.add_circle_rounded,
-//       iconColor: isEdit ? Colors.amber : Colors.green,
-//       showConfirmButton: true,
-//       confirmText: isEdit ? "Simpan" : "Tambah",
-//       cancelText: "Batal",
-//       content: Obx(() {
-//         final stableList = _controller.stableList;
-//         final cctvList = _controller.cctvList;
-//         return StatefulBuilder(
-//           builder: (context, setState) {
-//             // List CCTV untuk dropdown kedua, hilangkan yang sudah dipilih di dropdown pertama
-//             final cctvOptions2 = cctvList
-//                 .where((c) => c.cctvId != selectedCctv1)
-//                 .toList();
+  //     showCustomDialog(
+  //       context: parentContext ?? context,
+  //       title: isEdit ? 'Edit Ruangan' : 'Tambah Ruangan',
+  //       icon: isEdit ? Icons.edit : Icons.add_circle_rounded,
+  //       iconColor: isEdit ? Colors.amber : Colors.green,
+  //       showConfirmButton: true,
+  //       confirmText: isEdit ? "Simpan" : "Tambah",
+  //       cancelText: "Batal",
+  //       content: Obx(() {
+  //         final stableList = _controller.stableList;
+  //         final cctvList = _controller.cctvList;
+  //         return StatefulBuilder(
+  //           builder: (context, setState) {
+  //             // List CCTV untuk dropdown kedua, hilangkan yang sudah dipilih di dropdown pertama
+  //             final cctvOptions2 = cctvList
+  //                 .where((c) => c.cctvId != selectedCctv1)
+  //                 .toList();
 
-//             return Column(
-//               mainAxisSize: MainAxisSize.min,
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 if (isEdit || newId.isNotEmpty) ...[
-//                   Row(
-//                     children: [
-//                       const Text(
-//                         "ID Ruangan: ",
-//                         style: TextStyle(
-//                           fontWeight: FontWeight.w600,
-//                           fontSize: 16,
-//                         ),
-//                       ),
-//                       Text(
-//                         newId,
-//                         style: const TextStyle(
-//                           color: Colors.black,
-//                           fontWeight: FontWeight.bold,
-//                           fontSize: 16,
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                   const SizedBox(height: 16),
-//                 ],
-//                 CustomInput(
-//                   label: "Nama Ruangan (Wajib diisi)",
-//                   controller: nameCtrl,
-//                   hint: "Masukkan nama ruangan",
-//                 ),
-//                 const SizedBox(height: 16),
-//                 DropdownButtonFormField<String>(
-//                   value: selectedStableId,
-//                   isExpanded: true,
-//                   decoration: const InputDecoration(
-//                     labelText: "Kandang (Wajib diisi)",
-//                   ),
-//                   items: stableList
-//                       .map(
-//                         (s) => DropdownMenuItem(
-//                           value: s.stableId,
-//                           child: Text("${s.stableId} - ${s.name}"),
-//                         ),
-//                       )
-//                       .toList(),
-//                   onChanged: (v) {
-//                     setState(() {
-//                       selectedStableId = v;
-//                     });
-//                   },
-//                 ),
-//                 const SizedBox(height: 16),
-//                 // Device Serial & HorseId dropdown kalau mau dipakai, buka komentar di bawah:
-//                 // DropdownButtonFormField<String>(
-//                 //   value: selectedDeviceSerial,
-//                 //   isExpanded: true,
-//                 //   decoration: const InputDecoration(labelText: "Device Id"),
-//                 //   items: _controller.nodeRoomList
-//                 //       .map((n) => DropdownMenuItem(
-//                 //             value: n.deviceId,
-//                 //             child: Text(n.deviceId),
-//                 //           ))
-//                 //       .toList(),
-//                 //   onChanged: (v) {
-//                 //     setState(() {
-//                 //       selectedDeviceSerial = v;
-//                 //     });
-//                 //   },
-//                 // ),
-//                 // const SizedBox(height: 16),
-//                 // DropdownButtonFormField<String>(
-//                 //   value: selectedHorseId,
-//                 //   isExpanded: true,
-//                 //   decoration: const InputDecoration(labelText: "Kuda"),
-//                 //   items: _controller.horseList
-//                 //       .map((h) => DropdownMenuItem(
-//                 //             value: h.horseId,
-//                 //             child: Text("${h.horseId} - ${h.name}"),
-//                 //           ))
-//                 //       .toList(),
-//                 //   onChanged: (v) {
-//                 //     setState(() {
-//                 //       selectedHorseId = v;
-//                 //     });
-//                 //   },
-//                 // ),
-//                 // const SizedBox(height: 16),
-//                 // CCTV 1
-//                 DropdownButtonFormField<String>(
-//                   value: selectedCctv1,
-//                   isExpanded: true,
-//                   decoration: const InputDecoration(labelText: "CCTV 1"),
-//                   items: cctvList
-//                       .map(
-//                         (c) => DropdownMenuItem(
-//                           value: c.cctvId,
-//                           child: Text("${c.cctvId} - ${c.ipAddress}"),
-//                         ),
-//                       )
-//                       .toList(),
-//                   onChanged: (v) {
-//                     setState(() {
-//                       selectedCctv1 = v;
-//                       // Jika CCTV 2 sama dengan 1, reset CCTV 2
-//                       if (selectedCctv2 == v) selectedCctv2 = null;
-//                     });
-//                   },
-//                 ),
-//                 const SizedBox(height: 12),
-//                 // CCTV 2
-//                 DropdownButtonFormField<String>(
-//                   value: selectedCctv2,
-//                   isExpanded: true,
-//                   decoration: const InputDecoration(labelText: "CCTV 2"),
-//                   items: [
-//                     const DropdownMenuItem(
-//                       value: null,
-//                       child: Text("Tidak Ada CCTV kedua"),
-//                     ),
-//                     ...cctvOptions2.map(
-//                       (c) => DropdownMenuItem(
-//                         value: c.cctvId,
-//                         child: Text("${c.cctvId} - ${c.ipAddress}"),
-//                       ),
-//                     ),
-//                   ],
-//                   onChanged: (v) {
-//                     setState(() {
-//                       selectedCctv2 = v;
-//                     });
-//                   },
-//                 ),
-//               ],
-//             );
-//           },
-//         );
-//       }),
-//       onConfirm: () {
-//         if (nameCtrl.text.trim().isEmpty ||
-//             selectedStableId == null ||
-//             selectedStableId!.isEmpty) {
-//           Get.snackbar(
-//             "Input Tidak Lengkap",
-//             "Nama Ruangan dan Kandang wajib diisi.",
-//             snackPosition: SnackPosition.TOP,
-//             backgroundColor: Colors.redAccent,
-//             colorText: Colors.white,
-//           );
-//           return;
-//         }
+  //             return Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 if (isEdit || newId.isNotEmpty) ...[
+  //                   Row(
+  //                     children: [
+  //                       const Text(
+  //                         "ID Ruangan: ",
+  //                         style: TextStyle(
+  //                           fontWeight: FontWeight.w600,
+  //                           fontSize: 16,
+  //                         ),
+  //                       ),
+  //                       Text(
+  //                         newId,
+  //                         style: const TextStyle(
+  //                           color: Colors.black,
+  //                           fontWeight: FontWeight.bold,
+  //                           fontSize: 16,
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                   const SizedBox(height: 16),
+  //                 ],
+  //                 CustomInput(
+  //                   label: "Nama Ruangan (Wajib diisi)",
+  //                   controller: nameCtrl,
+  //                   hint: "Masukkan nama ruangan",
+  //                 ),
+  //                 const SizedBox(height: 16),
+  //                 DropdownButtonFormField<String>(
+  //                   value: selectedStableId,
+  //                   isExpanded: true,
+  //                   decoration: const InputDecoration(
+  //                     labelText: "Kandang (Wajib diisi)",
+  //                   ),
+  //                   items: stableList
+  //                       .map(
+  //                         (s) => DropdownMenuItem(
+  //                           value: s.stableId,
+  //                           child: Text("${s.stableId} - ${s.name}"),
+  //                         ),
+  //                       )
+  //                       .toList(),
+  //                   onChanged: (v) {
+  //                     setState(() {
+  //                       selectedStableId = v;
+  //                     });
+  //                   },
+  //                 ),
+  //                 const SizedBox(height: 16),
+  //                 // Device Serial & HorseId dropdown kalau mau dipakai, buka komentar di bawah:
+  //                 // DropdownButtonFormField<String>(
+  //                 //   value: selectedDeviceSerial,
+  //                 //   isExpanded: true,
+  //                 //   decoration: const InputDecoration(labelText: "Device Id"),
+  //                 //   items: _controller.nodeRoomList
+  //                 //       .map((n) => DropdownMenuItem(
+  //                 //             value: n.deviceId,
+  //                 //             child: Text(n.deviceId),
+  //                 //           ))
+  //                 //       .toList(),
+  //                 //   onChanged: (v) {
+  //                 //     setState(() {
+  //                 //       selectedDeviceSerial = v;
+  //                 //     });
+  //                 //   },
+  //                 // ),
+  //                 // const SizedBox(height: 16),
+  //                 // DropdownButtonFormField<String>(
+  //                 //   value: selectedHorseId,
+  //                 //   isExpanded: true,
+  //                 //   decoration: const InputDecoration(labelText: "Kuda"),
+  //                 //   items: _controller.horseList
+  //                 //       .map((h) => DropdownMenuItem(
+  //                 //             value: h.horseId,
+  //                 //             child: Text("${h.horseId} - ${h.name}"),
+  //                 //           ))
+  //                 //       .toList(),
+  //                 //   onChanged: (v) {
+  //                 //     setState(() {
+  //                 //       selectedHorseId = v;
+  //                 //     });
+  //                 //   },
+  //                 // ),
+  //                 // const SizedBox(height: 16),
+  //                 // CCTV 1
+  //                 DropdownButtonFormField<String>(
+  //                   value: selectedCctv1,
+  //                   isExpanded: true,
+  //                   decoration: const InputDecoration(labelText: "CCTV 1"),
+  //                   items: cctvList
+  //                       .map(
+  //                         (c) => DropdownMenuItem(
+  //                           value: c.cctvId,
+  //                           child: Text("${c.cctvId} - ${c.ipAddress}"),
+  //                         ),
+  //                       )
+  //                       .toList(),
+  //                   onChanged: (v) {
+  //                     setState(() {
+  //                       selectedCctv1 = v;
+  //                       // Jika CCTV 2 sama dengan 1, reset CCTV 2
+  //                       if (selectedCctv2 == v) selectedCctv2 = null;
+  //                     });
+  //                   },
+  //                 ),
+  //                 const SizedBox(height: 12),
+  //                 // CCTV 2
+  //                 DropdownButtonFormField<String>(
+  //                   value: selectedCctv2,
+  //                   isExpanded: true,
+  //                   decoration: const InputDecoration(labelText: "CCTV 2"),
+  //                   items: [
+  //                     const DropdownMenuItem(
+  //                       value: null,
+  //                       child: Text("Tidak Ada CCTV kedua"),
+  //                     ),
+  //                     ...cctvOptions2.map(
+  //                       (c) => DropdownMenuItem(
+  //                         value: c.cctvId,
+  //                         child: Text("${c.cctvId} - ${c.ipAddress}"),
+  //                       ),
+  //                     ),
+  //                   ],
+  //                   onChanged: (v) {
+  //                     setState(() {
+  //                       selectedCctv2 = v;
+  //                     });
+  //                   },
+  //                 ),
+  //               ],
+  //             );
+  //           },
+  //         );
+  //       }),
+  //       onConfirm: () {
+  //         if (nameCtrl.text.trim().isEmpty ||
+  //             selectedStableId == null ||
+  //             selectedStableId!.isEmpty) {
+  //           Get.snackbar(
+  //             "Input Tidak Lengkap",
+  //             "Nama Ruangan dan Kandang wajib diisi.",
+  //             snackPosition: SnackPosition.TOP,
+  //             backgroundColor: Colors.redAccent,
+  //             colorText: Colors.white,
+  //           );
+  //           return;
+  //         }
 
-//         final String status =
-//             (selectedHorseId != null && selectedHorseId!.isNotEmpty)
-//             ? "used"
-//             : "available";
+  //         final String status =
+  //             (selectedHorseId != null && selectedHorseId!.isNotEmpty)
+  //             ? "used"
+  //             : "available";
 
-//         final cctvIdList = [
-//           if (selectedCctv1 != null) selectedCctv1,
-//           if (selectedCctv2 != null) selectedCctv2,
-//         ].whereType<String>().toList();
+  //         final cctvIdList = [
+  //           if (selectedCctv1 != null) selectedCctv1,
+  //           if (selectedCctv2 != null) selectedCctv2,
+  //         ].whereType<String>().toList();
 
-//         final newRoom = RoomModel(
-//           roomId: newId,
-//           name: nameCtrl.text.trim(),
-//           deviceSerial: selectedDeviceSerial,
-//           status: status,
-//           cctvId: cctvIdList,
-//           stableId: selectedStableId ?? "",
-//           horseId: selectedHorseId,
-//           remainingWater: 0,
-//           remainingFeed: 0,
-//           waterScheduleType: "",
-//           feedScheduleType: "",
-//         );
-//         onSubmit(newRoom);
-//       },
-//     );
-//   }
+  //         final newRoom = RoomModel(
+  //           roomId: newId,
+  //           name: nameCtrl.text.trim(),
+  //           deviceSerial: selectedDeviceSerial,
+  //           status: status,
+  //           cctvId: cctvIdList,
+  //           stableId: selectedStableId ?? "",
+  //           horseId: selectedHorseId,
+  //           remainingWater: 0,
+  //           remainingFeed: 0,
+  //           waterScheduleType: "",
+  //           feedScheduleType: "",
+  //         );
+  //         onSubmit(newRoom);
+  //       },
+  //     );
+  //   }
 
   void _showDetailModal(RoomModel room) {
     showCustomDialog(
@@ -496,6 +544,12 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
     String? selectedHorseId = room.horseId;
     String? selectedCctv = room.cctvId?.isNotEmpty == true
         ? room.cctvId!.first
+        : null;
+    String? selectedCctv1 = room.cctvId != null && room.cctvId!.length > 0
+        ? room.cctvId![0]
+        : null;
+    String? selectedCctv2 = room.cctvId != null && room.cctvId!.length > 1
+        ? room.cctvId![1]
         : null;
 
     showCustomDialog(
@@ -602,27 +656,92 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
           //   );
           // }),
           // const SizedBox(height: 16),
-          Obx(() {
-            final cctvList = _controller.cctvList;
-            return DropdownButtonFormField<String>(
-              value: selectedCctv,
-              isExpanded: true,
-              decoration: const InputDecoration(labelText: "CCTV"),
-              items: [
-                ...cctvList.map(
-                  (h) => DropdownMenuItem(
-                    value: h.cctvId,
-                    child: Text("${h.cctvId} - ${h.ipAddress}"),
-                  ),
-                ),
-              ],
-              onChanged: (v) {
-                setState(() {
-                  selectedCctv = v;
-                });
-              },
-            );
-          }),
+          // Obx(() {
+          //   final cctvList = _controller.cctvList;
+          //   return DropdownButtonFormField<String>(
+          //     value: selectedCctv,
+          //     isExpanded: true,
+          //     decoration: const InputDecoration(labelText: "CCTV"),
+          //     items: [
+          //       ...cctvList.map(
+          //         (h) => DropdownMenuItem(
+          //           value: h.cctvId,
+          //           child: Text("${h.cctvId} - ${h.ipAddress}"),
+          //         ),
+          //       ),
+          //     ],
+          //     onChanged: (v) {
+          //       setState(() {
+          //         selectedCctv = v;
+          //       });
+          //     },
+          //   );
+          // }),
+          Row(
+            children: [
+              SizedBox(
+                width: 200,
+                child: Obx(() {
+                  final cctvList = _controller.cctvList;
+                  return DropdownButtonFormField<String>(
+                    value: selectedCctv1,
+                    isExpanded: true,
+                    decoration: const InputDecoration(labelText: "CCTV 1"),
+                    items: [
+                      const DropdownMenuItem(
+                        value: 'kosong',
+                        child: Text("Tidak Pakai CCTV"),
+                      ),
+                      ...cctvList
+                          .map(
+                            (h) => DropdownMenuItem(
+                              value: h.cctvId,
+                              child: Text("${h.cctvId} - ${h.ipAddress}"),
+                            ),
+                          )
+                          .toList(),
+                    ],
+                    onChanged: (v) {
+                      setState(() {
+                        selectedCctv1 = v;
+                      });
+                    },
+                  );
+                }),
+              ),
+              Spacer(),
+              SizedBox(
+                width: 200,
+                child: Obx(() {
+                  final cctvList = _controller.cctvList;
+                  return DropdownButtonFormField<String>(
+                    value: selectedCctv2,
+                    isExpanded: true,
+                    decoration: const InputDecoration(labelText: "CCTV 2"),
+                    items: [
+                      const DropdownMenuItem(
+                        value: 'kosong',
+                        child: Text("Tidak Pakai CCTV"),
+                      ),
+                      ...cctvList
+                          .map(
+                            (h) => DropdownMenuItem(
+                              value: h.cctvId,
+                              child: Text("${h.cctvId} - ${h.ipAddress}"),
+                            ),
+                          )
+                          .toList(),
+                    ],
+                    onChanged: (v) {
+                      setState(() {
+                        selectedCctv2 = v;
+                      });
+                    },
+                  );
+                }),
+              ),
+            ],
+          ),
         ],
       ),
       onConfirm: () {
@@ -640,7 +759,7 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
         }
 
         final String status =
-            (selectedHorseId != null && selectedHorseId!.isNotEmpty)
+            (selectedHorseId != null && selectedHorseId.isNotEmpty)
             ? "used"
             : "available";
 
@@ -649,7 +768,10 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
           name: nameCtrl.text.trim(),
           deviceSerial: selectedDeviceSerial,
           status: status,
-          cctvId: selectedCctv != null ? [?selectedCctv] : ['Tidak Ada CCTV'],
+          cctvId: [
+            if (selectedCctv1 != null) selectedCctv1,
+            if (selectedCctv2 != null) selectedCctv2,
+          ].whereType<String>().toList(),
           stableId: selectedStableId ?? "",
           horseId: selectedHorseId,
           remainingWater: room.remainingWater,
@@ -832,8 +954,8 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                         final nameW = tableWidth * 0.10;
                         final serialW = tableWidth * 0.10;
                         final statusW = tableWidth * 0.05;
-                        final cctvW = tableWidth * 0.15;
-                        final actionW = tableWidth * 0.30;
+                        final cctvW = tableWidth * 0.20;
+                        final actionW = tableWidth * 0.25;
 
                         // DataTableSource dibuat ulang setiap build
                         final dataSource = RoomDataTableSource(

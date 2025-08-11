@@ -127,7 +127,11 @@ class CustomHorseCard extends StatelessWidget {
                         vertical: 7,
                       ),
                       decoration: BoxDecoration(
-                        color: batteryPercent > 20 ? Colors.green : Colors.red,
+                        color: batteryPercent <= 15
+                            ? Colors.red
+                            : batteryPercent <= 40
+                            ? Colors.orange
+                            : Colors.green,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: CustomBatteryIndicator(

@@ -19,6 +19,7 @@ dependencies:
   get: ^4.7.2
   get_storage: ^2.1.1
   intl: ^0.20.2
+  lottie: ^3.3.0
   mqtt_client: ^10.10.0
   pdf: ^3.11.3
   printing: ^5.14.2
@@ -42,3 +43,4 @@ flutter:
     - assets/images/feed_tank/
     - assets/images/stable_water/
     - assets/images/stable_feed/
+    - assets/lottie/

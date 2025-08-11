@@ -117,7 +117,7 @@ class HalterRuleEngineController extends GetxController {
     int? logId,
     double? suhu,
     double? spo,
-    int? bpm,
+    double? bpm,
     double? respirasi,
     int? battery,
     DateTime? time,

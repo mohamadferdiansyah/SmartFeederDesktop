@@ -37,8 +37,8 @@ class FeederDashboardController extends GetxController {
   final DataController dataController = Get.find<DataController>();
   final mqttService = Get.find<MqttService>();
 
-  List<RoomModel> get roomList => dataController.roomList;
-  List<StableModel> get stableList => dataController.stableList;
+  RxList<RoomModel> get roomList => dataController.roomList;
+  RxList<StableModel> get stableList => dataController.stableList;
   RxList<FeederDeviceModel> get feederDeviceList =>
       dataController.feederDeviceList;
   List<FeederRoomDeviceModel> get feederRoomDeviceList =>

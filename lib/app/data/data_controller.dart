@@ -1546,6 +1546,23 @@ class DataController extends GetxController {
     await loadRoomsFromDb();
   }
 
+  Future<void> updateRoomScheduleFlexible(
+  String roomId, {
+  String? waterScheduleType,
+  int? waterScheduleIntervalHour,
+  String? feedScheduleType,
+  int? feedScheduleIntervalHour,
+}) async {
+  await roomDao.updateRoomScheduleFlexible(
+    roomId,
+    waterScheduleType: waterScheduleType,
+    waterScheduleIntervalHour: waterScheduleIntervalHour,
+    feedScheduleType: feedScheduleType,
+    feedScheduleIntervalHour: feedScheduleIntervalHour,
+  );
+  await loadRoomsFromDb();
+}
+
   Future<void> deleteRoom(String roomId) async {
     await roomDao.delete(roomId);
     await loadRoomsFromDb();
@@ -1613,6 +1630,18 @@ class DataController extends GetxController {
     await loadRoomsFromDb();
   }
 
+  Future<void> detachHorseFromRoom(String horseId) async {
+    await roomDao.clearHorseIdInRooms(horseId);
+    await loadHorsesFromDb();
+    await loadRoomsFromDb();
+  }
+
+  Future<void> assignHorseToRoom(String horseId, String roomId) async {
+    await roomDao.updateHorseId(roomId, horseId);
+    await loadHorsesFromDb();
+    await loadRoomsFromDb();  
+  }
+
   Future<void> deleteHorse(String horseId) async {
     // 1. Kosongkan horseId di tabel rooms yang menunjuk ke horseId ini
     await roomDao.clearHorseIdInRooms(horseId);
@@ -1649,6 +1678,11 @@ class DataController extends GetxController {
 
   void initHalterDeviceDao(Database db) {
     halterDeviceDao = HalterDeviceDao(db);
+  }
+
+  Future<void> addHalterDevice(HalterDeviceModel model) async {
+    await halterDeviceDao.insert(model);
+    await loadHalterDevicesFromDb();
   }
 
   Future<void> loadHalterDevicesFromDb() async {

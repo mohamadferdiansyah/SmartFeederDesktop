@@ -182,7 +182,7 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                               // Container Kandang Info
                               SizedBox(
                                 width: 280,
-                                height: 210,
+                                height: 245,
                                 child: Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
@@ -211,41 +211,37 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                         ),
                                       ),
                                       const SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            selectedRoom.name,
-                                            style: const TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                      Text(
+                                        selectedRoom.name,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: selectedRoom.status == 'used'
+                                              ? Colors.green
+                                              : Colors.red,
+                                          borderRadius: BorderRadius.circular(
+                                            8,
                                           ),
-                                          const Spacer(),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 6,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  selectedRoom.status == 'used'
-                                                  ? Colors.green
-                                                  : Colors.red,
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            child: Text(
-                                              selectedRoom.status == 'used'
-                                                  ? 'Aktif'
-                                                  : 'Tidak Aktif',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
+                                        ),
+                                        child: Text(
+                                          selectedRoom.status == 'used'
+                                              ? 'Aktif'
+                                              : 'Tidak Aktif',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        ],
+                                        ),
                                       ),
                                       const SizedBox(height: 4),
                                       Row(
@@ -275,7 +271,7 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                               const SizedBox(width: 24),
                               Flexible(
                                 child: SizedBox(
-                                  height: 210,
+                                  height: 245,
                                   child: Container(
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
@@ -653,26 +649,30 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                             seconds: 2,
                                           ),
                                         );
+                                        final modeValue = selectedMode
+                                            .toLowerCase(); // <-- pastikan lowercase
                                         if (_selectedTab == 0) {
-                                          controller.updateRoomSchedule(
-                                            room: selectedRoom,
+                                          controller.updateRoomScheduleFlexible(
+                                            selectedRoom,
                                             isWater: true,
-                                            scheduleType: selectedMode,
+                                            scheduleType: modeValue,
                                             intervalJam:
-                                                selectedMode == "Penjadwalan"
+                                                modeValue == "penjadwalan"
                                                 ? intervalJam
                                                 : null,
                                           );
+                                          print(modeValue);
                                         } else {
-                                          controller.updateRoomSchedule(
-                                            room: selectedRoom,
+                                          controller.updateRoomScheduleFlexible(
+                                            selectedRoom,
                                             isWater: false,
-                                            scheduleType: selectedMode,
+                                            scheduleType: modeValue,
                                             intervalJam:
-                                                selectedMode == "Penjadwalan"
+                                                modeValue == "penjadwalan"
                                                 ? intervalJam
                                                 : null,
                                           );
+                                          print(modeValue);
                                         }
                                       },
                                       backgroundColor: Colors.green,

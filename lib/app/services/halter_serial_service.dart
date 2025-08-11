@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
@@ -7,7 +8,7 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_mode
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/halter_rule_engine_controller.dart'; // import model baru
+import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/halter_rule_engine_controller.dart';
 
 class HalterSerialService extends GetxService {
   SerialPort? port;
@@ -15,114 +16,35 @@ class HalterSerialService extends GetxService {
 
   final HalterRuleEngineController controller =
       Get.find<HalterRuleEngineController>();
-
   final DataController dataController = Get.find<DataController>();
 
   final Rxn<HalterDeviceDetailModel> latestDetail =
       Rxn<HalterDeviceDetailModel>();
-
   final Rxn<NodeRoomModel> latestNodeRoomData = Rxn<NodeRoomModel>();
 
   final RxList<HalterDeviceDetailModel> detailHistory =
-      <HalterDeviceDetailModel>[
-        // HalterDeviceDetailModel(
-        //   detailId: 1,
-        //   heartRate: 40,
-        //   temperature: 37.5,
-        //   spo: 97.5,
-        //   respiratoryRate: 12,
-        //   time: DateTime.now().subtract(Duration(minutes: 4)),
-        //   deviceId: 'SHIPB1223002',
-        // ),
-        // HalterDeviceDetailModel(
-        //   detailId: 2,
-        //   heartRate: 42,
-        //   temperature: 37.6,
-        //   spo: 98.2,
-        //   respiratoryRate: 13,
-        //   time: DateTime.now().subtract(Duration(minutes: 3)),
-        //   deviceId: 'SHIPB1223002',
-        // ),
-        // HalterDeviceDetailModel(
-        //   detailId: 3,
-        //   heartRate: 41,
-        //   temperature: 37.7,
-        //   spo: 97.9,
-        //   respiratoryRate: 14,
-        //   time: DateTime.now().subtract(Duration(minutes: 2)),
-        //   deviceId: 'SHIPB1223002',
-        // ),
-        // HalterDeviceDetailModel(
-        //   detailId: 4,
-        //   heartRate: 43,
-        //   temperature: 37.8,
-        //   spo: 98.5,
-        //   respiratoryRate: 13,
-        //   time: DateTime.now().subtract(Duration(minutes: 1)),
-        //   deviceId: 'SHIPB1223002',
-        // ),
-        // HalterDeviceDetailModel(
-        //   detailId: 5,
-        //   heartRate: 44,
-        //   temperature: 37.9,
-        //   spo: 98.1,
-        //   respiratoryRate: 12,
-        //   time: DateTime.now(),
-        //   deviceId: 'SHIPB1223002',
-        // ),
-      ].obs;
-
-  // final RxList<HalterRawDataModel> rawData = <HalterRawDataModel>[].obs;
-
-  // final RxList<NodeRoomModel> nodeRoomList = <NodeRoomModel>[
-  // NodeRoomModel(
-  //   deviceId: 'SRIPB1223003',
-  //   temperature: 25.0,
-  //   humidity: 60.0,
-  //   lightIntensity: 300.0,
-  //   time: DateTime.now().subtract(Duration(minutes: 4)),
-  // ),
-  // NodeRoomModel(
-  //   deviceId: 'SRIPB1223003',
-  //   temperature: 35.0,
-  //   humidity: 49.0,
-  //   lightIntensity: 291.0,
-  //   time: DateTime.now().subtract(Duration(minutes: 4)),
-  // ),
-  // NodeRoomModel(
-  //   deviceId: 'SRIPB1223003',
-  //   temperature: 31.0,
-  //   humidity: 45.0,
-  //   lightIntensity: 210.0,
-  //   time: DateTime.now().subtract(Duration(minutes: 4)),
-  // ),
-  // NodeRoomModel(
-  //   deviceId: 'SRIPB1223003',
-  //   temperature: 25.0,
-  //   humidity: 60.0,
-  //   lightIntensity: 300.0,
-  //   time: DateTime.now().subtract(Duration(minutes: 4)),
-  // ),
-  // NodeRoomModel(
-  //   deviceId: 'SRIPB1223003',
-  //   temperature: 35.0,
-  //   humidity: 49.0,
-  //   lightIntensity: 291.0,
-  //   time: DateTime.now().subtract(Duration(minutes: 4)),
-  // ),
-  // ].obs; // Tambah list untuk node room
+      <HalterDeviceDetailModel>[].obs;
 
   RxList<NodeRoomModel> get nodeRoomList => dataController.nodeRoomList;
-
   RxList<HalterDeviceModel> get halterDeviceList =>
       dataController.halterDeviceList;
-
   RxList<HalterRawDataModel> get rawData => dataController.rawData;
-
   RxList<String> get availablePorts =>
       RxList<String>(SerialPort.availablePorts);
 
   String _serialBuffer = "";
+
+  // Untuk buffer block data
+  String _blockBuffer = "";
+  bool _inBlock = false;
+
+  Future<void> addHalterDevice(HalterDeviceModel model) async {
+    await dataController.addHalterDevice(model);
+  }
+
+  Future<void> updateHalterDevice(HalterDeviceModel model) async {
+    await dataController.updateHalterDevice(model);
+  }
 
   void initSerial(String portName, int baudRate) {
     closeSerial();
@@ -146,110 +68,29 @@ class HalterSerialService extends GetxService {
     print('Starting serial listener...');
     reader!.stream.listen(
       (data) {
-        // Gabungkan data ke buffer
         _serialBuffer += String.fromCharCodes(data);
 
-        // Proses semua baris utuh (yang berakhiran *)
-        while (_serialBuffer.contains('*')) {
-          final endIdx = _serialBuffer.indexOf('*');
-          final line = _serialBuffer.substring(0, endIdx + 1).trim();
-          _serialBuffer = _serialBuffer.substring(endIdx + 1);
+        // Proses per baris (\n)
+        while (_serialBuffer.contains('\n')) {
+          final idx = _serialBuffer.indexOf('\n');
+          String line = _serialBuffer.substring(0, idx).trim();
+          _serialBuffer = _serialBuffer.substring(idx + 1);
+          // print('Line: $line');
 
-          print('Received full line: $line');
-
-          // --- PROSES SEPERTI SEBELUMNYA ---
-          if (line.startsWith('SHIPB') && line.endsWith('*')) {
-            print('Serial Data: $line');
-            try {
-              final detail = HalterDeviceDetailModel.fromSerial(line);
-              latestDetail.value = detail;
-
-              final indexDevice = halterDeviceList.indexWhere(
-                (d) => d.deviceId == detail.deviceId,
-              );
-
-              if (indexDevice == -1) {
-                halterDeviceList.add(
-                  HalterDeviceModel(
-                    deviceId: detail.deviceId,
-                    status: 'on',
-                    batteryPercent: detail.voltage ?? 0,
-                  ),
-                );
-              } else {
-                halterDeviceList[indexDevice] = HalterDeviceModel(
-                  deviceId: detail.deviceId,
-                  status: 'on',
-                  batteryPercent: detail.voltage ?? 0,
-                );
-              }
-
-              // Ganti dengan pattern replace, bukan edit field
-              final index = detailHistory.indexWhere(
-                (d) => d.deviceId == detail.deviceId,
-              );
-              if (index == -1) {
-                detailHistory.add(detail);
-              } else {
-                detailHistory[index] = detail;
-              }
-
-              controller.checkAndLogHalter(
-                detail.deviceId,
-                suhu: detail.temperature,
-                spo: detail.spo,
-                bpm: detail.heartRate,
-                respirasi: detail.respiratoryRate,
-                time: detail.time,
-                battery: detail.voltage,
-              );
-
-              rawData.add(
-                HalterRawDataModel(
-                  rawId: rawData.length + 1,
-                  data: line,
-                  time: DateTime.now(),
-                ),
-              );
-
-              print('Parsed detail: $detail');
-            } catch (e) {
-              print('Parsing error: $e');
-            }
+          if (line.startsWith('=== RECEIVED DATA ===')) {
+            _inBlock = true;
+            _blockBuffer = "";
+            continue;
           }
-
-          if (line.startsWith('SRIPB') && line.endsWith('*')) {
-            print('Room Node Data: $line');
-            try {
-              final nodeRoom = NodeRoomModel.fromSerial(line);
-              latestNodeRoomData.value = nodeRoom;
-              final index = nodeRoomList.indexWhere(
-                (n) => n.deviceId == nodeRoom.deviceId,
-              );
-              if (index == -1) {
-                nodeRoomList.add(nodeRoom);
-              } else {
-                nodeRoomList[index] = nodeRoom;
-              }
-
-              controller.checkAndLogNode(
-                nodeRoom.deviceId,
-                temperature: nodeRoom.temperature,
-                humidity: nodeRoom.humidity,
-                lightIntensity: nodeRoom.lightIntensity,
-                time: nodeRoom.time,
-              );
-
-              rawData.add(
-                HalterRawDataModel(
-                  rawId: rawData.length + 1,
-                  data: line,
-                  time: DateTime.now(),
-                ),
-              );
-            } catch (e) {
-              print('NodeRoom parsing error: $e');
-            }
+          if (_inBlock && line.startsWith('===================')) {
+            // Selesai block, proses
+            _processBlock(_blockBuffer);
+            _inBlock = false;
+            _blockBuffer = "";
+            continue;
+          }
+          if (_inBlock) {
+            _blockBuffer += line + '\n';
           }
         }
       },
@@ -258,12 +99,128 @@ class HalterSerialService extends GetxService {
     );
   }
 
+  void _processBlock(String block) {
+    // print('Processing block:\n$block');
+    String? dataLine;
+    int? rssi;
+    double? snr;
+
+    for (var line in block.split('\n')) {
+      if (line.startsWith('Data:')) {
+        final d = line.substring(5).trim();
+        if (d.startsWith('SHIPB')) {
+          dataLine = d;
+        }
+      } else if (line.startsWith('RSSI:')) {
+        final match = RegExp(r'RSSI:\s*([-+]?\d+)').firstMatch(line);
+        if (match != null) {
+          rssi = int.tryParse(match.group(1)!);
+        }
+      } else if (line.startsWith('SNR:')) {
+        final match = RegExp(r'SNR:\s*([-+]?\d*\.?\d*)').firstMatch(line);
+        if (match != null) {
+          snr = double.tryParse(match.group(1)!);
+        }
+      }
+    }
+
+    if (dataLine != null) {
+      try {
+        final detail = HalterDeviceDetailModel.fromSerial(
+          dataLine,
+          rssi: rssi,
+          snr: snr,
+        );
+        latestDetail.value = detail;
+
+        final indexDevice = halterDeviceList.indexWhere(
+          (d) => d.deviceId == detail.deviceId,
+        );
+
+        double _voltageToPercent(double? voltage) {
+          if (voltage == null) return 0;
+          const double minVoltage = 3000.0;
+          const double maxVoltage = 4200.0;
+          double percent =
+              ((voltage - minVoltage) / (maxVoltage - minVoltage)) * 100.0;
+          return percent.clamp(0, 100);
+        }
+
+        if (indexDevice == -1) {
+          // halterDeviceList.add(
+          //   HalterDeviceModel(
+          //     deviceId: detail.deviceId,
+          //     status: 'on',
+          //     batteryPercent: _voltageToPercent(detail.voltage).round(),
+          //   ),
+          // );
+          addHalterDevice(
+            HalterDeviceModel(
+              deviceId: detail.deviceId,
+              status: 'on',
+              batteryPercent: _voltageToPercent(detail.voltage).round(),
+            ),
+          );
+        } else {
+          // halterDeviceList[indexDevice] = HalterDeviceModel(
+          //   deviceId: detail.deviceId,
+          //   status: 'on',
+          //   batteryPercent: _voltageToPercent(detail.voltage).round(),
+          //   horseId: halterDeviceList[indexDevice].horseId,
+          // );
+          updateHalterDevice(
+            HalterDeviceModel(
+              deviceId: detail.deviceId,
+              status: 'on',
+              batteryPercent: _voltageToPercent(detail.voltage).round(),
+              horseId: halterDeviceList[indexDevice].horseId,
+            ),
+          );
+        }
+
+        final index = detailHistory.indexWhere(
+          (d) => d.deviceId == detail.deviceId,
+        );
+        if (index == -1) {
+          detailHistory.add(detail);
+        } else {
+          detailHistory[index] = detail;
+        }
+
+        controller.checkAndLogHalter(
+          detail.deviceId,
+          suhu: detail.temperature,
+          spo: detail.spo,
+          bpm: detail.heartRate,
+          respirasi: detail.respiratoryRate,
+          time: detail.time,
+          battery: _voltageToPercent(detail.voltage).round(),
+        );
+
+        rawData.add(
+          HalterRawDataModel(
+            rawId: rawData.length + 1,
+            data: dataLine,
+            time: DateTime.now(),
+          ),
+        );
+
+        print('Parsed detail (with RSSI/SNR): $detail');
+      } catch (e) {
+        print('Parsing error: $e');
+      }
+    }
+  }
+
   void closeSerial() {
     print('Closing serial...');
     reader?.close();
     port?.close();
     reader = null;
     port = null;
+    _blockBuffer = "";
+    _inBlock = false;
+    _serialBuffer = "";
   }
 
   void sendToSerial(String message) {
@@ -273,42 +230,73 @@ class HalterSerialService extends GetxService {
     }
   }
 
-  // Tambahkan di class HalterSerialService:
-  // Timer? _dummyTimer;
+  Timer? _dummyTimer;
 
-  // void startDummyData() {
-  //   _dummyTimer?.cancel(); // jika sudah ada, matikan dulu
-  //   _dummyTimer = Timer.periodic(const Duration(seconds: 5), (_) {
-  //     // Simulasi detail baru
-  //     final newDetail = HalterDeviceDetailModel(
-  //       detailId: detailHistory.length + 1,
-  //       heartRate: 40 + detailHistory.length % 10,
-  //       temperature: 37.5 + (detailHistory.length % 5) * 0.1,
-  //       spo: 96.0 + (detailHistory.length % 5),
-  //       respiratoryRate: 12 + (detailHistory.length % 3),
-  //       time: DateTime.now(),
-  //       deviceId: 'SHIPB1223002',
-  //     );
-  //     latestDetail.value = newDetail;
-  //     detailHistory.add(newDetail);
+  void startDummySerial() {
+    final rnd = Random();
+    _dummyTimer?.cancel();
+    _dummyTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      // Helper untuk acak double dengan 2 desimal
+      String randDouble(num min, num max) =>
+          (min + rnd.nextDouble() * (max - min)).toStringAsFixed(2);
+      int randInt(int min, int max) => min + rnd.nextInt(max - min + 1);
 
-  //     // Simulasi node room baru
-  //     final newNodeRoom = NodeRoomModel(
-  //       deviceId: 'SRIPB1223003',
-  //       temperature: 25 + (nodeRoomList.length % 10) * 0.5,
-  //       humidity: 50 + (nodeRoomList.length % 10) * 1.1,
-  //       lightIntensity: 200 + (nodeRoomList.length % 10) * 5.0,
-  //       time: DateTime.now(),
-  //     );
-  //     latestNodeRoomData.value = newNodeRoom;
-  //     nodeRoomList.add(newNodeRoom);
+      String makeDummyData(String deviceId) {
+        // Field sesuai urutan (lihat gambar)
+        int latitude = 0,
+            longitude = 0,
+            altitude = 0,
+            sog = randInt(0, 25),
+            cog = randInt(0, 359);
+        double acceX = double.parse(randDouble(-12, 12));
+        double acceY = double.parse(randDouble(-12, 12));
+        double acceZ = double.parse(randDouble(-12, 12));
+        double gyroX = double.parse(randDouble(-2, 2));
+        double gyroY = double.parse(randDouble(-2, 2));
+        double gyroZ = double.parse(randDouble(-2, 2));
+        double magX = double.parse(randDouble(-70, 70));
+        double magY = double.parse(randDouble(-70, 70));
+        double magZ = double.parse(randDouble(-70, 70));
+        int roll = randInt(-45, 90);
+        int pitch = randInt(-45, 90);
+        int yaw = randInt(-180, 180);
+        int arus = 0;
+        double voltase = double.parse(randDouble(3200, 4200));
+        int bpm = randInt(28, 120);
+        double spo = double.parse(randDouble(90, 100));
+        double suhu = double.parse(randDouble(35, 40));
+        double respirasi = double.parse(randDouble(8, 30));
 
-  //     print('Dummy data injected!');
-  //   });
-  // }
+        return "Data: $deviceId,"
+            "$latitude,$longitude,$altitude,$sog,$cog,"
+            "$acceX,$acceY,$acceZ,"
+            "$gyroX,$gyroY,$gyroZ,"
+            "$magX,$magY,$magZ,"
+            "$roll,$pitch,$yaw,"
+            "$arus,$voltase,"
+            "$bpm,$spo,$suhu,$respirasi,*\n"
+            "RSSI: -${randInt(45, 70)} dBm\n"
+            "SNR: ${randDouble(7, 12)} dB\n";
+      }
 
-  // void stopDummyData() {
-  //   _dummyTimer?.cancel();
-  //   _dummyTimer = null;
-  // }
+      final deviceIds = ["SHIPB1223001", "SHIPB1223002"];
+      for (final did in deviceIds) {
+        final dummyBlock = makeDummyData(did);
+        _processBlock(dummyBlock);
+      }
+
+      // LoRa test (tidak diproses)
+      final dummyTestBlock = '''
+Data: LoRa Test from SHIPB1223002
+RSSI: -66 dBm
+SNR: 9.50 dB
+''';
+      _processBlock(dummyTestBlock);
+    });
+  }
+
+  void stopDummySerial() {
+    _dummyTimer?.cancel();
+    _dummyTimer = null;
+  }
 }

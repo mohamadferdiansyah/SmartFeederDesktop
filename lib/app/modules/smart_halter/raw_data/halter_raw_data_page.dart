@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/raw_data/halter_raw_data_controller.dart';
+import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
@@ -19,6 +20,7 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
   final TextEditingController _searchController = TextEditingController();
   final HalterRawDataController _controller =
       Get.find<HalterRawDataController>();
+  final HalterSerialService serialService = Get.find<HalterSerialService>();
   late HalterRawDataTableSource _dataSource;
   String _searchText = "";
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
@@ -196,6 +198,15 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                             _controller.setSearchText('');
                             _searchController.clear();
                             _dataSource.updateFilter(_controller.filteredList);
+                          },
+                        ),
+                        CustomButton(
+                          text: 'Stop dummy',
+                          width: 195,
+                          fontSize: 18,
+                          height: 48,
+                          onPressed: () {
+                            serialService.stopDummySerial();
                           },
                         ),
                       ],

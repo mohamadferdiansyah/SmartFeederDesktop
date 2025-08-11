@@ -36,13 +36,13 @@ class HalterDashboardController extends GetxController {
 
   List<StableModel> get stableList => dataController.stableList;
 
-  List<RoomModel> get roomList => dataController.roomList;
+  RxList<RoomModel> get roomList => dataController.roomList;
 
   List<HorseModel> get horseList => dataController.horseList;
 
   List<HorseHealthModel> get horseHealthList => dataController.horseHealthList;
 
-  List<HalterDeviceModel> get halterDeviceList =>
+  RxList<HalterDeviceModel> get halterDeviceList =>
       dataController.halterDeviceList;
 
   RxList<HalterDeviceDetailModel> get halterDeviceDetailList =>
@@ -143,6 +143,33 @@ class HalterDashboardController extends GetxController {
           (a, b) => (a.time ?? DateTime(0)).compareTo(b.time ?? DateTime(0)),
         )
         .lastOrNull;
+  }
+
+  String getRoomNameForLog(HalterLogModel log) {
+    // Tipe log untuk ruangan
+    final isRoomType =
+        log.type == 'room_temperature' ||
+        log.type == 'humidity' ||
+        log.type == 'light_intensity';
+
+    if (isRoomType) {
+      // deviceId pada log = deviceSerial pada room
+      final room = roomList.firstWhereOrNull(
+        (room) => room.deviceSerial == log.deviceId,
+      );
+      return room?.name ?? "-";
+    } else {
+      // deviceId pada log = deviceId halter pada halterDeviceList
+      // cari room yang horseId == halterDevice.horseId
+      final halter = halterDeviceList.firstWhereOrNull(
+        (h) => h.deviceId == log.deviceId,
+      );
+      if (halter == null) return "-";
+      final room = roomList.firstWhereOrNull(
+        (room) => room.horseId == halter.horseId,
+      );
+      return room?.name ?? "-";
+    }
   }
 
   String getStableNameById(String stableId) {
@@ -262,14 +289,193 @@ class HalterDashboardController extends GetxController {
     return "Sehat";
   }
 
-  String getHorseHeadPosture(int roll, int pitch, int yaw) {
-    // Threshold bisa kamu sesuaikan, ini contoh kasar:
-    if (pitch < -30) return "Menunduk";
-    if (pitch > 30) return "Mendongak";
-    if (roll > 30) return "Miring kanan";
-    if (roll < -30) return "Miring kiri";
-    if (yaw > 30) return "Belok kanan";
-    if (yaw < -30) return "Belok kiri";
-    return "Tegak";
+  String getHorsePosture({
+    required num? roll,
+    required num? pitch,
+    required num? yaw,
+  }) {
+    // Jika semua null atau tidak ada data sama sekali
+    if (roll == null && pitch == null && yaw == null) {
+      return "Tidak Terklasifikasi";
+    }
+
+    // 16. Rebah penuh / jatuh
+    if ((pitch != null && (pitch < -30 || pitch > 30)) &&
+        (yaw != null && yaw >= -30 && yaw <= 30) &&
+        (roll != null && (roll > 45 || roll < -45))) {
+      return "Rebah penuh / jatuh";
+    }
+
+    // 8. Menunduk + menoleh kanan
+    if ((pitch != null && pitch < -15) &&
+        (yaw != null && yaw > 15) &&
+        (roll != null && roll >= -10 && roll <= 10)) {
+      return "Menunduk + menoleh kanan";
+    }
+
+    // 9. Menunduk + menoleh kiri
+    if ((pitch != null && pitch < -15) &&
+        (yaw != null && yaw < -15) &&
+        (roll != null && roll >= -10 && roll <= 10)) {
+      return "Menunduk + menoleh kiri";
+    }
+
+    // 10. Menunduk + rebah kanan
+    if ((pitch != null && pitch < -15) &&
+        (yaw != null && yaw >= -10 && yaw <= 10) &&
+        (roll != null && roll > 15)) {
+      return "Menunduk + rebah kanan";
+    }
+
+    // 11. Menunduk + rebah kiri
+    if ((pitch != null && pitch < -15) &&
+        (yaw != null && yaw >= -10 && yaw <= 10) &&
+        (roll != null && roll < -15)) {
+      return "Menunduk + rebah kiri";
+    }
+
+    // 12. Menengadah + menoleh kanan
+    if ((pitch != null && pitch > 15) &&
+        (yaw != null && yaw > 15) &&
+        (roll != null && roll >= -10 && roll <= 10)) {
+      return "Menengadah + menoleh kanan";
+    }
+
+    // 13. Menengadah + menoleh kiri
+    if ((pitch != null && pitch > 15) &&
+        (yaw != null && yaw < -15) &&
+        (roll != null && roll >= -10 && roll <= 10)) {
+      return "Menengadah + menoleh kiri";
+    }
+
+    // 14. Menengadah + rebah kanan
+    if ((pitch != null && pitch > 15) &&
+        (yaw != null && yaw >= -10 && yaw <= 10) &&
+        (roll != null && roll > 15)) {
+      return "Menengadah + rebah kanan";
+    }
+
+    // 15. Menengadah + rebah kiri
+    if ((pitch != null && pitch > 15) &&
+        (yaw != null && yaw >= -10 && yaw <= 10) &&
+        (roll != null && roll < -15)) {
+      return "Menengadah + rebah kiri";
+    }
+
+    // 2. Menunduk makan/minum
+    if ((pitch != null && pitch < -15) &&
+        (yaw != null && yaw >= -10 && yaw <= 10) &&
+        (roll != null && roll >= -10 && roll <= 10)) {
+      return "Menunduk makan/minum";
+    }
+
+    // 3. Menengadah (lihat atas)
+    if ((pitch != null && pitch > 15) &&
+        (yaw != null && yaw >= -10 && yaw <= 10) &&
+        (roll != null && roll >= -10 && roll <= 10)) {
+      return "Menengadah (lihat atas)";
+    }
+
+    // 4. Menoleh ke kanan
+    if ((pitch != null && pitch >= -10 && pitch <= 10) &&
+        (yaw != null && yaw > 15) &&
+        (roll != null && roll >= -10 && roll <= 10)) {
+      return "Menoleh ke kanan";
+    }
+
+    // 5. Menoleh ke kiri
+    if ((pitch != null && pitch >= -10 && pitch <= 10) &&
+        (yaw != null && yaw < -15) &&
+        (roll != null && roll >= -10 && roll <= 10)) {
+      return "Menoleh ke kiri";
+    }
+
+    // 6. Miring kanan (rebah kanan)
+    if ((pitch != null && pitch >= -10 && pitch <= 10) &&
+        (yaw != null && yaw >= -10 && yaw <= 10) &&
+        (roll != null && roll > 15)) {
+      return "Miring kanan (rebah kanan)";
+    }
+
+    // 7. Miring kiri (rebah kiri)
+    if ((pitch != null && pitch >= -10 && pitch <= 10) &&
+        (yaw != null && yaw >= -10 && yaw <= 10) &&
+        (roll != null && roll < -15)) {
+      return "Miring kiri (rebah kiri)";
+    }
+
+    // 1. Berdiri normal
+    if ((pitch != null && pitch >= -10 && pitch <= 10) &&
+        (yaw != null && yaw >= -10 && yaw <= 10) &&
+        (roll != null && roll >= -10 && roll <= 10)) {
+      return "Berdiri normal";
+    }
+
+    // Jika tidak memenuhi semua syarat di atas
+    return "Postur tidak dikenali";
+  }
+
+  String getHorseHealth({
+    required double? suhu,
+    required double? heartRate,
+    required double? spo,
+    required double? respirasi,
+  }) {
+    // Check nulls
+    if (suhu == null || heartRate == null || spo == null || respirasi == null) {
+      return "Data Tidak Lengkap";
+    }
+
+    // 4. Hipotermia
+    if (suhu < 37.0 || heartRate < 28 || spo < 90 || respirasi < 8) {
+      return "Hipotermia";
+    }
+
+    // 3. Tidak Sehat (Demam/Stres Berat)
+    if (suhu > 39.0 || heartRate > 60 || spo < 93 || respirasi > 24) {
+      return "Tidak Sehat";
+    }
+
+    // 2. Waspada
+    if ((suhu >= 38.4 && suhu <= 39.0) ||
+        (heartRate >= 45 && heartRate <= 60) ||
+        (spo >= 93 && spo <= 94) ||
+        (respirasi >= 17 && respirasi <= 24)) {
+      return "Waspada";
+    }
+
+    // 5. Overexertion (kelelahan)
+    if ((suhu >= 37.2 && suhu <= 38.3) &&
+        (heartRate > 60) &&
+        (spo >= 95 && spo <= 100) &&
+        (respirasi > 24)) {
+      return "Overexertion";
+    }
+
+    // 6. Gangguan Oksigenasi
+    if ((suhu >= 37.2 && suhu <= 38.3) &&
+        (heartRate >= 28 && heartRate <= 44) &&
+        (spo < 93) &&
+        (respirasi >= 8 && respirasi <= 16)) {
+      return "Gangguan Oksigenasi";
+    }
+
+    // 7. Demam Ringan
+    if ((suhu > 38.3) &&
+        (heartRate >= 28 && heartRate <= 44) &&
+        (spo >= 95 && spo <= 100) &&
+        (respirasi >= 8 && respirasi <= 16)) {
+      return "Demam Ringan";
+    }
+
+    // 1. Normal
+    if ((suhu >= 37.2 && suhu <= 38.3) &&
+        (heartRate >= 28 && heartRate <= 44) &&
+        (spo >= 95 && spo <= 100) &&
+        (respirasi >= 8 && respirasi <= 16)) {
+      return "Sehat";
+    }
+
+    return "Tidak Terklasifikasi";
   }
 }

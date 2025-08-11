@@ -135,25 +135,32 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                           final room = controller.filteredRoomList[index];
 
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 16.0),
-                            child: CustomHorseCard(
-                              batteryPercent: controller
-                                  .getBatteryPercentByRoomId(room.roomId),
-                              cctvActive: controller.isCctvActive(room.roomId),
-                              deviceActive: controller.isHalterDeviceActive(
-                                room.horseId ?? '',
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8.0,
+                              horizontal: 6,
+                            ),
+                            child: Obx(
+                              () => CustomHorseCard(
+                                batteryPercent: controller
+                                    .getBatteryPercentByRoomId(room.roomId),
+                                cctvActive: controller.isCctvActive(
+                                  room.roomId,
+                                ),
+                                deviceActive: controller.isHalterDeviceActive(
+                                  room.horseId ?? '',
+                                ),
+                                horseName: controller.getHorseNameByRoomId(
+                                  room.roomId,
+                                ),
+                                horseId: room.horseId ?? '-',
+                                horseRoom: room.roomId,
+                                isRoomFilled: controller.isRoomFilled(
+                                  room.roomId,
+                                ),
+                                onSelectHorse: () {
+                                  controller.selectedRoomIndex.value = index;
+                                },
                               ),
-                              horseName: controller.getHorseNameByRoomId(
-                                room.roomId,
-                              ),
-                              horseId: room.horseId ?? '-',
-                              horseRoom: room.roomId,
-                              isRoomFilled: controller.isRoomFilled(
-                                room.roomId,
-                              ),
-                              onSelectHorse: () {
-                                controller.selectedRoomIndex.value = index;
-                              },
                             ),
                           );
                         },
@@ -332,38 +339,59 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                 child: Obx(() {
                                   final setting =
                                       settingController.setting.value;
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
+                                  return Table(
+                                    columnWidths: const {
+                                      0: IntrinsicColumnWidth(),
+                                      1: FixedColumnWidth(8),
+                                      2: FixedColumnWidth(14),
+                                      3: FlexColumnWidth(),
+                                    },
+                                    defaultVerticalAlignment:
+                                        TableCellVerticalAlignment.middle,
                                     children: [
-                                      Row(
+                                      // --- Row 1: IP Server
+                                      TableRow(
                                         children: [
                                           Text(
-                                            'IP Server :',
+                                            'IP Server',
                                             style: TextStyle(fontSize: 16),
                                           ),
-                                          Spacer(),
+                                          SizedBox(),
+                                          Text(
+                                            ':',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
                                           Text(
                                             setting.cloudUrl.replaceAll(
                                               RegExp(r'https?://'),
                                               '',
                                             ),
                                             style: TextStyle(
-                                              fontSize: 18,
+                                              fontSize: 16,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                         ],
                                       ),
-                                      Row(
+                                      // Spacer Row
+                                      TableRow(
+                                        children: List.generate(
+                                          4,
+                                          (_) => SizedBox(height: 6),
+                                        ),
+                                      ),
+                                      // --- Row 2: Status
+                                      TableRow(
                                         children: [
                                           Text(
-                                            'Status :',
+                                            'Status',
                                             style: TextStyle(fontSize: 16),
                                           ),
-                                          Spacer(),
+                                          SizedBox(),
+                                          Text(
+                                            ':',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
                                           Text(
                                             setting.loraPort != ''
                                                 ? "Terhubung"
@@ -378,19 +406,60 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                           ),
                                         ],
                                       ),
-                                      Row(
+                                      // Spacer Row
+                                      TableRow(
+                                        children: List.generate(
+                                          4,
+                                          (_) => SizedBox(height: 6),
+                                        ),
+                                      ),
+                                      // --- Row 3: Port
+                                      TableRow(
                                         children: [
                                           Text(
-                                            'Port :',
+                                            'Port',
                                             style: TextStyle(fontSize: 16),
                                           ),
-                                          Spacer(),
+                                          SizedBox(),
+                                          Text(
+                                            ':',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
                                           Text(
                                             setting.loraPort != ''
                                                 ? setting.loraPort
                                                 : 'Tidak Terhubung',
                                             style: TextStyle(
-                                              fontSize: 18,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      TableRow(
+                                        children: List.generate(
+                                          4,
+                                          (_) => SizedBox(height: 6),
+                                        ),
+                                      ),
+                                      // --- Row 3: Port
+                                      TableRow(
+                                        children: [
+                                          Text(
+                                            'Komunikasi',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                          SizedBox(),
+                                          Text(
+                                            ':',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                          Text(
+                                            setting.loraPort != ''
+                                                ? setting.loraPort
+                                                : 'Tidak Terhubung',
+                                            style: TextStyle(
+                                              fontSize: 16,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
@@ -458,7 +527,7 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                       'Informasi Detail Kuda',
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 18,
+                                        fontSize: 20,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -719,14 +788,22 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                   );
                                 }
 
-                                final selectedLog = controller
-                                    .halterHorseLogList
-                                    .where(
-                                      (log) =>
-                                          log.deviceId ==
-                                              selectedHorse.deviceId ||
-                                          log.deviceId == nodeRoomDeviceId,
-                                    )
+                                final selectedLog =
+                                    controller.halterHorseLogList
+                                        .where(
+                                          (log) =>
+                                              log.deviceId ==
+                                                  selectedHorse.deviceId ||
+                                              log.deviceId == nodeRoomDeviceId,
+                                        )
+                                        .toList()
+                                      ..sort(
+                                        (a, b) => (b.time ?? DateTime(0))
+                                            .compareTo(a.time ?? DateTime(0)),
+                                      );
+
+                                final maxLogData = selectedLog
+                                    .take(10)
                                     .toList();
 
                                 if (selectedLog.isEmpty) {
@@ -742,12 +819,14 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                 }
 
                                 return ListView.builder(
-                                  itemCount: selectedLog.length,
+                                  itemCount: maxLogData.length,
                                   itemBuilder: (context, index) {
-                                    final log = selectedLog[index];
+                                    final log = maxLogData[index];
                                     return CustomHalterLogCard(
                                       horseName: log.deviceId,
-                                      roomName: 'ruangan 1',
+                                      roomName: controller.getRoomNameForLog(
+                                        log,
+                                      ),
                                       type: log.type,
                                       logMessage: log.message,
                                       time: log.time ?? DateTime.now(),
@@ -1050,12 +1129,12 @@ class _DetailKudaView extends StatelessWidget {
                   children: [
                     // IoT Info
                     Expanded(
-                      flex: 2,
+                      flex: 3,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'IoT Node Smart Halter',
+                            'IoT Smart Halter',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -1101,7 +1180,7 @@ class _DetailKudaView extends StatelessWidget {
                                   Text('RSSI'),
                                   const SizedBox(width: 8),
                                   Text(
-                                    '${detail?.respiratoryRate ?? 0} dBm',
+                                    '${detail?.rssi ?? 0} dBm',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blue,
@@ -1123,6 +1202,7 @@ class _DetailKudaView extends StatelessWidget {
                           // Profil List
                           Obx(
                             () => Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
                                   child: Column(
@@ -1206,27 +1286,30 @@ class _DetailKudaView extends StatelessWidget {
                                 Expanded(
                                   child: Column(
                                     children: [
-                                      Row(
-                                        children: [
-                                          Text('Tanggal Menetap:'),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            'NaN',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blue,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                      // Row(
+                                      //   children: [
+                                      //     Text('Tanggal Menetap:'),
+                                      //     const SizedBox(width: 8),
+                                      //     Text(
+                                      //       'NaN',
+                                      //       style: TextStyle(
+                                      //         fontWeight: FontWeight.bold,
+                                      //         color: Colors.blue,
+                                      //       ),
+                                      //     ),
+                                      //   ],
+                                      // ),
                                       Row(
                                         children: [
                                           Text('Kesehatan:'),
                                           const SizedBox(width: 8),
                                           Text(
-                                            controller.getHorseHealthStatusById(
-                                              controller.selectedRoom.horseId ??
-                                                  '',
+                                            controller.getHorseHealth(
+                                              suhu: detail?.temperature ?? 0,
+                                              heartRate: detail?.heartRate ?? 0,
+                                              spo: detail?.spo ?? 0,
+                                              respirasi:
+                                                  detail?.respiratoryRate ?? 0,
                                             ),
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
@@ -1240,10 +1323,10 @@ class _DetailKudaView extends StatelessWidget {
                                           Text('Posisi:'),
                                           const SizedBox(width: 8),
                                           Text(
-                                            controller.getHorseHeadPosture(
-                                              detail?.roll ?? 0,
-                                              detail?.pitch ?? 0,
-                                              detail?.yaw ?? 0,
+                                            controller.getHorsePosture(
+                                              roll: detail?.roll ?? 0,
+                                              pitch: detail?.pitch ?? 0,
+                                              yaw: detail?.yaw ?? 0,
                                             ),
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
@@ -1303,8 +1386,11 @@ class _DetailKudaView extends StatelessWidget {
                                     ),
                                   ),
                                   child: Text(
-                                    controller.getHorseHealthStatusById(
-                                      controller.selectedRoom.horseId ?? '',
+                                    controller.getHorseHealth(
+                                      suhu: detail?.temperature ?? 0,
+                                      heartRate: detail?.heartRate ?? 0,
+                                      spo: detail?.spo ?? 0,
+                                      respirasi: detail?.respiratoryRate ?? 0,
                                     ),
                                   ),
                                 ),
@@ -1502,10 +1588,10 @@ class _DetailKudaView extends StatelessWidget {
                 final detail = controller.getSelectedHorseDetail();
                 final posture = detail == null
                     ? "Tidak ada data"
-                    : controller.getHorseHeadPosture(
-                        detail.roll ?? 0,
-                        detail.pitch ?? 0,
-                        detail.yaw ?? 0,
+                    : controller.getHorsePosture(
+                        roll: detail.roll ?? 0,
+                        pitch: detail.pitch ?? 0,
+                        yaw: detail.yaw ?? 0,
                       );
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1528,7 +1614,7 @@ class _DetailKudaView extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Postur Kepala Kuda: $posture",
+                                "Postur Kuda:",
                                 style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w600,
@@ -1536,9 +1622,17 @@ class _DetailKudaView extends StatelessWidget {
                               ),
                               SizedBox(height: 8),
                               Text(
-                                "Akurasi : 98%",
-                                style: TextStyle(fontSize: 16),
+                                posture,
+                                style: TextStyle(
+                                  fontSize: 26,
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
+                              // Text(
+                              //   "Akurasi : 98%",
+                              //   style: TextStyle(fontSize: 16),
+                              // ),
                             ],
                           ),
                         ),

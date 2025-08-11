@@ -53,6 +53,20 @@ class HalterHorseController extends GetxController {
     await dataController.deleteHorse(horseId);
   }
 
+  Future<void> pilihRuanganUntukKuda(
+    String horseId,
+    String? roomId,
+  ) async {
+    if (roomId == null) {
+      // Lepas kuda dari semua ruangan
+      await dataController.detachHorseFromRoom(horseId);
+    } else {
+      await dataController.assignHorseToRoom(horseId, roomId);
+    }
+    // Setelah assign/clear, refresh list
+    await dataController.loadRoomsFromDb();
+  }
+
   /// Generate next HorseId (misal "H001")
   Future<String> getNextHorseId() async {
     final list = await dataController.getAllHorses();

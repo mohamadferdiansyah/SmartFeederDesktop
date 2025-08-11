@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_page.dart';
 import 'package:intl/intl.dart';
 
@@ -11,10 +12,15 @@ class FeederLayoutController extends GetxController {
   var currentTime = ''.obs;
   var currentDate = ''.obs;
   Timer? _timer;
+  final DataController dataController = Get.find<DataController>();
 
   @override
   void onInit() {
     super.onInit();
+    dataController.initAllDaosAndLoadAll().then((_) {
+      // Setelah semua data di-load, bisa melakukan inisialisasi lain jika perlu
+      print('Semua data telah dimuat dan DAO diinisialisasi.');
+    });
     _startRealTimeClock();
   }
 

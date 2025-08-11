@@ -203,13 +203,19 @@ class HalterRoomController extends GetxController {
   }
 
   String getCctvNames(List<String> cctvIds) {
-    final names = cctvIds.map((id) {
-      final cctv = cctvList.firstWhereOrNull((c) => c.cctvId == id);
-      if (cctv != null) {
-        return '${cctv.ipAddress} (${cctv.cctvId})';
-      }
-      return id;
-    }).toList();
+    final names = cctvIds
+        .map((id) {
+          final cctv = cctvList.firstWhereOrNull((c) => c.cctvId == id);
+          if (cctv != null) {
+            return '${cctv.ipAddress} (${cctv.cctvId})';
+          }
+          return id;
+        })
+        .where((name) => name != 'kosong')
+        .toList();
+
+    if (names.isEmpty) return 'Tidak ada CCTV';
+    if (names.length == 1) return names.first;
     return names.join(' / ');
   }
 }

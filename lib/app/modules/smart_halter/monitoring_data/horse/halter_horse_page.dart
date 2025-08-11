@@ -283,46 +283,46 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
             hint: "Masukkan umur kuda",
             keyboardType: TextInputType.number,
           ),
-          const SizedBox(height: 16),
-          Obx(() {
-            final filteredRooms = _controller.roomList
-                .where(
-                  (r) =>
-                      r.horseId == null ||
-                      r.horseId == '' ||
-                      r.roomId == selectedRoomId,
-                )
-                .toList();
+          // const SizedBox(height: 16),
+          // Obx(() {
+          //   final filteredRooms = _controller.roomList
+          //       .where(
+          //         (r) =>
+          //             r.horseId == null ||
+          //             r.horseId == '' ||
+          //             r.roomId == selectedRoomId,
+          //       )
+          //       .toList();
 
-            // Validasi value
-            final isValid =
-                selectedRoomId == null ||
-                filteredRooms.any((r) => r.roomId == selectedRoomId);
-            final value = isValid ? selectedRoomId : null;
+          //   // Validasi value
+          //   final isValid =
+          //       selectedRoomId == null ||
+          //       filteredRooms.any((r) => r.roomId == selectedRoomId);
+          //   final value = isValid ? selectedRoomId : null;
 
-            return DropdownButtonFormField<String>(
-              value: value,
-              isExpanded: true,
-              decoration: const InputDecoration(labelText: "Ruangan"),
-              items: [
-                const DropdownMenuItem(
-                  value: null,
-                  child: Text("Tidak Dikandangkan"),
-                ),
-                ...filteredRooms.map(
-                  (r) => DropdownMenuItem(
-                    value: r.roomId,
-                    child: Text("${r.roomId} - ${r.name}"),
-                  ),
-                ),
-              ],
-              onChanged: (v) {
-                setState(() {
-                  selectedRoomId = v;
-                });
-              },
-            );
-          }),
+          //   return DropdownButtonFormField<String>(
+          //     value: value,
+          //     isExpanded: true,
+          //     decoration: const InputDecoration(labelText: "Ruangan"),
+          //     items: [
+          //       const DropdownMenuItem(
+          //         value: null,
+          //         child: Text("Tidak Dikandangkan"),
+          //       ),
+          //       ...filteredRooms.map(
+          //         (r) => DropdownMenuItem(
+          //           value: r.roomId,
+          //           child: Text("${r.roomId} - ${r.name}"),
+          //         ),
+          //       ),
+          //     ],
+          //     onChanged: (v) {
+          //       setState(() {
+          //         selectedRoomId = v;
+          //       });
+          //     },
+          //   );
+          // }),
         ],
       ),
       onConfirm: () {
@@ -405,6 +405,137 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
       cancelText: "Batal",
       onConfirm: () async {
         await _controller.deleteHorse(horse.horseId);
+      },
+    );
+  }
+
+  void _showPilihRuanganModal(HorseModel horse, Function(HorseModel) onSubmit) {
+    String? selectedRoomId; // atau node.roomId jika model ada field roomId
+
+    showCustomDialog(
+      context: context,
+      title: "Pilih Ruangan",
+      icon: Icons.house_siding_rounded,
+      iconColor: AppColors.primary,
+      showConfirmButton: true,
+      confirmText: "Simpan",
+      cancelText: "Batal",
+      // content: Obx(() {
+      //   final roomList = _controller.roomList;
+      //   // Semua deviceSerial yang sudah dipakai room lain (kecuali node ini)
+      //   final allUsedDeviceSerials = roomList
+      //       .where(
+      //         (r) => r.deviceSerial != null && r.deviceSerial != node.deviceId,
+      //       )
+      //       .map((r) => r.deviceSerial)
+      //       .toSet();
+
+      //   // Hanya ruangan yang belum dipakai atau memang sedang dipakai node ini
+      //   final availableRooms = roomList
+      //       .where(
+      //         (r) =>
+      //             r.deviceSerial == node.deviceId ||
+      //             r.deviceSerial == null ||
+      //             r.deviceSerial == '',
+      //       )
+      //       .toList();
+
+      //   // Validasi value
+      //   final validIds = availableRooms.map((r) => r.roomId).toList();
+      //   final value =
+      //       (selectedRoomId != null && validIds.contains(selectedRoomId))
+      //       ? selectedRoomId
+      //       : null;
+
+      //   return DropdownButtonFormField<String>(
+      //     value: value,
+      //     isExpanded: true,
+      //     decoration: const InputDecoration(labelText: "Ruangan"),
+      //     items: [
+      //       const DropdownMenuItem(value: null, child: Text("Tidak Digunakan")),
+      //       ...availableRooms.map(
+      //         (r) => DropdownMenuItem(
+      //           value: r.roomId,
+      //           child: Text("${r.roomId} - ${r.name}"),
+      //         ),
+      //       ),
+      //     ],
+      //     onChanged: (v) => setState(() => selectedRoomId = v),
+      //   );
+      // }),
+      // onConfirm: () async {
+      //   await _controller.pilihRuanganUntukNode(node.deviceId, selectedRoomId);
+      //   await _controller.loadNode(); // Tambahkan ini agar refresh RxList
+      // },
+      content: Obx(() {
+        final filteredRooms = _controller.roomList
+            .where(
+              (r) =>
+                  r.horseId == null ||
+                  r.horseId == '' ||
+                  r.horseId == horse.horseId,
+            )
+            .toList();
+        final selectedValue =
+            filteredRooms.any((r) => r.roomId == selectedRoomId)
+            ? selectedRoomId
+            : null;
+
+        return DropdownButtonFormField<String>(
+          value: selectedValue,
+          isExpanded: true,
+          decoration: const InputDecoration(labelText: "Ruangan"),
+          items: [
+            const DropdownMenuItem(
+              value: null,
+              child: Text("Tidak Dikandangkan"),
+            ),
+            ...filteredRooms.map(
+              (r) => DropdownMenuItem(
+                value: r.roomId,
+                child: Text("${r.roomId} - ${r.name}"),
+              ),
+            ),
+          ],
+          onChanged: (v) => setState(() {
+            selectedRoomId = v;
+          }),
+        );
+      }),
+      onConfirm: () {
+        final editedHorse = HorseModel(
+          horseId: horse.horseId,
+          name: horse.name,
+          type: horse.type,
+          gender: horse.gender,
+          age: horse.age,
+          roomId: selectedRoomId,
+        );
+        onSubmit(editedHorse);
+      },
+    );
+  }
+
+  void _showLepasRuanganModal(HorseModel horse, Function(HorseModel) onSubmit) {
+    showCustomDialog(
+      context: context,
+      title: "Konfirmasi Lepas Ruangan",
+      icon: Icons.link_off,
+      iconColor: Colors.orange,
+      message: "Keluarkan ${horse.name} dari ruangan?",
+      showConfirmButton: true,
+      confirmText: "Lepas",
+      cancelText: "Batal",
+      onConfirm: () {
+        final editedHorse = HorseModel(
+          horseId: horse.horseId,
+          name: horse.name,
+          type: horse.type,
+          gender: horse.gender,
+          age: horse.age,
+          roomId: null,
+        );
+        onSubmit(editedHorse);
       },
     );
   }
@@ -780,6 +911,22 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                                   source: HorseDataTableSource(
                                     context: context,
                                     horses: horses,
+                                    onLepasRuangan: (horse) =>
+                                        _showLepasRuanganModal(horse, (
+                                          editedHorse,
+                                        ) async {
+                                          await _controller.updateHorse(
+                                            editedHorse,
+                                          );
+                                        }),
+                                    onSelectRoom: (horse) =>
+                                        _showPilihRuanganModal(horse, (
+                                          editedHorse,
+                                        ) async {
+                                          await _controller.updateHorse(
+                                            editedHorse,
+                                          );
+                                        }),
                                     onDetail: _showDetailModal,
                                     onEdit: (horse) => _showHorseFormModalEdit(
                                       horse,
@@ -830,6 +977,8 @@ class HorseDataTableSource extends DataTableSource {
   final Function(HorseModel) onDetail;
   final Function(HorseModel) onEdit;
   final Function(HorseModel) onDelete;
+  final Function(HorseModel) onLepasRuangan;
+  final Function(HorseModel) onSelectRoom;
   int _selectedCount = 0;
 
   HorseDataTableSource({
@@ -838,6 +987,8 @@ class HorseDataTableSource extends DataTableSource {
     required this.onDetail,
     required this.onEdit,
     required this.onDelete,
+    required this.onLepasRuangan,
+    required this.onSelectRoom,
   });
 
   @override
@@ -877,6 +1028,32 @@ class HorseDataTableSource extends DataTableSource {
                 fontSize: 14,
                 onPressed: () => onEdit(horse),
               ),
+              const SizedBox(width: 6),
+              horse.roomId != null
+                  ? CustomButton(
+                      width: 170,
+                      height: 38,
+                      backgroundColor: Colors.orange,
+                      text: 'Lepas Ruangan',
+                      icon: Icons.link_off,
+                      borderRadius: 6,
+                      fontSize: 14,
+                      onPressed: () {
+                        onLepasRuangan(horse);
+                      },
+                    )
+                  : CustomButton(
+                      width: 170,
+                      height: 38,
+                      backgroundColor: AppColors.primary,
+                      text: 'Pilih Ruangan',
+                      icon: Icons.house_siding_rounded,
+                      borderRadius: 6,
+                      fontSize: 14,
+                      onPressed: () {
+                        onSelectRoom(horse);
+                      },
+                    ),
               const SizedBox(width: 6),
               Container(
                 decoration: BoxDecoration(

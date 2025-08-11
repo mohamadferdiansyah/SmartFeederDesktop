@@ -48,13 +48,30 @@ class RoomDao {
   Future<int> updateHorseId(String roomId, String? horseId) async {
     return await db.update(
       'rooms',
-      {'horse_id': horseId,
-        'status': horseId != null ? 'used' : 'available'
-      },
+      {'horse_id': horseId, 'status': horseId != null ? 'used' : 'available'},
       where: 'room_id = ?',
       whereArgs: [roomId],
     );
   }
+
+  Future<int> updateRoomScheduleFlexible(
+  String roomId, {
+  String? waterScheduleType,
+  int? waterScheduleIntervalHour,
+  String? feedScheduleType,
+  int? feedScheduleIntervalHour,
+}) async {
+  final updateMap = <String, dynamic>{};
+  if (waterScheduleType != null) updateMap['water_schedule_type'] = waterScheduleType;
+  if (feedScheduleType != null) updateMap['feed_schedule_type'] = feedScheduleType;
+  if (updateMap.isEmpty) return 0;
+  return await db.update(
+    'rooms',
+    updateMap,
+    where: 'room_id = ?',
+    whereArgs: [roomId],
+  );
+}
 
   Future<int> clearHorseIdInRooms(String horseId) async {
     return await db.update(
@@ -66,22 +83,22 @@ class RoomDao {
   }
 
   Future<void> clearDeviceSerialInRooms(String deviceId) async {
-  await db.update(
-    'rooms',
-    {'device_serial': null},
-    where: 'device_serial = ?',
-    whereArgs: [deviceId],
-  );
-}
+    await db.update(
+      'rooms',
+      {'device_serial': null},
+      where: 'device_serial = ?',
+      whereArgs: [deviceId],
+    );
+  }
 
-Future<void> updateDeviceSerial(String roomId, String? deviceSerial) async {
-  await db.update(
-    'rooms',
-    {'device_serial': deviceSerial},
-    where: 'room_id = ?',
-    whereArgs: [roomId],
-  );
-}
+  Future<void> updateDeviceSerial(String roomId, String? deviceSerial) async {
+    await db.update(
+      'rooms',
+      {'device_serial': deviceSerial},
+      where: 'room_id = ?',
+      whereArgs: [roomId],
+    );
+  }
 
   // DELETE BY ID
   Future<int> delete(String roomId) async {

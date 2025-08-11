@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/control_schedule/control_schedule_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_controller.dart';
@@ -689,7 +690,9 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                 ),
                               ],
                               if (controller.selectedRoom.waterScheduleType ==
-                                  'manual') ...[
+                                      'manual' ||
+                                  controller.selectedRoom.waterScheduleType ==
+                                      '') ...[
                                 SizedBox(height: 16),
                                 CustomButton(
                                   text: 'Isi Air',
@@ -750,7 +753,9 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                 ),
                               ],
                               if (controller.selectedRoom.feedScheduleType ==
-                                  'manual') ...[
+                                      'manual' ||
+                                  controller.selectedRoom.waterScheduleType ==
+                                      '') ...[
                                 SizedBox(height: 16),
                                 CustomButton(
                                   text: 'Isi Pakan',
@@ -1022,7 +1027,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
             child: Column(
               children: [
                 SizedBox(
-                  height: 170,
+                  height: 289,
                   child: CustomCard(
                     title: 'Status Feeder Device',
                     // trailing: Container(
@@ -1031,16 +1036,27 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                     //     vertical: 4,
                     //   ),
                     //   decoration: BoxDecoration(
-                    //     color: Colors.green.withOpacity(0.2),
-                    //     borderRadius: BorderRadius.circular(8),
-                    //     border: Border.all(color: Colors.green, width: 1),
+                    //     color: controller.getFeederDeviceStatus() == 'ready'
+                    //         ? Colors.green.withOpacity(0.2)
+                    //         : Colors.red.withOpacity(0.2),
+                    //     borderRadius: BorderRadius.circular(12),
+                    //     border: Border.all(
+                    //       color: controller.getFeederDeviceStatus() == 'ready'
+                    //           ? Colors.green
+                    //           : Colors.red,
+                    //       width: 1,
+                    //     ),
                     //   ),
                     //   child: Text(
-                    //     'Terhubung',
+                    //     controller.getFeederDeviceStatus() == 'ready'
+                    //         ? 'Aktif'
+                    //         : 'Non Aktif',
                     //     style: TextStyle(
-                    //       color: Colors.green,
-                    //       fontSize: 16,
+                    //       fontSize: 20,
                     //       fontWeight: FontWeight.bold,
+                    //       color: controller.getFeederDeviceStatus() == 'ready'
+                    //           ? Colors.green
+                    //           : Colors.red,
                     //     ),
                     //   ),
                     // ),
@@ -1049,84 +1065,134 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                     titleFontSize: 20,
                     scrollable: false,
                     content: Obx(
-                      () => Row(
+                      () => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Flexible(
-                            flex: 2,
-                            child: Tooltip(
-                              message: 'Baterai Device',
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color:
-                                      controller
-                                              .getFeederDeviceBatteryPercent() <
-                                          20
-                                      ? Colors.red.withOpacity(0.2)
-                                      : Colors.teal.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color:
-                                        controller
-                                                .getFeederDeviceBatteryPercent() <
-                                            20
-                                        ? Colors.red
-                                        : Colors.teal,
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Center(
-                                  child: CustomBatteryIndicator(
-                                    percent: controller
-                                        .getFeederDeviceBatteryPercent(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Flexible(
-                            flex: 2,
-                            child: Tooltip(
-                              message: 'Koneksi Device',
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color:
-                                      controller.getFeederDeviceStatus() ==
-                                          'ready'
-                                      ? Colors.blue.withOpacity(0.2)
-                                      : Colors.grey.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color:
-                                        controller.getFeederDeviceStatus() ==
-                                            'ready'
-                                        ? Colors.blue
-                                        : Colors.grey,
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    controller.getFeederDeviceStatus() ==
-                                            'ready'
-                                        ? 'Aktif'
-                                        : 'Mati',
-                                    style: TextStyle(
-                                      fontSize: 35,
-                                      fontWeight: FontWeight.bold,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Flexible(
+                                flex: 2,
+                                child: Tooltip(
+                                  message: 'Baterai Device',
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    height: 80,
+                                    decoration: BoxDecoration(
                                       color:
-                                          controller.getFeederDeviceStatus() ==
-                                              'ready'
-                                          ? Colors.blue
-                                          : Colors.grey,
+                                          controller
+                                                  .getFeederDeviceBatteryPercent() <
+                                              20
+                                          ? Colors.red.withOpacity(0.2)
+                                          : Colors.teal.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color:
+                                            controller
+                                                    .getFeederDeviceBatteryPercent() <
+                                                20
+                                            ? Colors.red
+                                            : Colors.teal,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: CustomBatteryIndicator(
+                                        percent: controller
+                                            .getFeederDeviceBatteryPercent(),
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
+                              SizedBox(width: 16),
+                              Flexible(
+                                flex: 2,
+                                child: Tooltip(
+                                  message: 'Koneksi Device',
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    height: 80,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          controller.getFeederDeviceStatus() ==
+                                              'ready'
+                                          ? Colors.blue.withOpacity(0.2)
+                                          : Colors.grey.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color:
+                                            controller
+                                                    .getFeederDeviceStatus() ==
+                                                'ready'
+                                            ? Colors.blue
+                                            : Colors.grey,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        controller.getFeederDeviceStatus() ==
+                                                'ready'
+                                            ? 'Aktif'
+                                            : 'Mati',
+                                        style: TextStyle(
+                                          fontSize: 35,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              controller
+                                                      .getFeederDeviceStatus() ==
+                                                  'ready'
+                                              ? Colors.blue
+                                              : Colors.grey,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Lokasi Device:',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
+                          SizedBox(height: 8),
+                          Tooltip(
+                            message: 'Lokasi Device',
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: Colors.green.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.green,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Kandang',
+                                  style: TextStyle(
+                                    fontSize: 35,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.green,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Lottie.asset(
+                          //   'assets/lottie/delivery.json',
+                          //   width: 100,
+                          //   height: 100,
+                          //   fit: BoxFit.cover,
+                          // ),
                         ],
                       ),
                     ),
@@ -1159,7 +1225,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                     ),
                   ),
                   content: SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.7,
+                    height: MediaQuery.of(context).size.height * 0.58,
                     child: Scrollbar(
                       thumbVisibility: true,
                       child: ListView.builder(

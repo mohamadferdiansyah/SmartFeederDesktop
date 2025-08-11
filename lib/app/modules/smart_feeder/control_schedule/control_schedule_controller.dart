@@ -26,11 +26,33 @@ class ControlScheduleController extends GetxController {
 
   final DataController dataController = Get.find<DataController>();
 
-  List<RoomModel> get roomList => dataController.roomList;
+  RxList<RoomModel> get roomList => dataController.roomList;
 
-  List<HorseModel> get horseList => dataController.horseList;
+  RxList<HorseModel> get horseList => dataController.horseList;
 
-  List<HorseHealthModel> get horseHealthList => dataController.horseHealthList;
+  RxList<HorseHealthModel> get horseHealthList =>
+      dataController.horseHealthList;
+
+  Future<void> updateRoomScheduleFlexible(
+    RoomModel room, {
+    bool isWater = false,
+    String? scheduleType,
+    int? intervalJam,
+  }) async {
+    if (isWater) {
+      await dataController.updateRoomScheduleFlexible(
+        room.roomId,
+        waterScheduleType: scheduleType,
+        waterScheduleIntervalHour: intervalJam,
+      );
+    } else {
+      await dataController.updateRoomScheduleFlexible(
+        room.roomId,
+        feedScheduleType: scheduleType,
+        feedScheduleIntervalHour: intervalJam,
+      );
+    }
+  }
 
   HorseModel getHorseById(String horseId) {
     return horseList.firstWhere((horse) => horse.horseId == horseId);
@@ -56,44 +78,44 @@ class ControlScheduleController extends GetxController {
   }
 
   /// FIX: Update field final hanya dengan membuat objek baru, lalu replace di list!
-  void updateRoomSchedule({
-    required RoomModel room,
-    required bool isWater,
-    required String scheduleType,
-    required int? intervalJam,
-  }) {
-    final index = roomList.indexWhere((r) => r.roomId == room.roomId);
-    if (index == -1) return;
+  // void updateRoomSchedule({
+  //   required RoomModel room,
+  //   required bool isWater,
+  //   required String scheduleType,
+  //   required int? intervalJam,
+  // }) {
+  //   final index = roomList.indexWhere((r) => r.roomId == room.roomId);
+  //   if (index == -1) return;
 
-    final newRoom = RoomModel(
-      roomId: room.roomId,
-      name: room.name,
-      deviceSerial: room.deviceSerial,
-      status: room.status,
-      cctvId: room.cctvId,
-      stableId: room.stableId,
-      horseId: room.horseId,
-      remainingWater: room.remainingWater,
-      remainingFeed: room.remainingFeed,
-      waterScheduleType: isWater ? scheduleType.toLowerCase() : room.waterScheduleType,
-      feedScheduleType: !isWater ? scheduleType.toLowerCase() : room.feedScheduleType,
-      lastFeedText: room.lastFeedText.value,
-      waterScheduleIntervalHour: isWater
-          ? (scheduleType == "Penjadwalan" && intervalJam != null)
-              ? intervalJam
-              : (scheduleType == "Manual"
-                  ? 0
-                  : (scheduleType == "Otomatis" && intervalJam != null ? intervalJam : room.waterScheduleIntervalHour.value))
-          : room.waterScheduleIntervalHour.value,
-      feedScheduleIntervalHour: !isWater
-          ? (scheduleType == "Penjadwalan" && intervalJam != null)
-              ? intervalJam
-              : (scheduleType == "Manual"
-                  ? 0
-                  : (scheduleType == "Otomatis" && intervalJam != null ? intervalJam : room.feedScheduleIntervalHour.value))
-          : room.feedScheduleIntervalHour.value,
-    );
+  //   final newRoom = RoomModel(
+  //     roomId: room.roomId,
+  //     name: room.name,
+  //     deviceSerial: room.deviceSerial,
+  //     status: room.status,
+  //     cctvId: room.cctvId,
+  //     stableId: room.stableId,
+  //     horseId: room.horseId,
+  //     remainingWater: room.remainingWater,
+  //     remainingFeed: room.remainingFeed,
+  //     waterScheduleType: isWater ? scheduleType.toLowerCase() : room.waterScheduleType,
+  //     feedScheduleType: !isWater ? scheduleType.toLowerCase() : room.feedScheduleType,
+  //     lastFeedText: room.lastFeedText.value,
+  //     waterScheduleIntervalHour: isWater
+  //         ? (scheduleType == "Penjadwalan" && intervalJam != null)
+  //             ? intervalJam
+  //             : (scheduleType == "Manual"
+  //                 ? 0
+  //                 : (scheduleType == "Otomatis" && intervalJam != null ? intervalJam : room.waterScheduleIntervalHour.value))
+  //         : room.waterScheduleIntervalHour.value,
+  //     feedScheduleIntervalHour: !isWater
+  //         ? (scheduleType == "Penjadwalan" && intervalJam != null)
+  //             ? intervalJam
+  //             : (scheduleType == "Manual"
+  //                 ? 0
+  //                 : (scheduleType == "Otomatis" && intervalJam != null ? intervalJam : room.feedScheduleIntervalHour.value))
+  //         : room.feedScheduleIntervalHour.value,
+  //   );
 
-    roomList[index] = newRoom;
-  }
+  //   roomList[index] = newRoom;
+  // }
 }

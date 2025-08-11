@@ -18,13 +18,17 @@ class HalterDeviceDetailModel {
   final int? pitch;
   final int? yaw;
   final double? current;
-  final int? voltage;
-  final int? heartRate;
+  final double? voltage;
+  final double? heartRate;
   final double? spo;
   final double? temperature;
   final double? respiratoryRate;
   final String deviceId;
   final DateTime time;
+
+  // Tambahan RSSI dan SNR
+  final int? rssi; // dBm (misal -40)
+  final double? snr; // dB (misal 9.50)
 
   HalterDeviceDetailModel({
     required this.detailId,
@@ -46,16 +50,19 @@ class HalterDeviceDetailModel {
     this.pitch,
     this.yaw,
     this.current,
+    this.voltage,
     this.heartRate,
     this.spo,
-    this.voltage,
     this.temperature,
     this.respiratoryRate,
     required this.deviceId,
     required this.time,
+    this.rssi,
+    this.snr,
   });
 
-  factory HalterDeviceDetailModel.fromMap(Map<String, dynamic> map) => HalterDeviceDetailModel(
+  factory HalterDeviceDetailModel.fromMap(Map<String, dynamic> map) =>
+      HalterDeviceDetailModel(
         detailId: map['detail_id'],
         latitude: (map['latitude'] as num?)?.toDouble(),
         longitude: (map['longitude'] as num?)?.toDouble(),
@@ -75,56 +82,64 @@ class HalterDeviceDetailModel {
         pitch: (map['pitch'] as num?)?.toInt(),
         yaw: (map['yaw'] as num?)?.toInt(),
         current: (map['current'] as num?)?.toDouble(),
-        voltage: (map['voltage'] as num?)?.toInt(),
-        heartRate: map['heart_rate'] as int?,
+        voltage: (map['voltage'] as num?)?.toDouble(),
+        heartRate: (map['heart_rate'] as num?)?.toDouble(),
         spo: (map['spo'] as num?)?.toDouble(),
         temperature: (map['temperature'] as num?)?.toDouble(),
         respiratoryRate: (map['respiratory_rate'] as num?)?.toDouble(),
         deviceId: map['device_id'],
         time: map['time'],
+        rssi: map['rssi'],
+        snr: (map['snr'] as num?)?.toDouble(),
       );
 
   Map<String, dynamic> toMap() => {
-        'detail_id': detailId,
-        'latitude': latitude,
-        'longitude': longitude,
-        'altitude': altitude,
-        'sog': sog,
-        'cog': cog,
-        'acce_x': acceX,
-        'acce_y': acceY,
-        'acce_z': acceZ,
-        'gyro_x': gyroX,
-        'gyro_y': gyroY,
-        'gyro_z': gyroZ,
-        'mag_x': magX,
-        'mag_y': magY,
-        'mag_z': magZ,
-        'roll': roll,
-        'pitch': pitch,
-        'yaw': yaw,
-        'voltage': voltage,
-        'current': current,
-        'heart_rate': heartRate,
-        'spo': spo,
-        'temperature': temperature,
-        'respiratory_rate': respiratoryRate,
-        'device_id': deviceId,
-        'time': time,
-      };
+    'detail_id': detailId,
+    'latitude': latitude,
+    'longitude': longitude,
+    'altitude': altitude,
+    'sog': sog,
+    'cog': cog,
+    'acce_x': acceX,
+    'acce_y': acceY,
+    'acce_z': acceZ,
+    'gyro_x': gyroX,
+    'gyro_y': gyroY,
+    'gyro_z': gyroZ,
+    'mag_x': magX,
+    'mag_y': magY,
+    'mag_z': magZ,
+    'roll': roll,
+    'pitch': pitch,
+    'yaw': yaw,
+    'voltage': voltage,
+    'current': current,
+    'heart_rate': heartRate,
+    'spo': spo,
+    'temperature': temperature,
+    'respiratory_rate': respiratoryRate,
+    'device_id': deviceId,
+    'time': time,
+    'rssi': rssi,
+    'snr': snr,
+  };
 
   /// Factory untuk parsing dari serial string (format: SHIPBxxxx,...*)
   /// detailId diisi -1 (atau kamu bisa isi auto increment dari DB)
-  factory HalterDeviceDetailModel.fromSerial(String line) {
+  /// Sekarang support juga RSSI dan SNR (jika ada)
+  factory HalterDeviceDetailModel.fromSerial(
+    String line, {
+    int? rssi,
+    double? snr,
+  }) {
     String raw = line;
     if (raw.endsWith('*')) {
       raw = raw.substring(0, raw.length - 1);
     }
     final parts = raw.split(',');
 
-    // Sesuaikan urutan index dengan data dari serial (pastikan sama)
     return HalterDeviceDetailModel(
-      detailId: -1, // -1 karena dari serial belum ada id, nanti isi dari DB
+      detailId: -1,
       deviceId: parts[0],
       latitude: _toDouble(parts[1]),
       longitude: _toDouble(parts[2]),
@@ -144,12 +159,14 @@ class HalterDeviceDetailModel {
       pitch: _toInt(parts[16]),
       yaw: _toInt(parts[17]),
       current: _toDouble(parts[18]),
-      voltage: _toInt(parts[19]),
-      heartRate: _toInt(parts[20]),
+      voltage: _toDouble(parts[19]),
+      heartRate: _toDouble(parts[20]),
       spo: _toDouble(parts[21]),
       temperature: _toDouble(parts[22]),
       respiratoryRate: _toDouble(parts[23]),
       time: DateTime.now(),
+      rssi: rssi,
+      snr: snr,
     );
   }
 
