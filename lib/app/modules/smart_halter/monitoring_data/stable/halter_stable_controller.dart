@@ -16,7 +16,7 @@ class HalterStableController extends GetxController {
   //   super.onInit();
   //   DBHelper.database.then((db) {
   //     dataController.initStableDao(db);
-  //     loadStables();  
+  //     loadStables();
   //   });
   // }
 
@@ -76,7 +76,7 @@ class HalterStableController extends GetxController {
     final fileBytes = excel.encode();
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel Kandang',
-      fileName: 'Daftar_Kandang.xlsx',
+      fileName: 'Smart_Halter_Daftar_Kandang.xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );
@@ -98,7 +98,7 @@ class HalterStableController extends GetxController {
     );
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file PDF Kandang',
-      fileName: 'Daftar_Kandang.pdf',
+      fileName: 'Smart_Halter_Daftar_Kandang.pdf',
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );

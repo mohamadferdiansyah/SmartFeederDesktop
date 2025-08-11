@@ -78,7 +78,7 @@ class HalterRoomController extends GetxController {
     final fileBytes = excel.encode();
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel Ruangan',
-      fileName: 'Daftar_Ruangan.xlsx',
+      fileName: 'Smart_Halter_Daftar_Ruangan.xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );
@@ -113,87 +113,7 @@ class HalterRoomController extends GetxController {
     );
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file PDF Ruangan',
-      fileName: 'Daftar_Ruangan.pdf',
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-    );
-    if (path != null) {
-      await File(path).writeAsBytes(await pdf.save());
-    }
-  }
-
-  /// Export detail node ruangan ke Excel
-  Future<void> exportNodeRoomExcel(List<NodeRoomModel> data) async {
-    var excel = Excel.createExcel();
-    Sheet sheet = excel['Sheet1'];
-    sheet.appendRow([
-      TextCellValue('No'),
-      TextCellValue('Device Id'),
-      TextCellValue('Temperature (°C)'),
-      TextCellValue('Humidity (%)'),
-      TextCellValue('Light Intensity'),
-      TextCellValue('Time'),
-    ]);
-    for (int i = 0; i < data.length; i++) {
-      final d = data[i];
-      sheet.appendRow([
-        TextCellValue('${i + 1}'),
-        TextCellValue(d.deviceId),
-        TextCellValue(d.temperature.toStringAsFixed(2)),
-        TextCellValue(d.humidity.toStringAsFixed(2)),
-        TextCellValue(d.lightIntensity.toStringAsFixed(2)),
-        TextCellValue(
-          d.time != null
-              ? d.time!.toIso8601String().split('T')[1].split('.')[0]
-              : '-',
-        ),
-      ]);
-    }
-    final fileBytes = excel.encode();
-    String? path = await FilePicker.platform.saveFile(
-      dialogTitle: 'Simpan file Excel Detail Node',
-      fileName: 'Detail_Node_Ruangan.xlsx',
-      type: FileType.custom,
-      allowedExtensions: ['xlsx'],
-    );
-    if (path != null) {
-      await File(path).writeAsBytes(fileBytes!);
-    }
-  }
-
-  /// Export detail node ruangan ke PDF
-  Future<void> exportNodeRoomPDF(List<NodeRoomModel> data) async {
-    final pdf = pw.Document();
-    pdf.addPage(
-      pw.Page(
-        build: (context) => pw.Table.fromTextArray(
-          headers: [
-            'No',
-            'Device Id',
-            'Temperature (°C)',
-            'Humidity (%)',
-            'Light Intensity',
-            'Time',
-          ],
-          data: List.generate(data.length, (i) {
-            final d = data[i];
-            return [
-              '${i + 1}',
-              d.deviceId,
-              d.temperature.toStringAsFixed(2),
-              d.humidity.toStringAsFixed(2),
-              d.lightIntensity.toStringAsFixed(2),
-              d.time != null
-                  ? d.time!.toIso8601String().split('T')[1].split('.')[0]
-                  : '-',
-            ];
-          }),
-        ),
-      ),
-    );
-    String? path = await FilePicker.platform.saveFile(
-      dialogTitle: 'Simpan file PDF Detail Node',
-      fileName: 'Detail_Node_Ruangan.pdf',
+      fileName: 'Smart_Halter_Daftar_Ruangan.pdf',
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );

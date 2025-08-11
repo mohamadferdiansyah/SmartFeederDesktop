@@ -64,7 +64,7 @@ class HalterCameraController extends GetxController {
     final fileBytes = excel.encode();
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel CCTV',
-      fileName: 'Daftar_CCTV.xlsx',
+      fileName: 'Smart_Halter_Daftar_CCTV.xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );
@@ -96,7 +96,7 @@ class HalterCameraController extends GetxController {
     );
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file PDF CCTV',
-      fileName: 'Daftar_CCTV.pdf',
+      fileName: 'Smart_Halter_Daftar_CCTV.pdf',
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );

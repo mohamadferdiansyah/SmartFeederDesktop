@@ -53,10 +53,7 @@ class HalterHorseController extends GetxController {
     await dataController.deleteHorse(horseId);
   }
 
-  Future<void> pilihRuanganUntukKuda(
-    String horseId,
-    String? roomId,
-  ) async {
+  Future<void> pilihRuanganUntukKuda(String horseId, String? roomId) async {
     if (roomId == null) {
       // Lepas kuda dari semua ruangan
       await dataController.detachHorseFromRoom(horseId);
@@ -106,7 +103,7 @@ class HalterHorseController extends GetxController {
 
     String? savePath = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel',
-      fileName: 'Daftar_Kuda.xlsx',
+      fileName: 'Smart_Halter_Daftar_Kuda.xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );
@@ -140,7 +137,7 @@ class HalterHorseController extends GetxController {
 
     String? savePath = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file PDF',
-      fileName: 'Daftar_Kuda.pdf',
+      fileName: 'Smart_Halter_Daftar_Kuda.pdf',
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );

@@ -455,8 +455,8 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                             style: TextStyle(fontSize: 16),
                                           ),
                                           Text(
-                                            setting.loraPort != ''
-                                                ? setting.loraPort
+                                            setting.type != ''
+                                                ? setting.type
                                                 : 'Tidak Terhubung',
                                             style: TextStyle(
                                               fontSize: 16,
@@ -1364,18 +1364,20 @@ class _DetailKudaView extends StatelessWidget {
                             children: [
                               const Text('Status Kesehatan Kuda'),
                               const SizedBox(width: 8),
-                              Obx(
-                                () => ElevatedButton(
+                              Obx(() {
+                                final detail = controller
+                                    .getSelectedHorseDetail();
+                                final healthData = controller.getHorseHealth(
+                                      suhu: detail?.temperature ?? 0,
+                                      heartRate: detail?.heartRate ?? 0,
+                                      spo: detail?.spo ?? 0,
+                                      respirasi: detail?.respiratoryRate ?? 0,
+                                    );
+
+                                return ElevatedButton(
                                   onPressed: () {},
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        controller.getHorseHealthStatusById(
-                                              controller.selectedRoom.horseId ??
-                                                  '',
-                                            ) ==
-                                            'Sehat'
-                                        ? Colors.green
-                                        : Colors.red,
+                                    backgroundColor: healthData == "Sehat" ? Colors.green : Colors.red,
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 16,
@@ -1386,15 +1388,10 @@ class _DetailKudaView extends StatelessWidget {
                                     ),
                                   ),
                                   child: Text(
-                                    controller.getHorseHealth(
-                                      suhu: detail?.temperature ?? 0,
-                                      heartRate: detail?.heartRate ?? 0,
-                                      spo: detail?.spo ?? 0,
-                                      respirasi: detail?.respiratoryRate ?? 0,
-                                    ),
+                                    healthData,
                                   ),
-                                ),
-                              ),
+                                );
+                              }),
                               const SizedBox(width: 8),
                             ],
                           ),

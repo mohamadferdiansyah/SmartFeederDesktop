@@ -837,7 +837,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                     icon: Icons.table_view_rounded,
                     text: 'Export Excel',
                     onPressed: () {
-                      _controller.exportNodeRoomExcel(filteredData);
+                      _controller.exportNodeRoomDetailExcel(filteredData);
                     },
                   ),
                   const SizedBox(width: 12),
@@ -849,7 +849,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                     icon: Icons.picture_as_pdf,
                     text: 'Export PDF',
                     onPressed: () {
-                      _controller.exportNodeRoomPDF(filteredData);
+                      _controller.exportNodeRoomDetailPDF(filteredData);
                     },
                   ),
                 ],

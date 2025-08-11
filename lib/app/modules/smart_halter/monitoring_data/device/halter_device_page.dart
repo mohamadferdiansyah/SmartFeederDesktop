@@ -547,7 +547,15 @@ class HalterDeviceDataTableSource extends DataTableSource {
         DataCell(
           Center(child: Text(device.status == 'on' ? 'Aktif' : 'Tidak Aktif')),
         ),
-        DataCell(Center(child: Text('${device.batteryPercent}%'))),
+        DataCell(
+          Center(
+            child: Text(
+              device.status == 'on'
+                  ? '${device.batteryPercent}%'
+                  : 'Terakhir: ${device.batteryPercent}%',
+            ),
+          ),
+        ),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

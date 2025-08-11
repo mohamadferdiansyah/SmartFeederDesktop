@@ -186,7 +186,10 @@ class HalterDashboardController extends GetxController {
 
   bool isCctvActive(String roomId) {
     final room = roomList.firstWhereOrNull((r) => r.roomId == roomId);
-    return room?.cctvId?.isNotEmpty ?? false;
+    final cctvIds = room?.cctvId;
+    if (cctvIds == null || cctvIds.isEmpty) return false;
+    // Return true jika ada minimal satu cctvId yang bukan 'kosong'
+    return cctvIds.any((id) => id.toLowerCase() != 'kosong');
   }
 
   String getHorseNameByRoomId(String roomId) {
@@ -218,32 +221,43 @@ class HalterDashboardController extends GetxController {
   }
 
   int getHealthyHorseCount() {
-    final filteredHorseIds = filteredRoomList
-        .where((room) => room.horseId != null)
-        .map((room) => room.horseId)
-        .toSet();
-    return horseHealthList
-        .where(
-          (health) =>
-              filteredHorseIds.contains(health.horseId) &&
-              health.bodyTemp <= 39.0 &&
-              health.heartRate <= 44,
-        )
-        .length;
+    return filteredRoomList.where((room) => room.horseId != null).where((room) {
+      final horse = horseList.firstWhereOrNull(
+        (h) => h.horseId == room.horseId,
+      );
+      if (horse == null) return false;
+      final detail = halterDeviceDetailList.lastWhereOrNull(
+        (d) => getHalterDeviceByHorseId(horse.horseId)?.deviceId == d.deviceId,
+      );
+      if (detail == null) return false;
+      final status = getHorseHealth(
+        suhu: detail.temperature,
+        heartRate: detail.heartRate?.toDouble(),
+        spo: detail.spo?.toDouble(),
+        respirasi: detail.respiratoryRate?.toDouble(),
+      );
+      return status == "Sehat";
+    }).length;
   }
 
   int getSickHorseCount() {
-    final filteredHorseIds = filteredRoomList
-        .where((room) => room.horseId != null)
-        .map((room) => room.horseId)
-        .toSet();
-    return horseHealthList
-        .where(
-          (health) =>
-              filteredHorseIds.contains(health.horseId) &&
-              (health.bodyTemp > 39.0 || health.heartRate > 44),
-        )
-        .length;
+    return filteredRoomList.where((room) => room.horseId != null).where((room) {
+      final horse = horseList.firstWhereOrNull(
+        (h) => h.horseId == room.horseId,
+      );
+      if (horse == null) return false;
+      final detail = halterDeviceDetailList.lastWhereOrNull(
+        (d) => getHalterDeviceByHorseId(horse.horseId)?.deviceId == d.deviceId,
+      );
+      if (detail == null) return false;
+      final status = getHorseHealth(
+        suhu: detail.temperature,
+        heartRate: detail.heartRate?.toDouble(),
+        spo: detail.spo?.toDouble(),
+        respirasi: detail.respiratoryRate?.toDouble(),
+      );
+      return status != "Sehat";
+    }).length;
   }
 
   int getDeviceOnCount() {
@@ -310,105 +324,105 @@ class HalterDashboardController extends GetxController {
     if ((pitch != null && pitch < -15) &&
         (yaw != null && yaw > 15) &&
         (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menunduk + menoleh kanan";
+      return "Menunduk Ke Kanan";
     }
 
     // 9. Menunduk + menoleh kiri
     if ((pitch != null && pitch < -15) &&
         (yaw != null && yaw < -15) &&
         (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menunduk + menoleh kiri";
+      return "Menunduk Ke Kiri";
     }
 
     // 10. Menunduk + rebah kanan
     if ((pitch != null && pitch < -15) &&
         (yaw != null && yaw >= -10 && yaw <= 10) &&
         (roll != null && roll > 15)) {
-      return "Menunduk + rebah kanan";
+      return "Menunduk Rebah Kanan";
     }
 
     // 11. Menunduk + rebah kiri
     if ((pitch != null && pitch < -15) &&
         (yaw != null && yaw >= -10 && yaw <= 10) &&
         (roll != null && roll < -15)) {
-      return "Menunduk + rebah kiri";
+      return "Menunduk Rebah Kiri";
     }
 
     // 12. Menengadah + menoleh kanan
     if ((pitch != null && pitch > 15) &&
         (yaw != null && yaw > 15) &&
         (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menengadah + menoleh kanan";
+      return "Menengadah Ke Kanan";
     }
 
     // 13. Menengadah + menoleh kiri
     if ((pitch != null && pitch > 15) &&
         (yaw != null && yaw < -15) &&
         (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menengadah + menoleh kiri";
+      return "Menengadah Ke Kiri";
     }
 
     // 14. Menengadah + rebah kanan
     if ((pitch != null && pitch > 15) &&
         (yaw != null && yaw >= -10 && yaw <= 10) &&
         (roll != null && roll > 15)) {
-      return "Menengadah + rebah kanan";
+      return "Menengadah Rebah Kanan";
     }
 
     // 15. Menengadah + rebah kiri
     if ((pitch != null && pitch > 15) &&
         (yaw != null && yaw >= -10 && yaw <= 10) &&
         (roll != null && roll < -15)) {
-      return "Menengadah + rebah kiri";
+      return "Menengadah Rebah Kiri";
     }
 
     // 2. Menunduk makan/minum
     if ((pitch != null && pitch < -15) &&
         (yaw != null && yaw >= -10 && yaw <= 10) &&
         (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menunduk makan/minum";
+      return "Menunduk";
     }
 
     // 3. Menengadah (lihat atas)
     if ((pitch != null && pitch > 15) &&
         (yaw != null && yaw >= -10 && yaw <= 10) &&
         (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menengadah (lihat atas)";
+      return "Menengadah";
     }
 
     // 4. Menoleh ke kanan
     if ((pitch != null && pitch >= -10 && pitch <= 10) &&
         (yaw != null && yaw > 15) &&
         (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menoleh ke kanan";
+      return "Menoleh Ke Kanan";
     }
 
     // 5. Menoleh ke kiri
     if ((pitch != null && pitch >= -10 && pitch <= 10) &&
         (yaw != null && yaw < -15) &&
         (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menoleh ke kiri";
+      return "Menoleh Ke Kiri";
     }
 
     // 6. Miring kanan (rebah kanan)
     if ((pitch != null && pitch >= -10 && pitch <= 10) &&
         (yaw != null && yaw >= -10 && yaw <= 10) &&
         (roll != null && roll > 15)) {
-      return "Miring kanan (rebah kanan)";
+      return "Miring Kanan";
     }
 
     // 7. Miring kiri (rebah kiri)
     if ((pitch != null && pitch >= -10 && pitch <= 10) &&
         (yaw != null && yaw >= -10 && yaw <= 10) &&
         (roll != null && roll < -15)) {
-      return "Miring kiri (rebah kiri)";
+      return "Miring Kiri";
     }
 
     // 1. Berdiri normal
     if ((pitch != null && pitch >= -10 && pitch <= 10) &&
         (yaw != null && yaw >= -10 && yaw <= 10) &&
         (roll != null && roll >= -10 && roll <= 10)) {
-      return "Berdiri normal";
+      return "Berdiri Normal";
     }
 
     // Jika tidak memenuhi semua syarat di atas

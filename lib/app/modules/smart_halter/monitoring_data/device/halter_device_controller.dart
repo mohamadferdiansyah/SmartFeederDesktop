@@ -5,7 +5,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/horse_model.dart';
@@ -66,7 +65,7 @@ class HalterDeviceController extends GetxController {
     final fileBytes = excel.encode();
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel (Device)',
-      fileName: 'Daftar_Halter_Device.xlsx',
+      fileName: 'Smart_Halter_Daftar_Halter_Device.xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );
@@ -99,7 +98,7 @@ class HalterDeviceController extends GetxController {
     );
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file PDF (Device)',
-      fileName: 'Daftar_Halter_Device.pdf',
+      fileName: 'Smart_Halter_Daftar_Halter_Device.pdf',
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
@@ -175,7 +174,8 @@ class HalterDeviceController extends GetxController {
     final fileBytes = excel.encode();
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel (Detail Raw)',
-      fileName: 'Detail_Raw_Device.xlsx',
+      fileName:
+          'Smart_Halter_Detail_Raw_Device(${data.map((e) => e.deviceId).first}).xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );
@@ -254,7 +254,8 @@ class HalterDeviceController extends GetxController {
     );
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file PDF (Detail Raw)',
-      fileName: 'Detail_Raw_Device.pdf',
+      fileName:
+          'Smart_Halter_Detail_Raw_Device(${data.map((e) => e.deviceId).first}).pdf',
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );

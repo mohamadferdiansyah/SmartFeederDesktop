@@ -999,7 +999,7 @@ class HorseDataTableSource extends DataTableSource {
       cells: [
         DataCell(Center(child: Text(horse.horseId))),
         DataCell(Center(child: Text(horse.name))),
-        DataCell(Center(child: Text(horse.type))),
+        DataCell(Center(child: Text(horse.type == "local" ? 'Lokal' : 'Crossbred'))),
         DataCell(Center(child: Text(horse.gender))),
         DataCell(Center(child: Text(horse.age.toString()))),
         DataCell(Center(child: Text(horse.roomId ?? "Tidak Digunakan"))),

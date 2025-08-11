@@ -223,14 +223,12 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                         value: 'kosong',
                         child: Text("Tidak Pakai CCTV"),
                       ),
-                      ...cctvList
-                          .map(
-                            (h) => DropdownMenuItem(
-                              value: h.cctvId,
-                              child: Text("${h.cctvId} - ${h.ipAddress}"),
-                            ),
-                          )
-                          ,
+                      ...cctvList.map(
+                        (h) => DropdownMenuItem(
+                          value: h.cctvId,
+                          child: Text("${h.cctvId} - ${h.ipAddress}"),
+                        ),
+                      ),
                     ],
                     onChanged: (v) {
                       setState(() {

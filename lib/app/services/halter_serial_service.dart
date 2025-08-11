@@ -16,21 +16,27 @@ class HalterSerialService extends GetxService {
 
   final HalterRuleEngineController controller =
       Get.find<HalterRuleEngineController>();
+
   final DataController dataController = Get.find<DataController>();
 
   final Rxn<HalterDeviceDetailModel> latestDetail =
       Rxn<HalterDeviceDetailModel>();
+
   final Rxn<NodeRoomModel> latestNodeRoomData = Rxn<NodeRoomModel>();
 
   final RxList<HalterDeviceDetailModel> detailHistory =
       <HalterDeviceDetailModel>[].obs;
 
   RxList<NodeRoomModel> get nodeRoomList => dataController.nodeRoomList;
+
   RxList<HalterDeviceModel> get halterDeviceList =>
       dataController.halterDeviceList;
   RxList<HalterRawDataModel> get rawData => dataController.rawData;
+
   RxList<String> get availablePorts =>
       RxList<String>(SerialPort.availablePorts);
+
+  final Map<String, Timer> _deviceTimeoutTimers = {};
 
   String _serialBuffer = "";
 
@@ -44,6 +50,31 @@ class HalterSerialService extends GetxService {
 
   Future<void> updateHalterDevice(HalterDeviceModel model) async {
     await dataController.updateHalterDevice(model);
+  }
+
+  // Panggil ini setiap kali data device diterima
+  void _resetDeviceTimeout(String deviceId) {
+    // Cancel timer lama jika ada
+    _deviceTimeoutTimers[deviceId]?.cancel();
+    // Set timer baru 5 menit
+    _deviceTimeoutTimers[deviceId] = Timer(
+      const Duration(seconds: 30),
+      () async {
+        // Update status device jadi off di DB
+        final idx = halterDeviceList.indexWhere((d) => d.deviceId == deviceId);
+        if (idx != -1) {
+          final old = halterDeviceList[idx];
+          await updateHalterDevice(
+            HalterDeviceModel(
+              deviceId: old.deviceId,
+              status: 'off',
+              batteryPercent: old.batteryPercent,
+              horseId: old.horseId,
+            ),
+          );
+        }
+      },
+    );
   }
 
   void initSerial(String portName, int baudRate) {
@@ -146,6 +177,8 @@ class HalterSerialService extends GetxService {
           return percent.clamp(0, 100);
         }
 
+        _resetDeviceTimeout(detail.deviceId);
+
         if (indexDevice == -1) {
           // halterDeviceList.add(
           //   HalterDeviceModel(
@@ -221,6 +254,10 @@ class HalterSerialService extends GetxService {
     _blockBuffer = "";
     _inBlock = false;
     _serialBuffer = "";
+    for (final timer in _deviceTimeoutTimers.values) {
+      timer.cancel();
+    }
+    _deviceTimeoutTimers.clear();
   }
 
   void sendToSerial(String message) {

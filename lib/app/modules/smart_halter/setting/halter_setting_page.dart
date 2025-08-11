@@ -24,7 +24,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
   String? _selectedLoraPort;
   bool _loraConnected = false;
 
-  String? _selectedJenisPengiriman = 'LoRa';
+  String? _selectedJenisPengiriman;
 
   @override
   void initState() {
@@ -33,6 +33,9 @@ class HalterSettingPageState extends State<HalterSettingPage> {
         ? null
         : settingController.setting.value.loraPort;
     _loraConnected = settingController.setting.value.loraPort.isNotEmpty;
+    _selectedJenisPengiriman = settingController.setting.value.type.isEmpty
+        ? null
+        : settingController.setting.value.type;
   }
 
   @override
@@ -369,7 +372,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                               border: OutlineInputBorder(),
                               isDense: true,
                             ),
-                            items: ['LoRa', 'Http', 'LoRa + Http']
+                            items:['LoRa', 'Http', 'LoRa + Http']
                                 .map(
                                   (jenis) => DropdownMenuItem(
                                     value: jenis,
