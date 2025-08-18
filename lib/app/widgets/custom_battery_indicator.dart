@@ -4,12 +4,16 @@ class CustomBatteryIndicator extends StatelessWidget {
   final int percent;
   final double iconSize;
   final Color? iconColor;
+  final MainAxisAlignment mainAxisAlignment;
+  final CrossAxisAlignment crossAxisAlignment;
 
   const CustomBatteryIndicator({
     Key? key,
     required this.percent,
     this.iconSize = 50,
     this.iconColor,
+    this.mainAxisAlignment = MainAxisAlignment.center,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
   }) : super(key: key);
 
   IconData _getBatteryIcon(int percent) {
@@ -33,8 +37,8 @@ class CustomBatteryIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: mainAxisAlignment,
+      crossAxisAlignment: crossAxisAlignment,
       children: [
         Icon(
           _getBatteryIcon(percent),

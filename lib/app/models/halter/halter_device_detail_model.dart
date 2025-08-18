@@ -1,5 +1,7 @@
+import 'package:uuid/uuid.dart';
+
 class HalterDeviceDetailModel {
-  final int detailId;
+  final String detailId;
   final double? latitude;
   final double? longitude;
   final double? altitude;
@@ -25,8 +27,6 @@ class HalterDeviceDetailModel {
   final double? respiratoryRate;
   final String deviceId;
   final DateTime time;
-
-  // Tambahan RSSI dan SNR
   final int? rssi; // dBm (misal -40)
   final double? snr; // dB (misal 9.50)
 
@@ -88,7 +88,7 @@ class HalterDeviceDetailModel {
         temperature: (map['temperature'] as num?)?.toDouble(),
         respiratoryRate: (map['respiratory_rate'] as num?)?.toDouble(),
         deviceId: map['device_id'],
-        time: map['time'],
+        time: DateTime.parse(map['time']),
         rssi: map['rssi'],
         snr: (map['snr'] as num?)?.toDouble(),
       );
@@ -112,14 +112,14 @@ class HalterDeviceDetailModel {
     'roll': roll,
     'pitch': pitch,
     'yaw': yaw,
-    'voltage': voltage,
     'current': current,
+    'voltage': voltage,
     'heart_rate': heartRate,
     'spo': spo,
     'temperature': temperature,
     'respiratory_rate': respiratoryRate,
     'device_id': deviceId,
-    'time': time,
+    'time': time.toIso8601String(),
     'rssi': rssi,
     'snr': snr,
   };
@@ -137,9 +137,10 @@ class HalterDeviceDetailModel {
       raw = raw.substring(0, raw.length - 1);
     }
     final parts = raw.split(',');
+    final uuid = const Uuid().v4();
 
     return HalterDeviceDetailModel(
-      detailId: -1,
+      detailId: uuid,
       deviceId: parts[0],
       latitude: _toDouble(parts[1]),
       longitude: _toDouble(parts[2]),

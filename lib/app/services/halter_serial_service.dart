@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:math' as Math;
 import 'dart:typed_data';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
@@ -24,8 +25,8 @@ class HalterSerialService extends GetxService {
 
   final Rxn<NodeRoomModel> latestNodeRoomData = Rxn<NodeRoomModel>();
 
-  final RxList<HalterDeviceDetailModel> detailHistory =
-      <HalterDeviceDetailModel>[].obs;
+  RxList<HalterDeviceDetailModel> get detailHistoryList =>
+      dataController.detailHistory;
 
   RxList<NodeRoomModel> get nodeRoomList => dataController.nodeRoomList;
 
@@ -37,6 +38,8 @@ class HalterSerialService extends GetxService {
       RxList<String>(SerialPort.availablePorts);
 
   final Map<String, Timer> _deviceTimeoutTimers = {};
+  final Set<String> _pairingDevices = {};
+  final Map<String, Timer> _devicePairingTimers = {};
 
   String _serialBuffer = "";
 
@@ -50,6 +53,62 @@ class HalterSerialService extends GetxService {
 
   Future<void> updateHalterDevice(HalterDeviceModel model) async {
     await dataController.updateHalterDevice(model);
+  }
+
+  Future<void> addHalterDeviceDetail(HalterDeviceDetailModel model) async {
+    await dataController.addHalterDeviceDetail(model);
+  }
+
+  void pairingDevice() {
+    for (final device in halterDeviceList) {
+      if (device.status == 'on' ||
+          device.status == 'pairing' ||
+          device.status == 'off') {
+        startDevicePairing(device.deviceId);
+      }
+    }
+  }
+
+  void startDevicePairing(String deviceId) {
+    // Set status device jadi 'pairing'
+    print('Start Pairing');
+    final idx = halterDeviceList.indexWhere((d) => d.deviceId == deviceId);
+    if (idx != -1) {
+      final old = halterDeviceList[idx];
+      updateHalterDevice(
+        HalterDeviceModel(
+          deviceId: old.deviceId,
+          status: 'pairing',
+          batteryPercent: old.batteryPercent,
+          horseId: old.horseId,
+        ),
+      );
+      _pairingDevices.add(deviceId);
+      // Cancel timer lama jika ada
+      _devicePairingTimers[deviceId]?.cancel();
+      // Set timer baru 10 menit
+      _devicePairingTimers[deviceId] = Timer(
+        const Duration(seconds: 10),
+        () async {
+          // Jika selama 10 menit pairing tidak dapat data, set status jadi 'off'
+          final idx2 = halterDeviceList.indexWhere(
+            (d) => d.deviceId == deviceId,
+          );
+          if (idx2 != -1 && _pairingDevices.contains(deviceId)) {
+            final old2 = halterDeviceList[idx2];
+            await updateHalterDevice(
+              HalterDeviceModel(
+                deviceId: old2.deviceId,
+                status: 'off',
+                batteryPercent: old2.batteryPercent,
+                horseId: old2.horseId,
+              ),
+            );
+            _pairingDevices.remove(deviceId);
+          }
+        },
+      );
+    }
   }
 
   // Panggil ini setiap kali data device diterima
@@ -97,6 +156,15 @@ class HalterSerialService extends GetxService {
     print('Port ${port!.name} opened!');
     reader = SerialPortReader(port!);
     print('Starting serial listener...');
+    // Pairing semua device yang sebelumnya status 'on' atau 'pairing'
+    for (final device in halterDeviceList) {
+      if (device.status == 'on' ||
+          device.status == 'pairing' ||
+          device.status == 'off') {
+        startDevicePairing(device.deviceId);
+        print('Pairing device: ${device.deviceId}');
+      }
+    }
     reader!.stream.listen(
       (data) {
         _serialBuffer += String.fromCharCodes(data);
@@ -130,8 +198,8 @@ class HalterSerialService extends GetxService {
     );
   }
 
-  void _processBlock(String block) {
-    // print('Processing block:\n$block');
+  void _processBlock(String block) async {
+    print('Processing block:\n$block');
     String? dataLine;
     int? rssi;
     double? snr;
@@ -168,13 +236,40 @@ class HalterSerialService extends GetxService {
           (d) => d.deviceId == detail.deviceId,
         );
 
-        double _voltageToPercent(double? voltage) {
-          if (voltage == null) return 0;
-          const double minVoltage = 3000.0;
-          const double maxVoltage = 4200.0;
+        double _voltageToPercent(double? voltageMv) {
+          if (voltageMv == null) return 0;
+
+          // Batas bawah (mV) – sesuaikan dengan jenis baterai
+          const double minVoltageMv = 3000.0;
+          // Batas atas (mV) – sesuaikan dengan jenis baterai
+          const double maxVoltageMv = 4200.0;
+
+          // Rumus linear
           double percent =
-              ((voltage - minVoltage) / (maxVoltage - minVoltage)) * 100.0;
+              ((voltageMv - minVoltageMv) / (maxVoltageMv - minVoltageMv)) *
+              100.0;
+
+          // Batasi di antara 0–100%
           return percent.clamp(0, 100);
+        }
+
+        if (_pairingDevices.contains(detail.deviceId)) {
+          final idx = halterDeviceList.indexWhere(
+            (d) => d.deviceId == detail.deviceId,
+          );
+          if (idx != -1) {
+            final old = halterDeviceList[idx];
+            await updateHalterDevice(
+              HalterDeviceModel(
+                deviceId: old.deviceId,
+                status: 'on',
+                batteryPercent: old.batteryPercent,
+                horseId: old.horseId,
+              ),
+            );
+            _pairingDevices.remove(detail.deviceId);
+            _devicePairingTimers[detail.deviceId]?.cancel();
+          }
         }
 
         _resetDeviceTimeout(detail.deviceId);
@@ -211,14 +306,15 @@ class HalterSerialService extends GetxService {
           );
         }
 
-        final index = detailHistory.indexWhere(
-          (d) => d.deviceId == detail.deviceId,
-        );
-        if (index == -1) {
-          detailHistory.add(detail);
-        } else {
-          detailHistory[index] = detail;
-        }
+        // final index = detailHistoryList.indexWhere(
+        //   (d) => d.deviceId == detail.deviceId && d.time == detail.time,
+        // );
+        // if (index == -1) {
+        //   dataController.addHalterDeviceDetail(detail);
+        // } else {
+        //   dataController.updateHalterDeviceDetail(detail);
+        // }
+        addHalterDeviceDetail(detail);
 
         controller.checkAndLogHalter(
           detail.deviceId,
@@ -267,73 +363,73 @@ class HalterSerialService extends GetxService {
     }
   }
 
-  Timer? _dummyTimer;
+  // Timer? _dummyTimer;
 
-  void startDummySerial() {
-    final rnd = Random();
-    _dummyTimer?.cancel();
-    _dummyTimer = Timer.periodic(const Duration(seconds: 5), (_) {
-      // Helper untuk acak double dengan 2 desimal
-      String randDouble(num min, num max) =>
-          (min + rnd.nextDouble() * (max - min)).toStringAsFixed(2);
-      int randInt(int min, int max) => min + rnd.nextInt(max - min + 1);
+  // void startDummySerial() {
+  //   final rnd = Random();
+  //   _dummyTimer?.cancel();
+  //   _dummyTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+  //     // Helper untuk acak double dengan 2 desimal
+  //     String randDouble(num min, num max) =>
+  //         (min + rnd.nextDouble() * (max - min)).toStringAsFixed(2);
+  //     int randInt(int min, int max) => min + rnd.nextInt(max - min + 1);
 
-      String makeDummyData(String deviceId) {
-        // Field sesuai urutan (lihat gambar)
-        int latitude = 0,
-            longitude = 0,
-            altitude = 0,
-            sog = randInt(0, 25),
-            cog = randInt(0, 359);
-        double acceX = double.parse(randDouble(-12, 12));
-        double acceY = double.parse(randDouble(-12, 12));
-        double acceZ = double.parse(randDouble(-12, 12));
-        double gyroX = double.parse(randDouble(-2, 2));
-        double gyroY = double.parse(randDouble(-2, 2));
-        double gyroZ = double.parse(randDouble(-2, 2));
-        double magX = double.parse(randDouble(-70, 70));
-        double magY = double.parse(randDouble(-70, 70));
-        double magZ = double.parse(randDouble(-70, 70));
-        int roll = randInt(-45, 90);
-        int pitch = randInt(-45, 90);
-        int yaw = randInt(-180, 180);
-        int arus = 0;
-        double voltase = double.parse(randDouble(3200, 4200));
-        int bpm = randInt(28, 120);
-        double spo = double.parse(randDouble(90, 100));
-        double suhu = double.parse(randDouble(35, 40));
-        double respirasi = double.parse(randDouble(8, 30));
+  //     String makeDummyData(String deviceId) {
+  //       // Field sesuai urutan (lihat gambar)
+  //       int latitude = 0,
+  //           longitude = 0,
+  //           altitude = 0,
+  //           sog = randInt(0, 25),
+  //           cog = randInt(0, 359);
+  //       double acceX = double.parse(randDouble(-12, 12));
+  //       double acceY = double.parse(randDouble(-12, 12));
+  //       double acceZ = double.parse(randDouble(-12, 12));
+  //       double gyroX = double.parse(randDouble(-2, 2));
+  //       double gyroY = double.parse(randDouble(-2, 2));
+  //       double gyroZ = double.parse(randDouble(-2, 2));
+  //       double magX = double.parse(randDouble(-70, 70));
+  //       double magY = double.parse(randDouble(-70, 70));
+  //       double magZ = double.parse(randDouble(-70, 70));
+  //       int roll = randInt(-45, 90);
+  //       int pitch = randInt(-45, 90);
+  //       int yaw = randInt(-180, 180);
+  //       int arus = 0;
+  //       double voltase = double.parse(randDouble(3200, 4200));
+  //       int bpm = randInt(28, 120);
+  //       double spo = double.parse(randDouble(90, 100));
+  //       double suhu = double.parse(randDouble(35, 40));
+  //       double respirasi = double.parse(randDouble(8, 30));
 
-        return "Data: $deviceId,"
-            "$latitude,$longitude,$altitude,$sog,$cog,"
-            "$acceX,$acceY,$acceZ,"
-            "$gyroX,$gyroY,$gyroZ,"
-            "$magX,$magY,$magZ,"
-            "$roll,$pitch,$yaw,"
-            "$arus,$voltase,"
-            "$bpm,$spo,$suhu,$respirasi,*\n"
-            "RSSI: -${randInt(45, 70)} dBm\n"
-            "SNR: ${randDouble(7, 12)} dB\n";
-      }
+  //       return "Data: $deviceId,"
+  //           "$latitude,$longitude,$altitude,$sog,$cog,"
+  //           "$acceX,$acceY,$acceZ,"
+  //           "$gyroX,$gyroY,$gyroZ,"
+  //           "$magX,$magY,$magZ,"
+  //           "$roll,$pitch,$yaw,"
+  //           "$arus,$voltase,"
+  //           "$bpm,$spo,$suhu,$respirasi,*\n"
+  //           "RSSI: -${randInt(45, 70)} dBm\n"
+  //           "SNR: ${randDouble(7, 12)} dB\n";
+  //     }
 
-      final deviceIds = ["SHIPB1223001", "SHIPB1223002"];
-      for (final did in deviceIds) {
-        final dummyBlock = makeDummyData(did);
-        _processBlock(dummyBlock);
-      }
+  //     final deviceIds = ["SHIPB1223001", "SHIPB1223002"];
+  //     for (final did in deviceIds) {
+  //       final dummyBlock = makeDummyData(did);
+  //       _processBlock(dummyBlock);
+  //     }
 
-      // LoRa test (tidak diproses)
-      final dummyTestBlock = '''
-Data: LoRa Test from SHIPB1223002
-RSSI: -66 dBm
-SNR: 9.50 dB
-''';
-      _processBlock(dummyTestBlock);
-    });
-  }
+  //     // LoRa test (tidak diproses)
+  //     final dummyTestBlock = '''
+  // Data: LoRa Test from SHIPB1223002
+  // RSSI: -66 dBm
+  // SNR: 9.50 dB
+  // ''';
+  //     _processBlock(dummyTestBlock);
+  //   });
+  // }
 
-  void stopDummySerial() {
-    _dummyTimer?.cancel();
-    _dummyTimer = null;
-  }
+  // void stopDummySerial() {
+  //   _dummyTimer?.cancel();
+  //   _dummyTimer = null;
+  // }
 }

@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/get_navigation.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/modules/login/login_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
@@ -17,6 +20,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  final LoginController loginController = Get.find<LoginController>();
+
   bool rememberMe = false; // Tambahkan ini
 
   @override
@@ -144,14 +150,15 @@ class _LoginPageState extends State<LoginPage> {
                           SizedBox(height: 8),
                           Row(
                             children: [
-                              Checkbox(
-                                value: rememberMe,
-                                onChanged: (value) {
-                                  setState(() {
-                                    rememberMe = value ?? false;
-                                  });
-                                },
-                                activeColor: AppColors.primary,
+                              Obx(
+                                () => Checkbox(
+                                  value: loginController.rememberMe.value,
+                                  onChanged: (value) {
+                                    loginController.rememberMe.value =
+                                        value ?? false;
+                                  },
+                                  activeColor: AppColors.primary,
+                                ),
                               ),
                               const Text(
                                 "Remember Me",
@@ -164,24 +171,58 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           // ===========================================================
                           SizedBox(height: 16),
-                          CustomButton(
-                            text: 'Login',
-                            onPressed: () {
-                              if (emailController.text.isEmpty ||
-                                  passwordController.text.isEmpty) {
-                                Get.snackbar(
-                                  'Error',
-                                  'Username dan Password tidak boleh kosong',
-                                  backgroundColor: Colors.red.withOpacity(0.8),
-                                  colorText: Colors.white,
-                                );
-                              } else {
-                                Get.offAndToNamed('/main-menu');
-                              }
-                            },
-                            backgroundColor: AppColors.primary,
-                            iconTrailing: Icons.login,
+                          Obx(
+                            () => loginController.isLoading.value
+                                ? CircularProgressIndicator()
+                                : CustomButton(
+                                    text: 'Login',
+                                    onPressed: () async {
+                                      if (emailController.text.isEmpty ||
+                                          passwordController.text.isEmpty) {
+                                        Get.snackbar(
+                                          'Error',
+                                          'Username dan Password tidak boleh kosong',
+                                          backgroundColor: Colors.red
+                                              .withOpacity(0.8),
+                                          colorText: Colors.white,
+                                        );
+                                        return;
+                                      }
+                                      final sukses = await loginController
+                                          .login(
+                                            emailController.text.trim(),
+                                            passwordController.text.trim(),
+                                          );
+                                      if (sukses) {
+                                        Get.offAndToNamed('/main-menu');
+                                      } else {
+                                        Get.snackbar(
+                                          'Login Gagal',
+                                          loginController.error.value,
+                                          backgroundColor: Colors.red
+                                              .withOpacity(0.8),
+                                          colorText: Colors.white,
+                                        );
+                                      }
+                                    },
+                                    backgroundColor: AppColors.primary,
+                                    iconTrailing: Icons.login,
+                                  ),
                           ),
+                          // Obx(
+                          //   () => loginController.error.value.isNotEmpty
+                          //       ? Padding(
+                          //           padding: const EdgeInsets.only(top: 12),
+                          //           child: Text(
+                          //             loginController.error.value,
+                          //             style: TextStyle(
+                          //               color: Colors.red,
+                          //               fontWeight: FontWeight.bold,
+                          //             ),
+                          //           ),
+                          //         )
+                          //       : SizedBox(),
+                          // ),
                         ],
                       ),
                     ),

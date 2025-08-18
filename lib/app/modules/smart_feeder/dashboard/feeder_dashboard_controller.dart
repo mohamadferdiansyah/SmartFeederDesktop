@@ -213,17 +213,23 @@ class FeederDashboardController extends GetxController {
     return DateFormat('dd-MM-yyyy HH:mm').format(lastFeed);
   }
 
-  int getFeederDeviceBatteryPercent() {
+  int getFeederDeviceBatteryPercent(String deviceId) {
     final device = feederDeviceList.firstWhereOrNull(
-      (d) => d.deviceId == 'feeder1',
+      (d) => d.deviceId == deviceId,
     );
     return device?.batteryPercent ?? 0;
   }
 
-  String getFeederDeviceStatus() {
+  String getFeederDeviceStatus(String deviceId) {
     final device = feederDeviceList.firstWhereOrNull(
-      (d) => d.deviceId == 'feeder1',
+      (d) => d.deviceId == deviceId,
     );
     return device?.status ?? 'unknown';
+  }
+
+  FeederDeviceModel? getFeederDeviceById(String deviceId){
+    return feederDeviceList.firstWhereOrNull(
+      (d) => d.deviceId == deviceId,
+    );
   }
 }

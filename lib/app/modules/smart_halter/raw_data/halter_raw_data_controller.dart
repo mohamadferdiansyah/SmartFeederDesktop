@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
@@ -54,12 +55,12 @@ class HalterRawDataController extends GetxController {
     }).toList();
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-    // Jika ingin langsung start dummy:
-    serialService.startDummySerial();
-  }
+  // @override
+  // void onInit() {
+  //   super.onInit();
+  // // Jika ingin langsung start dummy:
+  // serialService.startDummySerial();
+  // }
 
   get dataList => null;
 
@@ -83,13 +84,17 @@ class HalterRawDataController extends GetxController {
       sheet.appendRow([
         TextCellValue(d.rawId.toString()),
         TextCellValue(d.data),
-        TextCellValue(d.time as String),
+        TextCellValue(
+          d.time != null
+              ? DateFormat('yyyy-MM-dd HH:mm:ss').format(d.time!)
+              : '-',
+        ),
       ]);
     }
     final fileBytes = excel.encode();
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel Data Serial',
-      fileName: 'Data_Serial_Monitor.xlsx',
+      fileName: 'Smart_Halter_Data_Raw.xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );
@@ -111,7 +116,7 @@ class HalterRawDataController extends GetxController {
     );
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file PDF Data Serial',
-      fileName: 'Data_Serial_Monitor.pdf',
+      fileName: 'Smart_Halter_Data_Raw.pdf',
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );

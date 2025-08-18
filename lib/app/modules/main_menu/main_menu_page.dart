@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/modules/login/login_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_main_menu_card.dart';
@@ -196,7 +197,7 @@ class MainMenuPage extends StatelessWidget {
                     icon: Icons.logout,
                     iconColor: AppColors.primary,
                     onConfirm: () {
-                      Get.offAllNamed('/login');
+                      Get.find<LoginController>().logout();
                     },
                   );
                 },

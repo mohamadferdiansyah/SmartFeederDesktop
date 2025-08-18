@@ -91,6 +91,23 @@ class DBHelper {
           )
         ''');
 
+        // Hardcoded insert for node_room_devices
+        await db.insert('node_room_devices', {
+          'device_id': 'SRIPB1223001',
+          'temperature': 25.5,
+          'humidity': 60.0,
+          'light_intensity': 300.0,
+          'time': DateTime.now().toIso8601String(),
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
+
+        await db.insert('node_room_devices', {
+          'device_id': 'SRIPB1223002',
+          'temperature': 26.0,
+          'humidity': 60.0,
+          'light_intensity': 300.0,
+          'time': DateTime.now().toIso8601String(),
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
+
         // rooms
         await db.execute('''
           CREATE TABLE rooms (
@@ -153,26 +170,26 @@ class DBHelper {
         ''');
 
         // Hardcoded insert for halter_devices
-        await db.insert(
-          'halter_devices',
-          {
-            'device_id': 'SHIPB1223002',
-            'status': 'on',
-            'battery_percent': 87,
-            'horse_id': ''
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
-        await db.insert(
-          'halter_devices',
-          {
-            'device_id': 'SHIPB1223003',
-            'status': 'on',
-            'battery_percent': 61,
-            'horse_id': ''
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
+        // await db.insert(
+        //   'halter_devices',
+        //   {
+        //     'device_id': 'SHIPB1223002',
+        //     'status': 'on',
+        //     'battery_percent': 87,
+        //     'horse_id': ''
+        //   },
+        //   conflictAlgorithm: ConflictAlgorithm.replace,
+        // );
+        // await db.insert(
+        //   'halter_devices',
+        //   {
+        //     'device_id': 'SHIPB1223003',
+        //     'status': 'on',
+        //     'battery_percent': 61,
+        //     'horse_id': ''
+        //   },
+        //   conflictAlgorithm: ConflictAlgorithm.replace,
+        // );
 
         // halter_rule_engine
         await db.execute('''
@@ -232,7 +249,7 @@ class DBHelper {
         // halter_device_detail
         await db.execute('''
           CREATE TABLE halter_device_detail (
-            detail_id BIGINT PRIMARY KEY,
+            detail_id TEXT PRIMARY KEY,
             latitude DOUBLE,
             longitude DOUBLE,
             altitude DOUBLE,
@@ -251,12 +268,15 @@ class DBHelper {
             pitch DOUBLE,
             yaw DOUBLE,
             current DOUBLE,
+            voltage DOUBLE,
             heart_rate BIGINT,
             spo DOUBLE,
             temperature DOUBLE,
             respiratory_rate DOUBLE,
             device_id TEXT,
-            time TEXT
+            time TEXT,
+            rssi BIGINT,
+            snr DOUBLE
           )
         ''');
       },

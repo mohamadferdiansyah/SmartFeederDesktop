@@ -200,12 +200,19 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                           const Text('Port'),
                           const SizedBox(height: 4),
                           DropdownButtonFormField<String>(
-                            value: _selectedLoraPort,
+                            value:
+                                _selectedLoraPort != null &&
+                                    settingController.availablePorts
+                                        .toSet()
+                                        .contains(_selectedLoraPort)
+                                ? _selectedLoraPort
+                                : null,
                             decoration: const InputDecoration(
                               border: OutlineInputBorder(),
                               isDense: true,
                             ),
                             items: settingController.availablePorts
+                                .toSet()
                                 .map(
                                   (port) => DropdownMenuItem(
                                     value: port,
@@ -260,8 +267,39 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  onPressed: _selectedLoraPort == null
-                                      ? null
+                                  onPressed: _loraConnected
+                                      ? () {
+                                          setState(() {
+                                            _loraConnected = false;
+                                            settingController
+                                                .disconnectSerial();
+                                            toastification.show(
+                                              context: context,
+                                              title: const Text(
+                                                'Koneksi Lora Terputus',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              type: ToastificationType.error,
+                                              description: const Text(
+                                                'Lora telah terputus.',
+                                              ),
+                                              boxShadow: const [
+                                                BoxShadow(
+                                                  color: Colors.black26,
+                                                  blurRadius: 8,
+                                                  offset: Offset(0, 2),
+                                                ),
+                                              ],
+                                              alignment: Alignment.topCenter,
+                                              autoCloseDuration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                            );
+                                          });
+                                        }
                                       : () {
                                           setState(() {
                                             _loraConnected = !_loraConnected;
@@ -282,31 +320,6 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                                     ToastificationType.success,
                                                 description: Text(
                                                   'Port: $_selectedLoraPort',
-                                                ),
-                                                boxShadow: const [
-                                                  BoxShadow(
-                                                    color: Colors.black26,
-                                                    blurRadius: 8,
-                                                    offset: Offset(0, 2),
-                                                  ),
-                                                ],
-                                                alignment: Alignment.topCenter,
-                                                autoCloseDuration:
-                                                    const Duration(seconds: 2),
-                                              );
-                                            } else {
-                                              toastification.show(
-                                                context: context,
-                                                title: const Text(
-                                                  'Koneksi Lora Terputus',
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                type: ToastificationType.error,
-                                                description: const Text(
-                                                  'Lora telah terputus.',
                                                 ),
                                                 boxShadow: const [
                                                   BoxShadow(
@@ -372,7 +385,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                               border: OutlineInputBorder(),
                               isDense: true,
                             ),
-                            items:['LoRa', 'Http', 'LoRa + Http']
+                            items: ['LoRa', 'Http', 'LoRa + Http']
                                 .map(
                                   (jenis) => DropdownMenuItem(
                                     value: jenis,

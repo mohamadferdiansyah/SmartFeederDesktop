@@ -35,6 +35,7 @@ class HalterSettingController extends GetxController {
       type: setting.value.type,
     );
     serialService.initSerial(port, 115200);
+    serialService.pairingDevice();
   }
 
   // Update Jenis Pengiriman (Type)
@@ -45,5 +46,9 @@ class HalterSettingController extends GetxController {
       loraPort: setting.value.loraPort,
       type: jenis,
     );
+  }
+
+  void disconnectSerial() {
+    serialService.closeSerial();
   }
 }

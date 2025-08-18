@@ -1,3 +1,238 @@
+// import 'dart:async';
+
+// import 'package:get/get.dart';
+// import 'package:mqtt_client/mqtt_client.dart';
+// import 'package:mqtt_client/mqtt_server_client.dart';
+// import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+// import '../models/feeder/feeder_device_model.dart';
+
+// class MqttService extends GetxService {
+//   late MqttServerClient client;
+
+//   final DataController dataController = Get.find<DataController>();
+
+// RxList<FeederDeviceModel> get feederDeviceList =>
+//     dataController.feederDeviceList;
+
+//   final Map<String, Timer> _deviceTimeoutTimers = {};
+
+//   void _resetDeviceTimeout(String deviceId) {
+//     _deviceTimeoutTimers[deviceId]?.cancel();
+//     _deviceTimeoutTimers[deviceId] = Timer(const Duration(minutes: 5), () {
+//       final index = feederDeviceList.indexWhere((d) => d.deviceId == deviceId);
+//       if (index != -1) {
+//         final old = feederDeviceList[index];
+//         feederDeviceList[index] = FeederDeviceModel(
+//           deviceId: old.deviceId,
+//           status: 'off',
+//           batteryPercent: old.batteryPercent,
+//           voltage: old.voltage,
+//           current: old.current,
+//           power: old.power,
+//         );
+//       }
+//     });
+//   }
+
+//   Future<MqttService> init() async {
+//     client = MqttServerClient(
+//       'broker.emqx.io',
+//       'flutter_client_${DateTime.now().millisecondsSinceEpoch}',
+//     );
+//     client.port = 1883;
+//     client.keepAlivePeriod = 60;
+//     client.logging(on: false);
+
+//     client.onConnected = () => print('MQTT: Connected');
+//     client.onDisconnected = () => print('MQTT: Disconnected');
+
+//     try {
+//       await client.connect();
+//       print('MQTT: Connected to broker.emqx.io');
+//       client.subscribe('feeder/status', MqttQos.atMostOnce);
+//       client.subscribe('feeder/ina219', MqttQos.atMostOnce);
+//       client.subscribe('feeder/baterai', MqttQos.atMostOnce);
+
+//       client.updates?.listen((events) {
+//         final recMess = events[0].payload as MqttPublishMessage;
+//         final payload = MqttPublishPayload.bytesToStringAsString(
+//           recMess.payload.message,
+//         );
+//         print('MQTT Payload: ${events[0].topic} $payload');
+
+//         if (events[0].topic == 'feeder/status') {
+//           // _handleStatusPayload(payload);
+//           // Uncomment if you want to handle status payloads
+//           print('MQTT: Status payload received: $payload');
+//         }
+
+//         if (events[0].topic == 'feeder/ina219') {
+//           _handleIna219Payload(payload);
+//         }
+
+//         if (events[0].topic == 'feeder/baterai') {
+//           _handleBateraiPayload(payload);
+//           print('MQTT: Baterai payload received: $payload');
+//         }
+//       });
+//     } catch (e) {
+//       print('MQTT: Connection error: $e');
+//       client.disconnect();
+//     }
+//     return this;
+//   }
+
+//   // void _handleStatusPayload(String payload) {
+//   //   _resetDeviceTimeout('feeder1');
+//   //       // Update status ke 'on'
+//   //       final index = feederDeviceList.indexWhere((d) => d.deviceId == 'feeder1');
+//   //       if (index == -1) {
+//   //         feederDeviceList.add(
+//   //           FeederDeviceModel(
+//   //             deviceId: 'feeder1',
+//   //             status: 'on',
+//   //             batteryPercent: 0,
+//   //           ),
+//   //         );
+//   //       } else {
+//   //         final old = feederDeviceList[index];
+//   //         feederDeviceList[index] = FeederDeviceModel(
+//   //           deviceId: old.deviceId,
+//   //           status: 'on',
+//   //           batteryPercent: old.batteryPercent,
+//   //           voltage: old.voltage,
+//   //           current: old.current,
+//   //           power: old.power,
+//   //         );
+//   //       }
+//   // }
+
+//   void _handleBateraiPayload(String payload) {
+//     // Contoh: "Tegangan: 9.53 V, Arus: 100.10 mA, Daya: 954.00 mW, Persen: 100%"
+//     final regex = RegExp(
+//       r'Tegangan: ([\d.]+) V, Arus: ([\d.]+) mA, Daya: ([\d.]+) mW, Persen: ([\d.]+)%',
+//     );
+//     final match = regex.firstMatch(payload);
+//     if (match != null) {
+//       final volt = double.tryParse(match.group(1) ?? '0.0') ?? 0.0;
+//       final current = double.tryParse(match.group(2) ?? '0.0') ?? 0.0;
+//       final power = double.tryParse(match.group(3) ?? '0.0') ?? 0.0;
+//       final percent = double.tryParse(match.group(4) ?? '0.0') ?? 0.0;
+
+//       final deviceId = 'feeder1'; // Ubah jika ada multi-device
+//       final index = feederDeviceList.indexWhere((d) => d.deviceId == deviceId);
+
+//       if (index == -1) {
+//         feederDeviceList.add(
+//           FeederDeviceModel(
+//             deviceId: deviceId,
+//             status: 'ready',
+//             batteryPercent: percent.round(),
+//             voltage: volt,
+//             current: current,
+//             power: power,
+//           ),
+//         );
+//       } else {
+//         final old = feederDeviceList[index];
+//         feederDeviceList[index] = FeederDeviceModel(
+//           deviceId: deviceId,
+//           status: old.status,
+//           batteryPercent: percent.round(),
+//           voltage: volt,
+//           current: current,
+//           power: power,
+//         );
+//       }
+//     } else {
+//       print('MQTT: Baterai payload tidak sesuai format!');
+//     }
+//   }
+
+//   void _handleIna219Payload(String payload) {
+//     // Format: V=8.19V I=0.0mA P=0.0mW
+//     final regex = RegExp(r'V=([\d\.]+)V I=([\d\.]+)mA P=([\d\.]+)mW');
+//     final match = regex.firstMatch(payload);
+//     if (match != null) {
+//       final volt = double.tryParse(match.group(1) ?? '0') ?? 0.0;
+//       print('MqttService: Voltase = $volt');
+//       final current = double.tryParse(match.group(2) ?? '0') ?? 0.0;
+//       final power = double.tryParse(match.group(3) ?? '0') ?? 0.0;
+
+//       // Konversi voltase ke persen baterai (misal: 6V = 0%, 8.4V = 100%)
+//       final batteryPercent = _voltToPercent(volt, minVolt: 3.0, maxVolt: 12.0);
+
+//       final deviceId = 'feeder1'; // kamu bisa ganti jika ada multiple device
+//       final index = feederDeviceList.indexWhere((d) => d.deviceId == deviceId);
+//       if (index == -1) {
+//         feederDeviceList.add(
+//           FeederDeviceModel(
+//             deviceId: deviceId,
+//             status: 'ready',
+//             batteryPercent: batteryPercent,
+//             voltage: volt,
+//             current: current,
+//             power: power,
+//           ),
+//         );
+//       } else {
+//         final old = feederDeviceList[index];
+//         feederDeviceList[index] = FeederDeviceModel(
+//           deviceId: old.deviceId,
+//           status: old.status,
+//           batteryPercent: batteryPercent,
+//           voltage: volt,
+//           current: current,
+//           power: power,
+//         );
+//       }
+//     }
+//   }
+
+//   int _voltToPercent(
+//     double volt, {
+//     double minVolt = 3.0,
+//     double maxVolt = 12.0,
+//   }) {
+//     // Linear interpolasi, clamp 0-100
+//     double percent = ((volt - minVolt) / (maxVolt - minVolt)) * 100.0;
+//     percent = percent.clamp(0, 100);
+//     return percent.round();
+//   }
+
+//   void activateDevice(String roomId) {
+//     publish('feeder/control', 'ISI $roomId');
+//     print('MQTT: Published "ISI $roomId" to feeder/control');
+
+//     final index = feederDeviceList.indexWhere((d) => d.deviceId == 'feeder1');
+//     if (index != -1) {
+//       final old = feederDeviceList[index];
+//       feederDeviceList[index] = FeederDeviceModel(
+//         deviceId: old.deviceId,
+//         status: 'process',
+//         batteryPercent: old.batteryPercent,
+//         voltage: old.voltage,
+//         current: old.current,
+//         power: old.power,
+//       );
+//     }
+//   }
+
+//   void publish(String topic, String payload) {
+//     final builder = MqttClientPayloadBuilder();
+//     builder.addString(payload);
+//     client.publishMessage(topic, MqttQos.atMostOnce, builder.payload!);
+//     print('MQTT: Published "$payload" to $topic');
+//   }
+
+//   void disconnect() {
+//     client.disconnect();
+//     print('MQTT: Disconnected');
+//   }
+// }
+
+import 'dart:async';
+import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
@@ -11,6 +246,8 @@ class MqttService extends GetxService {
 
   RxList<FeederDeviceModel> get feederDeviceList =>
       dataController.feederDeviceList;
+  // Untuk heartbeat timeout
+  final Map<String, Timer> _deviceTimeoutTimers = {};
 
   Future<MqttService> init() async {
     client = MqttServerClient(
@@ -28,29 +265,26 @@ class MqttService extends GetxService {
       await client.connect();
       print('MQTT: Connected to broker.emqx.io');
       client.subscribe('feeder/status', MqttQos.atMostOnce);
-      client.subscribe('feeder/ina219', MqttQos.atMostOnce);
       client.subscribe('feeder/baterai', MqttQos.atMostOnce);
 
       client.updates?.listen((events) {
+        final topic = events[0].topic;
         final recMess = events[0].payload as MqttPublishMessage;
-        final payload = MqttPublishPayload.bytesToStringAsString(
+        final payloadStr = MqttPublishPayload.bytesToStringAsString(
           recMess.payload.message,
         );
-        print('MQTT Payload: ${events[0].topic} $payload');
 
-        if (events[0].topic == 'feeder/status') {
-          // _handleStatusPayload(payload);
-          // Uncomment if you want to handle status payloads
-          print('MQTT: Status payload received: $payload');
-        }
-
-        if (events[0].topic == 'feeder/ina219') {
-          _handleIna219Payload(payload);
-        }
-
-        if (events[0].topic == 'feeder/baterai') {
-          _handleBateraiPayload(payload);
-          print('MQTT: Baterai payload received: $payload');
+        print('MQTT Payload: $topic $payloadStr');
+        try {
+          final payload = json.decode(payloadStr);
+          if (topic == 'feeder/status') {
+            _handleStatusPayload(payload);
+          }
+          if (topic == 'feeder/baterai') {
+            _handleBateraiPayload(payload);
+          }
+        } catch (e) {
+          print('MQTT: Error parsing JSON: $e');
         }
       });
     } catch (e) {
@@ -60,141 +294,68 @@ class MqttService extends GetxService {
     return this;
   }
 
-  // void _handleStatusPayload(String payload) {
-  //   final regex = RegExp(r'status (\w+) battery (\d+)');
-  //   final match = regex.firstMatch(payload);
-  //   if (match != null) {
-  //     final status = match.group(1) ?? 'unknown';
-  //     final battery = int.tryParse(match.group(2) ?? '0') ?? 0;
-  //     final deviceId = 'feeder1';
-  //     final existing = feederDeviceList.firstWhereOrNull(
-  //       (d) => d.deviceId == deviceId,
-  //     );
-  //     if (existing == null) {
-  //       feederDeviceList.add(
-  //         FeederDeviceModel(
-  //           deviceId: deviceId,
-  //           status: status,
-  //           batteryPercent: battery,
-  //         ),
-  //       );
-  //     } else {
-  //       existing.status.value = status;
-  //       existing.batteryPercent.value = battery;
-  //       feederDeviceList.refresh();
-  //     }
-  //   }
-  // }
+  void _handleStatusPayload(Map<String, dynamic> json) {
+    final deviceId = json['device_id'] ?? 'Unknown';
+    final timestamp = json['timestamp'] ?? DateTime.now().toIso8601String();
 
-  void _handleBateraiPayload(String payload) {
-  // Contoh: "Tegangan: 9.53 V, Arus: 100.10 mA, Daya: 954.00 mW, Persen: 100%"
-  final regex = RegExp(
-    r'Tegangan: ([\d.]+) V, Arus: ([\d.]+) mA, Daya: ([\d.]+) mW, Persen: ([\d.]+)%'
-  );
-  final match = regex.firstMatch(payload);
-  if (match != null) {
-    final volt = double.tryParse(match.group(1) ?? '0.0') ?? 0.0;
-    final current = double.tryParse(match.group(2) ?? '0.0') ?? 0.0;
-    final power = double.tryParse(match.group(3) ?? '0.0') ?? 0.0;
-    final percent = double.tryParse(match.group(4) ?? '0.0') ?? 0.0;
-
-    final deviceId = 'feeder1'; // Ubah jika ada multi-device
+    // Cari device di list, update status/destination/amount
     final index = feederDeviceList.indexWhere((d) => d.deviceId == deviceId);
+    final model = FeederDeviceModel.fromStatusJson(json);
 
     if (index == -1) {
+      feederDeviceList.add(model);
+    } else {
+      feederDeviceList[index] = feederDeviceList[index].copyWith(
+        status: model.status,
+        destination: model.destination,
+        amount: model.amount,
+        lastUpdate: DateTime.parse(timestamp),
+      );
+    }
+
+    // Reset timeout setiap ada status baru
+    _resetDeviceTimeout(deviceId);
+  }
+
+  void _handleBateraiPayload(Map<String, dynamic> json) {
+    final deviceId = json['device_id'] ?? 'Unknown';
+    final index = feederDeviceList.indexWhere((d) => d.deviceId == deviceId);
+    if (index == -1) {
+      // Tambahkan baru, status langsung 'ready'
       feederDeviceList.add(
-        FeederDeviceModel(
-          deviceId: deviceId,
-          status: 'ready',
-          batteryPercent: percent.round(),
-          voltage: volt,
-          current: current,
-          power: power,
-        ),
+        FeederDeviceModel.fromBateraiJson(json, null).copyWith(status: 'ready'),
       );
     } else {
       final old = feederDeviceList[index];
-      feederDeviceList[index] = FeederDeviceModel(
-        deviceId: deviceId,
-        status: old.status,
-        batteryPercent: percent.round(),
-        voltage: volt,
-        current: current,
-        power: power,
-      );
+      feederDeviceList[index] = FeederDeviceModel.fromBateraiJson(json, old);
     }
-  } else {
-    print('MQTT: Baterai payload tidak sesuai format!');
+    _resetDeviceTimeout(deviceId);
   }
-}
 
-  void _handleIna219Payload(String payload) {
-    // Format: V=8.19V I=0.0mA P=0.0mW
-    final regex = RegExp(r'V=([\d\.]+)V I=([\d\.]+)mA P=([\d\.]+)mW');
-    final match = regex.firstMatch(payload);
-    if (match != null) {
-      final volt = double.tryParse(match.group(1) ?? '0') ?? 0.0;
-      print('MqttService: Voltase = $volt');
-      final current = double.tryParse(match.group(2) ?? '0') ?? 0.0;
-      final power = double.tryParse(match.group(3) ?? '0') ?? 0.0;
-
-      // Konversi voltase ke persen baterai (misal: 6V = 0%, 8.4V = 100%)
-      final batteryPercent = _voltToPercent(volt, minVolt: 3.0, maxVolt: 12.0);
-
-      final deviceId = 'feeder1'; // kamu bisa ganti jika ada multiple device
+  void _resetDeviceTimeout(String deviceId) {
+    _deviceTimeoutTimers[deviceId]?.cancel();
+    _deviceTimeoutTimers[deviceId] = Timer(const Duration(minutes: 1), () {
       final index = feederDeviceList.indexWhere((d) => d.deviceId == deviceId);
-      if (index == -1) {
-        feederDeviceList.add(
-          FeederDeviceModel(
-            deviceId: deviceId,
-            status: 'ready',
-            batteryPercent: batteryPercent,
-            voltage: volt,
-            current: current,
-            power: power,
-          ),
-        );
-      } else {
+      if (index != -1) {
         final old = feederDeviceList[index];
-        feederDeviceList[index] = FeederDeviceModel(
-          deviceId: old.deviceId,
-          status: old.status,
-          batteryPercent: batteryPercent,
-          voltage: volt,
-          current: current,
-          power: power,
+        feederDeviceList[index] = old.copyWith(
+          status: 'off',
+          lastUpdate: DateTime.now(),
         );
       }
-    }
+    });
   }
 
-  int _voltToPercent(
-    double volt, {
-    double minVolt = 3.0,
-    double maxVolt = 12.0,
+  void sendDeliveryRequest({
+    required String destination,
+    required double amount,
   }) {
-    // Linear interpolasi, clamp 0-100
-    double percent = ((volt - minVolt) / (maxVolt - minVolt)) * 100.0;
-    percent = percent.clamp(0, 100);
-    return percent.round();
-  }
-
-  void activateDevice(String roomId) {
-    publish('feeder/control', 'ISI $roomId');
-    print('MQTT: Published "ISI $roomId" to feeder/control');
-
-    final index = feederDeviceList.indexWhere((d) => d.deviceId == 'feeder1');
-    if (index != -1) {
-      final old = feederDeviceList[index];
-      feederDeviceList[index] = FeederDeviceModel(
-        deviceId: old.deviceId,
-        status: 'process',
-        batteryPercent: old.batteryPercent,
-        voltage: old.voltage,
-        current: old.current,
-        power: old.power,
-      );
-    }
+    final jsonPayload = json.encode({
+      "destination": destination,
+      "amount": amount,
+    });
+    publish('feeder/control', jsonPayload);
+    print('MQTT: Published delivery request: $jsonPayload');
   }
 
   void publish(String topic, String payload) {

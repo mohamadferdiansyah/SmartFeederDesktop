@@ -176,17 +176,16 @@ class _HalterStablePageState extends State<HalterStablePage> {
 
   void _sort<T>(
     List<StableModel> stables,
-    Comparable<T> Function(StableModel d) getField,
+    T Function(StableModel d) getField,
     bool ascending,
   ) {
-    setState(() {
-      stables.sort((a, b) {
-        final aValue = getField(a);
-        final bValue = getField(b);
-        return ascending
-            ? Comparable.compare(aValue, bValue)
-            : Comparable.compare(bValue, aValue);
-      });
+    stables.sort((a, b) {
+      final aValue = getField(a);
+      final bValue = getField(b);
+      if (aValue is Comparable && bValue is Comparable) {
+        return ascending ? aValue.compareTo(bValue) : bValue.compareTo(aValue);
+      }
+      return 0;
     });
   }
 
@@ -259,6 +258,28 @@ class _HalterStablePageState extends State<HalterStablePage> {
                 child: Obx(() {
                   final stableList = _controller.stableList.toList();
                   final filteredStables = _filteredStables(stableList);
+
+                  if (_sortColumnIndex != null) {
+                    switch (_sortColumnIndex!) {
+                      case 0:
+                        _sort(
+                          filteredStables,
+                          (d) => d.stableId,
+                          _sortAscending,
+                        );
+                        break;
+                      case 1:
+                        _sort(filteredStables, (d) => d.name, _sortAscending);
+                        break;
+                      case 2:
+                        _sort(
+                          filteredStables,
+                          (d) => d.address,
+                          _sortAscending,
+                        );
+                        break;
+                    }
+                  }
 
                   return Column(
                     children: [
@@ -375,11 +396,6 @@ class _HalterStablePageState extends State<HalterStablePage> {
                                         setState(() {
                                           _sortColumnIndex = columnIndex;
                                           _sortAscending = ascending;
-                                          _sort(
-                                            filteredStables,
-                                            (d) => d.stableId,
-                                            ascending,
-                                          );
                                         });
                                       },
                                     ),
@@ -399,11 +415,6 @@ class _HalterStablePageState extends State<HalterStablePage> {
                                         setState(() {
                                           _sortColumnIndex = columnIndex;
                                           _sortAscending = ascending;
-                                          _sort(
-                                            filteredStables,
-                                            (d) => d.name,
-                                            ascending,
-                                          );
                                         });
                                       },
                                     ),
@@ -423,11 +434,6 @@ class _HalterStablePageState extends State<HalterStablePage> {
                                         setState(() {
                                           _sortColumnIndex = columnIndex;
                                           _sortAscending = ascending;
-                                          _sort(
-                                            filteredStables,
-                                            (d) => d.address,
-                                            ascending,
-                                          );
                                         });
                                       },
                                     ),

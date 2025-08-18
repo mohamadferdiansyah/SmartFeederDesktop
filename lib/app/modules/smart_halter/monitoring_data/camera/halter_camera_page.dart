@@ -199,21 +199,19 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
     );
   }
 
-  void _sort<T>(
-    List<CctvModel> cctvs,
-    Comparable<T> Function(CctvModel d) getField,
-    bool ascending,
-  ) {
-    setState(() {
-      cctvs.sort((a, b) {
-        final aValue = getField(a);
-        final bValue = getField(b);
-        return ascending
-            ? Comparable.compare(aValue, bValue)
-            : Comparable.compare(bValue, aValue);
-      });
-    });
-  }
+  // void _sort<T extends Comparable>(
+  //   List<CctvModel> cctvs,
+  //   T Function(CctvModel d) getField,
+  //   bool ascending,
+  // ) {
+  //   setState(() {
+  //     cctvs.sort((a, b) {
+  //       final aValue = getField(a);
+  //       final bValue = getField(b);
+  //       return ascending ? aValue.compareTo(bValue) : bValue.compareTo(aValue);
+  //     });
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -284,6 +282,46 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
                 child: Obx(() {
                   final cctvList = _controller.cctvList.toList();
                   final filteredCctvs = _filteredCctv(cctvList);
+
+                  if (_sortColumnIndex != null) {
+                    switch (_sortColumnIndex!) {
+                      case 0:
+                        filteredCctvs.sort(
+                          (a, b) => _sortAscending
+                              ? a.cctvId.compareTo(b.cctvId)
+                              : b.cctvId.compareTo(a.cctvId),
+                        );
+                        break;
+                      case 1:
+                        filteredCctvs.sort(
+                          (a, b) => _sortAscending
+                              ? a.ipAddress.compareTo(b.ipAddress)
+                              : b.ipAddress.compareTo(a.ipAddress),
+                        );
+                        break;
+                      case 2:
+                        filteredCctvs.sort(
+                          (a, b) => _sortAscending
+                              ? a.port.compareTo(b.port)
+                              : b.port.compareTo(a.port),
+                        );
+                        break;
+                      case 3:
+                        filteredCctvs.sort(
+                          (a, b) => _sortAscending
+                              ? a.username.compareTo(b.username)
+                              : b.username.compareTo(a.username),
+                        );
+                        break;
+                      case 4:
+                        filteredCctvs.sort(
+                          (a, b) => _sortAscending
+                              ? a.password.compareTo(b.password)
+                              : b.password.compareTo(a.password),
+                        );
+                        break;
+                    }
+                  }
 
                   return Column(
                     children: [
@@ -401,11 +439,6 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
                                         setState(() {
                                           _sortColumnIndex = columnIndex;
                                           _sortAscending = ascending;
-                                          _sort(
-                                            filteredCctvs,
-                                            (d) => d.cctvId,
-                                            ascending,
-                                          );
                                         });
                                       },
                                     ),
@@ -425,11 +458,6 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
                                         setState(() {
                                           _sortColumnIndex = columnIndex;
                                           _sortAscending = ascending;
-                                          _sort(
-                                            filteredCctvs,
-                                            (d) => d.ipAddress,
-                                            ascending,
-                                          );
                                         });
                                       },
                                     ),
@@ -449,11 +477,6 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
                                         setState(() {
                                           _sortColumnIndex = columnIndex;
                                           _sortAscending = ascending;
-                                          _sort(
-                                            filteredCctvs,
-                                            (d) => d.port,
-                                            ascending,
-                                          );
                                         });
                                       },
                                     ),
@@ -473,11 +496,6 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
                                         setState(() {
                                           _sortColumnIndex = columnIndex;
                                           _sortAscending = ascending;
-                                          _sort(
-                                            filteredCctvs,
-                                            (d) => d.username,
-                                            ascending,
-                                          );
                                         });
                                       },
                                     ),
@@ -497,11 +515,6 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
                                         setState(() {
                                           _sortColumnIndex = columnIndex;
                                           _sortAscending = ascending;
-                                          _sort(
-                                            filteredCctvs,
-                                            (d) => d.password,
-                                            ascending,
-                                          );
                                         });
                                       },
                                     ),

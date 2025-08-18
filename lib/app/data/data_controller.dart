@@ -1,12 +1,14 @@
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/dao/cctv_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/halter_device_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter_device_detail_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/horse_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/node_room_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/room_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/stable_dao.dart';
 import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
 import 'package:smart_feeder_desktop/app/models/halter/cctv_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_log_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feed_model.dart';
@@ -753,7 +755,7 @@ class DataController extends GetxController {
     //   voltage: 220.0,
     //   power: 330.0,
     //   status: 'ready',
-    //   batteryPercent: 100,
+    //   batteryPercent: 87,
     // ),
   ].obs;
 
@@ -1470,6 +1472,9 @@ class DataController extends GetxController {
 
   final RxList<HalterRawDataModel> rawData = <HalterRawDataModel>[].obs;
 
+  final RxList<HalterDeviceDetailModel> detailHistory =
+      <HalterDeviceDetailModel>[].obs;
+
   Future<void> initAllDaosAndLoadAll() async {
     final db = await DBHelper.database;
     initNodeRoomDao(db);
@@ -1478,6 +1483,7 @@ class DataController extends GetxController {
     initHorseDao(db);
     initHalterDeviceDao(db);
     initCctvDao(db);
+    initHalterDeviceDetailDao(db);
     // dst...
     await Future.wait([
       loadNodeRoomsFromDb(),
@@ -1486,6 +1492,7 @@ class DataController extends GetxController {
       loadHorsesFromDb(),
       loadHalterDevicesFromDb(),
       loadCctvsFromDb(),
+      loadAllHalterDeviceDetails(),
       // dst...
     ]);
   }
@@ -1547,21 +1554,21 @@ class DataController extends GetxController {
   }
 
   Future<void> updateRoomScheduleFlexible(
-  String roomId, {
-  String? waterScheduleType,
-  int? waterScheduleIntervalHour,
-  String? feedScheduleType,
-  int? feedScheduleIntervalHour,
-}) async {
-  await roomDao.updateRoomScheduleFlexible(
-    roomId,
-    waterScheduleType: waterScheduleType,
-    waterScheduleIntervalHour: waterScheduleIntervalHour,
-    feedScheduleType: feedScheduleType,
-    feedScheduleIntervalHour: feedScheduleIntervalHour,
-  );
-  await loadRoomsFromDb();
-}
+    String roomId, {
+    String? waterScheduleType,
+    int? waterScheduleIntervalHour,
+    String? feedScheduleType,
+    int? feedScheduleIntervalHour,
+  }) async {
+    await roomDao.updateRoomScheduleFlexible(
+      roomId,
+      waterScheduleType: waterScheduleType,
+      waterScheduleIntervalHour: waterScheduleIntervalHour,
+      feedScheduleType: feedScheduleType,
+      feedScheduleIntervalHour: feedScheduleIntervalHour,
+    );
+    await loadRoomsFromDb();
+  }
 
   Future<void> deleteRoom(String roomId) async {
     await roomDao.delete(roomId);
@@ -1639,7 +1646,7 @@ class DataController extends GetxController {
   Future<void> assignHorseToRoom(String horseId, String roomId) async {
     await roomDao.updateHorseId(roomId, horseId);
     await loadHorsesFromDb();
-    await loadRoomsFromDb();  
+    await loadRoomsFromDb();
   }
 
   Future<void> deleteHorse(String horseId) async {
@@ -1770,5 +1777,46 @@ class DataController extends GetxController {
   Future<void> deleteCctv(String cctvId) async {
     await cctvDao.delete(cctvId);
     await loadCctvsFromDb();
+  }
+
+  // Data Detail Halter
+
+  late HalterDeviceDetailDao halterDeviceDetailDao;
+
+  void initHalterDeviceDetailDao(Database db) {
+    halterDeviceDetailDao = HalterDeviceDetailDao(db);
+  }
+
+  Future<void> addHalterDeviceDetail(HalterDeviceDetailModel detail) async {
+    await halterDeviceDetailDao.insertDetail(detail);
+    // if (detailHistory.length > 1000) {
+    //   detailHistory.removeLast();
+    // }
+    await loadAllHalterDeviceDetails();
+  }
+
+  Future<void> updateHalterDeviceDetail(HalterDeviceDetailModel detail) async {
+    await halterDeviceDetailDao.updateDetail(detail);
+    final index = detailHistory.indexWhere(
+      (d) => d.detailId == detail.detailId,
+    );
+    if (index != -1) {
+      detailHistory[index] = detail;
+    }
+  }
+
+  Future<void> deleteHalterDeviceDetail(int detailId) async {
+    await halterDeviceDetailDao.deleteDetail(detailId);
+    detailHistory.removeWhere((d) => d.detailId == detailId);
+  }
+
+  Future<void> loadAllHalterDeviceDetails() async {
+    final all = await halterDeviceDetailDao.getAllDetails();
+    detailHistory.assignAll(all);
+  }
+
+  Future<void> clearAllHalterDeviceDetails() async {
+    await halterDeviceDetailDao.clearAll();
+    detailHistory.clear();
   }
 }

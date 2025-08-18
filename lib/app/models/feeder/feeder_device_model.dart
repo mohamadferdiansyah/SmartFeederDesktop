@@ -1,35 +1,96 @@
 class FeederDeviceModel {
   final String deviceId;
   final String status;
+  final String? destination;
+  final double? amount;
   final int batteryPercent;
   final double voltage;
   final double current;
   final double power;
+  final DateTime lastUpdate;
 
   FeederDeviceModel({
     required this.deviceId,
     required this.status,
+    this.destination,
+    this.amount,
     required this.batteryPercent,
     required this.voltage,
     required this.current,
     required this.power,
+    required this.lastUpdate,
   });
 
-  factory FeederDeviceModel.fromMap(Map<String, dynamic> map) => FeederDeviceModel(
-        deviceId: map['device_id'],
-        status: map['status'],
-        batteryPercent: map['battery_percent'] ?? 0,
-        voltage: (map['voltage'] ?? 0.0).toDouble(),
-        current: (map['current'] ?? 0.0).toDouble(),
-        power: (map['power'] ?? 0.0).toDouble(),
-      );
+  factory FeederDeviceModel.fromStatusJson(Map<String, dynamic> json) {
+    // Handle timestamp bisa null
+    final timestamp = json['timestamp'];
+    DateTime lastUpdate;
+    if (timestamp is String && timestamp.isNotEmpty) {
+      lastUpdate = DateTime.tryParse(timestamp) ?? DateTime.now();
+    } else {
+      lastUpdate = DateTime.now();
+    }
 
-  Map<String, dynamic> toMap() => {
-        'device_id': deviceId,
-        'status': status,
-        'battery_percent': batteryPercent,
-        'voltage': voltage,
-        'current': current,
-        'power': power,
-      };
+    // Handle amount bisa null, int, atau double
+    double? amount;
+    if (json['amount'] != null) {
+      if (json['amount'] is int) {
+        amount = (json['amount'] as int).toDouble();
+      } else if (json['amount'] is double) {
+        amount = json['amount'];
+      } else if (json['amount'] is String) {
+        amount = double.tryParse(json['amount']);
+      }
+    }
+
+    return FeederDeviceModel(
+      deviceId: json['device_id'],
+      status: json['status'],
+      destination: json['destination'],
+      amount: amount,
+      batteryPercent: 0, // Diupdate dari feeder/baterai topic
+      voltage: 0.0,
+      current: 0.0,
+      power: 0.0,
+      lastUpdate: lastUpdate,
+    );
+  }
+
+  factory FeederDeviceModel.fromBateraiJson(
+    Map<String, dynamic> json,
+    FeederDeviceModel? old,
+  ) => FeederDeviceModel(
+    deviceId: json['device_id'],
+    status: old?.status ?? 'off',
+    destination: old?.destination,
+    amount: old?.amount,
+    batteryPercent: json['battery_percent'] ?? 0,
+    voltage: (json['voltage'] ?? 0.0).toDouble(),
+    current: (json['current_mA'] ?? 0.0).toDouble(),
+    power: old?.power ?? 0.0,
+    lastUpdate: DateTime.now(),
+  );
+
+  FeederDeviceModel copyWith({
+    String? status,
+    String? destination,
+    double? amount,
+    int? batteryPercent,
+    double? voltage,
+    double? current,
+    double? power,
+    DateTime? lastUpdate,
+  }) {
+    return FeederDeviceModel(
+      deviceId: deviceId,
+      status: status ?? this.status,
+      destination: destination ?? this.destination,
+      amount: amount ?? this.amount,
+      batteryPercent: batteryPercent ?? this.batteryPercent,
+      voltage: voltage ?? this.voltage,
+      current: current ?? this.current,
+      power: power ?? this.power,
+      lastUpdate: lastUpdate ?? this.lastUpdate,
+    );
+  }
 }

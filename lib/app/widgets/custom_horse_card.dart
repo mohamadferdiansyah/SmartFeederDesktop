@@ -150,21 +150,38 @@ class CustomHorseCard extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: deviceActive == "Aktif"
+                        color: deviceActive == "on"
                             ? Colors.green
+                            : deviceActive == "pairing"
+                            ? Colors.orange
                             : Colors.red,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         children: [
-                          Icon(
-                            Icons.power_settings_new_rounded,
-                            color: Colors.white,
-                            size: 20,
-                          ),
+                          deviceActive == "pairing"
+                              ? SizedBox(
+                                  width: 15,
+                                  height: 15,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : Icon(
+                                  Icons.power_settings_new_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
                           const SizedBox(width: 4),
                           Text(
-                            deviceActive,
+                            deviceActive == "on"
+                                ? "Aktif"
+                                : deviceActive == "pairing"
+                                ? "Pairing"
+                                : "Mati",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,

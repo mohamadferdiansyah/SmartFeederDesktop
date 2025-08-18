@@ -540,17 +540,15 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
     );
   }
 
-  void _sort<T>(
-    List<HorseModel> horses,
-    Comparable<T> Function(HorseModel d) getField,
+  void _sort<T extends Comparable>(
+    List<HorseModel> devices,
+    T Function(HorseModel d) getField,
     bool ascending,
   ) {
-    horses.sort((a, b) {
+    devices.sort((a, b) {
       final aValue = getField(a);
       final bValue = getField(b);
-      return ascending
-          ? Comparable.compare(aValue, bValue)
-          : Comparable.compare(bValue, aValue);
+      return ascending ? aValue.compareTo(bValue) : bValue.compareTo(aValue);
     });
   }
 
@@ -672,11 +670,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                               );
                               break;
                             case 4:
-                              _sort<int>(
-                                horses,
-                                (d) => d.age as Comparable<int>,
-                                _sortAscending,
-                              );
+                              _sort<int>(horses, (d) => d.age, _sortAscending);
                               break;
                             case 5:
                               _sort<String>(
@@ -999,7 +993,9 @@ class HorseDataTableSource extends DataTableSource {
       cells: [
         DataCell(Center(child: Text(horse.horseId))),
         DataCell(Center(child: Text(horse.name))),
-        DataCell(Center(child: Text(horse.type == "local" ? 'Lokal' : 'Crossbred'))),
+        DataCell(
+          Center(child: Text(horse.type == "local" ? 'Lokal' : 'Crossbred')),
+        ),
         DataCell(Center(child: Text(horse.gender))),
         DataCell(Center(child: Text(horse.age.toString()))),
         DataCell(Center(child: Text(horse.roomId ?? "Tidak Digunakan"))),

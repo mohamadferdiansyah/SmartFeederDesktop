@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
-import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_battery_indicator.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_biometric_chart.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_biometric_legend.dart';
@@ -31,7 +30,6 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
   // @override
   // void initState() {
   //   super.initState();
-  //   Get.find<HalterSerialService>().startDummyData();
   // }
 
   @override
@@ -129,41 +127,47 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                   Expanded(
                     child: Scrollbar(
                       thumbVisibility: true,
-                      child: ListView.builder(
-                        itemCount: controller.filteredRoomList.length,
-                        itemBuilder: (context, index) {
-                          final room = controller.filteredRoomList[index];
+                      child: Obx(
+                        () => ListView.builder(
+                          itemCount: controller.filteredRoomList.length,
+                          itemBuilder: (context, index) {
+                            final room = controller.filteredRoomList[index];
 
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8.0,
-                              horizontal: 6,
-                            ),
-                            child: Obx(
-                              () => CustomHorseCard(
-                                batteryPercent: controller
-                                    .getBatteryPercentByRoomId(room.roomId),
-                                cctvActive: controller.isCctvActive(
-                                  room.roomId,
-                                ),
-                                deviceActive: controller.isHalterDeviceActive(
-                                  room.horseId ?? '',
-                                ),
-                                horseName: controller.getHorseNameByRoomId(
-                                  room.roomId,
-                                ),
-                                horseId: room.horseId ?? '-',
-                                horseRoom: room.roomId,
-                                isRoomFilled: controller.isRoomFilled(
-                                  room.roomId,
-                                ),
-                                onSelectHorse: () {
-                                  controller.selectedRoomIndex.value = index;
-                                },
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8.0,
+                                horizontal: 6,
                               ),
-                            ),
-                          );
-                        },
+                              child: Obx(
+                                () => CustomHorseCard(
+                                  batteryPercent: controller
+                                      .getBatteryPercentByRoomId(room.roomId),
+                                  cctvActive: controller.isCctvActive(
+                                    room.roomId,
+                                  ),
+                                  deviceActive:
+                                      controller
+                                          .getHalterDeviceByHorseId(
+                                            room.horseId ?? '',
+                                          )
+                                          ?.status ??
+                                      '-',
+                                  horseName: controller.getHorseNameByRoomId(
+                                    room.roomId,
+                                  ),
+                                  horseId: room.horseId ?? '-',
+                                  horseRoom: room.roomId,
+                                  isRoomFilled: controller.isRoomFilled(
+                                    room.roomId,
+                                  ),
+                                  onSelectHorse: () {
+                                    controller.selectedRoomIndex.value = index;
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -1141,52 +1145,82 @@ class _DetailKudaView extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Column(
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                children: [
-                                  Text('Id Perangkat'),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    controller
-                                            .getHalterDeviceByHorseId(
-                                              controller.selectedRoom.horseId ??
-                                                  '',
-                                            )
-                                            ?.deviceId ??
-                                        '-',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blue,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text('Id Perangkat:'),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          controller
+                                                  .getHalterDeviceByHorseId(
+                                                    controller
+                                                            .selectedRoom
+                                                            .horseId ??
+                                                        '',
+                                                  )
+                                                  ?.deviceId ??
+                                              '-',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
+                                    Row(
+                                      children: [
+                                        Text('Tegangan:'),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '${detail?.voltage ?? 0} mV',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text('RSSI:'),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '${detail?.rssi ?? 0} dBm',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                              Row(
-                                children: [
-                                  Text('Tegangan'),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '${detail?.voltage ?? 0} mV',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blue,
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Baterai Perangkat:'),
+                                    CustomBatteryIndicator(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      iconSize: 50,
+                                      percent:
+                                          controller
+                                              .getSelectedHorseBatteryPercent() ??
+                                          0,
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Text('RSSI'),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '${detail?.rssi ?? 0} dBm',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blue,
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -1368,16 +1402,18 @@ class _DetailKudaView extends StatelessWidget {
                                 final detail = controller
                                     .getSelectedHorseDetail();
                                 final healthData = controller.getHorseHealth(
-                                      suhu: detail?.temperature ?? 0,
-                                      heartRate: detail?.heartRate ?? 0,
-                                      spo: detail?.spo ?? 0,
-                                      respirasi: detail?.respiratoryRate ?? 0,
-                                    );
+                                  suhu: detail?.temperature ?? 0,
+                                  heartRate: detail?.heartRate ?? 0,
+                                  spo: detail?.spo ?? 0,
+                                  respirasi: detail?.respiratoryRate ?? 0,
+                                );
 
                                 return ElevatedButton(
                                   onPressed: () {},
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: healthData == "Sehat" ? Colors.green : Colors.red,
+                                    backgroundColor: healthData == "Sehat"
+                                        ? Colors.green
+                                        : Colors.red,
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 16,
@@ -1387,9 +1423,7 @@ class _DetailKudaView extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                   ),
-                                  child: Text(
-                                    healthData,
-                                  ),
+                                  child: Text(healthData),
                                 );
                               }),
                               const SizedBox(width: 8),
@@ -1433,7 +1467,7 @@ class _DetailKudaView extends StatelessWidget {
 
                   // Ambil hanya 10 data terakhir
                   final displayData = data.length > maxData
-                      ? data.sublist(data.length - maxData)
+                      ? data.sublist(0, maxData)
                       : data;
 
                   // if (displayData.isEmpty) {
@@ -1445,14 +1479,16 @@ class _DetailKudaView extends StatelessWidget {
                   //   );
                   // }
 
+                  final reversedData = displayData.reversed.toList();
+
                   List<FlSpot> bpmSpots = [];
                   List<FlSpot> suhuSpots = [];
                   List<FlSpot> spoSpots = [];
                   List<FlSpot> respirasiSpots = [];
                   List<String> timeLabels = [];
 
-                  for (int i = 0; i < displayData.length; i++) {
-                    final d = displayData[i];
+                  for (int i = 0; i < reversedData.length; i++) {
+                    final d = reversedData[i];
                     bpmSpots.add(
                       FlSpot(i.toDouble(), (d.heartRate ?? 0).toDouble()),
                     );
@@ -1461,7 +1497,6 @@ class _DetailKudaView extends StatelessWidget {
                     respirasiSpots.add(
                       FlSpot(i.toDouble(), (d.respiratoryRate ?? 0)),
                     );
-
                     final timeStr = d.time
                         .toIso8601String()
                         .split('T')[1]
@@ -1649,25 +1684,6 @@ class _DetailKudaView extends StatelessWidget {
                     ),
                     const SizedBox(height: 18),
                     Container(height: 4, color: Colors.blue[100]),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "Persentase Baterai IoT Halter",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      height: 120,
-                      color: Colors.grey[100],
-                      alignment: Alignment.center,
-                      child: CustomBatteryIndicator(
-                        iconSize: 100,
-                        percent:
-                            controller.getSelectedHorseBatteryPercent() ?? 0,
-                      ),
-                    ),
                   ],
                 );
               }),

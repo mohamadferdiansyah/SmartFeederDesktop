@@ -151,17 +151,15 @@ class _HalterNodePageState extends State<HalterNodePage> {
     );
   }
 
-  void _sort<T>(
-    List<NodeRoomModel> nodes,
-    Comparable<T> Function(NodeRoomModel d) getField,
+  void _sort<T extends Comparable>(
+    List<NodeRoomModel> devices,
+    T Function(NodeRoomModel d) getField,
     bool ascending,
   ) {
-    nodes.sort((a, b) {
+    devices.sort((a, b) {
       final aValue = getField(a);
       final bValue = getField(b);
-      return ascending
-          ? Comparable.compare(aValue, bValue)
-          : Comparable.compare(bValue, aValue);
+      return ascending ? aValue.compareTo(bValue) : bValue.compareTo(aValue);
     });
   }
 
@@ -263,21 +261,21 @@ class _HalterNodePageState extends State<HalterNodePage> {
                             case 1:
                               _sort<double>(
                                 nodes,
-                                (d) => d.temperature as Comparable<double>,
+                                (d) => d.temperature,
                                 _sortAscending,
                               );
                               break;
                             case 2:
                               _sort<double>(
                                 nodes,
-                                (d) => d.humidity as Comparable<double>,
+                                (d) => d.humidity,
                                 _sortAscending,
                               );
                               break;
                             case 3:
                               _sort<double>(
                                 nodes,
-                                (d) => d.lightIntensity as Comparable<double>,
+                                (d) => d.lightIntensity,
                                 _sortAscending,
                               );
                               break;

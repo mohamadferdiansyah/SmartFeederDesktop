@@ -14,7 +14,7 @@ import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
 class HalterDashboardController extends GetxController {
   RxInt selectedStableIndex = 0.obs;
-  RxString selectedStableId = 'S1'.obs;
+  RxString selectedStableId = ''.obs;
   RxInt selectedRoomIndex = 0.obs;
   RoomModel get selectedRoom => filteredRoomList.isNotEmpty
       ? filteredRoomList[selectedRoomIndex.value.clamp(
@@ -34,7 +34,7 @@ class HalterDashboardController extends GetxController {
   final HalterSettingController settingController =
       Get.find<HalterSettingController>();
 
-  List<StableModel> get stableList => dataController.stableList;
+  RxList<StableModel> get stableList => dataController.stableList;
 
   RxList<RoomModel> get roomList => dataController.roomList;
 
@@ -46,7 +46,7 @@ class HalterDashboardController extends GetxController {
       dataController.halterDeviceList;
 
   RxList<HalterDeviceDetailModel> get halterDeviceDetailList =>
-      serialService.detailHistory;
+      dataController.detailHistory;
 
   RxList<NodeRoomModel> get nodeRoomList => serialService.nodeRoomList;
 
@@ -106,6 +106,15 @@ class HalterDashboardController extends GetxController {
   void setSelectedStableId(String stableId) {
     selectedStableId.value = stableId;
     selectedRoomIndex.value = 0;
+  }
+
+  Future<void> refreshRoomList() async {
+    await dataController.loadRoomsFromDb();
+  }
+
+  /// Refresh data stable dari database
+  Future<void> refreshStableList() async {
+    await dataController.loadStablesFromDb();
   }
 
   StableModel getSelectedStableById(String stableId) {

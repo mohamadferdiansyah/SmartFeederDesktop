@@ -4,7 +4,10 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
+import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
 class HalterLayoutController extends GetxController {
   var currentPage = Rx<Widget>(HalterDashboardPage());
@@ -14,15 +17,37 @@ class HalterLayoutController extends GetxController {
   var currentDate = ''.obs;
   Timer? _timer;
   final DataController dataController = Get.find<DataController>();
+  final HalterDashboardController dashboardController =
+      Get.find<HalterDashboardController>();
+  final HalterSettingController settingController =
+      Get.find<HalterSettingController>();
+  final HalterSerialService serialService = Get.find<HalterSerialService>();
 
   @override
   void onInit() {
     super.onInit();
     _startRealTimeClock();
-    dataController.initAllDaosAndLoadAll().then((_) {
+    dataController.initAllDaosAndLoadAll().then((_) async {
       // Setelah semua data di-load, bisa melakukan inisialisasi lain jika perlu
-      print('Semua data telah dimuat dan DAO diinisialisasi.');
+      await dashboardController.refreshStableList();
+      await dashboardController.refreshRoomList();
+
+      serialService.pairingDevice();
+
+      // Pastikan stableList sudah terisi
+      if (dashboardController.stableList.isNotEmpty) {
+        dashboardController.selectedStableId.value =
+            dashboardController.stableList.first.stableId;
+        dashboardController.selectedRoomIndex.value = 0;
+      }
     });
+
+    if (settingController.availablePorts.isNotEmpty &&
+        settingController.setting.value.loraPort.isEmpty) {
+      settingController.updateLora(
+        port: settingController.availablePorts.first,
+      );
+    }
   }
 
   @override

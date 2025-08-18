@@ -183,19 +183,19 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
     ),
   );
 
-  void _sort<T>(
+  // ...existing code...
+  void _sort<T extends Comparable>(
     List<HalterDeviceModel> devices,
-    Comparable<T> Function(HalterDeviceModel d) getField,
+    T Function(HalterDeviceModel d) getField,
     bool ascending,
   ) {
     devices.sort((a, b) {
       final aValue = getField(a);
       final bValue = getField(b);
-      return ascending
-          ? Comparable.compare(aValue, bValue)
-          : Comparable.compare(bValue, aValue);
+      return ascending ? aValue.compareTo(bValue) : bValue.compareTo(aValue);
     });
   }
+  // ...existing code...
 
   @override
   Widget build(BuildContext context) {
@@ -310,7 +310,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                             case 3:
                               _sort<int>(
                                 devices,
-                                (d) => d.batteryPercent as Comparable<int>,
+                                (d) => d.batteryPercent,
                                 _sortAscending,
                               );
                               break;
@@ -574,7 +574,7 @@ class HalterDeviceDataTableSource extends DataTableSource {
                     builder: (context) {
                       return HalterRawDataDialog(
                         deviceId: device.deviceId,
-                        allData: _controller.detailHistory,
+                        allData: _controller.detailHistoryList,
                       );
                     },
                   );

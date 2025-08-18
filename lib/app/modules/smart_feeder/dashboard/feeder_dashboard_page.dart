@@ -140,7 +140,10 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                     text: 'Isi',
                     onPressed: () {
                       print(controller.selectedRoom.roomId);
-                      mqtt.activateDevice(controller.selectedRoom.roomId);
+                      mqtt.sendDeliveryRequest(
+                        destination: controller.selectedRoom.roomId,
+                        amount: double.tryParse(feedController.text) ?? 0.0,
+                      );
                     },
                     fontSize: 20,
                     backgroundColor: Colors.green,
@@ -267,7 +270,10 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                     text: 'Isi',
                     onPressed: () {
                       print(controller.selectedRoom.roomId);
-                      mqtt.activateDevice(controller.selectedRoom.roomId);
+                      mqtt.sendDeliveryRequest(
+                        destination: controller.selectedRoom.roomId,
+                        amount: double.tryParse(waterController.text) ?? 0.0,
+                      );
                     },
                     fontSize: 20,
                     backgroundColor: Colors.green,
@@ -1081,7 +1087,9 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                     decoration: BoxDecoration(
                                       color:
                                           controller
-                                                  .getFeederDeviceBatteryPercent() <
+                                                  .getFeederDeviceBatteryPercent(
+                                                    'SmartFeeder',
+                                                  ) <
                                               20
                                           ? Colors.red.withOpacity(0.2)
                                           : Colors.teal.withOpacity(0.2),
@@ -1089,7 +1097,9 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                       border: Border.all(
                                         color:
                                             controller
-                                                    .getFeederDeviceBatteryPercent() <
+                                                    .getFeederDeviceBatteryPercent(
+                                                      'SmartFeeder',
+                                                    ) <
                                                 20
                                             ? Colors.red
                                             : Colors.teal,
@@ -1099,7 +1109,9 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                     child: Center(
                                       child: CustomBatteryIndicator(
                                         percent: controller
-                                            .getFeederDeviceBatteryPercent(),
+                                            .getFeederDeviceBatteryPercent(
+                                              'SmartFeeder',
+                                            ),
                                       ),
                                     ),
                                   ),
@@ -1115,16 +1127,19 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                     height: 80,
                                     decoration: BoxDecoration(
                                       color:
-                                          controller.getFeederDeviceStatus() ==
-                                              'ready'
+                                          controller.getFeederDeviceStatus(
+                                                'SmartFeeder',
+                                              ) !=
+                                              'off'
                                           ? Colors.blue.withOpacity(0.2)
                                           : Colors.grey.withOpacity(0.2),
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
                                         color:
-                                            controller
-                                                    .getFeederDeviceStatus() ==
-                                                'ready'
+                                            controller.getFeederDeviceStatus(
+                                                  'SmartFeeder',
+                                                ) !=
+                                                'off'
                                             ? Colors.blue
                                             : Colors.grey,
                                         width: 1,
@@ -1132,17 +1147,20 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        controller.getFeederDeviceStatus() ==
-                                                'ready'
+                                        controller.getFeederDeviceStatus(
+                                                  'SmartFeeder',
+                                                ) !=
+                                                'off'
                                             ? 'Aktif'
                                             : 'Mati',
                                         style: TextStyle(
                                           fontSize: 35,
                                           fontWeight: FontWeight.bold,
                                           color:
-                                              controller
-                                                      .getFeederDeviceStatus() ==
-                                                  'ready'
+                                              controller.getFeederDeviceStatus(
+                                                    'SmartFeeder',
+                                                  ) !=
+                                                  'off'
                                               ? Colors.blue
                                               : Colors.grey,
                                         ),
@@ -1177,7 +1195,10 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                               ),
                               child: Center(
                                 child: Text(
-                                  'Kandang',
+                                  controller
+                                          .getFeederDeviceById('SmartFeeder')
+                                          ?.status ??
+                                      'Tidak Diketahui',
                                   style: TextStyle(
                                     fontSize: 35,
                                     fontWeight: FontWeight.bold,

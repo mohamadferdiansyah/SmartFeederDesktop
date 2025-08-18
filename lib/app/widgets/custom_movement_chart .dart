@@ -23,21 +23,23 @@ class CustomMovementChart extends StatelessWidget {
       const maxData = 10;
       // Ambil hanya 10 data terakhir
       final displayData = data.length > maxData
-          ? data.sublist(data.length - maxData)
+          ? data.sublist(0, maxData)
           : data;
+
+      final reversedData = displayData.reversed.toList();
 
       List<FlSpot> rollSpots = [];
       List<FlSpot> pitchSpots = [];
       List<FlSpot> yawSpots = [];
-      for (int i = 0; i < displayData.length; i++) {
+      for (int i = 0; i < reversedData.length; i++) {
         rollSpots.add(
-          FlSpot(i.toDouble(), (displayData[i].roll ?? 0).toDouble()),
+          FlSpot(i.toDouble(), (reversedData[i].roll ?? 0).toDouble()),
         );
         pitchSpots.add(
-          FlSpot(i.toDouble(), (displayData[i].pitch ?? 0).toDouble()),
+          FlSpot(i.toDouble(), (reversedData[i].pitch ?? 0).toDouble()),
         );
         yawSpots.add(
-          FlSpot(i.toDouble(), (displayData[i].yaw ?? 0).toDouble()),
+          FlSpot(i.toDouble(), (reversedData[i].yaw ?? 0).toDouble()),
         );
       }
 

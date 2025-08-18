@@ -121,7 +121,7 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                             label: "Cari Data",
                             controller: _searchController,
                             icon: Icons.search,
-                            hint: 'Masukkan data mentah',
+                            hint: 'Masukkan ID',
                             fontSize: 18,
                           ),
                         ),
@@ -200,22 +200,36 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                             _dataSource.updateFilter(_controller.filteredList);
                           },
                         ),
-                        CustomButton(
-                          text: 'Stop dummy',
-                          width: 195,
-                          fontSize: 18,
-                          height: 48,
-                          onPressed: () {
-                            serialService.stopDummySerial();
-                          },
-                        ),
+                        // CustomButton(
+                        //   text: 'Stop dummy',
+                        //   width: 195,
+                        //   fontSize: 18,
+                        //   height: 48,
+                        //   onPressed: () {
+                        //     serialService.stopDummySerial();
+                        //   },
+                        // ),
+                        // CustomButton(
+                        //   text: 'Start dummy',
+                        //   width: 195,
+                        //   fontSize: 18,
+                        //   height: 48,
+                        //   onPressed: () {
+                        //     serialService.startDummySerial();
+                        //   },
+                        // ),
                       ],
                     ),
                     const SizedBox(height: 16),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
+                        Text(
+                          '*menerima data setiap 30 detik - 1 menit',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        Spacer(),
                         Text(
                           'Export Data :',
                           style: const TextStyle(fontSize: 16),
@@ -252,7 +266,16 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                     // Table
                     Expanded(
                       child: Obx(() {
-                        final filteredList = _controller.filteredList;
+                        final filteredList = _controller.filteredList
+                          ..sort((a, b) {
+                            final aTime =
+                                a.time ??
+                                DateTime.fromMillisecondsSinceEpoch(0);
+                            final bTime =
+                                b.time ??
+                                DateTime.fromMillisecondsSinceEpoch(0);
+                            return bTime.compareTo(aTime);
+                          });
                         final tableWidth =
                             MediaQuery.of(context).size.width - 72;
                         final noW = tableWidth * 0.04;
@@ -379,7 +402,7 @@ class HalterRawDataTableSource extends DataTableSource {
     return DataRow.byIndex(
       index: index,
       cells: [
-        DataCell(Center(child: Text(item.rawId.toString()))),
+        DataCell(Center(child: Text('${index + 1}'))),
         DataCell(
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
