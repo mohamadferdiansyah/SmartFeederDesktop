@@ -3,7 +3,7 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_rule_engine_model.
 
 // Inisialisasi di main.dart: await GetStorage.init();
 
-class DataHalterSetting {
+class DataRuleHalter {
   static final _box = GetStorage();
 
   static HalterRuleEngineModel getSetting() {

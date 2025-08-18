@@ -9,14 +9,14 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_mode
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/halter_rule_engine_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/alert/halter_alert_rule_engine_controller.dart';
 
 class HalterSerialService extends GetxService {
   SerialPort? port;
   SerialPortReader? reader;
 
-  final HalterRuleEngineController controller =
-      Get.find<HalterRuleEngineController>();
+  final HalterAlertRuleEngineController controller =
+      Get.find<HalterAlertRuleEngineController>();
 
   final DataController dataController = Get.find<DataController>();
 

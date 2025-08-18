@@ -2,22 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_rule_engine_model.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/halter_rule_engine_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/alert/halter_alert_rule_engine_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/table/halter_table_rule_engine_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_halter_log_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 import 'package:toastification/toastification.dart';
 
-class HalterRuleEnginePage extends StatefulWidget {
-  const HalterRuleEnginePage({super.key});
+class HalterTableRuleEnginePage extends StatefulWidget {
+  const HalterTableRuleEnginePage({super.key});
 
   @override
-  State<HalterRuleEnginePage> createState() => _HalterRuleEnginePageState();
+  State<HalterTableRuleEnginePage> createState() =>
+      _HalterTableRuleEnginePageState();
 }
 
-class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
-  final controller = Get.find<HalterRuleEngineController>();
+class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
+  final controller = Get.find<HalterTableRuleEngineController>();
 
   // Kuda
   late TextEditingController suhuMinCtrl,
@@ -66,9 +68,9 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
         padding: const EdgeInsets.all(16.0),
         child: CustomCard(
           withExpanded: false,
-          title: 'Rule Engine',
+          title: 'Table Rule Engine',
           content: DefaultTabController(
-            length: 3,
+            length: 2,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -77,11 +79,13 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
                   unselectedLabelColor: Colors.black54,
                   indicatorColor: AppColors.primary,
                   tabs: const [
-                    Tab(text: "Kuda", icon: Icon(Icons.pets_rounded)),
-                    Tab(text: "Halter", icon: Icon(Icons.device_hub_rounded)),
                     Tab(
-                      text: "Node Room",
-                      icon: Icon(Icons.house_siding_rounded),
+                      text: "Kesehatan Kuda",
+                      icon: Icon(Icons.health_and_safety_rounded),
+                    ),
+                    Tab(
+                      text: "Kalibrasi Sensor",
+                      icon: Icon(Icons.compass_calibration_rounded),
                     ),
                   ],
                 ),
@@ -93,7 +97,6 @@ class _HalterRuleEnginePageState extends State<HalterRuleEnginePage> {
                     children: [
                       _scrollableTab(_buildKudaTab(context)),
                       _scrollableTab(_buildHalterTab(context)),
-                      _scrollableTab(_buildNodeRoomTab(context)),
                     ],
                   ),
                 ),

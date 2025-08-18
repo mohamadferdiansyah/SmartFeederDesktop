@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/data/data_halter_setting.dart';
+import 'package:smart_feeder_desktop/app/data/data_rule_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_log_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_rule_engine_model.dart';
 
-class HalterRuleEngineController extends GetxController {
+class HalterTableRuleEngineController extends GetxController {
   var setting = HalterRuleEngineModel.defaultValue().obs;
   final DataController dataController = Get.find<DataController>();
 
@@ -12,13 +12,13 @@ class HalterRuleEngineController extends GetxController {
 
   @override
   void onInit() {
-    setting.value = DataHalterSetting.getSetting();
+    setting.value = DataRuleHalter.getSetting();
     super.onInit();
   }
 
   void updateSetting(HalterRuleEngineModel s) {
     setting.value = s;
-    DataHalterSetting.saveSetting(s);
+    DataRuleHalter.saveSetting(s);
   }
 
   void checkAndLogNode(

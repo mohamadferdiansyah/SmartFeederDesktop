@@ -10,7 +10,8 @@ import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/no
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/room/halter_room_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/stable/halter_stable_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/raw_data/halter_raw_data_page.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/halter_rule_engine_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/alert/halter_alert_rule_engine_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/table/halter_table_rule_engine_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/sync/halter_sync_page.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_sidebar.dart';
@@ -76,7 +77,16 @@ class HalterLayoutPage extends StatelessWidget {
     SidebarMenuItem(
       title: "Rule Engine",
       icon: Icons.rule_rounded,
-      page: HalterRuleEnginePage(),
+      children: [
+        SidebarMenuItem(
+          title: "Alert Rule Engine",
+          page: HalterAlertRuleEnginePage(),
+        ),
+        SidebarMenuItem(
+          title: "Table Rule Engine",
+          page: HalterTableRuleEnginePage(),
+        ),
+      ],
     ),
     SidebarMenuItem(
       title: "Bantuan",
