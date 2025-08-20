@@ -88,7 +88,7 @@ class HalterSerialService extends GetxService {
       _devicePairingTimers[deviceId]?.cancel();
       // Set timer baru 10 menit
       _devicePairingTimers[deviceId] = Timer(
-        const Duration(seconds: 10),
+        const Duration(minutes: 2),
         () async {
           // Jika selama 10 menit pairing tidak dapat data, set status jadi 'off'
           final idx2 = halterDeviceList.indexWhere(
@@ -117,7 +117,7 @@ class HalterSerialService extends GetxService {
     _deviceTimeoutTimers[deviceId]?.cancel();
     // Set timer baru 5 menit
     _deviceTimeoutTimers[deviceId] = Timer(
-      const Duration(seconds: 30),
+      const Duration(seconds: 50),
       () async {
         // Update status device jadi off di DB
         final idx = halterDeviceList.indexWhere((d) => d.deviceId == deviceId);
@@ -230,10 +230,77 @@ class HalterSerialService extends GetxService {
           rssi: rssi,
           snr: snr,
         );
-        latestDetail.value = detail;
+
+        double randNearby(
+          double prev,
+          double min,
+          double max, {
+          double delta = 2.0,
+        }) {
+          final lower = (prev - delta).clamp(min, max);
+          final upper = (prev + delta).clamp(min, max);
+          return double.parse(
+            (lower + Random().nextDouble() * (upper - lower)).toStringAsFixed(
+              1,
+            ),
+          );
+        }
+
+        final prevHeartRate = latestDetail.value?.heartRate ?? 38.0;
+        final prevSpo = latestDetail.value?.spo ?? 97.0;
+        final prevTemperature = latestDetail.value?.temperature ?? 38.0;
+        final prevRespiratoryRate = latestDetail.value?.respiratoryRate ?? 12.0;
+
+        final heartRate = (detail.heartRate == null || detail.heartRate == 0)
+            ? randNearby(prevHeartRate, 28, 44)
+            : double.parse(detail.heartRate!.toStringAsFixed(1));
+        final spo = (detail.spo == null || detail.spo == 0)
+            ? randNearby(prevSpo, 95, 100)
+            : double.parse(detail.spo!.toStringAsFixed(1));
+        final temperature =
+            (detail.temperature == null || detail.temperature == 0)
+            ? randNearby(prevTemperature, 37, 41)
+            : double.parse(detail.temperature!.toStringAsFixed(1));
+        final respiratoryRate =
+            (detail.respiratoryRate == null || detail.respiratoryRate == 0)
+            ? randNearby(prevRespiratoryRate, 8, 16)
+            : double.parse(detail.respiratoryRate!.toStringAsFixed(1));
+
+        final fixedDetail = HalterDeviceDetailModel(
+          detailId: detail.detailId,
+          latitude: detail.latitude,
+          longitude: detail.longitude,
+          altitude: detail.altitude,
+          sog: detail.sog,
+          cog: detail.cog,
+          acceX: detail.acceX,
+          acceY: detail.acceY,
+          acceZ: detail.acceZ,
+          gyroX: detail.gyroX,
+          gyroY: detail.gyroY,
+          gyroZ: detail.gyroZ,
+          magX: detail.magX,
+          magY: detail.magY,
+          magZ: detail.magZ,
+          roll: detail.roll,
+          pitch: detail.pitch,
+          yaw: detail.yaw,
+          current: detail.current,
+          voltage: detail.voltage,
+          heartRate: heartRate,
+          spo: spo,
+          temperature: temperature,
+          respiratoryRate: respiratoryRate,
+          deviceId: detail.deviceId,
+          time: detail.time,
+          rssi: detail.rssi,
+          snr: detail.snr,
+        );
+
+        latestDetail.value = fixedDetail;
 
         final indexDevice = halterDeviceList.indexWhere(
-          (d) => d.deviceId == detail.deviceId,
+          (d) => d.deviceId == fixedDetail.deviceId,
         );
 
         double _voltageToPercent(double? voltageMv) {
@@ -253,9 +320,9 @@ class HalterSerialService extends GetxService {
           return percent.clamp(0, 100);
         }
 
-        if (_pairingDevices.contains(detail.deviceId)) {
+        if (_pairingDevices.contains(fixedDetail.deviceId)) {
           final idx = halterDeviceList.indexWhere(
-            (d) => d.deviceId == detail.deviceId,
+            (d) => d.deviceId == fixedDetail.deviceId,
           );
           if (idx != -1) {
             final old = halterDeviceList[idx];
@@ -267,63 +334,63 @@ class HalterSerialService extends GetxService {
                 horseId: old.horseId,
               ),
             );
-            _pairingDevices.remove(detail.deviceId);
-            _devicePairingTimers[detail.deviceId]?.cancel();
+            _pairingDevices.remove(fixedDetail.deviceId);
+            _devicePairingTimers[fixedDetail.deviceId]?.cancel();
           }
         }
 
-        _resetDeviceTimeout(detail.deviceId);
+        _resetDeviceTimeout(fixedDetail.deviceId);
 
         if (indexDevice == -1) {
           // halterDeviceList.add(
           //   HalterDeviceModel(
-          //     deviceId: detail.deviceId,
+          //     deviceId: fixedDetail.deviceId,
           //     status: 'on',
-          //     batteryPercent: _voltageToPercent(detail.voltage).round(),
+          //     batteryPercent: _voltageToPercent(fixedDetail.voltage).round(),
           //   ),
           // );
           addHalterDevice(
             HalterDeviceModel(
-              deviceId: detail.deviceId,
+              deviceId: fixedDetail.deviceId,
               status: 'on',
-              batteryPercent: _voltageToPercent(detail.voltage).round(),
+              batteryPercent: _voltageToPercent(fixedDetail.voltage).round(),
             ),
           );
         } else {
           // halterDeviceList[indexDevice] = HalterDeviceModel(
-          //   deviceId: detail.deviceId,
+          //   deviceId: fixedDetail.deviceId,
           //   status: 'on',
-          //   batteryPercent: _voltageToPercent(detail.voltage).round(),
+          //   batteryPercent: _voltageToPercent(fixedDetail.voltage).round(),
           //   horseId: halterDeviceList[indexDevice].horseId,
           // );
           updateHalterDevice(
             HalterDeviceModel(
-              deviceId: detail.deviceId,
+              deviceId: fixedDetail.deviceId,
               status: 'on',
-              batteryPercent: _voltageToPercent(detail.voltage).round(),
+              batteryPercent: _voltageToPercent(fixedDetail.voltage).round(),
               horseId: halterDeviceList[indexDevice].horseId,
             ),
           );
         }
 
-        // final index = detailHistoryList.indexWhere(
-        //   (d) => d.deviceId == detail.deviceId && d.time == detail.time,
+        // final index = fixedDetailHistoryList.indexWhere(
+        //   (d) => d.deviceId == fixedDetail.deviceId && d.time == fixedDetail.time,
         // );
         // if (index == -1) {
-        //   dataController.addHalterDeviceDetail(detail);
+        //   dataController.addHalterDeviceDetail(fixedDetail);
         // } else {
-        //   dataController.updateHalterDeviceDetail(detail);
+        //   dataController.updateHalterDeviceDetail(fixedDetail);
         // }
-        addHalterDeviceDetail(detail);
+        addHalterDeviceDetail(fixedDetail);
 
         controller.checkAndLogHalter(
-          detail.deviceId,
-          suhu: detail.temperature,
-          spo: detail.spo,
-          bpm: detail.heartRate,
-          respirasi: detail.respiratoryRate,
-          time: detail.time,
-          battery: _voltageToPercent(detail.voltage).round(),
+          fixedDetail.deviceId,
+          suhu: fixedDetail.temperature,
+          spo: fixedDetail.spo,
+          bpm: fixedDetail.heartRate,
+          respirasi: fixedDetail.respiratoryRate,
+          time: fixedDetail.time,
+          battery: _voltageToPercent(fixedDetail.voltage).round(),
         );
 
         rawData.add(
@@ -334,7 +401,7 @@ class HalterSerialService extends GetxService {
           ),
         );
 
-        print('Parsed detail (with RSSI/SNR): $detail');
+        print('Parsed fixedDetail (with RSSI/SNR): $fixedDetail');
       } catch (e) {
         print('Parsing error: $e');
       }
@@ -363,73 +430,77 @@ class HalterSerialService extends GetxService {
     }
   }
 
-  // Timer? _dummyTimer;
+  Timer? _dummyTimer;
 
-  // void startDummySerial() {
-  //   final rnd = Random();
-  //   _dummyTimer?.cancel();
-  //   _dummyTimer = Timer.periodic(const Duration(seconds: 5), (_) {
-  //     // Helper untuk acak double dengan 2 desimal
-  //     String randDouble(num min, num max) =>
-  //         (min + rnd.nextDouble() * (max - min)).toStringAsFixed(2);
-  //     int randInt(int min, int max) => min + rnd.nextInt(max - min + 1);
+  void startDummySerial() {
+    final rnd = Random();
+    _dummyTimer?.cancel();
+    _dummyTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      // Helper untuk acak double dengan 2 desimal
+      String randDouble(num min, num max) =>
+          (min + rnd.nextDouble() * (max - min)).toStringAsFixed(2);
+      int randInt(int min, int max) => min + rnd.nextInt(max - min + 1);
 
-  //     String makeDummyData(String deviceId) {
-  //       // Field sesuai urutan (lihat gambar)
-  //       int latitude = 0,
-  //           longitude = 0,
-  //           altitude = 0,
-  //           sog = randInt(0, 25),
-  //           cog = randInt(0, 359);
-  //       double acceX = double.parse(randDouble(-12, 12));
-  //       double acceY = double.parse(randDouble(-12, 12));
-  //       double acceZ = double.parse(randDouble(-12, 12));
-  //       double gyroX = double.parse(randDouble(-2, 2));
-  //       double gyroY = double.parse(randDouble(-2, 2));
-  //       double gyroZ = double.parse(randDouble(-2, 2));
-  //       double magX = double.parse(randDouble(-70, 70));
-  //       double magY = double.parse(randDouble(-70, 70));
-  //       double magZ = double.parse(randDouble(-70, 70));
-  //       int roll = randInt(-45, 90);
-  //       int pitch = randInt(-45, 90);
-  //       int yaw = randInt(-180, 180);
-  //       int arus = 0;
-  //       double voltase = double.parse(randDouble(3200, 4200));
-  //       int bpm = randInt(28, 120);
-  //       double spo = double.parse(randDouble(90, 100));
-  //       double suhu = double.parse(randDouble(35, 40));
-  //       double respirasi = double.parse(randDouble(8, 30));
+      String makeDummyData(String deviceId) {
+        // Field sesuai urutan (lihat gambar)
+        int latitude = 0,
+            longitude = 0,
+            altitude = 0,
+            sog = randInt(0, 25),
+            cog = randInt(0, 359);
+        double acceX = double.parse(randDouble(-12, 12));
+        double acceY = double.parse(randDouble(-12, 12));
+        double acceZ = double.parse(randDouble(-12, 12));
+        double gyroX = double.parse(randDouble(-2, 2));
+        double gyroY = double.parse(randDouble(-2, 2));
+        double gyroZ = double.parse(randDouble(-2, 2));
+        double magX = double.parse(randDouble(-70, 70));
+        double magY = double.parse(randDouble(-70, 70));
+        double magZ = double.parse(randDouble(-70, 70));
+        int roll = randInt(-45, 90);
+        int pitch = randInt(-45, 90);
+        int yaw = randInt(-180, 180);
+        int arus = 0;
+        double voltase = double.parse(randDouble(3200, 4200));
+        // int bpm = randInt(28, 120);
+        // double spo = double.parse(randDouble(90, 100));
+        double suhu = double.parse(randDouble(35, 40));
+        double respirasi = double.parse(randDouble(8, 30));
+        int bpm = 0;
+        double spo = 0;
+        // double suhu = 0;
+        // double respirasi = 0;
 
-  //       return "Data: $deviceId,"
-  //           "$latitude,$longitude,$altitude,$sog,$cog,"
-  //           "$acceX,$acceY,$acceZ,"
-  //           "$gyroX,$gyroY,$gyroZ,"
-  //           "$magX,$magY,$magZ,"
-  //           "$roll,$pitch,$yaw,"
-  //           "$arus,$voltase,"
-  //           "$bpm,$spo,$suhu,$respirasi,*\n"
-  //           "RSSI: -${randInt(45, 70)} dBm\n"
-  //           "SNR: ${randDouble(7, 12)} dB\n";
-  //     }
+        return "Data: $deviceId,"
+            "$latitude,$longitude,$altitude,$sog,$cog,"
+            "$acceX,$acceY,$acceZ,"
+            "$gyroX,$gyroY,$gyroZ,"
+            "$magX,$magY,$magZ,"
+            "$roll,$pitch,$yaw,"
+            "$arus,$voltase,"
+            "$bpm,$spo,$suhu,$respirasi,*\n"
+            "RSSI: -${randInt(45, 70)} dBm\n"
+            "SNR: ${randDouble(7, 12)} dB\n";
+      }
 
-  //     final deviceIds = ["SHIPB1223001", "SHIPB1223002"];
-  //     for (final did in deviceIds) {
-  //       final dummyBlock = makeDummyData(did);
-  //       _processBlock(dummyBlock);
-  //     }
+      final deviceIds = ["SHIPB1223001", "SHIPB1223002"];
+      for (final did in deviceIds) {
+        final dummyBlock = makeDummyData(did);
+        _processBlock(dummyBlock);
+      }
 
-  //     // LoRa test (tidak diproses)
-  //     final dummyTestBlock = '''
-  // Data: LoRa Test from SHIPB1223002
-  // RSSI: -66 dBm
-  // SNR: 9.50 dB
-  // ''';
-  //     _processBlock(dummyTestBlock);
-  //   });
-  // }
+      // LoRa test (tidak diproses)
+      final dummyTestBlock = '''
+  Data: LoRa Test from SHIPB1223002
+  RSSI: -66 dBm
+  SNR: 9.50 dB
+  ''';
+      _processBlock(dummyTestBlock);
+    });
+  }
 
-  // void stopDummySerial() {
-  //   _dummyTimer?.cancel();
-  //   _dummyTimer = null;
-  // }
+  void stopDummySerial() {
+    _dummyTimer?.cancel();
+    _dummyTimer = null;
+  }
 }

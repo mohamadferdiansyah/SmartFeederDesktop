@@ -240,7 +240,7 @@ class _CustomSidebarState extends State<CustomSidebar> {
                 icon: Icons.logout,
                 iconColor: AppColors.primary,
                 onConfirm: () {
-                  Get.back();
+                  Get.offAndToNamed('/main-menu');
                 },
               ),
             ),

@@ -10,12 +10,14 @@ import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
 import 'package:smart_feeder_desktop/app/models/halter/cctv_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_log_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_position_rule_engine_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feed_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/history_entry_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_biometric_rule_engine_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/horse_health_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/models/horse_model.dart';
@@ -1474,6 +1476,12 @@ class DataController extends GetxController {
 
   final RxList<HalterDeviceDetailModel> detailHistory =
       <HalterDeviceDetailModel>[].obs;
+
+  final RxList<HalterBiometricRuleEngineModel> biometricClassificationList =
+      <HalterBiometricRuleEngineModel>[].obs;
+
+  final RxList<HalterPositionRuleEngineModel> positionClassificationList =
+      <HalterPositionRuleEngineModel>[].obs;
 
   Future<void> initAllDaosAndLoadAll() async {
     final db = await DBHelper.database;

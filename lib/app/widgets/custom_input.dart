@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 
 class CustomInput extends StatefulWidget {
@@ -9,6 +10,7 @@ class CustomInput extends StatefulWidget {
   final String? hint;
   final IconData? icon;
   final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CustomInput({
     super.key,
@@ -19,6 +21,7 @@ class CustomInput extends StatefulWidget {
     this.icon,
     this.fontSize = 16,
     this.keyboardType,
+    this.inputFormatters,
   });
 
   @override
@@ -49,6 +52,7 @@ class _CustomInputState extends State<CustomInput> {
         const SizedBox(height: 8),
         TextField(
           controller: widget.controller,
+          inputFormatters: widget.inputFormatters,
           obscureText: widget.isPassword ? _obscure : false,
           keyboardType: widget.keyboardType ?? TextInputType.text,
           decoration: InputDecoration(

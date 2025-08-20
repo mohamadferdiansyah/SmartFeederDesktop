@@ -1126,7 +1126,9 @@ class _DetailKudaView extends StatelessWidget {
                   );
                 }
 
-                final detail = controller.getSelectedHorseDetail();
+                final detail = controller.getSelectedHorseDetail(
+                  controller.selectedRoom.horseId ?? '',
+                );
 
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1319,6 +1321,8 @@ class _DetailKudaView extends StatelessWidget {
                                 ),
                                 Expanded(
                                   child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       // Row(
                                       //   children: [
@@ -1333,33 +1337,64 @@ class _DetailKudaView extends StatelessWidget {
                                       //     ),
                                       //   ],
                                       // ),
-                                      Row(
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text('Kesehatan:'),
                                           const SizedBox(width: 8),
-                                          Text(
-                                            controller.getHorseHealth(
-                                              suhu: detail?.temperature ?? 0,
-                                              heartRate: detail?.heartRate ?? 0,
-                                              spo: detail?.spo ?? 0,
-                                              respirasi:
-                                                  detail?.respiratoryRate ?? 0,
-                                            ),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blue,
-                                            ),
-                                          ),
+                                          Obx(() {
+                                            final detail = controller
+                                                .getSelectedHorseDetail(
+                                                  controller
+                                                          .selectedRoom
+                                                          .horseId ??
+                                                      '',
+                                                );
+                                            final healthData = controller
+                                                .getHorseHealth(
+                                                  suhu: detail?.temperature,
+                                                  heartRate: detail?.heartRate,
+                                                  spo: detail?.spo,
+                                                  respirasi:
+                                                      detail?.respiratoryRate,
+                                                );
+
+                                            return ElevatedButton(
+                                              onPressed: () {},
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    healthData == "Normal"
+                                                    ? Colors.green
+                                                    : Colors.red,
+                                                foregroundColor: Colors.white,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 8,
+                                                    ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                ),
+                                              ),
+                                              child: Text(healthData),
+                                            );
+                                          }),
                                         ],
                                       ),
-                                      Row(
+                                      const SizedBox(height: 4),
+
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text('Posisi:'),
                                           const SizedBox(width: 8),
                                           Text(
-                                            controller.getHorsePosture(
-                                              roll: detail?.roll ?? 0,
+                                            controller.getHorsePosition(
                                               pitch: detail?.pitch ?? 0,
+                                              roll: detail?.roll ?? 0,
                                               yaw: detail?.yaw ?? 0,
                                             ),
                                             style: TextStyle(
@@ -1392,43 +1427,16 @@ class _DetailKudaView extends StatelessWidget {
                               fit: BoxFit.contain,
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              const Text('Status Kesehatan Kuda'),
-                              const SizedBox(width: 8),
-                              Obx(() {
-                                final detail = controller
-                                    .getSelectedHorseDetail();
-                                final healthData = controller.getHorseHealth(
-                                  suhu: detail?.temperature ?? 0,
-                                  heartRate: detail?.heartRate ?? 0,
-                                  spo: detail?.spo ?? 0,
-                                  respirasi: detail?.respiratoryRate ?? 0,
-                                );
+                          // const SizedBox(height: 8),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.end,
+                          //   children: [
+                          //     const Text('Status Kesehatan Kuda'),
+                          //     const SizedBox(width: 8),
 
-                                return ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: healthData == "Sehat"
-                                        ? Colors.green
-                                        : Colors.red,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                  ),
-                                  child: Text(healthData),
-                                );
-                              }),
-                              const SizedBox(width: 8),
-                            ],
-                          ),
+                          //     const SizedBox(width: 8),
+                          //   ],
+                          // ),
                         ],
                       ),
                     ),
@@ -1527,7 +1535,9 @@ class _DetailKudaView extends StatelessWidget {
                   );
                 }
 
-                final detail = controller.getSelectedHorseDetail();
+                final detail = controller.getSelectedHorseDetail(
+                  controller.selectedRoom.horseId ?? '',
+                );
                 return CustomBiometricLegend(
                   items: [
                     BiometrikLegendItem(
@@ -1581,7 +1591,9 @@ class _DetailKudaView extends StatelessWidget {
                   );
                 }
 
-                final detail = controller.getSelectedHorseDetail();
+                final detail = controller.getSelectedHorseDetail(
+                  controller.selectedRoom.horseId ?? '',
+                );
 
                 return CustomBiometricLegend(
                   items: [
@@ -1617,13 +1629,18 @@ class _DetailKudaView extends StatelessWidget {
                     ),
                   );
                 }
-                final detail = controller.getSelectedHorseDetail();
+                final detail = controller.getSelectedHorseDetail(
+                  controller.selectedRoom.horseId ?? '',
+                );
                 final posture = detail == null
                     ? "Tidak ada data"
-                    : controller.getHorsePosture(
-                        roll: detail.roll ?? 0,
+                    : controller.getHorsePosition(
                         pitch: detail.pitch ?? 0,
+                        roll: detail.roll ?? 0,
                         yaw: detail.yaw ?? 0,
+                        // detail.acceX ?? 0,
+                        // detail.acceY ?? 0,
+                        // detail.acceZ ?? 0,
                       );
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -5,7 +5,7 @@ import 'package:smart_feeder_desktop/app/modules/main_menu/main_menu_controller.
 class MainMenuBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<MainMenuController>(() => MainMenuController());
     Get.lazyPut<LoginController>(() => LoginController());
+    Get.lazyPut<MainMenuController>(() => MainMenuController());
   }
 }

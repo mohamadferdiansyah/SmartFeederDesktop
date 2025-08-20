@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
-import 'package:smart_feeder_desktop/app/models/halter/halter_rule_engine_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_alert_rule_engine_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/alert/halter_alert_rule_engine_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
@@ -66,6 +66,7 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: CustomCard(
+          scrollable: false,
           withExpanded: false,
           title: 'Alert Rule Engine',
           content: DefaultTabController(
@@ -89,18 +90,58 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                 const SizedBox(height: 16),
                 // Expanded ensures TabBarView fills available space
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.8,
+                  height: MediaQuery.of(context).size.height * 0.76,
                   child: TabBarView(
                     children: [
-                      _scrollableTab(_buildKudaTab(context)),
-                      _scrollableTab(_buildHalterTab(context)),
-                      _scrollableTab(_buildNodeRoomTab(context)),
+                      _buildKudaTab(context),
+                      _buildHalterTab(context),
+                      _buildNodeRoomTab(context),
                     ],
                   ),
                 ),
               ],
             ),
           ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            controller.setDefaultSetting();
+            // Update semua controller input agar UI langsung berubah
+            final s = controller.setting.value;
+            setState(() {
+              suhuMinCtrl.text = s.tempMin.toString();
+              suhuMaxCtrl.text = s.tempMax.toString();
+              spoMinCtrl.text = s.spoMin.toString();
+              spoMaxCtrl.text = s.spoMax.toString();
+              bpmMinCtrl.text = s.heartRateMin.toString();
+              bpmMaxCtrl.text = s.heartRateMax.toString();
+              respMaxCtrl.text = s.respiratoryMax.toString();
+              batteryMinCtrl.text = s.batteryMin.toString();
+              roomTempMinCtrl.text = s.tempRoomMin.toString();
+              roomTempMaxCtrl.text = s.tempRoomMax.toString();
+              roomHumMinCtrl.text = s.humidityMin.toString();
+              roomHumMaxCtrl.text = s.humidityMax.toString();
+              roomLuxMinCtrl.text = s.lightIntensityMin.toString();
+              roomLuxMaxCtrl.text = s.lightIntensityMax.toString();
+            });
+            toastification.show(
+              context: context,
+              title: const Text('Settingan Default Berhasil Diaktifkan'),
+              type: ToastificationType.success,
+              alignment: Alignment.topCenter,
+              autoCloseDuration: const Duration(seconds: 2),
+            );
+          },
+          label: const Text(
+            'Set Default Setting',
+            style: TextStyle(color: Colors.white),
+          ),
+          icon: const Icon(Icons.restore, color: Colors.white),
+          backgroundColor: AppColors.primary,
         ),
       ),
     );
@@ -122,178 +163,186 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
 
   // ----- KONTEN TAB Kuda -----
   Widget _buildKudaTab(BuildContext context) {
-    return Center(
+    return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: [
-              _buildSettingWithCard(
-                'Pengaturan Suhu',
-                'Suhu Minimal',
-                'Suhu Maksimal',
-                suhuMinCtrl,
-                suhuMaxCtrl,
-                () {
-                  controller.updateSetting(
-                    HalterRuleEngineModel(
-                      ruleId: controller.setting.value.ruleId,
-                      tempMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
-                      tempMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
-                      spoMin: double.tryParse(spoMinCtrl.text) ?? 95.0,
-                      spoMax: double.tryParse(spoMaxCtrl.text) ?? 100.0,
-                      heartRateMin: int.tryParse(bpmMinCtrl.text) ?? 28,
-                      heartRateMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
-                      respiratoryMax: double.tryParse(respMaxCtrl.text) ?? 20.0,
-                      batteryMin: controller.setting.value.batteryMin,
-                      tempRoomMin: controller.setting.value.tempRoomMin,
-                      tempRoomMax: controller.setting.value.tempRoomMax,
-                      humidityMin: controller.setting.value.humidityMin,
-                      humidityMax: controller.setting.value.humidityMax,
-                      lightIntensityMin:
-                          controller.setting.value.lightIntensityMin,
-                      lightIntensityMax:
-                          controller.setting.value.lightIntensityMax,
-                    ),
-                  );
-                  toastification.show(
-                    context: context,
-                    title: const Text(
-                      'Berhasil Menyimpan Pengaturan Suhu Kuda',
-                    ),
-                    type: ToastificationType.success,
-                    alignment: Alignment.topCenter,
-                    autoCloseDuration: const Duration(seconds: 2),
-                  );
-                },
-                Icons.thermostat_outlined,
-              ),
-              _buildSettingWithCard(
-                'Pengaturan Kadar Oksigen Darah',
-                'SPO Minimal',
-                'SPO Maksimal',
-                spoMinCtrl,
-                spoMaxCtrl,
-                () {
-                  controller.updateSetting(
-                    HalterRuleEngineModel(
-                      ruleId: controller.setting.value.ruleId,
-                      tempMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
-                      tempMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
-                      spoMin: double.tryParse(spoMinCtrl.text) ?? 95.0,
-                      spoMax: double.tryParse(spoMaxCtrl.text) ?? 100.0,
-                      heartRateMin: int.tryParse(bpmMinCtrl.text) ?? 28,
-                      heartRateMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
-                      respiratoryMax: double.tryParse(respMaxCtrl.text) ?? 20.0,
-                      batteryMin: controller.setting.value.batteryMin,
-                      tempRoomMin: controller.setting.value.tempRoomMin,
-                      tempRoomMax: controller.setting.value.tempRoomMax,
-                      humidityMin: controller.setting.value.humidityMin,
-                      humidityMax: controller.setting.value.humidityMax,
-                      lightIntensityMin:
-                          controller.setting.value.lightIntensityMin,
-                      lightIntensityMax:
-                          controller.setting.value.lightIntensityMax,
-                    ),
-                  );
-                  toastification.show(
-                    context: context,
-                    title: const Text(
-                      'Berhasil Menyimpan Pengaturan Kadar Oksigen Kuda',
-                    ),
-                    type: ToastificationType.success,
-                    alignment: Alignment.topCenter,
-                    autoCloseDuration: const Duration(seconds: 2),
-                  );
-                },
-                Icons.monitor_heart_outlined,
-              ),
-              _buildSettingWithCard(
-                'Pengaturan BPM',
-                'BPM Minimal',
-                'BPM Maksimal',
-                bpmMinCtrl,
-                bpmMaxCtrl,
-                () {
-                  controller.updateSetting(
-                    HalterRuleEngineModel(
-                      ruleId: controller.setting.value.ruleId,
-                      tempMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
-                      tempMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
-                      spoMin: double.tryParse(spoMinCtrl.text) ?? 95.0,
-                      spoMax: double.tryParse(spoMaxCtrl.text) ?? 100.0,
-                      heartRateMin: int.tryParse(bpmMinCtrl.text) ?? 28,
-                      heartRateMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
-                      respiratoryMax: double.tryParse(respMaxCtrl.text) ?? 20.0,
-                      batteryMin: controller.setting.value.batteryMin,
-                      tempRoomMin: controller.setting.value.tempRoomMin,
-                      tempRoomMax: controller.setting.value.tempRoomMax,
-                      humidityMin: controller.setting.value.humidityMin,
-                      humidityMax: controller.setting.value.humidityMax,
-                      lightIntensityMin:
-                          controller.setting.value.lightIntensityMin,
-                      lightIntensityMax:
-                          controller.setting.value.lightIntensityMax,
-                    ),
-                  );
-                  toastification.show(
-                    context: context,
-                    title: const Text('Berhasil Menyimpan Pengaturan BPM Kuda'),
-                    type: ToastificationType.success,
-                    alignment: Alignment.topCenter,
-                    autoCloseDuration: const Duration(seconds: 2),
-                  );
-                },
-                Icons.monitor_weight_outlined,
-              ),
-              _buildSettingWithCard(
-                'Pengaturan Respirasi',
-                'Respirasi Maksimal',
-                null,
-                respMaxCtrl,
-                null,
-                () {
-                  controller.updateSetting(
-                    HalterRuleEngineModel(
-                      ruleId: controller.setting.value.ruleId,
-                      tempMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
-                      tempMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
-                      spoMin: double.tryParse(spoMinCtrl.text) ?? 95.0,
-                      spoMax: double.tryParse(spoMaxCtrl.text) ?? 100.0,
-                      heartRateMin: int.tryParse(bpmMinCtrl.text) ?? 28,
-                      heartRateMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
-                      respiratoryMax: double.tryParse(respMaxCtrl.text) ?? 20.0,
-                      batteryMin: controller.setting.value.batteryMin,
-                      tempRoomMin: controller.setting.value.tempRoomMin,
-                      tempRoomMax: controller.setting.value.tempRoomMax,
-                      humidityMin: controller.setting.value.humidityMin,
-                      humidityMax: controller.setting.value.humidityMax,
-                      lightIntensityMin:
-                          controller.setting.value.lightIntensityMin,
-                      lightIntensityMax:
-                          controller.setting.value.lightIntensityMax,
-                    ),
-                  );
-                  toastification.show(
-                    context: context,
-                    title: const Text(
-                      'Berhasil Menyimpan Pengaturan Respirasi Kuda',
-                    ),
-                    type: ToastificationType.success,
-                    alignment: Alignment.topCenter,
-                    autoCloseDuration: const Duration(seconds: 2),
-                  );
-                },
-                Icons.air_outlined,
-              ),
-              _buildLogCard(
-                title: "Log Alert Kesehatan Kuda",
-                allowedTypes: ['suhu', 'spo', 'bpm', 'respirasi'],
-                logs: controller.halterHorseLogList,
-              ),
-            ],
+          Center(
+            child: Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _buildSettingWithCard(
+                  'Pengaturan Suhu',
+                  'Suhu Minimal',
+                  'Suhu Maksimal',
+                  suhuMinCtrl,
+                  suhuMaxCtrl,
+                  () {
+                    controller.updateSetting(
+                      HalterAlertRuleEngineModel(
+                        ruleId: controller.setting.value.ruleId,
+                        tempMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
+                        tempMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
+                        spoMin: double.tryParse(spoMinCtrl.text) ?? 95.0,
+                        spoMax: double.tryParse(spoMaxCtrl.text) ?? 100.0,
+                        heartRateMin: int.tryParse(bpmMinCtrl.text) ?? 28,
+                        heartRateMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
+                        respiratoryMax:
+                            double.tryParse(respMaxCtrl.text) ?? 20.0,
+                        batteryMin: controller.setting.value.batteryMin,
+                        tempRoomMin: controller.setting.value.tempRoomMin,
+                        tempRoomMax: controller.setting.value.tempRoomMax,
+                        humidityMin: controller.setting.value.humidityMin,
+                        humidityMax: controller.setting.value.humidityMax,
+                        lightIntensityMin:
+                            controller.setting.value.lightIntensityMin,
+                        lightIntensityMax:
+                            controller.setting.value.lightIntensityMax,
+                      ),
+                    );
+                    toastification.show(
+                      context: context,
+                      title: const Text(
+                        'Berhasil Menyimpan Pengaturan Suhu Kuda',
+                      ),
+                      type: ToastificationType.success,
+                      alignment: Alignment.topCenter,
+                      autoCloseDuration: const Duration(seconds: 2),
+                    );
+                  },
+                  Icons.thermostat_outlined,
+                ),
+                _buildSettingWithCard(
+                  'Pengaturan Kadar Oksigen Darah',
+                  'SPO Minimal',
+                  'SPO Maksimal',
+                  spoMinCtrl,
+                  spoMaxCtrl,
+                  () {
+                    controller.updateSetting(
+                      HalterAlertRuleEngineModel(
+                        ruleId: controller.setting.value.ruleId,
+                        tempMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
+                        tempMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
+                        spoMin: double.tryParse(spoMinCtrl.text) ?? 95.0,
+                        spoMax: double.tryParse(spoMaxCtrl.text) ?? 100.0,
+                        heartRateMin: int.tryParse(bpmMinCtrl.text) ?? 28,
+                        heartRateMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
+                        respiratoryMax:
+                            double.tryParse(respMaxCtrl.text) ?? 20.0,
+                        batteryMin: controller.setting.value.batteryMin,
+                        tempRoomMin: controller.setting.value.tempRoomMin,
+                        tempRoomMax: controller.setting.value.tempRoomMax,
+                        humidityMin: controller.setting.value.humidityMin,
+                        humidityMax: controller.setting.value.humidityMax,
+                        lightIntensityMin:
+                            controller.setting.value.lightIntensityMin,
+                        lightIntensityMax:
+                            controller.setting.value.lightIntensityMax,
+                      ),
+                    );
+                    toastification.show(
+                      context: context,
+                      title: const Text(
+                        'Berhasil Menyimpan Pengaturan Kadar Oksigen Kuda',
+                      ),
+                      type: ToastificationType.success,
+                      alignment: Alignment.topCenter,
+                      autoCloseDuration: const Duration(seconds: 2),
+                    );
+                  },
+                  Icons.monitor_heart_outlined,
+                ),
+                _buildSettingWithCard(
+                  'Pengaturan BPM',
+                  'BPM Minimal',
+                  'BPM Maksimal',
+                  bpmMinCtrl,
+                  bpmMaxCtrl,
+                  () {
+                    controller.updateSetting(
+                      HalterAlertRuleEngineModel(
+                        ruleId: controller.setting.value.ruleId,
+                        tempMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
+                        tempMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
+                        spoMin: double.tryParse(spoMinCtrl.text) ?? 95.0,
+                        spoMax: double.tryParse(spoMaxCtrl.text) ?? 100.0,
+                        heartRateMin: int.tryParse(bpmMinCtrl.text) ?? 28,
+                        heartRateMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
+                        respiratoryMax:
+                            double.tryParse(respMaxCtrl.text) ?? 20.0,
+                        batteryMin: controller.setting.value.batteryMin,
+                        tempRoomMin: controller.setting.value.tempRoomMin,
+                        tempRoomMax: controller.setting.value.tempRoomMax,
+                        humidityMin: controller.setting.value.humidityMin,
+                        humidityMax: controller.setting.value.humidityMax,
+                        lightIntensityMin:
+                            controller.setting.value.lightIntensityMin,
+                        lightIntensityMax:
+                            controller.setting.value.lightIntensityMax,
+                      ),
+                    );
+                    toastification.show(
+                      context: context,
+                      title: const Text(
+                        'Berhasil Menyimpan Pengaturan BPM Kuda',
+                      ),
+                      type: ToastificationType.success,
+                      alignment: Alignment.topCenter,
+                      autoCloseDuration: const Duration(seconds: 2),
+                    );
+                  },
+                  Icons.monitor_weight_outlined,
+                ),
+                _buildSettingWithCard(
+                  'Pengaturan Respirasi',
+                  'Respirasi Maksimal',
+                  null,
+                  respMaxCtrl,
+                  null,
+                  () {
+                    controller.updateSetting(
+                      HalterAlertRuleEngineModel(
+                        ruleId: controller.setting.value.ruleId,
+                        tempMin: double.tryParse(suhuMinCtrl.text) ?? 36.5,
+                        tempMax: double.tryParse(suhuMaxCtrl.text) ?? 39.0,
+                        spoMin: double.tryParse(spoMinCtrl.text) ?? 95.0,
+                        spoMax: double.tryParse(spoMaxCtrl.text) ?? 100.0,
+                        heartRateMin: int.tryParse(bpmMinCtrl.text) ?? 28,
+                        heartRateMax: int.tryParse(bpmMaxCtrl.text) ?? 44,
+                        respiratoryMax:
+                            double.tryParse(respMaxCtrl.text) ?? 20.0,
+                        batteryMin: controller.setting.value.batteryMin,
+                        tempRoomMin: controller.setting.value.tempRoomMin,
+                        tempRoomMax: controller.setting.value.tempRoomMax,
+                        humidityMin: controller.setting.value.humidityMin,
+                        humidityMax: controller.setting.value.humidityMax,
+                        lightIntensityMin:
+                            controller.setting.value.lightIntensityMin,
+                        lightIntensityMax:
+                            controller.setting.value.lightIntensityMax,
+                      ),
+                    );
+                    toastification.show(
+                      context: context,
+                      title: const Text(
+                        'Berhasil Menyimpan Pengaturan Respirasi Kuda',
+                      ),
+                      type: ToastificationType.success,
+                      alignment: Alignment.topCenter,
+                      autoCloseDuration: const Duration(seconds: 2),
+                    );
+                  },
+                  Icons.air_outlined,
+                ),
+                _buildLogCard(
+                  title: "Log Alert Kesehatan Kuda",
+                  allowedTypes: ['suhu', 'spo', 'bpm', 'respirasi'],
+                  logs: controller.halterHorseLogList,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -302,63 +351,65 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
 
   // ----- KONTEN TAB Halter -----
   Widget _buildHalterTab(BuildContext context) {
-    return Center(
+    return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: [
-              _buildSettingWithCard(
-                'Pengaturan Baterai Halter',
-                'Minimal Baterai (%)',
-                null,
-                batteryMinCtrl,
-                null,
-                () {
-                  controller.updateSetting(
-                    HalterRuleEngineModel(
-                      ruleId: controller.setting.value.ruleId,
-                      tempMin: controller.setting.value.tempMin,
-                      tempMax: controller.setting.value.tempMax,
-                      spoMin: controller.setting.value.spoMin,
-                      spoMax: controller.setting.value.spoMax,
-                      heartRateMin: controller.setting.value.heartRateMin,
-                      heartRateMax: controller.setting.value.heartRateMax,
-                      respiratoryMax: controller.setting.value.respiratoryMax,
-                      batteryMin: double.tryParse(batteryMinCtrl.text) ?? 0.0,
-                      tempRoomMin: controller.setting.value.tempRoomMin,
-                      tempRoomMax: controller.setting.value.tempRoomMax,
-                      humidityMin: controller.setting.value.humidityMin,
-                      humidityMax: controller.setting.value.humidityMax,
-                      lightIntensityMin:
-                          controller.setting.value.lightIntensityMin,
-                      lightIntensityMax:
-                          controller.setting.value.lightIntensityMax,
-                    ),
-                  );
-                  toastification.show(
-                    context: context,
-                    title: const Text(
-                      'Berhasil Menyimpan Pengaturan Minimal Baterai',
-                    ),
-                    type: ToastificationType.success,
-                    description: Text(
-                      'Minimal Baterai: ${batteryMinCtrl.text}%',
-                    ),
-                    alignment: Alignment.topCenter,
-                    autoCloseDuration: const Duration(seconds: 2),
-                  );
-                },
-                Icons.battery_3_bar,
-              ),
-              _buildLogCard(
-                title: "Log Alert Halter",
-                allowedTypes: ['battery'],
-                logs: controller.halterHorseLogList,
-              ),
-            ],
+          Center(
+            child: Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _buildSettingWithCard(
+                  'Pengaturan Baterai Halter',
+                  'Minimal Baterai (%)',
+                  null,
+                  batteryMinCtrl,
+                  null,
+                  () {
+                    controller.updateSetting(
+                      HalterAlertRuleEngineModel(
+                        ruleId: controller.setting.value.ruleId,
+                        tempMin: controller.setting.value.tempMin,
+                        tempMax: controller.setting.value.tempMax,
+                        spoMin: controller.setting.value.spoMin,
+                        spoMax: controller.setting.value.spoMax,
+                        heartRateMin: controller.setting.value.heartRateMin,
+                        heartRateMax: controller.setting.value.heartRateMax,
+                        respiratoryMax: controller.setting.value.respiratoryMax,
+                        batteryMin: double.tryParse(batteryMinCtrl.text) ?? 0.0,
+                        tempRoomMin: controller.setting.value.tempRoomMin,
+                        tempRoomMax: controller.setting.value.tempRoomMax,
+                        humidityMin: controller.setting.value.humidityMin,
+                        humidityMax: controller.setting.value.humidityMax,
+                        lightIntensityMin:
+                            controller.setting.value.lightIntensityMin,
+                        lightIntensityMax:
+                            controller.setting.value.lightIntensityMax,
+                      ),
+                    );
+                    toastification.show(
+                      context: context,
+                      title: const Text(
+                        'Berhasil Menyimpan Pengaturan Minimal Baterai',
+                      ),
+                      type: ToastificationType.success,
+                      description: Text(
+                        'Minimal Baterai: ${batteryMinCtrl.text}%',
+                      ),
+                      alignment: Alignment.topCenter,
+                      autoCloseDuration: const Duration(seconds: 2),
+                    );
+                  },
+                  Icons.battery_3_bar,
+                ),
+                _buildLogCard(
+                  title: "Log Alert Halter",
+                  allowedTypes: ['battery'],
+                  logs: controller.halterHorseLogList,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -367,170 +418,174 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
 
   // ----- KONTEN TAB Node Room -----
   Widget _buildNodeRoomTab(BuildContext context) {
-    return Center(
+    return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: [
-              _buildSettingWithCard(
-                'Pengaturan Suhu Ruangan',
-                'Suhu Minimal',
-                'Suhu Maksimal',
-                roomTempMinCtrl,
-                roomTempMaxCtrl,
-                () {
-                  controller.updateSetting(
-                    HalterRuleEngineModel(
-                      ruleId: controller.setting.value.ruleId,
-                      tempMin: controller.setting.value.tempMin,
-                      tempMax: controller.setting.value.tempMax,
-                      spoMin: controller.setting.value.spoMin,
-                      spoMax: controller.setting.value.spoMax,
-                      heartRateMin: controller.setting.value.heartRateMin,
-                      heartRateMax: controller.setting.value.heartRateMax,
-                      respiratoryMax: controller.setting.value.respiratoryMax,
-                      batteryMin: controller.setting.value.batteryMin,
-                      tempRoomMin:
-                          double.tryParse(roomTempMinCtrl.text) ?? 20.0,
-                      tempRoomMax:
-                          double.tryParse(roomTempMaxCtrl.text) ?? 30.0,
-                      humidityMin: controller.setting.value.humidityMin,
-                      humidityMax: controller.setting.value.humidityMax,
-                      lightIntensityMin:
-                          controller.setting.value.lightIntensityMin,
-                      lightIntensityMax:
-                          controller.setting.value.lightIntensityMax,
-                    ),
-                  );
-                  toastification.show(
-                    context: context,
-                    title: const Text(
-                      'Berhasil Menyimpan Pengaturan Suhu Ruangan',
-                    ),
-                    type: ToastificationType.success,
-                    description: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Suhu Min: ${roomTempMinCtrl.text}'),
-                        Text('Suhu Max: ${roomTempMaxCtrl.text}'),
-                      ],
-                    ),
-                    alignment: Alignment.topCenter,
-                    autoCloseDuration: const Duration(seconds: 2),
-                  );
-                },
-                Icons.thermostat_outlined,
-              ),
-              _buildSettingWithCard(
-                'Pengaturan Kelembapan Ruangan',
-                'Kelembapan Minimal',
-                'Kelembapan Maksimal',
-                roomHumMinCtrl,
-                roomHumMaxCtrl,
-                () {
-                  controller.updateSetting(
-                    HalterRuleEngineModel(
-                      ruleId: controller.setting.value.ruleId,
-                      tempMin: controller.setting.value.tempMin,
-                      tempMax: controller.setting.value.tempMax,
-                      spoMin: controller.setting.value.spoMin,
-                      spoMax: controller.setting.value.spoMax,
-                      heartRateMin: controller.setting.value.heartRateMin,
-                      heartRateMax: controller.setting.value.heartRateMax,
-                      respiratoryMax: controller.setting.value.respiratoryMax,
-                      batteryMin: controller.setting.value.batteryMin,
-                      tempRoomMin: controller.setting.value.tempRoomMin,
-                      tempRoomMax: controller.setting.value.tempRoomMax,
-                      humidityMin: double.tryParse(roomHumMinCtrl.text) ?? 30.0,
-                      humidityMax: double.tryParse(roomHumMaxCtrl.text) ?? 50.0,
-                      lightIntensityMin:
-                          controller.setting.value.lightIntensityMin,
-                      lightIntensityMax:
-                          controller.setting.value.lightIntensityMax,
-                    ),
-                  );
-                  toastification.show(
-                    context: context,
-                    title: const Text(
-                      'Berhasil Menyimpan Pengaturan Kelembapan Ruangan',
-                    ),
-                    type: ToastificationType.success,
-                    description: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Kelembapan Min: ${roomHumMinCtrl.text}'),
-                        Text('Kelembapan Max: ${roomHumMaxCtrl.text}'),
-                      ],
-                    ),
-                    alignment: Alignment.topCenter,
-                    autoCloseDuration: const Duration(seconds: 2),
-                  );
-                },
-                Icons.water_drop_outlined,
-              ),
-              _buildSettingWithCard(
-                'Pengaturan Lux Ruangan',
-                'Lux Minimal',
-                'Lux Maksimal',
-                roomLuxMinCtrl,
-                roomLuxMaxCtrl,
-                () {
-                  controller.updateSetting(
-                    HalterRuleEngineModel(
-                      ruleId: controller.setting.value.ruleId,
-                      tempMin: controller.setting.value.tempMin,
-                      tempMax: controller.setting.value.tempMax,
-                      spoMin: controller.setting.value.spoMin,
-                      spoMax: controller.setting.value.spoMax,
-                      heartRateMin: controller.setting.value.heartRateMin,
-                      heartRateMax: controller.setting.value.heartRateMax,
-                      respiratoryMax: controller.setting.value.respiratoryMax,
-                      batteryMin: controller.setting.value.batteryMin,
-                      tempRoomMin: controller.setting.value.tempRoomMin,
-                      tempRoomMax: controller.setting.value.tempRoomMax,
-                      humidityMin: controller.setting.value.humidityMin,
-                      humidityMax: controller.setting.value.humidityMax,
-                      lightIntensityMin:
-                          double.tryParse(roomLuxMinCtrl.text) ?? 0.0,
-                      lightIntensityMax:
-                          double.tryParse(roomLuxMaxCtrl.text) ?? 100.0,
-                    ),
-                  );
-                  toastification.show(
-                    context: context,
-                    title: const Text(
-                      'Berhasil Menyimpan Pengaturan Lux Ruangan',
-                    ),
-                    type: ToastificationType.success,
-                    description: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Lux Min: ${roomLuxMinCtrl.text}'),
-                        Text('Lux Max: ${roomLuxMaxCtrl.text}'),
-                      ],
-                    ),
-                    alignment: Alignment.topCenter,
-                    autoCloseDuration: const Duration(seconds: 2),
-                  );
-                },
-                Icons.light_mode_outlined,
-              ),
-              // CARD LOG UNTUK NODE ROOM
-              _buildLogCard(
-                width: MediaQuery.of(context).size.width * 0.767,
-                title: "Log Alert Node Room",
-                allowedTypes: [
-                  'room_temperature',
-                  'humidity',
-                  'light_intensity',
-                ],
-                logs: controller
-                    .halterHorseLogList, // Ganti dengan log node room jika ada
-              ),
-            ],
+          Center(
+            child: Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _buildSettingWithCard(
+                  'Pengaturan Suhu Ruangan',
+                  'Suhu Minimal',
+                  'Suhu Maksimal',
+                  roomTempMinCtrl,
+                  roomTempMaxCtrl,
+                  () {
+                    controller.updateSetting(
+                      HalterAlertRuleEngineModel(
+                        ruleId: controller.setting.value.ruleId,
+                        tempMin: controller.setting.value.tempMin,
+                        tempMax: controller.setting.value.tempMax,
+                        spoMin: controller.setting.value.spoMin,
+                        spoMax: controller.setting.value.spoMax,
+                        heartRateMin: controller.setting.value.heartRateMin,
+                        heartRateMax: controller.setting.value.heartRateMax,
+                        respiratoryMax: controller.setting.value.respiratoryMax,
+                        batteryMin: controller.setting.value.batteryMin,
+                        tempRoomMin:
+                            double.tryParse(roomTempMinCtrl.text) ?? 20.0,
+                        tempRoomMax:
+                            double.tryParse(roomTempMaxCtrl.text) ?? 30.0,
+                        humidityMin: controller.setting.value.humidityMin,
+                        humidityMax: controller.setting.value.humidityMax,
+                        lightIntensityMin:
+                            controller.setting.value.lightIntensityMin,
+                        lightIntensityMax:
+                            controller.setting.value.lightIntensityMax,
+                      ),
+                    );
+                    toastification.show(
+                      context: context,
+                      title: const Text(
+                        'Berhasil Menyimpan Pengaturan Suhu Ruangan',
+                      ),
+                      type: ToastificationType.success,
+                      description: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Suhu Min: ${roomTempMinCtrl.text}'),
+                          Text('Suhu Max: ${roomTempMaxCtrl.text}'),
+                        ],
+                      ),
+                      alignment: Alignment.topCenter,
+                      autoCloseDuration: const Duration(seconds: 2),
+                    );
+                  },
+                  Icons.thermostat_outlined,
+                ),
+                _buildSettingWithCard(
+                  'Pengaturan Kelembapan Ruangan',
+                  'Kelembapan Minimal',
+                  'Kelembapan Maksimal',
+                  roomHumMinCtrl,
+                  roomHumMaxCtrl,
+                  () {
+                    controller.updateSetting(
+                      HalterAlertRuleEngineModel(
+                        ruleId: controller.setting.value.ruleId,
+                        tempMin: controller.setting.value.tempMin,
+                        tempMax: controller.setting.value.tempMax,
+                        spoMin: controller.setting.value.spoMin,
+                        spoMax: controller.setting.value.spoMax,
+                        heartRateMin: controller.setting.value.heartRateMin,
+                        heartRateMax: controller.setting.value.heartRateMax,
+                        respiratoryMax: controller.setting.value.respiratoryMax,
+                        batteryMin: controller.setting.value.batteryMin,
+                        tempRoomMin: controller.setting.value.tempRoomMin,
+                        tempRoomMax: controller.setting.value.tempRoomMax,
+                        humidityMin:
+                            double.tryParse(roomHumMinCtrl.text) ?? 30.0,
+                        humidityMax:
+                            double.tryParse(roomHumMaxCtrl.text) ?? 50.0,
+                        lightIntensityMin:
+                            controller.setting.value.lightIntensityMin,
+                        lightIntensityMax:
+                            controller.setting.value.lightIntensityMax,
+                      ),
+                    );
+                    toastification.show(
+                      context: context,
+                      title: const Text(
+                        'Berhasil Menyimpan Pengaturan Kelembapan Ruangan',
+                      ),
+                      type: ToastificationType.success,
+                      description: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Kelembapan Min: ${roomHumMinCtrl.text}'),
+                          Text('Kelembapan Max: ${roomHumMaxCtrl.text}'),
+                        ],
+                      ),
+                      alignment: Alignment.topCenter,
+                      autoCloseDuration: const Duration(seconds: 2),
+                    );
+                  },
+                  Icons.water_drop_outlined,
+                ),
+                _buildSettingWithCard(
+                  'Pengaturan Lux Ruangan',
+                  'Lux Minimal',
+                  'Lux Maksimal',
+                  roomLuxMinCtrl,
+                  roomLuxMaxCtrl,
+                  () {
+                    controller.updateSetting(
+                      HalterAlertRuleEngineModel(
+                        ruleId: controller.setting.value.ruleId,
+                        tempMin: controller.setting.value.tempMin,
+                        tempMax: controller.setting.value.tempMax,
+                        spoMin: controller.setting.value.spoMin,
+                        spoMax: controller.setting.value.spoMax,
+                        heartRateMin: controller.setting.value.heartRateMin,
+                        heartRateMax: controller.setting.value.heartRateMax,
+                        respiratoryMax: controller.setting.value.respiratoryMax,
+                        batteryMin: controller.setting.value.batteryMin,
+                        tempRoomMin: controller.setting.value.tempRoomMin,
+                        tempRoomMax: controller.setting.value.tempRoomMax,
+                        humidityMin: controller.setting.value.humidityMin,
+                        humidityMax: controller.setting.value.humidityMax,
+                        lightIntensityMin:
+                            double.tryParse(roomLuxMinCtrl.text) ?? 0.0,
+                        lightIntensityMax:
+                            double.tryParse(roomLuxMaxCtrl.text) ?? 100.0,
+                      ),
+                    );
+                    toastification.show(
+                      context: context,
+                      title: const Text(
+                        'Berhasil Menyimpan Pengaturan Lux Ruangan',
+                      ),
+                      type: ToastificationType.success,
+                      description: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Lux Min: ${roomLuxMinCtrl.text}'),
+                          Text('Lux Max: ${roomLuxMaxCtrl.text}'),
+                        ],
+                      ),
+                      alignment: Alignment.topCenter,
+                      autoCloseDuration: const Duration(seconds: 2),
+                    );
+                  },
+                  Icons.light_mode_outlined,
+                ),
+                // CARD LOG UNTUK NODE ROOM
+                _buildLogCard(
+                  width: MediaQuery.of(context).size.width * 0.767,
+                  title: "Log Alert Node Room",
+                  allowedTypes: [
+                    'room_temperature',
+                    'humidity',
+                    'light_intensity',
+                  ],
+                  logs: controller
+                      .halterHorseLogList, // Ganti dengan log node room jika ada
+                ),
+              ],
+            ),
           ),
         ],
       ),

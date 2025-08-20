@@ -1,4 +1,4 @@
-class HalterRuleEngineModel {
+class HalterAlertRuleEngineModel {
   final int ruleId;
   final double tempMax;
   final double tempMin;
@@ -15,7 +15,7 @@ class HalterRuleEngineModel {
   final double lightIntensityMin;
   final double lightIntensityMax;
 
-  HalterRuleEngineModel({
+  HalterAlertRuleEngineModel({
     required this.ruleId,
     required this.tempMax,
     required this.tempMin,
@@ -33,23 +33,24 @@ class HalterRuleEngineModel {
     required this.lightIntensityMax,
   });
 
-  factory HalterRuleEngineModel.fromMap(Map<String, dynamic> map) => HalterRuleEngineModel(
-    ruleId: map['rule_id'],
-    tempMax: (map['temp_max'] ?? 0).toDouble(),
-    tempMin: (map['temp_min'] ?? 0).toDouble(),
-    spoMax: (map['spo_max'] ?? 0).toDouble(),
-    spoMin: (map['spo_min'] ?? 0).toDouble(),
-    heartRateMax: map['heart_rate_max'] ?? 0,
-    heartRateMin: map['heart_rate_min'] ?? 0,
-    respiratoryMax: (map['respiratory_max'] ?? 0).toDouble(),
-    batteryMin: (map['battery_min'] ?? 0).toDouble(),
-    tempRoomMin: (map['temp_room_min'] ?? 0).toDouble(),
-    tempRoomMax: (map['temp_room_max'] ?? 0).toDouble(),
-    humidityMin: (map['humidity_min'] ?? 0).toDouble(),
-    humidityMax: (map['humidity_max'] ?? 0).toDouble(),
-    lightIntensityMin: (map['light_intensity_min'] ?? 0).toDouble(),
-    lightIntensityMax: (map['light_intensity_max'] ?? 0).toDouble(),
-  );
+  factory HalterAlertRuleEngineModel.fromMap(Map<String, dynamic> map) =>
+      HalterAlertRuleEngineModel(
+        ruleId: map['rule_id'],
+        tempMax: (map['temp_max'] ?? 0).toDouble(),
+        tempMin: (map['temp_min'] ?? 0).toDouble(),
+        spoMax: (map['spo_max'] ?? 0).toDouble(),
+        spoMin: (map['spo_min'] ?? 0).toDouble(),
+        heartRateMax: map['heart_rate_max'] ?? 0,
+        heartRateMin: map['heart_rate_min'] ?? 0,
+        respiratoryMax: (map['respiratory_max'] ?? 0).toDouble(),
+        batteryMin: (map['battery_min'] ?? 0).toDouble(),
+        tempRoomMin: (map['temp_room_min'] ?? 0).toDouble(),
+        tempRoomMax: (map['temp_room_max'] ?? 0).toDouble(),
+        humidityMin: (map['humidity_min'] ?? 0).toDouble(),
+        humidityMax: (map['humidity_max'] ?? 0).toDouble(),
+        lightIntensityMin: (map['light_intensity_min'] ?? 0).toDouble(),
+        lightIntensityMax: (map['light_intensity_max'] ?? 0).toDouble(),
+      );
 
   Map<String, dynamic> toMap() => {
     'rule_id': ruleId,
@@ -62,8 +63,8 @@ class HalterRuleEngineModel {
     'respiratory_max': respiratoryMax,
   };
 
-  static HalterRuleEngineModel defaultValue() {
-    return HalterRuleEngineModel(
+  static HalterAlertRuleEngineModel defaultValue() {
+    return HalterAlertRuleEngineModel(
       ruleId: 1,
       tempMin: 36.5,
       tempMax: 39.0,

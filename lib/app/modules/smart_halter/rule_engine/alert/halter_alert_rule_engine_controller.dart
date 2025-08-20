@@ -2,10 +2,10 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/data/data_rule_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_log_model.dart';
-import 'package:smart_feeder_desktop/app/models/halter/halter_rule_engine_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_alert_rule_engine_model.dart';
 
 class HalterAlertRuleEngineController extends GetxController {
-  var setting = HalterRuleEngineModel.defaultValue().obs;
+  var setting = HalterAlertRuleEngineModel.defaultValue().obs;
   final DataController dataController = Get.find<DataController>();
 
   RxList<HalterLogModel> get halterHorseLogList => dataController.halterLogList;
@@ -16,9 +16,14 @@ class HalterAlertRuleEngineController extends GetxController {
     super.onInit();
   }
 
-  void updateSetting(HalterRuleEngineModel s) {
+  void updateSetting(HalterAlertRuleEngineModel s) {
     setting.value = s;
     DataRuleHalter.saveSetting(s);
+  }
+
+  void setDefaultSetting() {
+    setting.value = HalterAlertRuleEngineModel.defaultValue();
+    DataRuleHalter.saveSetting(setting.value);
   }
 
   void checkAndLogNode(

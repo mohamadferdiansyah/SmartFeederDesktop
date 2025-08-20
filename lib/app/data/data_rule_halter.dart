@@ -1,15 +1,15 @@
 import 'package:get_storage/get_storage.dart';
-import 'package:smart_feeder_desktop/app/models/halter/halter_rule_engine_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_alert_rule_engine_model.dart';
 
 // Inisialisasi di main.dart: await GetStorage.init();
 
 class DataRuleHalter {
   static final _box = GetStorage();
 
-  static HalterRuleEngineModel getSetting() {
+  static HalterAlertRuleEngineModel getSetting() {
     final map = _box.read('halter_rule_setting');
-    if (map == null) return HalterRuleEngineModel.defaultValue();
-    return HalterRuleEngineModel(
+    if (map == null) return HalterAlertRuleEngineModel.defaultValue();
+    return HalterAlertRuleEngineModel(
       tempMin: map['tempMin'],
       tempMax: map['tempMax'],
       spoMin: map['spoMin'],
@@ -28,7 +28,7 @@ class DataRuleHalter {
     );
   }
 
-  static void saveSetting(HalterRuleEngineModel setting) {
+  static void saveSetting(HalterAlertRuleEngineModel setting) {
     _box.write('halter_rule_setting', {
       'tempMin': setting.tempMin,
       'tempMax': setting.tempMax,

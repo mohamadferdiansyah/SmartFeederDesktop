@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
@@ -9,6 +11,7 @@ import 'package:smart_feeder_desktop/app/models/horse_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'package:smart_feeder_desktop/app/models/stable_model.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/table/halter_table_rule_engine_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
 import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
@@ -30,6 +33,9 @@ class HalterDashboardController extends GetxController {
   final serialService = Get.find<HalterSerialService>();
 
   final DataController dataController = Get.find<DataController>();
+
+  final HalterTableRuleEngineController tableRuleEngineController =
+      Get.find<HalterTableRuleEngineController>();
 
   final HalterSettingController settingController =
       Get.find<HalterSettingController>();
@@ -87,14 +93,14 @@ class HalterDashboardController extends GetxController {
   void onInit() {
     super.onInit();
     // serialService.initSerial(settingController.setting.value.loraPort, 115200);
-    ever<HalterDeviceDetailModel?>(serialService.latestDetail, (detail) {
-      if (detail != null) {
-        // Tambahkan data baru, batasi max 100
-        halterDeviceDetailList.add(detail);
-        if (halterDeviceDetailList.length > 100)
-          halterDeviceDetailList.removeAt(0);
-      }
-    });
+    // ever<HalterDeviceDetailModel?>(serialService.latestDetail, (detail) {
+    //   if (detail != null) {
+    //     // Tambahkan data baru, batasi max 100
+    //     halterDeviceDetailList.add(detail);
+    //     if (halterDeviceDetailList.length > 100)
+    //       halterDeviceDetailList.removeAt(0);
+    //   }
+    // });
   }
 
   @override
@@ -129,19 +135,17 @@ class HalterDashboardController extends GetxController {
     return horseList.firstWhere((horse) => horse.horseId == horseId);
   }
 
-  HalterDeviceDetailModel? getSelectedHorseDetail() {
-    final selectedHorseId = selectedRoom.horseId;
-    if (selectedHorseId == null) return null;
-
+  HalterDeviceDetailModel? getSelectedHorseDetail(String horseId) {
     final device = halterDeviceList.firstWhereOrNull(
-      (d) => d.horseId == selectedHorseId,
+      (d) => d.horseId == horseId,
     );
     if (device == null) return null;
 
-    final list = halterDeviceDetailList.toList();
-    return list.isNotEmpty
-        ? list.lastWhereOrNull((detail) => detail.deviceId == device.deviceId)
-        : null;
+    // Ambil detail terbaru dari serial/MQTT
+    return halterDeviceDetailList
+        .where((d) => d.deviceId == device.deviceId)
+        .sorted((a, b) => b.time.compareTo(a.time))
+        .firstOrNull;
   }
 
   NodeRoomModel? getSelectedNodeRoom(String serialId) {
@@ -312,131 +316,184 @@ class HalterDashboardController extends GetxController {
     return "Sehat";
   }
 
-  String getHorsePosture({
-    required num? roll,
-    required num? pitch,
-    required num? yaw,
-  }) {
-    // Jika semua null atau tidak ada data sama sekali
-    if (roll == null && pitch == null && yaw == null) {
-      return "Tidak Terklasifikasi";
-    }
+  // String getHorsePosture({
+  //   required num? roll,
+  //   required num? pitch,
+  //   required num? yaw,
+  // }) {
+  //   // Jika semua null atau tidak ada data sama sekali
+  //   if (roll == null && pitch == null && yaw == null) {
+  //     return "Tidak Terklasifikasi";
+  //   }
 
-    // 16. Rebah penuh / jatuh
-    if ((pitch != null && (pitch < -30 || pitch > 30)) &&
-        (yaw != null && yaw >= -30 && yaw <= 30) &&
-        (roll != null && (roll > 45 || roll < -45))) {
-      return "Rebah penuh / jatuh";
-    }
+  //   // 16. Rebah penuh / jatuh
+  //   if ((pitch != null && (pitch < -30 || pitch > 30)) &&
+  //       (yaw != null && yaw >= -30 && yaw <= 30) &&
+  //       (roll != null && (roll > 45 || roll < -45))) {
+  //     return "Rebah penuh / jatuh";
+  //   }
 
-    // 8. Menunduk + menoleh kanan
-    if ((pitch != null && pitch < -15) &&
-        (yaw != null && yaw > 15) &&
-        (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menunduk Ke Kanan";
-    }
+  //   // 8. Menunduk + menoleh kanan
+  //   if ((pitch != null && pitch < -15) &&
+  //       (yaw != null && yaw > 15) &&
+  //       (roll != null && roll >= -10 && roll <= 10)) {
+  //     return "Menunduk Ke Kanan";
+  //   }
 
-    // 9. Menunduk + menoleh kiri
-    if ((pitch != null && pitch < -15) &&
-        (yaw != null && yaw < -15) &&
-        (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menunduk Ke Kiri";
-    }
+  //   // 9. Menunduk + menoleh kiri
+  //   if ((pitch != null && pitch < -15) &&
+  //       (yaw != null && yaw < -15) &&
+  //       (roll != null && roll >= -10 && roll <= 10)) {
+  //     return "Menunduk Ke Kiri";
+  //   }
 
-    // 10. Menunduk + rebah kanan
-    if ((pitch != null && pitch < -15) &&
-        (yaw != null && yaw >= -10 && yaw <= 10) &&
-        (roll != null && roll > 15)) {
-      return "Menunduk Rebah Kanan";
-    }
+  //   // 10. Menunduk + rebah kanan
+  //   if ((pitch != null && pitch < -15) &&
+  //       (yaw != null && yaw >= -10 && yaw <= 10) &&
+  //       (roll != null && roll > 15)) {
+  //     return "Menunduk Rebah Kanan";
+  //   }
 
-    // 11. Menunduk + rebah kiri
-    if ((pitch != null && pitch < -15) &&
-        (yaw != null && yaw >= -10 && yaw <= 10) &&
-        (roll != null && roll < -15)) {
-      return "Menunduk Rebah Kiri";
-    }
+  //   // 11. Menunduk + rebah kiri
+  //   if ((pitch != null && pitch < -15) &&
+  //       (yaw != null && yaw >= -10 && yaw <= 10) &&
+  //       (roll != null && roll < -15)) {
+  //     return "Menunduk Rebah Kiri";
+  //   }
 
-    // 12. Menengadah + menoleh kanan
-    if ((pitch != null && pitch > 15) &&
-        (yaw != null && yaw > 15) &&
-        (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menengadah Ke Kanan";
-    }
+  //   // 12. Menengadah + menoleh kanan
+  //   if ((pitch != null && pitch > 15) &&
+  //       (yaw != null && yaw > 15) &&
+  //       (roll != null && roll >= -10 && roll <= 10)) {
+  //     return "Menengadah Ke Kanan";
+  //   }
 
-    // 13. Menengadah + menoleh kiri
-    if ((pitch != null && pitch > 15) &&
-        (yaw != null && yaw < -15) &&
-        (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menengadah Ke Kiri";
-    }
+  //   // 13. Menengadah + menoleh kiri
+  //   if ((pitch != null && pitch > 15) &&
+  //       (yaw != null && yaw < -15) &&
+  //       (roll != null && roll >= -10 && roll <= 10)) {
+  //     return "Menengadah Ke Kiri";
+  //   }
 
-    // 14. Menengadah + rebah kanan
-    if ((pitch != null && pitch > 15) &&
-        (yaw != null && yaw >= -10 && yaw <= 10) &&
-        (roll != null && roll > 15)) {
-      return "Menengadah Rebah Kanan";
-    }
+  //   // 14. Menengadah + rebah kanan
+  //   if ((pitch != null && pitch > 15) &&
+  //       (yaw != null && yaw >= -10 && yaw <= 10) &&
+  //       (roll != null && roll > 15)) {
+  //     return "Menengadah Rebah Kanan";
+  //   }
 
-    // 15. Menengadah + rebah kiri
-    if ((pitch != null && pitch > 15) &&
-        (yaw != null && yaw >= -10 && yaw <= 10) &&
-        (roll != null && roll < -15)) {
-      return "Menengadah Rebah Kiri";
-    }
+  //   // 15. Menengadah + rebah kiri
+  //   if ((pitch != null && pitch > 15) &&
+  //       (yaw != null && yaw >= -10 && yaw <= 10) &&
+  //       (roll != null && roll < -15)) {
+  //     return "Menengadah Rebah Kiri";
+  //   }
 
-    // 2. Menunduk makan/minum
-    if ((pitch != null && pitch < -15) &&
-        (yaw != null && yaw >= -10 && yaw <= 10) &&
-        (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menunduk";
-    }
+  //   // 2. Menunduk makan/minum
+  //   if ((pitch != null && pitch < -15) &&
+  //       (yaw != null && yaw >= -10 && yaw <= 10) &&
+  //       (roll != null && roll >= -10 && roll <= 10)) {
+  //     return "Menunduk";
+  //   }
 
-    // 3. Menengadah (lihat atas)
-    if ((pitch != null && pitch > 15) &&
-        (yaw != null && yaw >= -10 && yaw <= 10) &&
-        (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menengadah";
-    }
+  //   // 3. Menengadah (lihat atas)
+  //   if ((pitch != null && pitch > 15) &&
+  //       (yaw != null && yaw >= -10 && yaw <= 10) &&
+  //       (roll != null && roll >= -10 && roll <= 10)) {
+  //     return "Menengadah";
+  //   }
 
-    // 4. Menoleh ke kanan
-    if ((pitch != null && pitch >= -10 && pitch <= 10) &&
-        (yaw != null && yaw > 15) &&
-        (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menoleh Ke Kanan";
-    }
+  //   // 4. Menoleh ke kanan
+  //   if ((pitch != null && pitch >= -10 && pitch <= 10) &&
+  //       (yaw != null && yaw > 15) &&
+  //       (roll != null && roll >= -10 && roll <= 10)) {
+  //     return "Menoleh Ke Kanan";
+  //   }
 
-    // 5. Menoleh ke kiri
-    if ((pitch != null && pitch >= -10 && pitch <= 10) &&
-        (yaw != null && yaw < -15) &&
-        (roll != null && roll >= -10 && roll <= 10)) {
-      return "Menoleh Ke Kiri";
-    }
+  //   // 5. Menoleh ke kiri
+  //   if ((pitch != null && pitch >= -10 && pitch <= 10) &&
+  //       (yaw != null && yaw < -15) &&
+  //       (roll != null && roll >= -10 && roll <= 10)) {
+  //     return "Menoleh Ke Kiri";
+  //   }
 
-    // 6. Miring kanan (rebah kanan)
-    if ((pitch != null && pitch >= -10 && pitch <= 10) &&
-        (yaw != null && yaw >= -10 && yaw <= 10) &&
-        (roll != null && roll > 15)) {
-      return "Miring Kanan";
-    }
+  //   // 6. Miring kanan (rebah kanan)
+  //   if ((pitch != null && pitch >= -10 && pitch <= 10) &&
+  //       (yaw != null && yaw >= -10 && yaw <= 10) &&
+  //       (roll != null && roll > 15)) {
+  //     return "Miring Kanan";
+  //   }
 
-    // 7. Miring kiri (rebah kiri)
-    if ((pitch != null && pitch >= -10 && pitch <= 10) &&
-        (yaw != null && yaw >= -10 && yaw <= 10) &&
-        (roll != null && roll < -15)) {
-      return "Miring Kiri";
-    }
+  //   // 7. Miring kiri (rebah kiri)
+  //   if ((pitch != null && pitch >= -10 && pitch <= 10) &&
+  //       (yaw != null && yaw >= -10 && yaw <= 10) &&
+  //       (roll != null && roll < -15)) {
+  //     return "Miring Kiri";
+  //   }
 
-    // 1. Berdiri normal
-    if ((pitch != null && pitch >= -10 && pitch <= 10) &&
-        (yaw != null && yaw >= -10 && yaw <= 10) &&
-        (roll != null && roll >= -10 && roll <= 10)) {
-      return "Berdiri Normal";
-    }
+  //   // 1. Berdiri normal
+  //   if ((pitch != null && pitch >= -10 && pitch <= 10) &&
+  //       (yaw != null && yaw >= -10 && yaw <= 10) &&
+  //       (roll != null && roll >= -10 && roll <= 10)) {
+  //     return "Berdiri Normal";
+  //   }
 
-    // Jika tidak memenuhi semua syarat di atas
-    return "Postur tidak dikenali";
-  }
+  //   // Jika tidak memenuhi semua syarat di atas
+  //   return "Postur tidak dikenali";
+  // }
+
+  // String getHorsePosture(double ax, double ay, double az) {
+  //   // hitung pitch & roll dari accelerometer
+  //   double pitch = atan2(-ax, sqrt(ay * ay + az * az)) * 180 / pi;
+  //   double roll = atan2(ay, az) * 180 / pi;
+
+  //   // klasifikasi sederhana
+  //   if (pitch.abs() < 20 && roll.abs() < 20) {
+  //     return "Berdiri Normal";
+  //   } else if (pitch > 45) {
+  //     return "Mendongak (kepala ke atas)";
+  //   } else if (pitch < -45) {
+  //     return "Menunduk / Makan";
+  //   } else if (roll > 40) {
+  //     return "Miring Kanan";
+  //   } else if (roll < -40) {
+  //     return "Mendongak (kepala ke bawah)";
+  //   } else if (pitch.abs() > 70 && roll.abs() > 70) {
+  //     return "Berbaring";
+  //   } else {
+  //     return "Postur Tidak Dikenali";
+  //   }
+  // }
+
+  // String getHorsePosture(num pitch, num roll, num yaw) {
+  //   const double pitchThreshold = 15; // derajat
+  //   const double rollThreshold = 15;
+  //   const double yawThreshold = 20;
+
+  //   // Pitch (atas-bawah)
+  //   if (pitch > pitchThreshold) {
+  //     return "Kepala Menengadah (Head Up)";
+  //   } else if (pitch < -pitchThreshold) {
+  //     return "Kepala Menunduk (Head Down)";
+  //   }
+
+  //   // Roll (miring kiri/kanan)
+  //   if (roll > rollThreshold) {
+  //     return "Kepala Miring Kiri";
+  //   } else if (roll < -rollThreshold) {
+  //     return "Kepala Miring Kanan";
+  //   }
+
+  //   // Yaw (geleng kiri/kanan)
+  //   if (yaw > yawThreshold) {
+  //     return "Kepala Menoleh Kanan";
+  //   } else if (yaw < -yawThreshold) {
+  //     return "Kepala Menoleh Kiri";
+  //   }
+
+  //   // Kalau masih dalam batas normal
+  //   return "Kepala Tegak";
+  // }
 
   String getHorseHealth({
     required double? suhu,
@@ -444,61 +501,88 @@ class HalterDashboardController extends GetxController {
     required double? spo,
     required double? respirasi,
   }) {
-    // Check nulls
-    if (suhu == null || heartRate == null || spo == null || respirasi == null) {
-      return "Data Tidak Lengkap";
-    }
-
-    // 4. Hipotermia
-    if (suhu < 37.0 || heartRate < 28 || spo < 90 || respirasi < 8) {
-      return "Hipotermia";
-    }
-
-    // 3. Tidak Sehat (Demam/Stres Berat)
-    if (suhu > 39.0 || heartRate > 60 || spo < 93 || respirasi > 24) {
-      return "Tidak Sehat";
-    }
-
-    // 2. Waspada
-    if ((suhu >= 38.4 && suhu <= 39.0) ||
-        (heartRate >= 45 && heartRate <= 60) ||
-        (spo >= 93 && spo <= 94) ||
-        (respirasi >= 17 && respirasi <= 24)) {
-      return "Waspada";
-    }
-
-    // 5. Overexertion (kelelahan)
-    if ((suhu >= 37.2 && suhu <= 38.3) &&
-        (heartRate > 60) &&
-        (spo >= 95 && spo <= 100) &&
-        (respirasi > 24)) {
-      return "Overexertion";
-    }
-
-    // 6. Gangguan Oksigenasi
-    if ((suhu >= 37.2 && suhu <= 38.3) &&
-        (heartRate >= 28 && heartRate <= 44) &&
-        (spo < 93) &&
-        (respirasi >= 8 && respirasi <= 16)) {
-      return "Gangguan Oksigenasi";
-    }
-
-    // 7. Demam Ringan
-    if ((suhu > 38.3) &&
-        (heartRate >= 28 && heartRate <= 44) &&
-        (spo >= 95 && spo <= 100) &&
-        (respirasi >= 8 && respirasi <= 16)) {
-      return "Demam Ringan";
-    }
-
-    // 1. Normal
-    if ((suhu >= 37.2 && suhu <= 38.3) &&
-        (heartRate >= 28 && heartRate <= 44) &&
-        (spo >= 95 && spo <= 100) &&
-        (respirasi >= 8 && respirasi <= 16)) {
-      return "Sehat";
-    }
-
-    return "Tidak Terklasifikasi";
+    return tableRuleEngineController.biometricClassify(
+      suhu: suhu,
+      heartRate: heartRate?.toInt(),
+      spo: spo,
+      respirasi: respirasi?.toInt(),
+    );
   }
+
+  String getHorsePosition({
+    required int? pitch,
+    required int? roll,
+    required int? yaw,
+  }) {
+    return tableRuleEngineController.positionClassify(
+      pitch: pitch,
+      roll: roll,
+      yaw: yaw,
+    );
+  }
+
+
+  // String getHorseHealth({
+  //   required double? suhu,
+  //   required double? heartRate,
+  //   required double? spo,
+  //   required double? respirasi,
+  // }) {
+  //   // Check nulls
+  //   if (suhu == null || heartRate == null || spo == null || respirasi == null) {
+  //     return "Data Tidak Lengkap";
+  //   }
+
+  //   // 4. Hipotermia
+  //   if (suhu < 37.0 || heartRate < 28 || spo < 90 || respirasi < 8) {
+  //     return "Hipotermia";
+  //   }
+
+  //   // 3. Tidak Sehat (Demam/Stres Berat)
+  //   if (suhu > 39.0 || heartRate > 60 || spo < 93 || respirasi > 24) {
+  //     return "Tidak Sehat";
+  //   }
+
+  //   // 2. Waspada
+  //   if ((suhu >= 38.4 && suhu <= 39.0) ||
+  //       (heartRate >= 45 && heartRate <= 60) ||
+  //       (spo >= 93 && spo <= 94) ||
+  //       (respirasi >= 17 && respirasi <= 24)) {
+  //     return "Waspada";
+  //   }
+
+  //   // 5. Overexertion (kelelahan)
+  //   if ((suhu >= 37.2 && suhu <= 38.3) &&
+  //       (heartRate > 60) &&
+  //       (spo >= 95 && spo <= 100) &&
+  //       (respirasi > 24)) {
+  //     return "Overexertion";
+  //   }
+
+  //   // 6. Gangguan Oksigenasi
+  //   if ((suhu >= 37.2 && suhu <= 38.3) &&
+  //       (heartRate >= 28 && heartRate <= 44) &&
+  //       (spo < 93) &&
+  //       (respirasi >= 8 && respirasi <= 16)) {
+  //     return "Gangguan Oksigenasi";
+  //   }
+
+  //   // 7. Demam Ringan
+  //   if ((suhu > 38.3) &&
+  //       (heartRate >= 28 && heartRate <= 44) &&
+  //       (spo >= 95 && spo <= 100) &&
+  //       (respirasi >= 8 && respirasi <= 16)) {
+  //     return "Demam Ringan";
+  //   }
+
+  //   // 1. Normal
+  //   if ((suhu >= 37.2 && suhu <= 38.3) &&
+  //       (heartRate >= 28 && heartRate <= 44) &&
+  //       (spo >= 95 && spo <= 100) &&
+  //       (respirasi >= 8 && respirasi <= 16)) {
+  //     return "Sehat";
+  //   }
+
+  //   return "Tidak Terklasifikasi";
+  // }
 }

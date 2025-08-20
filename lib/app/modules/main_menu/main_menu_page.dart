@@ -11,6 +11,8 @@ class MainMenuPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final LoginController loginController = Get.find<LoginController>();
+    
     return Scaffold(
       body: Stack(
         children: [
@@ -197,7 +199,7 @@ class MainMenuPage extends StatelessWidget {
                     icon: Icons.logout,
                     iconColor: AppColors.primary,
                     onConfirm: () {
-                      Get.find<LoginController>().logout();
+                      loginController.logout();
                     },
                   );
                 },
