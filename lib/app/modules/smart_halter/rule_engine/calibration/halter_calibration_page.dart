@@ -124,7 +124,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                   runSpacing: 18,
                   children: [
                     _inputCard(
-                      title: 'Suhu Badan (Suhu)',
+                      title: 'Suhu Badan (°C)',
                       icon: Icons.thermostat_outlined,
                       controller: suhuCtrl,
                       onMinus: () {
@@ -185,7 +185,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                       height: MediaQuery.of(context).size.height * 0.16,
                     ),
                     _inputCard(
-                      title: 'Respirasi',
+                      title: 'Respirasi(nafas/menit)',
                       icon: Icons.air_outlined,
                       controller: respirasiCtrl,
                       onMinus: () {
@@ -232,7 +232,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                   runSpacing: 18,
                   children: [
                     _inputCard(
-                      title: 'Suhu Ruangan',
+                      title: 'Suhu Ruangan (°C)',
                       icon: Icons.thermostat_outlined,
                       controller: suhuRuanganCtrl,
                       onMinus: () {
@@ -255,7 +255,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                       height: MediaQuery.of(context).size.height * 0.16,
                     ),
                     _inputCard(
-                      title: 'Kelembapan',
+                      title: 'Kelembapan (RH)',
                       icon: Icons.water_drop_outlined,
                       controller: kelembapanCtrl,
                       onMinus: () {
@@ -278,7 +278,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                       height: MediaQuery.of(context).size.height * 0.16,
                     ),
                     _inputCard(
-                      title: 'Indeks Cahaya',
+                      title: 'Indeks Cahaya (Lux)',
                       icon: Icons.light_mode_outlined,
                       controller: indeksCahayaCtrl,
                       onMinus: () {
@@ -359,51 +359,59 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
             return SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
-                headingRowColor: MaterialStateColor.resolveWith(
-                  (states) => AppColors.primary.withOpacity(0.1),
-                ),
-                columns: const [
-                  DataColumn(label: Text("ID")),
-                  DataColumn(label: Text("Timestamp")),
-                  DataColumn(label: Text("Nama Sensor")),
-                  DataColumn(label: Text("Category Lokasi")),
-                  DataColumn(label: Text("Data lookup (Referensi)")),
-                  DataColumn(label: Text("Data Sensor")),
-                  DataColumn(label: Text("Value Kalibrasi")),
-                  DataColumn(label: Text("Aksi")),
-                ],
-                rows: logs.map((log) {
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(log.id.toString())),
-                      DataCell(Text(log.timestamp.toString())),
-                      DataCell(Text(log.parameter)),
-                      DataCell(Text(log.category)),
-                      DataCell(Text(log.referensi.toStringAsFixed(2))),
-                      DataCell(Text(log.sensor.toStringAsFixed(2))),
-                      DataCell(Text(log.value.toStringAsFixed(2))),
-                      DataCell(
-                        Row(
-                          children: [
-                            // IconButton(
-                            //   icon: const Icon(Icons.edit, color: Colors.blue),
-                            //   onPressed: () {
-                            //     _showEditDialog(context, log);
-                            //   },
-                            // ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                controller.deleteLog(log.id);
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
+              headingRowColor: MaterialStateColor.resolveWith(
+                (states) => AppColors.primary.withOpacity(0.1),
               ),
+              columns: const [
+                DataColumn(label: Text("ID")),
+                DataColumn(label: Text("Timestamp")),
+                DataColumn(label: Text("Nama Sensor")),
+                DataColumn(label: Text("Category Lokasi")),
+                DataColumn(label: Text("Data lookup (Referensi)")),
+                DataColumn(label: Text("Data Sensor")),
+                DataColumn(label: Text("Value Kalibrasi")),
+                DataColumn(label: Text("Aksi")),
+              ],
+              rows: logs.map((log) {
+                // Tentukan satuan berdasarkan nama sensor
+                String unit = "";
+                if (log.parameter.toLowerCase().contains("suhu") || 
+                    log.parameter.toLowerCase().contains("temperature")) {
+                  unit = "°C";
+                } else if (log.parameter.toLowerCase().contains("kelembaban") ||
+                          log.parameter.toLowerCase().contains("humidity")) {
+                  unit = "%";
+                } else if (log.parameter.toLowerCase().contains("cahaya") ||
+                          log.parameter.toLowerCase().contains("light")) {
+                  unit = "lux";
+                }
+
+                return DataRow(
+                  cells: [
+                    DataCell(Text(log.id.toString())),
+                    DataCell(Text(log.timestamp.toString())),
+                    DataCell(Text(log.parameter)),
+                    DataCell(Text(log.category)),
+                    DataCell(Text("${log.referensi.toStringAsFixed(2)} $unit")),
+                    DataCell(Text("${log.sensor.toStringAsFixed(2)} $unit")),
+                    DataCell(Text("${log.value.toStringAsFixed(2)} $unit")),
+                    DataCell(
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              controller.deleteLog(log.id);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
+            )
+
             );
           }),
         ],

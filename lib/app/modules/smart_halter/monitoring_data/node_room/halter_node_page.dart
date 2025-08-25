@@ -425,7 +425,7 @@ class _HalterNodePageState extends State<HalterNodePage> {
                                         width: lightW,
                                         child: const Center(
                                           child: Text(
-                                            'Cahaya',
+                                            'Cahaya(cd)',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
