@@ -184,6 +184,40 @@ class HalterSerialService extends GetxService {
             _processBlock(line);
           }
           // Jika ada RSSI/SNR, bisa tambahkan parsing di sini jika perlu
+
+          if (line.startsWith('SRIPB') && line.endsWith('*')) {
+            print('Room Node Data: $line');
+            try {
+              final nodeRoom = NodeRoomModel.fromSerial(line);
+              latestNodeRoomData.value = nodeRoom;
+              final index = nodeRoomList.indexWhere(
+                (n) => n.deviceId == nodeRoom.deviceId,
+              );
+              if (index == -1) {
+                nodeRoomList.add(nodeRoom);
+              } else {
+                nodeRoomList[index] = nodeRoom;
+              }
+
+              controller.checkAndLogNode(
+                nodeRoom.deviceId,
+                temperature: nodeRoom.temperature,
+                humidity: nodeRoom.humidity,
+                lightIntensity: nodeRoom.lightIntensity,
+                time: nodeRoom.time,
+              );
+
+              rawData.add(
+                HalterRawDataModel(
+                  rawId: rawData.length + 1,
+                  data: line,
+                  time: DateTime.now(),
+                ),
+              );
+            } catch (e) {
+              print('NodeRoom parsing error: $e');
+            }
+          }
         }
       },
       onError: (err) => print('Serial error: $err'),
