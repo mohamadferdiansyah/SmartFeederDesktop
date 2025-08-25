@@ -170,28 +170,17 @@ class HalterSerialService extends GetxService {
       (data) {
         _serialBuffer += String.fromCharCodes(data);
 
-        // Proses per baris (\n)
         while (_serialBuffer.contains('\n')) {
           final idx = _serialBuffer.indexOf('\n');
           String line = _serialBuffer.substring(0, idx).trim();
           _serialBuffer = _serialBuffer.substring(idx + 1);
-          // print('Line: $line');
 
-          if (line.startsWith('=== RECEIVED DATA ===')) {
-            _inBlock = true;
-            _blockBuffer = "";
-            continue;
+          // Ambil data yang diawali SHIPB
+          if (line.startsWith('SHIPB')) {
+            // Proses langsung sebagai dataLine
+            _processBlock(line);
           }
-          if (_inBlock && line.startsWith('===================')) {
-            // Selesai block, proses
-            _processBlock(_blockBuffer);
-            _inBlock = false;
-            _blockBuffer = "";
-            continue;
-          }
-          if (_inBlock) {
-            _blockBuffer += line + '\n';
-          }
+          // Jika ada RSSI/SNR, bisa tambahkan parsing di sini jika perlu
         }
       },
       onError: (err) => print('Serial error: $err'),
@@ -206,21 +195,24 @@ class HalterSerialService extends GetxService {
     double? snr;
 
     for (var line in block.split('\n')) {
-      if (line.startsWith('Data:')) {
-        final d = line.substring(5).trim();
-        if (d.startsWith('SHIPB')) {
-          dataLine = d;
-        }
-      } else if (line.startsWith('RSSI:')) {
-        final match = RegExp(r'RSSI:\s*([-+]?\d+)').firstMatch(line);
-        if (match != null) {
-          rssi = int.tryParse(match.group(1)!);
-        }
-      } else if (line.startsWith('SNR:')) {
-        final match = RegExp(r'SNR:\s*([-+]?\d*\.?\d*)').firstMatch(line);
-        if (match != null) {
-          snr = double.tryParse(match.group(1)!);
-        }
+      // if (line.startsWith('Data:')) {
+      //   final d = line.substring(5).trim();
+      //   if (d.startsWith('SHIPB')) {
+      //     dataLine = d;
+      //   }
+      // } else if (line.startsWith('RSSI:')) {
+      //   final match = RegExp(r'RSSI:\s*([-+]?\d+)').firstMatch(line);
+      //   if (match != null) {
+      //     rssi = int.tryParse(match.group(1)!);
+      //   }
+      // } else if (line.startsWith('SNR:')) {
+      //   final match = RegExp(r'SNR:\s*([-+]?\d*\.?\d*)').firstMatch(line);
+      //   if (match != null) {
+      //     snr = double.tryParse(match.group(1)!);
+      //   }
+      // }
+      if (line.startsWith('SHIPB')) {
+        dataLine = line;
       }
     }
 
@@ -252,31 +244,46 @@ class HalterSerialService extends GetxService {
           );
         }
 
-        final prevHeartRate = latestDetail.value?.heartRate ?? 38.0;
-        final prevSpo = latestDetail.value?.spo ?? 97.0;
-        final prevTemperature = latestDetail.value?.temperature ?? 38.0;
-        final prevRespiratoryRate = latestDetail.value?.respiratoryRate ?? 12.0;
+        // final prevHeartRate = latestDetail.value?.heartRate ?? 38.0;
+        // final prevSpo = latestDetail.value?.spo ?? 97.0;
+        // final prevTemperature = latestDetail.value?.temperature ?? 38.0;
+        // final prevRespiratoryRate = latestDetail.value?.respiratoryRate ?? 12.0;
 
-        final heartRate =
-            ((detail.heartRate == null || detail.heartRate == 0)
-                ? randNearby(prevHeartRate, 28, 44)
-                : double.parse(detail.heartRate!.toStringAsFixed(1))) +
-            calibrationController.heartRate;
-        final spo =
-            ((detail.spo == null || detail.spo == 0)
-                ? randNearby(prevSpo, 95, 100)
-                : double.parse(detail.spo!.toStringAsFixed(1))) +
-            calibrationController.spo;
+        // final heartRate =
+        //     ((detail.heartRate == null || detail.heartRate == 0)
+        //         ? randNearby(prevHeartRate, 28, 44)
+        //         : double.parse(detail.heartRate!.toStringAsFixed(1))) +
+        //     calibrationController.heartRate;
+        // final spo =
+        //     ((detail.spo == null || detail.spo == 0)
+        //         ? randNearby(prevSpo, 95, 100)
+        //         : double.parse(detail.spo!.toStringAsFixed(1))) +
+        //     calibrationController.spo;
+        // final temperature =
+        //     ((detail.temperature == null || detail.temperature == 0)
+        //         ? randNearby(prevTemperature, 37, 41)
+        //         : double.parse(detail.temperature!.toStringAsFixed(1))) +
+        //     calibrationController.temperature;
+        // final respiratoryRate =
+        //     ((detail.respiratoryRate == null || detail.respiratoryRate == 0)
+        //         ? randNearby(prevRespiratoryRate, 8, 16)
+        //         : double.parse(detail.respiratoryRate!.toStringAsFixed(1))) +
+        //     calibrationController.respiration;
+
+        final heartRate = (detail.heartRate == null || detail.heartRate == 0)
+            ? 0 + calibrationController.heartRate
+            : detail.heartRate! + calibrationController.heartRate;
+        final spo = (detail.spo == null || detail.spo == 0)
+            ? 0 + calibrationController.spo
+            : detail.spo! + calibrationController.spo;
         final temperature =
-            ((detail.temperature == null || detail.temperature == 0)
-                ? randNearby(prevTemperature, 37, 41)
-                : double.parse(detail.temperature!.toStringAsFixed(1))) +
-            calibrationController.temperature;
+            (detail.temperature == null || detail.temperature == 0)
+            ? 0 + calibrationController.temperature
+            : detail.temperature! + calibrationController.temperature;
         final respiratoryRate =
-            ((detail.respiratoryRate == null || detail.respiratoryRate == 0)
-                ? randNearby(prevRespiratoryRate, 8, 16)
-                : double.parse(detail.respiratoryRate!.toStringAsFixed(1))) +
-            calibrationController.respiration;
+            (detail.respiratoryRate == null || detail.respiratoryRate == 0)
+            ? 0 + calibrationController.respiration
+            : detail.respiratoryRate! + calibrationController.respiration;
 
         final fixedDetail = HalterDeviceDetailModel(
           detailId: detail.detailId,
@@ -393,6 +400,24 @@ class HalterSerialService extends GetxService {
         // } else {
         //   dataController.updateHalterDeviceDetail(fixedDetail);
         // }
+
+        // Cek jika ada parameter 0
+        if (heartRate == 0 ||
+            spo == 0 ||
+            temperature == 0 ||
+            respiratoryRate == 0) {
+          // Hanya masuk rawData
+          rawData.add(
+            HalterRawDataModel(
+              rawId: rawData.length + 1,
+              data: dataLine,
+              time: DateTime.now(),
+            ),
+          );
+          print('Data sensor 0, hanya masuk rawData');
+          return;
+        }
+
         addHalterDeviceDetail(fixedDetail);
 
         controller.checkAndLogHalter(
@@ -444,6 +469,73 @@ class HalterSerialService extends GetxService {
 
   Timer? _dummyTimer;
 
+  // void startDummySerial() {
+  //   final rnd = Random();
+  //   _dummyTimer?.cancel();
+  //   _dummyTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+  //     // Helper untuk acak double dengan 2 desimal
+  //     String randDouble(num min, num max) =>
+  //         (min + rnd.nextDouble() * (max - min)).toStringAsFixed(2);
+  //     int randInt(int min, int max) => min + rnd.nextInt(max - min + 1);
+
+  //     String makeDummyData(String deviceId) {
+  //       // Field sesuai urutan (lihat gambar)
+  //       int latitude = 0,
+  //           longitude = 0,
+  //           altitude = 0,
+  //           sog = randInt(0, 25),
+  //           cog = randInt(0, 359);
+  //       double acceX = double.parse(randDouble(-12, 12));
+  //       double acceY = double.parse(randDouble(-12, 12));
+  //       double acceZ = double.parse(randDouble(-12, 12));
+  //       double gyroX = double.parse(randDouble(-2, 2));
+  //       double gyroY = double.parse(randDouble(-2, 2));
+  //       double gyroZ = double.parse(randDouble(-2, 2));
+  //       double magX = double.parse(randDouble(-70, 70));
+  //       double magY = double.parse(randDouble(-70, 70));
+  //       double magZ = double.parse(randDouble(-70, 70));
+  //       int roll = randInt(-45, 90);
+  //       int pitch = randInt(-45, 90);
+  //       int yaw = randInt(-180, 180);
+  //       int arus = 0;
+  //       double voltase = double.parse(randDouble(3200, 4200));
+  //       // int bpm = randInt(28, 120);
+  //       // double spo = double.parse(randDouble(90, 100));
+  //       // double suhu = double.parse(randDouble(35, 40));
+  //       // double respirasi = double.parse(randDouble(8, 30));
+  //       int bpm = 10;
+  //       double spo = 10;
+  //       double suhu = 10;
+  //       double respirasi = 10;
+
+  //       return "Data: $deviceId,"
+  //           "$latitude,$longitude,$altitude,$sog,$cog,"
+  //           "$acceX,$acceY,$acceZ,"
+  //           "$gyroX,$gyroY,$gyroZ,"
+  //           "$magX,$magY,$magZ,"
+  //           "$roll,$pitch,$yaw,"
+  //           "$arus,$voltase,"
+  //           "$bpm,$spo,$suhu,$respirasi,*\n"
+  //           "RSSI: -${randInt(45, 70)} dBm\n"
+  //           "SNR: ${randDouble(7, 12)} dB\n";
+  //     }
+
+  //     final deviceIds = ["SHIPB1223001", "SHIPB1223002"];
+  //     for (final did in deviceIds) {
+  //       final dummyBlock = makeDummyData(did);
+  //       _processBlock(dummyBlock);
+  //     }
+
+  //     // LoRa test (tidak diproses)
+  //     final dummyTestBlock = '''
+  // Data: LoRa Test from SHIPB1223002
+  // RSSI: -66 dBm
+  // SNR: 9.50 dB
+  // ''';
+  //     _processBlock(dummyTestBlock);
+  //   });
+  // }
+
   void startDummySerial() {
     final rnd = Random();
     _dummyTimer?.cancel();
@@ -454,7 +546,7 @@ class HalterSerialService extends GetxService {
       int randInt(int min, int max) => min + rnd.nextInt(max - min + 1);
 
       String makeDummyData(String deviceId) {
-        // Field sesuai urutan (lihat gambar)
+        // Field sesuai urutan
         int latitude = 0,
             longitude = 0,
             altitude = 0,
@@ -474,40 +566,27 @@ class HalterSerialService extends GetxService {
         int yaw = randInt(-180, 180);
         int arus = 0;
         double voltase = double.parse(randDouble(3200, 4200));
-        // int bpm = randInt(28, 120);
-        // double spo = double.parse(randDouble(90, 100));
-        // double suhu = double.parse(randDouble(35, 40));
-        // double respirasi = double.parse(randDouble(8, 30));
-        int bpm = 10;
-        double spo = 10;
-        double suhu = 10;
-        double respirasi = 10;
+        int bpm = 0;
+        double spo = 0;
+        double suhu = 0;
+        double respirasi = 0;
 
-        return "Data: $deviceId,"
+        // Format langsung SHIPB...
+        return "SHIPB$deviceId,"
             "$latitude,$longitude,$altitude,$sog,$cog,"
             "$acceX,$acceY,$acceZ,"
             "$gyroX,$gyroY,$gyroZ,"
             "$magX,$magY,$magZ,"
             "$roll,$pitch,$yaw,"
             "$arus,$voltase,"
-            "$bpm,$spo,$suhu,$respirasi,*\n"
-            "RSSI: -${randInt(45, 70)} dBm\n"
-            "SNR: ${randDouble(7, 12)} dB\n";
+            "$bpm,$spo,$suhu,$respirasi,*";
       }
 
-      final deviceIds = ["SHIPB1223001", "SHIPB1223002"];
+      final deviceIds = ["1223001", "1223002"];
       for (final did in deviceIds) {
-        final dummyBlock = makeDummyData(did);
-        _processBlock(dummyBlock);
+        final dummyLine = makeDummyData(did);
+        _processBlock(dummyLine);
       }
-
-      // LoRa test (tidak diproses)
-      final dummyTestBlock = '''
-  Data: LoRa Test from SHIPB1223002
-  RSSI: -66 dBm
-  SNR: 9.50 dB
-  ''';
-      _processBlock(dummyTestBlock);
     });
   }
 

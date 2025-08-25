@@ -26,7 +26,7 @@ void main() async {
     await windowManager.center();
     await windowManager.show();
     await windowManager.setSkipTaskbar(false);
-  });
+  }); 
   Get.put(DataController());
   runApp(SmartFeederApp());
 }
