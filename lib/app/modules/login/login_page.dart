@@ -5,6 +5,7 @@ import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/data/data_team_halter.dart';
 import 'package:smart_feeder_desktop/app/modules/login/login_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
@@ -306,7 +307,10 @@ class _LoginPageState extends State<LoginPage> {
                     confirmText: 'Keluar',
                     icon: Icons.exit_to_app,
                     iconColor: Colors.red,
-                    onConfirm: () {
+                    onConfirm: () async {
+                      DataTeamHalter.clearTeam();
+                      print('tim :${DataTeamHalter.getTeam()}');
+                      await Future.delayed(Duration(milliseconds: 1000));
                       exit(0);
                     },
                   );

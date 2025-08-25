@@ -7,6 +7,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/test_team_model.dart';
 import 'package:smart_feeder_desktop/app/models/horse_model.dart';
 
 class HalterDeviceController extends GetxController {
@@ -17,7 +18,8 @@ class HalterDeviceController extends GetxController {
 
   RxList<HorseModel> get horseList => dataController.horseList;
 
-  RxList<HalterDeviceDetailModel> get detailHistoryList => dataController.detailHistory;
+  RxList<HalterDeviceDetailModel> get detailHistoryList =>
+      dataController.detailHistory;
 
   // @override
   // void onInit() {
@@ -104,38 +106,91 @@ class HalterDeviceController extends GetxController {
   }
 
   /// Export detail data raw device ke Excel
-  Future<void> exportDetailExcel(List<HalterDeviceDetailModel> data) async {
+  Future<void> exportDetailExcel(
+    List<HalterDeviceDetailModel> data,
+    TestTeamModel? team,
+  ) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
-    // Header
+
+    // Baris 1-4: Data tim penguji
     sheet.appendRow([
-      TextCellValue('No'),
-      TextCellValue('Device Id'),
-      TextCellValue('Latitude'),
-      TextCellValue('Longitude'),
-      TextCellValue('Altitude'),
-      TextCellValue('SoG'),
-      TextCellValue('CoG'),
-      TextCellValue('AcceX'),
-      TextCellValue('AcceY'),
-      TextCellValue('AcceZ'),
-      TextCellValue('gyroX'),
-      TextCellValue('gyroY'),
-      TextCellValue('gyroZ'),
-      TextCellValue('magX'),
-      TextCellValue('magY'),
-      TextCellValue('magZ'),
-      TextCellValue('Roll'),
-      TextCellValue('Pitch'),
-      TextCellValue('Yaw'),
-      TextCellValue('Arus'),
-      TextCellValue('Voltase'),
-      TextCellValue('BPM'),
-      TextCellValue('SPO'),
-      TextCellValue('Suhu'),
-      TextCellValue('Respirasi'),
-      TextCellValue('Time'),
+      TextCellValue('Team Penguji'),
+      TextCellValue(team?.teamName ?? '-'),
     ]);
+    sheet.appendRow([
+      TextCellValue('Lokasi Pengujian'),
+      TextCellValue(team?.location ?? '-'),
+    ]);
+    sheet.appendRow([
+      TextCellValue('Tanggal Pengujian'),
+      TextCellValue(
+        team?.date != null
+            ? "${team!.date!.day} ${_bulan(team.date!.month)} ${team.date!.year}"
+            : '-',
+      ),
+    ]);
+    sheet.appendRow([
+      TextCellValue('Anggota'),
+      TextCellValue(team?.members?.join(', ') ?? '-'),
+    ]);
+
+    // --- Baris judul pemisah ---
+    final deviceName = (data.isNotEmpty) ? data.first.deviceId : '';
+    final judul = 'DATA SMART HALTER DETAIL RAW DEVICE ($deviceName) ()';
+    final sensorHeaders = [
+      'No',
+      'Device Id',
+      'Latitude',
+      'Longitude',
+      'Altitude',
+      'SoG',
+      'CoG',
+      'AcceX',
+      'AcceY',
+      'AcceZ',
+      'gyroX',
+      'gyroY',
+      'gyroZ',
+      'magX',
+      'magY',
+      'magZ',
+      'Roll',
+      'Pitch',
+      'Yaw',
+      'Arus',
+      'Voltase',
+      'BPM',
+      'SPO',
+      'Suhu',
+      'Respirasi',
+      'Time',
+    ];
+
+    // Judul di tengah, misal di kolom ke-6 (index 5)
+    sheet.appendRow([
+      TextCellValue(judul),
+      ...List.generate(sensorHeaders.length - 1, (_) => TextCellValue('')),
+    ]);
+
+    try {
+      sheet.merge(
+        CellIndex.indexByColumnRow(
+          columnIndex: 0,
+          rowIndex: 4,
+        ), // baris judul, kolom A
+        CellIndex.indexByColumnRow(
+          columnIndex: sensorHeaders.length - 1,
+          rowIndex: 4,
+        ),
+      );
+    } catch (e) {
+      // Kalau error, ignore saja (atau merge manual di Excel)
+    }
+
+    sheet.appendRow(sensorHeaders.map((e) => TextCellValue(e)).toList());
+
+    // --- Data sensor baris berikut ---
     for (int i = 0; i < data.length; i++) {
       final d = data[i];
       sheet.appendRow([
@@ -167,6 +222,7 @@ class HalterDeviceController extends GetxController {
         TextCellValue(d.time != null ? d.time!.toIso8601String() : "-"),
       ]);
     }
+
     final fileBytes = excel.encode();
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel (Detail Raw)',
@@ -178,6 +234,26 @@ class HalterDeviceController extends GetxController {
     if (path != null) {
       await File(path).writeAsBytes(fileBytes!);
     }
+  }
+
+  // Helper untuk format bulan ke string
+  String _bulan(int m) {
+    const bulanList = [
+      '',
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    return bulanList[m];
   }
 
   /// Export detail data raw device ke PDF

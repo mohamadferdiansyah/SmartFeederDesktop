@@ -9,13 +9,13 @@ class DataHalterCalibrationHalter {
     if (map == null) {
       // Default value jika belum ada
       return HalterCalibrationModel(
-        temperature: 1,
-        heartRate: 2,
-        spo: 3,
-        respiration: 4,
-        roomTemperature: 5,
-        humidity: 6,
-        lightIntensity: -2,
+        temperature: 0,
+        heartRate: 0,
+        spo: 0,
+        respiration: 0,
+        roomTemperature: 0,
+        humidity: 0,
+        lightIntensity: -0,
       );
     }
     return HalterCalibrationModel.fromJson(Map<String, dynamic>.from(map));

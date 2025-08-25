@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // Ganti dengan import model dan widget sesuai project-mu
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/data/data_team_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/device/halter_device_controller.dart';
@@ -864,7 +865,8 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                     icon: Icons.table_view_rounded,
                     text: 'Export Excel',
                     onPressed: () {
-                      _controller.exportDetailExcel(filteredData);
+                      final team = DataTeamHalter.getTeam();
+                      _controller.exportDetailExcel(filteredData, team);
                     },
                   ),
                   const SizedBox(width: 12),

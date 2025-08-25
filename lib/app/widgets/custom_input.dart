@@ -42,14 +42,17 @@ class _CustomInputState extends State<CustomInput> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.label,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: widget.fontSize,
+        if (widget.label.isNotEmpty) ...[
+          Text(
+            widget.label,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: widget.fontSize,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
+
+          const SizedBox(height: 8),
+        ],
         TextField(
           controller: widget.controller,
           inputFormatters: widget.inputFormatters,

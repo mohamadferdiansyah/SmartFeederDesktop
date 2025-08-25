@@ -13,7 +13,7 @@ void main() async {
 
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
-  
+
   await initializeDateFormatting('id_ID', null);
 
   await DBHelper.database;

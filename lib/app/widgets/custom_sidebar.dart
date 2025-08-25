@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/data/data_team_halter.dart';
 import 'package:smart_feeder_desktop/app/models/sidebar_menu_model.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 
@@ -259,7 +260,10 @@ class _CustomSidebarState extends State<CustomSidebar> {
                 cancelText: 'Batal',
                 icon: Icons.logout,
                 iconColor: Colors.red,
-                onConfirm: () {
+                onConfirm: () async {
+                  DataTeamHalter.clearTeam();
+                  print('tim :${DataTeamHalter.getTeam()}');
+                  await Future.delayed(Duration(milliseconds: 1000));
                   exit(0);
                 },
               ),

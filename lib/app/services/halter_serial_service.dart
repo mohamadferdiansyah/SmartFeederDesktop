@@ -10,6 +10,7 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart'
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/alert/halter_alert_rule_engine_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/calibration/halter_calibration_controller.dart';
 
 class HalterSerialService extends GetxService {
   SerialPort? port;
@@ -231,6 +232,11 @@ class HalterSerialService extends GetxService {
           snr: snr,
         );
 
+        final calibrationController =
+            Get.find<HalterCalibrationController>().calibration.value;
+
+        // final HalterCalibrationController calibrationController = Get.find<HalterCalibrationController>().calibration.value;
+
         double randNearby(
           double prev,
           double min,
@@ -251,20 +257,26 @@ class HalterSerialService extends GetxService {
         final prevTemperature = latestDetail.value?.temperature ?? 38.0;
         final prevRespiratoryRate = latestDetail.value?.respiratoryRate ?? 12.0;
 
-        final heartRate = (detail.heartRate == null || detail.heartRate == 0)
-            ? randNearby(prevHeartRate, 28, 44)
-            : double.parse(detail.heartRate!.toStringAsFixed(1));
-        final spo = (detail.spo == null || detail.spo == 0)
-            ? randNearby(prevSpo, 95, 100)
-            : double.parse(detail.spo!.toStringAsFixed(1));
+        final heartRate =
+            ((detail.heartRate == null || detail.heartRate == 0)
+                ? randNearby(prevHeartRate, 28, 44)
+                : double.parse(detail.heartRate!.toStringAsFixed(1))) +
+            calibrationController.heartRate;
+        final spo =
+            ((detail.spo == null || detail.spo == 0)
+                ? randNearby(prevSpo, 95, 100)
+                : double.parse(detail.spo!.toStringAsFixed(1))) +
+            calibrationController.spo;
         final temperature =
-            (detail.temperature == null || detail.temperature == 0)
-            ? randNearby(prevTemperature, 37, 41)
-            : double.parse(detail.temperature!.toStringAsFixed(1));
+            ((detail.temperature == null || detail.temperature == 0)
+                ? randNearby(prevTemperature, 37, 41)
+                : double.parse(detail.temperature!.toStringAsFixed(1))) +
+            calibrationController.temperature;
         final respiratoryRate =
-            (detail.respiratoryRate == null || detail.respiratoryRate == 0)
-            ? randNearby(prevRespiratoryRate, 8, 16)
-            : double.parse(detail.respiratoryRate!.toStringAsFixed(1));
+            ((detail.respiratoryRate == null || detail.respiratoryRate == 0)
+                ? randNearby(prevRespiratoryRate, 8, 16)
+                : double.parse(detail.respiratoryRate!.toStringAsFixed(1))) +
+            calibrationController.respiration;
 
         final fixedDetail = HalterDeviceDetailModel(
           detailId: detail.detailId,
@@ -464,12 +476,12 @@ class HalterSerialService extends GetxService {
         double voltase = double.parse(randDouble(3200, 4200));
         // int bpm = randInt(28, 120);
         // double spo = double.parse(randDouble(90, 100));
-        double suhu = double.parse(randDouble(35, 40));
-        double respirasi = double.parse(randDouble(8, 30));
-        int bpm = 0;
-        double spo = 0;
-        // double suhu = 0;
-        // double respirasi = 0;
+        // double suhu = double.parse(randDouble(35, 40));
+        // double respirasi = double.parse(randDouble(8, 30));
+        int bpm = 10;
+        double spo = 10;
+        double suhu = 10;
+        double respirasi = 10;
 
         return "Data: $deviceId,"
             "$latitude,$longitude,$altitude,$sog,$cog,"

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:smart_feeder_desktop/app/data/data_team_halter.dart';
+import 'package:smart_feeder_desktop/app/models/halter/test_team_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 import 'package:toastification/toastification.dart';
 
 class HalterSettingPage extends StatefulWidget {
@@ -16,6 +21,19 @@ class HalterSettingPage extends StatefulWidget {
 class HalterSettingPageState extends State<HalterSettingPage> {
   final HalterDashboardController controller = Get.find();
   final HalterSettingController settingController = Get.find();
+
+  final team = DataTeamHalter.getTeam();
+
+  final TextEditingController _namaTimController = TextEditingController();
+  final TextEditingController _lokasiController = TextEditingController();
+  final List<TextEditingController> _anggotaControllers = [
+    TextEditingController(),
+  ];
+  final DateTime _tanggal = DateTime.now();
+  final String tanggalStr = DateFormat(
+    "dd MMMM yyyy",
+    "id_ID",
+  ).format(DateTime.now());
 
   final TextEditingController _cloudUrlController = TextEditingController(
     text: 'https://smarthalter.ipb.ac.id',
@@ -36,6 +54,20 @@ class HalterSettingPageState extends State<HalterSettingPage> {
     _selectedJenisPengiriman = settingController.setting.value.type.isEmpty
         ? null
         : settingController.setting.value.type;
+    if (team != null) {
+      _namaTimController.text = team!.teamName!;
+      _lokasiController.text = team!.location!;
+      // Tanggal otomatis dari storage
+      // Anggota
+      _anggotaControllers.clear();
+      if (team!.members!.isNotEmpty) {
+        for (final m in team!.members!) {
+          _anggotaControllers.add(TextEditingController(text: m));
+        }
+      } else {
+        _anggotaControllers.add(TextEditingController());
+      }
+    }
   }
 
   @override
@@ -187,7 +219,6 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                       title: 'Lora Connection',
                       headerColor: AppColors.primary,
                       withExpanded: false,
-
                       headerHeight: 50,
                       titleFontSize: 18,
                       width: MediaQuery.of(context).size.width * 0.25,
@@ -452,7 +483,6 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                       title: 'Pilih Kandang',
                       headerColor: AppColors.primary,
                       withExpanded: false,
-
                       headerHeight: 50,
                       titleFontSize: 18,
                       width: MediaQuery.of(context).size.width * 0.25,
@@ -565,6 +595,187 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                             textAlign: TextAlign.right,
                           ),
                         ],
+                      ),
+                    ),
+                    CustomCard(
+                      title: 'Form Penguji',
+                      headerColor: AppColors.primary,
+                      withExpanded: false,
+                      headerHeight: 50,
+                      titleFontSize: 18,
+                      width: MediaQuery.of(context).size.width * 0.51,
+                      height: MediaQuery.of(context).size.height * 0.58,
+                      borderRadius: 16,
+                      scrollable: false,
+                      content: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 12),
+                            CustomInput(
+                              controller: _namaTimController,
+                              label: 'Tim Pengujian',
+                              hint: 'Masukan Tim Pengujian',
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Expanded(
+                                  child: CustomInput(
+                                    label: 'Lokasi Pengujian',
+                                    hint: 'Masukan Lokasi Pengujian',
+                                    controller: _lokasiController,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Tanggal Pengujian',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 12,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.calendar_today,
+                                              color: AppColors.primary,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              tanggalStr,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                color: AppColors.primary,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Anggota Pengujian',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Column(
+                              children: List.generate(
+                                _anggotaControllers.length,
+                                (i) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 6.0,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: CustomInput(
+                                            controller: _anggotaControllers[i],
+                                            label: '',
+                                            fontSize: 15,
+                                            hint: 'Nama Anggota ${i + 1}',
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        if (i == _anggotaControllers.length - 1)
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.add_circle,
+                                              color: Colors.green,
+                                            ),
+                                            tooltip: 'Tambah Anggota',
+                                            onPressed: () {
+                                              setState(() {
+                                                _anggotaControllers.add(
+                                                  TextEditingController(),
+                                                );
+                                              });
+                                            },
+                                          ),
+                                        if (_anggotaControllers.length > 1)
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.remove_circle,
+                                              color: Colors.red,
+                                            ),
+                                            tooltip: 'Hapus Anggota',
+                                            onPressed: () {
+                                              setState(() {
+                                                _anggotaControllers.removeAt(i);
+                                              });
+                                            },
+                                          ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                            CustomButton(
+                              onPressed: () {
+                                final namaTim = _namaTimController.text;
+                                final lokasi = _lokasiController.text;
+                                final tanggal = _tanggal;
+                                final anggota = _anggotaControllers
+                                    .map((c) => c.text)
+                                    .where((t) => t.isNotEmpty)
+                                    .toList();
+
+                                final team = TestTeamModel(
+                                  teamName: namaTim,
+                                  location: lokasi,
+                                  date: tanggal,
+                                  members: anggota,
+                                );
+                                DataTeamHalter.saveTeam(team);
+
+                                toastification.show(
+                                  context: context,
+                                  title: const Text(
+                                    'Data Tim Penguji Tersimpan',
+                                  ),
+                                  type: ToastificationType.success,
+                                  alignment: Alignment.topCenter,
+                                  autoCloseDuration: const Duration(seconds: 2),
+                                );
+                              },
+                              text: 'Simpan',
+                              iconTrailing: Icons.save,
+                              backgroundColor: AppColors.primary,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
