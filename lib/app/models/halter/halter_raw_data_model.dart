@@ -3,17 +3,14 @@ class HalterRawDataModel {
   final String data;
   final DateTime? time;
 
-  HalterRawDataModel({
-    required this.rawId,
-    required this.data,
-    this.time,
-  });
+  HalterRawDataModel({required this.rawId, required this.data, this.time});
 
-  factory HalterRawDataModel.fromMap(Map<String, dynamic> map) => HalterRawDataModel(
-    rawId: map['raw_id'],
-    data: map['data'],
-    time: map['time'] != null ? DateTime.tryParse(map['time']) : null,
-  );
+  factory HalterRawDataModel.fromMap(Map<String, dynamic> map) =>
+      HalterRawDataModel(
+        rawId: map['raw_id'],
+        data: map['data'],
+        time: map['time'] != null ? DateTime.tryParse(map['time']) : null,
+      );
 
   Map<String, dynamic> toMap() => {
     'raw_id': rawId,

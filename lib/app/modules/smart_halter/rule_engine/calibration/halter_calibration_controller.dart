@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_calibration_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_calibration_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter_calibration_log_model.dart';
+import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
 class HalterCalibrationController extends GetxController {
   var calibration = HalterCalibrationModel(
@@ -54,7 +55,17 @@ class HalterCalibrationController extends GetxController {
 
     // ✅ simpan data terakhir
     DataHalterCalibrationHalter.saveCalibration(calibration.value);
+  }
 
+  void createLogs({
+    double? temperature,
+    double? heartRate,
+    double? spo,
+    double? respiration,
+    double? roomTemperature,
+    double? humidity,
+    double? lightIntensity,
+  }) {
     // ✅ bikin log baru (contoh: untuk setiap parameter disimpan log terpisah)
     calibrationLogs.addAll([
       HalterCalibrationLogModel(
@@ -63,7 +74,7 @@ class HalterCalibrationController extends GetxController {
         parameter: "Suhu Badan",
         category: "Halter",
         referensi: 37.5,
-        sensor: calibration.value.temperature,
+        sensor: temperature ?? 0,
         value: calibration.value.temperature,
       ),
       HalterCalibrationLogModel(
@@ -72,7 +83,7 @@ class HalterCalibrationController extends GetxController {
         parameter: "Detak Jantung",
         category: "Halter",
         referensi: 30,
-        sensor: calibration.value.heartRate,
+        sensor: heartRate ?? 0,
         value: calibration.value.heartRate,
       ),
       HalterCalibrationLogModel(
@@ -81,7 +92,7 @@ class HalterCalibrationController extends GetxController {
         parameter: "SPO",
         category: "Halter",
         referensi: 96,
-        sensor: calibration.value.spo,
+        sensor: spo ?? 0,
         value: calibration.value.spo,
       ),
       HalterCalibrationLogModel(
@@ -90,7 +101,7 @@ class HalterCalibrationController extends GetxController {
         parameter: "Respirasi",
         category: "Halter",
         referensi: 12,
-        sensor: calibration.value.respiration,
+        sensor: respiration ?? 0,
         value: calibration.value.respiration,
       ),
       HalterCalibrationLogModel(
@@ -125,16 +136,17 @@ class HalterCalibrationController extends GetxController {
     // ✅ simpan log
     DataHalterCalibrationHalter.saveCalibrationLogs(calibrationLogs);
   }
-  void deleteLog(int id) {
-  calibrationLogs.removeWhere((log) => log.id == id);
-  DataHalterCalibrationHalter.saveCalibrationLogs(calibrationLogs.toList());
-}
 
-void updateLog(HalterCalibrationLogModel updatedLog) {
-  final index = calibrationLogs.indexWhere((log) => log.id == updatedLog.id);
-  if (index != -1) {
-    calibrationLogs[index] = updatedLog;
+  void deleteLog(int id) {
+    calibrationLogs.removeWhere((log) => log.id == id);
     DataHalterCalibrationHalter.saveCalibrationLogs(calibrationLogs.toList());
   }
-}
+
+  void updateLog(HalterCalibrationLogModel updatedLog) {
+    final index = calibrationLogs.indexWhere((log) => log.id == updatedLog.id);
+    if (index != -1) {
+      calibrationLogs[index] = updatedLog;
+      DataHalterCalibrationHalter.saveCalibrationLogs(calibrationLogs.toList());
+    }
+  }
 }

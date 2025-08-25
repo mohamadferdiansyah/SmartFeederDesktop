@@ -173,4 +173,5 @@ class HalterDeviceDetailModel {
 
   static double? _toDouble(String v) => v == 'NAN' ? null : double.tryParse(v);
   static int? _toInt(String v) => v == 'NAN' ? null : int.tryParse(v);
+
 }

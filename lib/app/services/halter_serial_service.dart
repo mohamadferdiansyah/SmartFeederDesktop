@@ -29,10 +29,13 @@ class HalterSerialService extends GetxService {
   RxList<HalterDeviceDetailModel> get detailHistoryList =>
       dataController.detailHistory;
 
+  RxList<HalterDeviceDetailModel> get rawDetailList => dataController.rawDetail;
+
   RxList<NodeRoomModel> get nodeRoomList => dataController.nodeRoomList;
 
   RxList<HalterDeviceModel> get halterDeviceList =>
       dataController.halterDeviceList;
+
   RxList<HalterRawDataModel> get rawData => dataController.rawData;
 
   RxList<String> get availablePorts =>
@@ -227,6 +230,9 @@ class HalterSerialService extends GetxService {
         final calibrationController =
             Get.find<HalterCalibrationController>().calibration.value;
 
+        final HalterCalibrationController controllerCalibration =
+            Get.find<HalterCalibrationController>();
+
         // final HalterCalibrationController calibrationController = Get.find<HalterCalibrationController>().calibration.value;
 
         double randNearby(
@@ -277,9 +283,11 @@ class HalterSerialService extends GetxService {
             ? 0 + calibrationController.spo
             : detail.spo! + calibrationController.spo;
         final temperature =
-            (detail.temperature == null || detail.temperature == 0) 
+            (detail.temperature == null || detail.temperature == 0)
             ? 0 + calibrationController.temperature
-            : detail.temperature! + calibrationController.temperature; //bikiin fitur di seting buat denamis data temperature nya
+            : detail.temperature! +
+                  calibrationController
+                      .temperature; //bikiin fitur di seting buat denamis data temperature nya
         final respiratoryRate =
             (detail.respiratoryRate == null || detail.respiratoryRate == 0)
             ? 0 + calibrationController.respiration
@@ -317,6 +325,38 @@ class HalterSerialService extends GetxService {
         );
 
         latestDetail.value = fixedDetail;
+
+        // Di HalterSerialService atau di mana kamu parsing serial:
+        final rawDetail = HalterDeviceDetailModel(
+          detailId: detail.detailId,
+          latitude: detail.latitude,
+          longitude: detail.longitude,
+          altitude: detail.altitude,
+          sog: detail.sog,
+          cog: detail.cog,
+          acceX: detail.acceX,
+          acceY: detail.acceY,
+          acceZ: detail.acceZ,
+          gyroX: detail.gyroX,
+          gyroY: detail.gyroY,
+          gyroZ: detail.gyroZ,
+          magX: detail.magX,
+          magY: detail.magY,
+          magZ: detail.magZ,
+          roll: detail.roll,
+          pitch: detail.pitch,
+          yaw: detail.yaw,
+          current: detail.current,
+          voltage: detail.voltage,
+          heartRate: detail.heartRate,
+          spo: detail.spo,
+          temperature: detail.temperature,
+          respiratoryRate: detail.respiratoryRate,
+          deviceId: detail.deviceId,
+          time: detail.time,
+          rssi: detail.rssi,
+          snr: detail.snr,
+        );
 
         final indexDevice = halterDeviceList.indexWhere(
           (d) => d.deviceId == fixedDetail.deviceId,
@@ -437,6 +477,15 @@ class HalterSerialService extends GetxService {
             time: DateTime.now(),
           ),
         );
+
+        rawDetailList.add(rawDetail);
+
+        // controllerCalibration.createLogs(
+        //   heartRate: detail.heartRate,
+        //   temperature: detail.temperature,
+        //   respiration: detail.respiratoryRate,
+        //   spo: detail.spo,
+        // );
 
         print('Parsed fixedDetail (with RSSI/SNR): $fixedDetail');
       } catch (e) {
@@ -566,10 +615,10 @@ class HalterSerialService extends GetxService {
         int yaw = randInt(-180, 180);
         int arus = 0;
         double voltase = double.parse(randDouble(3200, 4200));
-        int bpm = 0;
-        double spo = 0;
-        double suhu = 0;
-        double respirasi = 0;
+        int bpm = 5;
+        double spo = 5;
+        double suhu = 5;
+        double respirasi = 5;
 
         // Format langsung SHIPB...
         return "SHIPB$deviceId,"
