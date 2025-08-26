@@ -176,8 +176,7 @@ class HalterNodeController extends GetxController {
     final fileBytes = excel.encode();
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel Detail Node',
-      fileName:
-          'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId)}).xlsx',
+      fileName: 'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId).join("_")}).xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );
