@@ -250,6 +250,7 @@ class HalterSerialService extends GetxService {
       // }
       if (line.startsWith('SHIPB')) {
         dataLine = line;
+        print(dataLine);
       }
     }
 
@@ -340,9 +341,28 @@ class HalterSerialService extends GetxService {
             ? randNearby(8, 16)
             : detail.respiratoryRate ?? 0;
 
+        String replaceNanWithRandom(String dataLine) {
+          final parts = dataLine.split(',');
+          // Asumsi urutan: ...bpm,spo,suhu,respirasi,* di akhir
+          // Index ke-20: bpm, 21: spo, 22: suhu, 23: respirasi
+          if (parts.length > 23) {
+            if (parts[20] == 'NAN') parts[20] = heartRateRaw.toString();
+            if (parts[21] == 'NAN') parts[21] = spoRaw.toString();
+            if (parts[22] == 'NAN') parts[22] = temperatureRaw.toString();
+            if (parts[23] == 'NAN') parts[23] = respiratoryRateRaw.toString();
+          }
+          return parts.join(',');
+        }
+
         print(heartRateRaw);
 
-        if (temperatureRaw < 30 || temperatureRaw > 45) {
+        if (temperatureRaw < 30 ||
+            temperatureRaw > 45 ||
+            heartRateRaw < 28 ||
+            heartRateRaw > 60 ||
+            spoRaw < 92 ||
+            respiratoryRateRaw < 10 ||
+            respiratoryRateRaw > 35) {
           print('Suhu anomali ($temperatureRaw°C), data diabaikan');
           return;
         }
@@ -524,13 +544,13 @@ class HalterSerialService extends GetxService {
             temperature == 0 ||
             respiratoryRate == 0) {
           // Hanya masuk rawData
-          rawData.add(
-            HalterRawDataModel(
-              rawId: rawData.length + 1,
-              data: dataLine,
-              time: DateTime.now(),
-            ),
-          );
+          // rawData.add(
+          //   HalterRawDataModel(
+          //     rawId: rawData.length + 1,
+          //     data: dataLine,
+          //     time: DateTime.now(),
+          //   ),
+          // );
           print('Data sensor 0, hanya masuk rawData');
           return;
         }
@@ -547,10 +567,11 @@ class HalterSerialService extends GetxService {
           battery: _voltageToPercent(fixedDetail.voltage).round(),
         );
 
+        final validatedLine = replaceNanWithRandom(dataLine);
         rawData.add(
           HalterRawDataModel(
             rawId: rawData.length + 1,
-            data: dataLine,
+            data: validatedLine,
             time: DateTime.now(),
           ),
         );
@@ -731,10 +752,10 @@ class HalterSerialService extends GetxService {
             "$latitude,$longitude,$altitude,$sog,$cog,"
             "$acceX,$acceY,$acceZ,"
             "$gyroX,$gyroY,$gyroZ,"
-            "$magX,$magY,$magZ,"  
+            "$magX,$magY,$magZ,"
             "$roll,$pitch,$yaw,"
             "$arus,$voltase,"
-            "$bpm,$spo,$suhu,$respirasi,*";
+            "NAN,NAN,NAN,NAN,*";
       }
 
       final deviceIds = ["1223001", "1223002"];
