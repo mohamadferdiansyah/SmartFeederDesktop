@@ -113,9 +113,8 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                 labelText: "Kategori Kuda (Wajib diisi)",
               ),
               items: const [
-                DropdownMenuItem(value: "race", child: Text("Race Horse")),
-                DropdownMenuItem(value: "work", child: Text("Work Horse")),
-                DropdownMenuItem(value: "show", child: Text("Show Horse")),
+                DropdownMenuItem(value: "Imunisasi", child: Text("Imunisasi")),
+                DropdownMenuItem(value: "Produksi", child: Text("Produksi")),
               ],
               onChanged: (v) => modalSetState(() => selectedCategory = v),
             ),
@@ -286,9 +285,8 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
             labelText: "Kategori Kuda (Wajib diisi)",
           ),
           items: const [
-            DropdownMenuItem(value: "race", child: Text("Race Horse")),
-            DropdownMenuItem(value: "work", child: Text("Work Horse")),
-            DropdownMenuItem(value: "show", child: Text("Show Horse")),
+            DropdownMenuItem(value: "Imunisasi", child: Text("Imunisasi")),
+            DropdownMenuItem(value: "Produksi", child: Text("Produksi")),
           ],
           onChanged: (v) {
             setState(() {
