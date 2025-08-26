@@ -1727,7 +1727,7 @@ class DataController extends GetxController {
 
   Future<void> loadNodeRoomsFromDb() async {
     final list = await nodeRoomDao.getAll();
-    nodeRoomList.assignAll(list);
+      nodeRoomList.assignAll(list);
   }
 
   Future<void> addNodeRoom(NodeRoomModel model) async {

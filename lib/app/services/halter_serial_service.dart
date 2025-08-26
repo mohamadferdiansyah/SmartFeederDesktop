@@ -63,6 +63,14 @@ class HalterSerialService extends GetxService {
     await dataController.addHalterDeviceDetail(model);
   }
 
+  Future<void> addNodeDevice(NodeRoomModel model) async {
+    await dataController.addNodeRoom(model);
+  }
+
+  Future<void> updateNodeDevice(NodeRoomModel model) async {
+    await dataController.updateNodeRoom(model);
+  }
+
   void pairingDevice() {
     for (final device in halterDeviceList) {
       if (device.status == 'on' ||
@@ -172,6 +180,7 @@ class HalterSerialService extends GetxService {
     reader!.stream.listen(
       (data) {
         _serialBuffer += String.fromCharCodes(data);
+        // print(_serialBuffer);
 
         while (_serialBuffer.contains('\n')) {
           final idx = _serialBuffer.indexOf('\n');
@@ -194,9 +203,25 @@ class HalterSerialService extends GetxService {
                 (n) => n.deviceId == nodeRoom.deviceId,
               );
               if (index == -1) {
-                nodeRoomList.add(nodeRoom);
+                // nodeRoomList.add(nodeRoom);
+                addNodeDevice(
+                  NodeRoomModel(
+                    deviceId: nodeRoom.deviceId,
+                    temperature: nodeRoom.temperature,
+                    humidity: nodeRoom.humidity,
+                    lightIntensity: nodeRoom.lightIntensity,
+                  ),
+                );
               } else {
-                nodeRoomList[index] = nodeRoom;
+                // nodeRoomList[index] = nodeRoom;
+                updateNodeDevice(
+                  NodeRoomModel(
+                    deviceId: nodeRoom.deviceId,
+                    temperature: nodeRoom.temperature,
+                    humidity: nodeRoom.humidity,
+                    lightIntensity: nodeRoom.lightIntensity,
+                  ),
+                );
               }
 
               controller.checkAndLogNode(
@@ -354,8 +379,6 @@ class HalterSerialService extends GetxService {
           return parts.join(',');
         }
 
-        print(heartRateRaw);
-
         if (temperatureRaw < 30 ||
             temperatureRaw > 45 ||
             heartRateRaw < 28 ||
@@ -363,7 +386,12 @@ class HalterSerialService extends GetxService {
             spoRaw < 92 ||
             respiratoryRateRaw < 10 ||
             respiratoryRateRaw > 35) {
-          print('Suhu anomali ($temperatureRaw°C), data diabaikan');
+          print('sensor abnormal, data diabaikan');
+          print(heartRateRaw);
+          print(temperatureRaw);
+          print(spoRaw);
+          print(respiratoryRateRaw);
+
           return;
         }
 

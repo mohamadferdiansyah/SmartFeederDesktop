@@ -539,127 +539,126 @@ class HalterDeviceDataTableSource extends DataTableSource {
 
   @override
   DataRow getRow(int index) {
-  final device = devices[index];
-  return DataRow.byIndex(
-    index: index,
-    // kasih warna sesuai status
-    color: MaterialStateProperty.resolveWith<Color?>(
-      (Set<MaterialState> states) {
+    final device = devices[index];
+    return DataRow.byIndex(
+      index: index,
+      // kasih warna sesuai status
+      color: MaterialStateProperty.resolveWith<Color?>((
+        Set<MaterialState> states,
+      ) {
         if (device.status != 'on') {
           return Colors.yellow.withOpacity(0.3); // kuning transparan
         }
         return null; // default
-      },
-    ),
-    cells: [
-      DataCell(Center(child: Text(device.deviceId))),
-      DataCell(Center(child: Text(getHorseName(device.horseId)))),
-      DataCell(
-        Center(
-          child: Text(
-            device.status == 'on' ? 'Aktif' : 'Tidak Aktif',
-            style: TextStyle(
-              color: device.status == 'on' ? Colors.black : Colors.orange,
-              fontWeight: FontWeight.bold,
+      }),
+      cells: [
+        DataCell(Center(child: Text(device.deviceId))),
+        DataCell(Center(child: Text(getHorseName(device.horseId)))),
+        DataCell(
+          Center(
+            child: Text(
+              device.status == 'on' ? 'Aktif' : 'Tidak Aktif',
+              style: TextStyle(
+                color: device.status == 'on' ? Colors.black : Colors.orange,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
-      ),
-      DataCell(
-        Center(
-          child: Text(
-            device.status == 'on'
-                ? '${device.batteryPercent}%'
-                : 'Terakhir: ${device.batteryPercent}%',
+        DataCell(
+          Center(
+            child: Text(
+              device.status == 'on'
+                  ? '${device.batteryPercent}%'
+                  : 'Terakhir: ${device.batteryPercent}%',
+            ),
           ),
         ),
-      ),
-      DataCell(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CustomButton(
-              width: 165,
-              height: 38,
-              text: 'Riwayat Halter',
-              backgroundColor: Colors.blue,
-              icon: Icons.history,
-              borderRadius: 6,
-              fontSize: 14,
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return HalterRawDataDialog(
-                      deviceId: device.deviceId,
-                      allData: _controller.detailHistoryList,
-                    );
-                  },
-                );
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Container(
+        DataCell(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CustomButton(
+                width: 165,
                 height: 38,
-                width: 2,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(6),
+                text: 'Riwayat Halter',
+                backgroundColor: Colors.blue,
+                icon: Icons.history,
+                borderRadius: 6,
+                fontSize: 14,
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return HalterRawDataDialog(
+                        deviceId: device.deviceId,
+                        allData: _controller.detailHistoryList,
+                      );
+                    },
+                  );
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Container(
+                  height: 38,
+                  width: 2,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
                 ),
               ),
-            ),
-            CustomButton(
-              width: 115,
-              height: 38,
-              text: 'Detail',
-              backgroundColor: Colors.blueGrey,
-              icon: Icons.info_outline,
-              borderRadius: 6,
-              fontSize: 14,
-              onPressed: () => onDetail(device),
-            ),
-            const SizedBox(width: 6),
-            device.horseId == null
-                ? CustomButton(
-                    width: 135,
-                    height: 38,
-                    backgroundColor: AppColors.primary,
-                    text: 'Pilih Kuda',
-                    icon: Icons.pets_rounded,
-                    borderRadius: 6,
-                    fontSize: 14,
-                    onPressed: () => onPilihKuda(device),
-                  )
-                : CustomButton(
-                    width: 135,
-                    height: 38,
-                    backgroundColor: Colors.orange,
-                    text: 'Lepas Alat',
-                    icon: Icons.link_off,
-                    borderRadius: 6,
-                    fontSize: 14,
-                    onPressed: () => onLepasAlat(device),
-                  ),
-            const SizedBox(width: 6),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(6),
+              CustomButton(
+                width: 115,
+                height: 38,
+                text: 'Detail',
+                backgroundColor: Colors.blueGrey,
+                icon: Icons.info_outline,
+                borderRadius: 6,
+                fontSize: 14,
+                onPressed: () => onDetail(device),
               ),
-              child: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                tooltip: 'Hapus',
-                onPressed: () => onDelete(device),
+              const SizedBox(width: 6),
+              device.horseId == null
+                  ? CustomButton(
+                      width: 135,
+                      height: 38,
+                      backgroundColor: AppColors.primary,
+                      text: 'Pilih Kuda',
+                      icon: Icons.pets_rounded,
+                      borderRadius: 6,
+                      fontSize: 14,
+                      onPressed: () => onPilihKuda(device),
+                    )
+                  : CustomButton(
+                      width: 135,
+                      height: 38,
+                      backgroundColor: Colors.orange,
+                      text: 'Lepas Alat',
+                      icon: Icons.link_off,
+                      borderRadius: 6,
+                      fontSize: 14,
+                      onPressed: () => onLepasAlat(device),
+                    ),
+              const SizedBox(width: 6),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  tooltip: 'Hapus',
+                  onPressed: () => onDelete(device),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    ],
-  );
-}
-
+      ],
+    );
+  }
 
   @override
   int get rowCount => devices.length;
@@ -917,8 +916,9 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                       DataColumn(label: Text("Latitude (°)")),
                       DataColumn(label: Text("Longitude (°)")),
                       DataColumn(label: Text("Altitude (m)")),
-                      DataColumn(label: Text("SoG (m/s)")),  // Speed over Ground
-                      DataColumn(label: Text("CoG (°)")),    // Course over Ground
+                      DataColumn(label: Text("SoG (m/s)")), // Speed over Ground
+                      DataColumn(label: Text("CoG (°)")), // Course over Ground
+
                       // DataColumn(label: Text("AcceX (m/s²")),
                       // DataColumn(label: Text("AcceY (m/s²")),
                       // DataColumn(label: Text("AcceZ (m/s²")),
@@ -928,7 +928,6 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                       // DataColumn(label: Text("magX (µT")),
                       // DataColumn(label: Text("magY (µT")),
                       // DataColumn(label: Text("magZ (µT")),
-
                       DataColumn(label: Text("Roll (°)")),
                       DataColumn(label: Text("Pitch (°)")),
                       DataColumn(label: Text("Yaw (°)")),
@@ -938,7 +937,6 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                       DataColumn(label: Text("SPO₂ (%)")),
                       DataColumn(label: Text("Suhu tubuh (°C)")),
                       DataColumn(label: Text("Respirasi (napas/menit)")),
-                      
                     ],
                     rows: List.generate(filteredData.length, (i) {
                       final d = filteredData[i];
@@ -951,9 +949,17 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                             ),
                           ),
                           DataCell(Text(d.deviceId)),
-                          DataCell(Text(d.latitude != null ? '${d.latitude} °' : "-")),
-                          DataCell(Text(d.longitude != null ? '${d.longitude} °' : "-")),
-                          DataCell(Text(d.altitude != null ? '${d.altitude} m' : "-")),
+                          DataCell(
+                            Text(d.latitude != null ? '${d.latitude} °' : "-"),
+                          ),
+                          DataCell(
+                            Text(
+                              d.longitude != null ? '${d.longitude} °' : "-",
+                            ),
+                          ),
+                          DataCell(
+                            Text(d.altitude != null ? '${d.altitude} m' : "-"),
+                          ),
                           DataCell(Text(d.sog != null ? '${d.sog} m/s' : "-")),
                           DataCell(Text(d.cog != null ? '${d.cog} °' : "-")),
                           // DataCell(Text(d.acceX != null ? '${d.acceX} m/s²' : "-")),
@@ -966,15 +972,36 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                           // DataCell(Text(d.magY != null ? '${d.magY} µT' : "-")),
                           // DataCell(Text(d.magZ != null ? '${d.magZ} µT' : "-")),
                           DataCell(Text(d.roll != null ? '${d.roll} °' : "-")),
-                          DataCell(Text(d.pitch != null ? '${d.pitch} °' : "-")),
+                          DataCell(
+                            Text(d.pitch != null ? '${d.pitch} °' : "-"),
+                          ),
                           DataCell(Text(d.yaw != null ? '${d.yaw} °' : "-")),
-                          DataCell(Text(d.current != null ? '${d.current} A' : "-")),
-                          DataCell(Text(d.voltage != null ? '${d.voltage} V' : "-")),
-                          DataCell(Text(d.heartRate != null ? '${d.heartRate} bpm' : "-")),
+                          DataCell(
+                            Text(d.current != null ? '${d.current} A' : "-"),
+                          ),
+                          DataCell(
+                            Text(d.voltage != null ? '${d.voltage} V' : "-"),
+                          ),
+                          DataCell(
+                            Text(
+                              d.heartRate != null ? '${d.heartRate} bpm' : "-",
+                            ),
+                          ),
                           DataCell(Text(d.spo != null ? '${d.spo} %' : "-")),
-                          DataCell(Text(d.temperature != null ? '${d.temperature} °C' : "-")),
-                          DataCell(Text(d.respiratoryRate != null ? '${d.respiratoryRate} napas/menit' : "-")),
-                          
+                          DataCell(
+                            Text(
+                              d.temperature != null
+                                  ? '${d.temperature} °C'
+                                  : "-",
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              d.respiratoryRate != null
+                                  ? '${d.respiratoryRate} napas/menit'
+                                  : "-",
+                            ),
+                          ),
                         ],
                       );
                     }),
