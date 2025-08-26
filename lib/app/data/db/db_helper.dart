@@ -92,21 +92,21 @@ class DBHelper {
         ''');
 
         // Hardcoded insert for node_room_devices
-        await db.insert('node_room_devices', {
-          'device_id': 'SRIPB1223001',
-          'temperature': 25.5,
-          'humidity': 60.0,
-          'light_intensity': 300.0,
-          'time': DateTime.now().toIso8601String(),
-        }, conflictAlgorithm: ConflictAlgorithm.replace);
+        // await db.insert('node_room_devices', {
+        //   'device_id': 'SRIPB1223001',
+        //   'temperature': 25.5,
+        //   'humidity': 60.0,
+        //   'light_intensity': 300.0,
+        //   'time': DateTime.now().toIso8601String(),
+        // }, conflictAlgorithm: ConflictAlgorithm.replace);
 
-        await db.insert('node_room_devices', {
-          'device_id': 'SRIPB1223002',
-          'temperature': 26.0,
-          'humidity': 60.0,
-          'light_intensity': 300.0,
-          'time': DateTime.now().toIso8601String(),
-        }, conflictAlgorithm: ConflictAlgorithm.replace);
+        // await db.insert('node_room_devices', {
+        //   'device_id': 'SRIPB1223002',
+        //   'temperature': 26.0,
+        //   'humidity': 60.0,
+        //   'light_intensity': 300.0,
+        //   'time': DateTime.now().toIso8601String(),
+        // }, conflictAlgorithm: ConflictAlgorithm.replace);
 
         // rooms
         await db.execute('''

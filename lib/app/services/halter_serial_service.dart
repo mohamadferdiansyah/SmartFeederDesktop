@@ -269,20 +269,14 @@ class HalterSerialService extends GetxService {
 
         // final HalterCalibrationController calibrationController = Get.find<HalterCalibrationController>().calibration.value;
 
-        double randNearby(
-          double prev,
-          double min,
-          double max, {
-          double delta = 2.0,
-        }) {
-          final lower = (prev - delta).clamp(min, max);
-          final upper = (prev + delta).clamp(min, max);
+        double randNearby(double min, double max) {
+          final rnd = Random();
           return double.parse(
-            (lower + Random().nextDouble() * (upper - lower)).toStringAsFixed(
-              1,
-            ),
+            (min + rnd.nextDouble() * (max - min)).toStringAsFixed(1),
           );
         }
+
+        bool isNaN(num? value) => value == null || value.isNaN;
 
         // final prevHeartRate = latestDetail.value?.heartRate ?? 38.0;
         // final prevSpo = latestDetail.value?.spo ?? 97.0;
@@ -310,22 +304,71 @@ class HalterSerialService extends GetxService {
         //         : double.parse(detail.respiratoryRate!.toStringAsFixed(1))) +
         //     calibrationController.respiration;
 
-        final heartRate = (detail.heartRate == null || detail.heartRate == 0)
-            ? 0 + calibrationController.heartRate
-            : detail.heartRate! + calibrationController.heartRate;
-        final spo = (detail.spo == null || detail.spo == 0)
-            ? 0 + calibrationController.spo
-            : detail.spo! + calibrationController.spo;
-        final temperature =
-            (detail.temperature == null || detail.temperature == 0)
-            ? 0 + calibrationController.temperature
-            : detail.temperature! +
-                  calibrationController
-                      .temperature; //bikiin fitur di seting buat denamis data temperature nya
+        // final heartRate = (detail.heartRate == null || detail.heartRate == 0)
+        //     ? 0 + calibrationController.heartRate
+        //     : detail.heartRate! + calibrationController.heartRate;
+        // final spo = (detail.spo == null || detail.spo == 0)
+        //     ? 0 + calibrationController.spo
+        //     : detail.spo! + calibrationController.spo;
+        // final temperature =
+        //     (detail.temperature == null || detail.temperature == 0)
+        //     ? 0 + calibrationController.temperature
+        //     : detail.temperature! +
+        //           calibrationController
+        //               .temperature; //bikiin fitur di seting buat denamis data temperature nya
+        // final respiratoryRate =
+        //     (detail.respiratoryRate == null || detail.respiratoryRate == 0)
+        //     ? 0 + calibrationController.respiration
+        //     : detail.respiratoryRate! + calibrationController.respiration;
+
+        // Step 1: Handle NaN & 0
+        double heartRateRaw =
+            (detail.heartRate == null || detail.heartRate.toString() == 'NAN')
+            ? randNearby(28, 44)
+            : detail.heartRate ?? 0;
+        double spoRaw = (detail.spo == null || detail.spo.toString() == 'NAN')
+            ? randNearby(95, 100)
+            : detail.spo ?? 0;
+        double temperatureRaw =
+            (detail.temperature == null ||
+                detail.temperature.toString() == 'NAN')
+            ? randNearby(37, 39)
+            : detail.temperature ?? 0;
+        double respiratoryRateRaw =
+            (detail.respiratoryRate == null ||
+                detail.respiratoryRate.toString() == 'NAN')
+            ? randNearby(8, 16)
+            : detail.respiratoryRate ?? 0;
+
+        print(heartRateRaw);
+
+        if (temperatureRaw < 30 || temperatureRaw > 45) {
+          print('Suhu anomali ($temperatureRaw°C), data diabaikan');
+          return;
+        }
+
+        // Step 2: Jika ada data 0, hanya masuk rawData
+        if (heartRateRaw == 0 ||
+            spoRaw == 0 ||
+            temperatureRaw == 0 ||
+            respiratoryRateRaw == 0) {
+          // rawData.add(
+          //   HalterRawDataModel(
+          //     rawId: rawData.length + 1,
+          //     data: dataLine,
+          //     time: DateTime.now(),
+          //   ),
+          // );
+          print('Ada data 0, hanya masuk rawData');
+          return;
+        }
+
+        // Step 3: Kalibrasi
+        final heartRate = heartRateRaw + calibrationController.heartRate;
+        final spo = spoRaw + calibrationController.spo;
+        final temperature = temperatureRaw + calibrationController.temperature;
         final respiratoryRate =
-            (detail.respiratoryRate == null || detail.respiratoryRate == 0)
-            ? 0 + calibrationController.respiration
-            : detail.respiratoryRate! + calibrationController.respiration;
+            respiratoryRateRaw + calibrationController.respiration;
 
         final fixedDetail = HalterDeviceDetailModel(
           detailId: detail.detailId,
@@ -382,10 +425,10 @@ class HalterSerialService extends GetxService {
           yaw: detail.yaw,
           current: detail.current,
           voltage: detail.voltage,
-          heartRate: detail.heartRate,
-          spo: detail.spo,
-          temperature: detail.temperature,
-          respiratoryRate: detail.respiratoryRate,
+          heartRate: heartRateRaw,
+          spo: spoRaw,
+          temperature: temperatureRaw,
+          respiratoryRate: respiratoryRateRaw,
           deviceId: detail.deviceId,
           time: detail.time,
           rssi: detail.rssi,
@@ -619,6 +662,35 @@ class HalterSerialService extends GetxService {
   //   });
   // }
 
+  // void startDummySerial() {
+  //   final rnd = Random();
+  //   _dummyTimer?.cancel();
+  //   _dummyTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+  //     // Helper untuk acak double dengan 2 desimal
+  //     String randDouble(num min, num max) =>
+  //         (min + rnd.nextDouble() * (max - min)).toStringAsFixed(2);
+
+  //     // Dummy data SHIPB
+  //     // final deviceIds = ["1223001", "1223002"];
+  //     // for (final did in deviceIds) {
+  //     //   final dummyLine =
+  //     //       "SHIPB$did,0,0,0,0.00,0.00,0.21,4.48,-8.03,0.00,0.02,-0.02,-20.36,67.39,-43.74,-3,31,158,0,3896.00,0,0,29.63,*";
+  //     //   _processBlock(dummyLine);
+  //     // }
+
+  //     // Dummy data Node Room (SRIPB)
+  //     final nodeRoomId = "SRIPB1223003";
+  //     final suhuRuangan = randDouble(28, 32);
+  //     final kelembapan = randDouble(60, 70);
+  //     final cahaya = randDouble(20, 30);
+  //     final nodeRoomLine =
+  //         "$nodeRoomId,$suhuRuangan,$kelembapan,$cahaya,0.00,0.00,0.00,0.00,0.00,0.00,*\n";
+  //     // Kirim langsung ke serialBuffer agar listener memproses seperti data asli
+  //     _serialBuffer += nodeRoomLine;
+  //     print(nodeRoomLine);
+  //   });
+  // }
+
   void startDummySerial() {
     final rnd = Random();
     _dummyTimer?.cancel();
@@ -649,11 +721,11 @@ class HalterSerialService extends GetxService {
         int yaw = randInt(-180, 180);
         int arus = 0;
         double voltase = double.parse(randDouble(3200, 4200));
-        int bpm = 5;
-        double spo = 5;
-        double suhu = 5;
-        double respirasi = 5;
-
+        int bpm = 8;
+        double spo = 8;
+        double suhu = 8;
+        double respirasi = 8;
+        print('dumi');
         // Format langsung SHIPB...
         return "SHIPB$deviceId,"
             "$latitude,$longitude,$altitude,$sog,$cog,"
