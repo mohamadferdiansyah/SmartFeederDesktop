@@ -17,6 +17,132 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
   final HalterCalibrationController controller =
       Get.find<HalterCalibrationController>();
 
+  // Tambahkan list log khusus
+  List<DataRow> _logRows = [];
+
+  bool _isLatestLogExist(String? timestamp) {
+    return _logRows.any(
+      (row) =>
+          row.cells.length > 1 &&
+          (row.cells[1].child as Text).data == timestamp,
+    );
+  }
+
+  // Fungsi untuk generate log dari rawDetailHistoryList
+  void _addLatestLogRow() {
+    final calibration = controller.calibration.value;
+    final rawDetailList = controller.rawDetailHistoryList;
+    if (rawDetailList.isEmpty) return;
+
+    final detail = rawDetailList.last;
+    final timestamp = detail.time?.toString();
+    if (_isLatestLogExist(timestamp)) return; // Prevent duplicate log
+
+    final id = _logRows.length + 1;
+
+    final newRows = [
+      DataRow(
+        cells: [
+          DataCell(Text(id.toString())),
+          DataCell(Text(timestamp.toString())),
+          DataCell(Text('Suhu Badan')),
+          DataCell(Text('Halter')),
+          DataCell(Text('${detail.temperature?.toStringAsFixed(2) ?? "-"} °C')),
+          DataCell(Text('${detail.temperature?.toStringAsFixed(2) ?? "-"} °C')),
+          DataCell(Text('${calibration.temperature.toStringAsFixed(2)} °C')),
+        ],
+      ),
+      DataRow(
+        cells: [
+          DataCell(Text(id.toString())),
+          DataCell(Text(timestamp.toString())),
+          DataCell(Text('Detak Jantung')),
+          DataCell(Text('Halter')),
+          DataCell(Text('${detail.heartRate?.toStringAsFixed(2) ?? "-"}')),
+          DataCell(Text('${detail.heartRate?.toStringAsFixed(2) ?? "-"}')),
+          DataCell(Text('${calibration.heartRate.toStringAsFixed(2)}')),
+        ],
+      ),
+      DataRow(
+        cells: [
+          DataCell(Text(id.toString())),
+          DataCell(Text(timestamp.toString())),
+          DataCell(Text('SPO')),
+          DataCell(Text('Halter')),
+          DataCell(Text('${detail.spo?.toStringAsFixed(2) ?? "-"}')),
+          DataCell(Text('${detail.spo?.toStringAsFixed(2) ?? "-"}')),
+          DataCell(Text('${calibration.spo.toStringAsFixed(2)}')),
+        ],
+      ),
+      DataRow(
+        cells: [
+          DataCell(Text(id.toString())),
+          DataCell(Text(timestamp.toString())),
+          DataCell(Text('Respirasi')),
+          DataCell(Text('Halter')),
+          DataCell(
+            Text('${detail.respiratoryRate?.toStringAsFixed(2) ?? "-"}'),
+          ),
+          DataCell(
+            Text('${detail.respiratoryRate?.toStringAsFixed(2) ?? "-"}'),
+          ),
+          DataCell(Text('${calibration.respiration.toStringAsFixed(2)}')),
+        ],
+      ),
+      // Node Room
+      DataRow(
+        cells: [
+          DataCell(Text(id.toString())),
+          DataCell(Text(timestamp.toString())),
+          DataCell(Text('Suhu Ruangan')),
+          DataCell(Text('Node Room')),
+          DataCell(
+            Text('${calibration.roomTemperature.toStringAsFixed(2)} °C'),
+          ),
+          DataCell(
+            Text('${calibration.roomTemperature.toStringAsFixed(2)} °C'),
+          ),
+          DataCell(
+            Text('${calibration.roomTemperature.toStringAsFixed(2)} °C'),
+          ),
+        ],
+      ),
+      DataRow(
+        cells: [
+          DataCell(Text(id.toString())),
+          DataCell(Text(timestamp.toString())),
+          DataCell(Text('Kelembapan')),
+          DataCell(Text('Node Room')),
+          DataCell(Text('${calibration.humidity.toStringAsFixed(2)}')),
+          DataCell(Text('${calibration.humidity.toStringAsFixed(2)}')),
+          DataCell(Text('${calibration.humidity.toStringAsFixed(2)}')),
+        ],
+      ),
+      DataRow(
+        cells: [
+          DataCell(Text(id.toString())),
+          DataCell(Text(timestamp.toString())),
+          DataCell(Text('Indeks Cahaya')),
+          DataCell(Text('Node Room')),
+          DataCell(
+            Text('${calibration.lightIntensity.toStringAsFixed(2)} lux'),
+          ),
+          DataCell(
+            Text('${calibration.lightIntensity.toStringAsFixed(2)} lux'),
+          ),
+          DataCell(
+            Text('${calibration.lightIntensity.toStringAsFixed(2)} lux'),
+          ),
+        ],
+      ),
+    ];
+
+    setState(() {
+      _logRows.addAll(newRows);
+    });
+    controller.logRows.addAll(newRows);
+  }
+
   late TextEditingController suhuCtrl;
   late TextEditingController heartRateCtrl;
   late TextEditingController spoCtrl;
@@ -54,7 +180,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
           scrollable: false,
           title: 'Kalibrasi Sensor',
           content: DefaultTabController(
-            length: 1,
+            length: 2,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -67,10 +193,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                       text: "Kalibrasi Halter & Node Room",
                       icon: Icon(Icons.settings_rounded),
                     ),
-                    // Tab(
-                    //   text: "Kalibrasi Node Room",
-                    //   icon: Icon(Icons.sensor_door),
-                    // ),
+                    Tab(text: "Log Kalibrasi", icon: Icon(Icons.sensor_door)),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -80,7 +203,14 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: TabBarView(
                       children: [
-                        _buildKalibrasiHalterTab(context),
+                        Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: _buildKalibrasiHalterTab(context),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: _buildLogTableSection(context),
+                        ),
                         // _buildKalibrasiNodeRoomTab(context),
                       ],
                     ),
@@ -422,7 +552,65 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
       ),
     );
   }
+
+  Widget _buildLogTableSection(BuildContext context) {
+    return CustomCard(
+      title: 'Logs',
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CustomButton(
+                width: 200,
+                height: 50,
+                backgroundColor: Colors.green,
+                fontSize: 18,
+                icon: Icons.table_view_rounded,
+                text: 'Tampilkan Log',
+                onPressed: _addLatestLogRow,
+              ),
+              const SizedBox(width: 12),
+              CustomButton(
+                width: 200,
+                height: 50,
+                backgroundColor: Colors.red,
+                fontSize: 18,
+                icon: Icons.clear,
+                text: 'Clear Log',
+                onPressed: () {
+                  setState(() {
+                    _logRows.clear();
+                  });
+                  controller.logRows.clear();
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Obx(
+              () => DataTable(
+                columns: const [
+                  DataColumn(label: Text('ID')),
+                  DataColumn(label: Text('Timestamp')),
+                  DataColumn(label: Text('Nama Sensor')),
+                  DataColumn(label: Text('Category Lokasi')),
+                  DataColumn(label: Text('Data lookup (Referensi)')),
+                  DataColumn(label: Text('Data Sensor')),
+                  DataColumn(label: Text('Value Kalibrasi')),
+                ],
+                rows: controller.logRows,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
 
   // Widget _buildKalibrasiNodeRoomTab(BuildContext context) {
   // double suhuRuangan = controller.suhuRuangan.value;

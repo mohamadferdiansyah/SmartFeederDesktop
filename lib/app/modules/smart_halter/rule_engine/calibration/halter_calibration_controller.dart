@@ -1,6 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_calibration_halter.dart';
+import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_calibration_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
+import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
 class HalterCalibrationController extends GetxController {
   var calibration = HalterCalibrationModel(
@@ -12,6 +16,13 @@ class HalterCalibrationController extends GetxController {
     humidity: 0,
     lightIntensity: 0,
   ).obs;
+
+  final DataController dataController = Get.find<DataController>();
+
+  RxList<HalterDeviceDetailModel> get rawDetailHistoryList =>
+      dataController.rawDetailHistoryList;
+
+  var logRows = <DataRow>[].obs;
 
   @override
   void onInit() {

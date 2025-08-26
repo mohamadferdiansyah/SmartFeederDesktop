@@ -13,6 +13,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_halter/raw_data/halter_ra
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/alert/halter_alert_rule_engine_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/calibration/halter_calibration_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/table/halter_table_rule_engine_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/threshold/halter_threshold_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/sync/halter_sync_page.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_sidebar.dart';
@@ -90,6 +91,10 @@ class HalterLayoutPage extends StatelessWidget {
         SidebarMenuItem(
           title: "Kalibrasi Sensor",
           page: HalterCalibrationPage(),
+        ),
+        SidebarMenuItem(
+          title: "Threshold Sensor",
+          page: HalterSensorThresholdPage(),
         ),
       ],
     ),

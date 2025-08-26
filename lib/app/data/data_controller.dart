@@ -1477,6 +1477,9 @@ class DataController extends GetxController {
   final RxList<HalterDeviceDetailModel> detailHistory =
       <HalterDeviceDetailModel>[].obs;
 
+  final RxList<HalterDeviceDetailModel> rawDetailHistoryList =
+      <HalterDeviceDetailModel>[].obs;
+
   final RxList<HalterBiometricRuleEngineModel> biometricClassificationList =
       <HalterBiometricRuleEngineModel>[].obs;
 

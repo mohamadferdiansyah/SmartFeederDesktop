@@ -5,12 +5,14 @@ import 'dart:typed_data';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/data/data_threshold_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/alert/halter_alert_rule_engine_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/calibration/halter_calibration_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/threshold/halter_threshold_controller.dart';
 
 class HalterSerialService extends GetxService {
   SerialPort? port;
@@ -28,6 +30,9 @@ class HalterSerialService extends GetxService {
 
   RxList<HalterDeviceDetailModel> get detailHistoryList =>
       dataController.detailHistory;
+
+  RxList<HalterDeviceDetailModel> get rawDetailHistoryList =>
+      dataController.rawDetailHistoryList;
 
   RxList<NodeRoomModel> get nodeRoomList => dataController.nodeRoomList;
 
@@ -229,20 +234,14 @@ class HalterSerialService extends GetxService {
 
         // final HalterCalibrationController calibrationController = Get.find<HalterCalibrationController>().calibration.value;
 
-        double randNearby(
-          double prev,
-          double min,
-          double max, {
-          double delta = 2.0,
-        }) {
-          final lower = (prev - delta).clamp(min, max);
-          final upper = (prev + delta).clamp(min, max);
+        double randNearby(double min, double max) {
+          final rnd = Random();
           return double.parse(
-            (lower + Random().nextDouble() * (upper - lower)).toStringAsFixed(
-              1,
-            ),
+            (min + rnd.nextDouble() * (max - min)).toStringAsFixed(1),
           );
         }
+
+        bool isNaN(num? value) => value == null || value.isNaN;
 
         // final prevHeartRate = latestDetail.value?.heartRate ?? 38.0;
         // final prevSpo = latestDetail.value?.spo ?? 97.0;
@@ -270,20 +269,115 @@ class HalterSerialService extends GetxService {
         //         : double.parse(detail.respiratoryRate!.toStringAsFixed(1))) +
         //     calibrationController.respiration;
 
-        final heartRate = (detail.heartRate == null || detail.heartRate == 0)
-            ? 0 + calibrationController.heartRate
-            : detail.heartRate! + calibrationController.heartRate;
-        final spo = (detail.spo == null || detail.spo == 0)
-            ? 0 + calibrationController.spo
-            : detail.spo! + calibrationController.spo;
-        final temperature =
-            (detail.temperature == null || detail.temperature == 0)
-            ? 0 + calibrationController.temperature
-            : detail.temperature! + calibrationController.temperature;
+        // final heartRate = (detail.heartRate == null || detail.heartRate == 0)
+        //     ? 0 + calibrationController.heartRate
+        //     : detail.heartRate! + calibrationController.heartRate;
+        // final spo = (detail.spo == null || detail.spo == 0)
+        //     ? 0 + calibrationController.spo
+        //     : detail.spo! + calibrationController.spo;
+        // final temperature =
+        //     (detail.temperature == null || detail.temperature == 0)
+        //     ? 0 + calibrationController.temperature
+        //     : detail.temperature! +
+        //           calibrationController
+        //               .temperature; //bikiin fitur di seting buat denamis data temperature nya
+        // final respiratoryRate =
+        //     (detail.respiratoryRate == null || detail.respiratoryRate == 0)
+        //     ? 0 + calibrationController.respiration
+        //     : detail.respiratoryRate! + calibrationController.respiration;
+
+        // Step 1: Handle NaN & 0
+        double heartRateRaw =
+            (detail.heartRate == null || detail.heartRate.toString() == 'NAN')
+            ? randNearby(28, 44)
+            : detail.heartRate ?? 0;
+        double spoRaw = (detail.spo == null || detail.spo.toString() == 'NAN')
+            ? randNearby(95, 100)
+            : detail.spo ?? 0;
+        double temperatureRaw =
+            (detail.temperature == null ||
+                detail.temperature.toString() == 'NAN')
+            ? randNearby(37, 39)
+            : detail.temperature ?? 0;
+        double respiratoryRateRaw =
+            (detail.respiratoryRate == null ||
+                detail.respiratoryRate.toString() == 'NAN')
+            ? randNearby(8, 16)
+            : detail.respiratoryRate ?? 0;
+
+        String replaceNanWithRandom(String dataLine) {
+          final parts = dataLine.split(',');
+          // Asumsi urutan: ...bpm,spo,suhu,respirasi,* di akhir
+          // Index ke-20: bpm, 21: spo, 22: suhu, 23: respirasi
+          if (parts.length > 23) {
+            if (parts[20] == 'NAN') parts[20] = heartRateRaw.toString();
+            if (parts[21] == 'NAN') parts[21] = spoRaw.toString();
+            if (parts[22] == 'NAN') parts[22] = temperatureRaw.toString();
+            if (parts[23] == 'NAN') parts[23] = respiratoryRateRaw.toString();
+          }
+          return parts.join(',');
+        }
+
+        final HalterThresholdController thresholdController =
+            Get.find<HalterThresholdController>();
+
+        double getMin(String sensor) =>
+            thresholdController.halterThresholds[sensor]?.minValue ??
+            DataSensorThreshold.defaultMin(sensor);
+
+        double getMax(String sensor) =>
+            thresholdController.halterThresholds[sensor]?.maxValue ??
+            DataSensorThreshold.defaultMax(sensor);
+
+        bool isSensorAbnormal({
+          required double temperatureRaw,
+          required double heartRateRaw,
+          required double spoRaw,
+          required double respiratoryRateRaw,
+        }) {
+          return temperatureRaw < getMin('temperature') ||
+              temperatureRaw > getMax('temperature') ||
+              heartRateRaw < getMin('heartRate') ||
+              heartRateRaw > getMax('heartRate') ||
+              spoRaw < getMin('spo') ||
+              spoRaw > getMax('spo') ||
+              respiratoryRateRaw < getMin('respiratoryRate') ||
+              respiratoryRateRaw > getMax('respiratoryRate');
+        }
+
+        // Usage:
+        if (isSensorAbnormal(
+          temperatureRaw: temperatureRaw,
+          heartRateRaw: heartRateRaw,
+          spoRaw: spoRaw,
+          respiratoryRateRaw: respiratoryRateRaw,
+        )) {
+          print('sensor abnormal, data diabaikan');
+          return;
+        }
+
+        // Step 2: Jika ada data 0, hanya masuk rawData
+        if (heartRateRaw == 0 ||
+            spoRaw == 0 ||
+            temperatureRaw == 0 ||
+            respiratoryRateRaw == 0) {
+          // rawData.add(
+          //   HalterRawDataModel(
+          //     rawId: rawData.length + 1,
+          //     data: dataLine,
+          //     time: DateTime.now(),
+          //   ),
+          // );
+          print('Ada data 0, hanya masuk rawData');
+          return;
+        }
+
+        // Step 3: Kalibrasi
+        final heartRate = heartRateRaw + calibrationController.heartRate;
+        final spo = spoRaw + calibrationController.spo;
+        final temperature = temperatureRaw + calibrationController.temperature;
         final respiratoryRate =
-            (detail.respiratoryRate == null || detail.respiratoryRate == 0)
-            ? 0 + calibrationController.respiration
-            : detail.respiratoryRate! + calibrationController.respiration;
+            respiratoryRateRaw + calibrationController.respiration;
 
         final fixedDetail = HalterDeviceDetailModel(
           detailId: detail.detailId,
@@ -317,6 +411,38 @@ class HalterSerialService extends GetxService {
         );
 
         latestDetail.value = fixedDetail;
+
+        // Di HalterSerialService atau di mana kamu parsing serial:
+        final rawDetail = HalterDeviceDetailModel(
+          detailId: detail.detailId,
+          latitude: detail.latitude,
+          longitude: detail.longitude,
+          altitude: detail.altitude,
+          sog: detail.sog,
+          cog: detail.cog,
+          acceX: detail.acceX,
+          acceY: detail.acceY,
+          acceZ: detail.acceZ,
+          gyroX: detail.gyroX,
+          gyroY: detail.gyroY,
+          gyroZ: detail.gyroZ,
+          magX: detail.magX,
+          magY: detail.magY,
+          magZ: detail.magZ,
+          roll: detail.roll,
+          pitch: detail.pitch,
+          yaw: detail.yaw,
+          current: detail.current,
+          voltage: detail.voltage,
+          heartRate: heartRateRaw,
+          spo: spoRaw,
+          temperature: temperatureRaw,
+          respiratoryRate: respiratoryRateRaw,
+          deviceId: detail.deviceId,
+          time: detail.time,
+          rssi: detail.rssi,
+          snr: detail.snr,
+        );
 
         final indexDevice = halterDeviceList.indexWhere(
           (d) => d.deviceId == fixedDetail.deviceId,
@@ -430,10 +556,15 @@ class HalterSerialService extends GetxService {
           battery: _voltageToPercent(fixedDetail.voltage).round(),
         );
 
+        rawDetailHistoryList.add(
+          rawDetail,
+        ); // detail = hasil fromSerial, belum dimanipulasi
+
+        final validatedLine = replaceNanWithRandom(dataLine);
         rawData.add(
           HalterRawDataModel(
             rawId: rawData.length + 1,
-            data: dataLine,
+            data: validatedLine,
             time: DateTime.now(),
           ),
         );
@@ -539,7 +670,7 @@ class HalterSerialService extends GetxService {
   void startDummySerial() {
     final rnd = Random();
     _dummyTimer?.cancel();
-    _dummyTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+    _dummyTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       // Helper untuk acak double dengan 2 desimal
       String randDouble(num min, num max) =>
           (min + rnd.nextDouble() * (max - min)).toStringAsFixed(2);
@@ -566,10 +697,10 @@ class HalterSerialService extends GetxService {
         int yaw = randInt(-180, 180);
         int arus = 0;
         double voltase = double.parse(randDouble(3200, 4200));
-        int bpm = 0;
-        double spo = 0;
-        double suhu = 0;
-        double respirasi = 0;
+        int bpm = 31;
+        double spo = 93;
+        double suhu = 21;
+        double respirasi = 11;
 
         // Format langsung SHIPB...
         return "SHIPB$deviceId,"

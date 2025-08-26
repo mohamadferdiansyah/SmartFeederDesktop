@@ -26,7 +26,7 @@ void main() async {
     await windowManager.center();
     await windowManager.show();
     await windowManager.setSkipTaskbar(false);
-  }); 
+  });
   Get.put(DataController());
   runApp(SmartFeederApp());
 }
@@ -39,7 +39,7 @@ class SmartFeederApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'SmartFeeder Desktop',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/login',
+      initialRoute: '/main-menu',
       getPages: AppPages.pages,
       theme: ThemeData(
         primaryColor: AppColors.primary,
