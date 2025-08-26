@@ -731,7 +731,7 @@ class HalterSerialService extends GetxService {
             "$latitude,$longitude,$altitude,$sog,$cog,"
             "$acceX,$acceY,$acceZ,"
             "$gyroX,$gyroY,$gyroZ,"
-            "$magX,$magY,$magZ,"
+            "$magX,$magY,$magZ,"  
             "$roll,$pitch,$yaw,"
             "$arus,$voltase,"
             "$bpm,$spo,$suhu,$respirasi,*";

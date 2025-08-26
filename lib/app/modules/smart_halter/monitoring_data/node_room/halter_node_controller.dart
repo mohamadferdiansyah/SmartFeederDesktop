@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
-import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 
@@ -14,17 +13,17 @@ class HalterNodeController extends GetxController {
   final DataController dataController = Get.find<DataController>();
 
   RxList<NodeRoomModel> get nodeRoomList => dataController.nodeRoomList;
-
   RxList<RoomModel> get roomList => dataController.roomList;
 
-  // @override
-  // void onInit() {
-  //   super.onInit();
-  //   DBHelper.database.then((db) {
-  //     dataController.initNodeRoomDao(db);
-  //     loadNode();
-  //   });
-  // }
+  @override
+  void onInit() {
+    super.onInit();
+    // ✅ Pastikan DB & DAO sudah siap lalu load data node dari database
+    DBHelper.database.then((db) {
+      dataController.initNodeRoomDao(db);
+      loadNode();
+    });
+  }
 
   Future<void> loadNode() async {
     await dataController.loadNodeRoomsFromDb();
@@ -32,14 +31,17 @@ class HalterNodeController extends GetxController {
 
   Future<void> addNode(NodeRoomModel model) async {
     await dataController.addNodeRoom(model);
+    await loadNode(); // ✅ refresh setelah insert
   }
 
   Future<void> updateNode(NodeRoomModel model) async {
     await dataController.updateNodeRoom(model);
+    await loadNode(); // ✅ refresh setelah update
   }
 
   Future<void> deleteNode(String deviceId) async {
     await dataController.deleteNodeRoom(deviceId);
+    await loadNode(); // ✅ refresh setelah delete
   }
 
   Future<void> pilihRuanganUntukNode(
@@ -47,13 +49,22 @@ class HalterNodeController extends GetxController {
     String? roomId,
   ) async {
     if (roomId == null) {
-      // Lepas node dari semua ruangan
       await dataController.detachNodeFromRoom(nodeDeviceId);
     } else {
       await dataController.assignNodeToRoom(nodeDeviceId, roomId);
     }
-    // Setelah assign/clear, refresh list
     await dataController.loadRoomsFromDb();
+  }
+
+  /// ✅ Tambahan: parsing langsung string "SRIPB..." menjadi NodeRoomModel
+  Future<void> handleNodeSerial(String line) async {
+    try {
+      final node = NodeRoomModel.fromSerial(line);
+      await addNode(node);
+      print("✅ Node tersimpan: ${node.deviceId}");
+    } catch (e) {
+      print("⚠️ Gagal parsing Node serial: $e");
+    }
   }
 
   /// Export detail node ruangan ke Excel
@@ -165,7 +176,8 @@ class HalterNodeController extends GetxController {
     final fileBytes = excel.encode();
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel Detail Node',
-      fileName: 'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId)}).xlsx',
+      fileName:
+          'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId)}).xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );
@@ -206,7 +218,8 @@ class HalterNodeController extends GetxController {
     );
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file PDF Detail Node',
-      fileName: 'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId)}).pdf',
+      fileName:
+          'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId)}).pdf',
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
@@ -214,10 +227,6 @@ class HalterNodeController extends GetxController {
       await File(path).writeAsBytes(await pdf.save());
     }
   }
-
-  // bool isRoomHaveNode(String deviceSerial) {
-  //   return dataController.roomList.any((node) => node.deviceSerial == deviceSerial);
-  // }
 
   RoomModel? getRoomByNodeId(String deviceId) {
     return roomList.firstWhereOrNull((room) => room.deviceSerial == deviceId);
