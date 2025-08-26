@@ -555,7 +555,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
 
   Widget _buildLogTableSection(BuildContext context) {
     return CustomCard(
-      title: 'Logs',
+      title: 'Log Kalibrasi',
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -192,10 +192,10 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     CustomDropdownCard(
-                      label: "Parameter",
+                      label: "Sensor",
                       value: selectedSensor,
                       items: sensors,
-                      hint: "Pilih Parameter",
+                      hint: "Pilih Sensor",
                       onChanged: onSensorChanged,
                     ),
                     buildThresholdList(thresholds),
