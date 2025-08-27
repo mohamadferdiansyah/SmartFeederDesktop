@@ -8,6 +8,7 @@ import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/data/data_threshold_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_device_power_log_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/alert/halter_alert_rule_engine_controller.dart';
@@ -63,6 +64,38 @@ class HalterSerialService extends GetxService {
 
   Future<void> addHalterDeviceDetail(HalterDeviceDetailModel model) async {
     await dataController.addHalterDeviceDetail(model);
+  }
+
+  Future<void> logDeviceStatus(String deviceId, bool isOn) async {
+    final logList = dataController.halterDeviceLogList
+        .where((log) => log.deviceId == deviceId && log.powerOffTime == null)
+        .toList();
+    if (isOn) {
+      // Jika belum ada log nyala aktif, tambahkan
+      if (logList.isEmpty) {
+        await dataController.addHalterDevicePowerLog(
+          HalterDevicePowerLogModel(
+            deviceId: deviceId,
+            powerOnTime: DateTime.now(),
+          ),
+        );
+      }
+    } else {
+      // Jika ada log nyala aktif, update waktu mati dan durasi
+      if (logList.isNotEmpty) {
+        final log = logList.first;
+        final powerOffTime = DateTime.now();
+        final duration = powerOffTime.difference(log.powerOnTime);
+        await dataController.updateHalterDevicePowerLog(
+          HalterDevicePowerLogModel(
+            deviceId: log.deviceId,
+            powerOnTime: log.powerOnTime,
+            powerOffTime: powerOffTime,
+            durationOn: duration,
+          ),
+        );
+      }
+    }
   }
 
   void pairingDevice() {
@@ -137,6 +170,7 @@ class HalterSerialService extends GetxService {
               horseId: old.horseId,
             ),
           );
+          await logDeviceStatus(deviceId, false); // <-- Tambahkan di sini
         }
       },
     );
@@ -218,6 +252,9 @@ class HalterSerialService extends GetxService {
       // }
       if (line.startsWith('SHIPB')) {
         dataLine = line;
+      } else {
+        print('MANEH SAHA');
+        return;
       }
     }
 
@@ -285,6 +322,11 @@ class HalterSerialService extends GetxService {
         //     (detail.respiratoryRate == null || detail.respiratoryRate == 0)
         //     ? 0 + calibrationController.respiration
         //     : detail.respiratoryRate! + calibrationController.respiration;
+
+        if (!detail.deviceId.startsWith("SHIPB")) {
+          print('deviceId tidak valid: ${detail.deviceId}');
+          return;
+        }
 
         // Step 1: Handle NaN & 0
         double heartRateRaw =
@@ -401,7 +443,7 @@ class HalterSerialService extends GetxService {
           current: detail.current,
           voltage: detail.voltage,
           heartRate: heartRate,
-          spo: spo,
+          spo: spo >= 100 ? 100 : spo,
           temperature: temperature,
           respiratoryRate: respiratoryRate,
           deviceId: detail.deviceId,
@@ -568,6 +610,11 @@ class HalterSerialService extends GetxService {
             time: DateTime.now(),
           ),
         );
+
+        await logDeviceStatus(
+          fixedDetail.deviceId,
+          true,
+        ); // <-- Tambahkan di sini
 
         print('Parsed fixedDetail (with RSSI/SNR): $fixedDetail');
       } catch (e) {

@@ -361,6 +361,17 @@ class _HalterStablePageState extends State<HalterStablePage> {
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 15),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Total Data: ${stableList.length}',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                               const SizedBox(height: 12),
                               Theme(
                                 data: Theme.of(context).copyWith(

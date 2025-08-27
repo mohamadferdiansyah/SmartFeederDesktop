@@ -64,6 +64,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
       text: horse?.age != null ? horse!.age.toString() : '',
     );
     String? selectedRoomId = horse?.roomId;
+    String? selectedCategory = horse?.category;
 
     showCustomDialog(
       context: parentContext ?? context,
@@ -73,7 +74,6 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
       showConfirmButton: true,
       confirmText: isEdit ? "Simpan" : "Tambah",
       cancelText: "Batal",
-      // GUNAKAN StatefulBuilder DI SINI!
       content: StatefulBuilder(
         builder: (context, modalSetState) => Column(
           mainAxisSize: MainAxisSize.min,
@@ -135,6 +135,25 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
               controller: ageCtrl,
               hint: "Masukkan umur kuda",
               keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              value: selectedCategory,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                labelText: "Kategori (opsional)",
+              ),
+              items: const [
+                DropdownMenuItem(
+                  value: null,
+                  child: Text("Tidak ada kategori"),
+                ),
+                DropdownMenuItem(value: "Produksi", child: Text("Produksi")),
+                DropdownMenuItem(value: "Imunisasi", child: Text("Imunisasi")),
+                DropdownMenuItem(value: "Sehat", child: Text("Sehat")),
+                DropdownMenuItem(value: "Lainnya", child: Text("Lainnya")),
+              ],
+              onChanged: (v) => modalSetState(() => selectedCategory = v),
             ),
             const SizedBox(height: 16),
             Obx(() {
@@ -204,6 +223,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
           gender: selectedGender!,
           age: ageInt,
           roomId: selectedRoomId,
+          category: selectedCategory,
         );
         onSubmit(newHorse);
       },
@@ -220,6 +240,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
     String? selectedGender = horse.gender;
     final ageCtrl = TextEditingController(text: horse.age.toString());
     String? selectedRoomId = horse.roomId;
+    String? selectedCategory = horse.category;
 
     showCustomDialog(
       context: parentContext ?? context,
@@ -229,103 +250,80 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
       showConfirmButton: true,
       confirmText: "Simpan",
       cancelText: "Batal",
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              const Text(
-                "ID Kuda: ",
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-              ),
-              Text(
-                horse.horseId,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+      content: StatefulBuilder(
+        builder: (context, modalSetState) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                const Text(
+                  "ID Kuda: ",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          CustomInput(
-            label: "Nama Kuda (Wajib diisi)",
-            controller: nameCtrl,
-            hint: "Masukkan nama kuda",
-          ),
-          const SizedBox(height: 16),
-          CustomInput(
-            label: "Jenis (Wajib diisi)",
-            controller: typeCtrl,
-            hint: "Masukkan jenis kuda",
-          ),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
-            value: selectedGender,
-            isExpanded: true,
-            decoration: const InputDecoration(
-              labelText: "Gender (Wajib diisi)",
+                Text(
+                  horse.horseId,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
             ),
-            items: [
-              DropdownMenuItem(value: "Jantan", child: Text("Jantan")),
-              DropdownMenuItem(value: "Betina", child: Text("Betina")),
-              DropdownMenuItem(value: "Kebiri", child: Text("Kebiri")),
-            ],
-            onChanged: (v) {
-              setState(() {
-                selectedGender = v;
-              });
-            },
-          ),
-          const SizedBox(height: 16),
-          CustomInput(
-            label: "Umur (tahun, wajib diisi)",
-            controller: ageCtrl,
-            hint: "Masukkan umur kuda",
-            keyboardType: TextInputType.number,
-          ),
-          // const SizedBox(height: 16),
-          // Obx(() {
-          //   final filteredRooms = _controller.roomList
-          //       .where(
-          //         (r) =>
-          //             r.horseId == null ||
-          //             r.horseId == '' ||
-          //             r.roomId == selectedRoomId,
-          //       )
-          //       .toList();
-
-          //   // Validasi value
-          //   final isValid =
-          //       selectedRoomId == null ||
-          //       filteredRooms.any((r) => r.roomId == selectedRoomId);
-          //   final value = isValid ? selectedRoomId : null;
-
-          //   return DropdownButtonFormField<String>(
-          //     value: value,
-          //     isExpanded: true,
-          //     decoration: const InputDecoration(labelText: "Ruangan"),
-          //     items: [
-          //       const DropdownMenuItem(
-          //         value: null,
-          //         child: Text("Tidak Dikandangkan"),
-          //       ),
-          //       ...filteredRooms.map(
-          //         (r) => DropdownMenuItem(
-          //           value: r.roomId,
-          //           child: Text("${r.roomId} - ${r.name}"),
-          //         ),
-          //       ),
-          //     ],
-          //     onChanged: (v) {
-          //       setState(() {
-          //         selectedRoomId = v;
-          //       });
-          //     },
-          //   );
-          // }),
-        ],
+            const SizedBox(height: 16),
+            CustomInput(
+              label: "Nama Kuda (Wajib diisi)",
+              controller: nameCtrl,
+              hint: "Masukkan nama kuda",
+            ),
+            const SizedBox(height: 16),
+            CustomInput(
+              label: "Jenis (Wajib diisi)",
+              controller: typeCtrl,
+              hint: "Masukkan jenis kuda",
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              value: selectedGender,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                labelText: "Gender (Wajib diisi)",
+              ),
+              items: [
+                DropdownMenuItem(value: "Jantan", child: Text("Jantan")),
+                DropdownMenuItem(value: "Betina", child: Text("Betina")),
+                DropdownMenuItem(value: "Kebiri", child: Text("Kebiri")),
+              ],
+              onChanged: (v) => modalSetState(() => selectedGender = v),
+            ),
+            const SizedBox(height: 16),
+            CustomInput(
+              label: "Umur (tahun, wajib diisi)",
+              controller: ageCtrl,
+              hint: "Masukkan umur kuda",
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              value: selectedCategory,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                labelText: "Kategori (opsional)",
+              ),
+              items: const [
+                DropdownMenuItem(
+                  value: null,
+                  child: Text("Tidak ada kategori"),
+                ),
+                DropdownMenuItem(value: "sport", child: Text("Sport")),
+                DropdownMenuItem(value: "breeding", child: Text("Breeding")),
+                DropdownMenuItem(value: "pet", child: Text("Pet")),
+                DropdownMenuItem(value: "other", child: Text("Other")),
+              ],
+              onChanged: (v) => modalSetState(() => selectedCategory = v),
+            ),
+          ],
+        ),
       ),
       onConfirm: () {
         if (nameCtrl.text.trim().isEmpty ||
@@ -362,6 +360,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
           gender: selectedGender!,
           age: ageInt,
           roomId: selectedRoomId,
+          category: selectedCategory,
         );
         onSubmit(editedHorse);
       },
@@ -667,14 +666,21 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                             case 3:
                               _sort<String>(
                                 horses,
-                                (d) => d.gender,
+                                (d) => d.category ?? '',
                                 _sortAscending,
                               );
                               break;
                             case 4:
-                              _sort<int>(horses, (d) => d.age, _sortAscending);
+                              _sort<String>(
+                                horses,
+                                (d) => d.gender,
+                                _sortAscending,
+                              );
                               break;
                             case 5:
+                              _sort<int>(horses, (d) => d.age, _sortAscending);
+                              break;
+                            case 6:
                               _sort<String>(
                                 horses,
                                 (d) => d.roomId ?? '',
@@ -691,8 +697,9 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                         final typeW = tableWidth * 0.06;
                         final genderW = tableWidth * 0.06;
                         final ageW = tableWidth * 0.06;
-                        final roomW = tableWidth * 0.10;
-                        final actionW = tableWidth * 0.30;
+                        final roomW = tableWidth * 0.06;
+                        final actionW = tableWidth * 0.28;
+                        final categoryW = tableWidth * 0.06;
 
                         return SingleChildScrollView(
                           child: Column(
@@ -748,6 +755,17 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                                     },
                                   ),
                                 ],
+                              ),
+                              const SizedBox(height: 15),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Total Data: ${horses.length}',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                               const SizedBox(height: 12),
                               Theme(
@@ -812,6 +830,25 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                                         child: const Center(
                                           child: Text(
                                             'Jenis',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      onSort: (columnIndex, ascending) {
+                                        setState(() {
+                                          _sortColumnIndex = columnIndex;
+                                          _sortAscending = ascending;
+                                        });
+                                      },
+                                    ),
+                                    DataColumn(
+                                      label: SizedBox(
+                                        width: categoryW,
+                                        child: const Center(
+                                          child: Text(
+                                            'Kategori',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -998,6 +1035,7 @@ class HorseDataTableSource extends DataTableSource {
         DataCell(
           Center(child: Text(horse.type == "local" ? 'Lokal' : 'Crossbred')),
         ),
+        DataCell(Center(child: Text(horse.category ?? "-"))),
         DataCell(Center(child: Text(horse.gender))),
         DataCell(Center(child: Text(horse.age.toString()))),
         DataCell(Center(child: Text(horse.roomId ?? "Tidak Digunakan"))),

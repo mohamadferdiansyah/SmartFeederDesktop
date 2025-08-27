@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/data_logs/log_device/halter_device_power_log_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/layout/halter_layout_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/camera/halter_camera_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/device/halter_device_controller.dart';
@@ -41,5 +42,8 @@ class HalterLayoutBinding extends Bindings {
       () => HalterCalibrationController(),
     );
     Get.lazyPut<HalterThresholdController>(() => HalterThresholdController());
+    Get.lazyPut<HalterDevicePowerLogController>(
+      () => HalterDevicePowerLogController(),
+    );
   }
 }

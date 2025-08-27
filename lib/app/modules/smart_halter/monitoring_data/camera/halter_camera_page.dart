@@ -404,6 +404,17 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 15),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Total Data: ${cctvList.length}',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                               const SizedBox(height: 12),
                               Theme(
                                 data: Theme.of(context).copyWith(

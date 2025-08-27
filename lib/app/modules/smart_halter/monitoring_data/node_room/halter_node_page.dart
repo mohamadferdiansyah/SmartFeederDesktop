@@ -344,6 +344,16 @@ class _HalterNodePageState extends State<HalterNodePage> {
                                   ),
                                 ],
                               ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Total Data: ${nodes.length}',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                               const SizedBox(height: 12),
                               Theme(
                                 data: Theme.of(context).copyWith(
@@ -853,7 +863,19 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Total Data: ${filteredData.length}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
             // Tabel data
             Expanded(
               child: LayoutBuilder(

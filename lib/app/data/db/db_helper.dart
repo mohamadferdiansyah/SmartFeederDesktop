@@ -148,6 +148,7 @@ class DBHelper {
         ''');
 
         // horses
+        // ...existing code...
         await db.execute('''
           CREATE TABLE horses (
             horse_id TEXT PRIMARY KEY,
@@ -155,9 +156,11 @@ class DBHelper {
             type TEXT,
             gender TEXT,
             age BIGINT,
-            room_id TEXT
+            room_id TEXT,
+            category TEXT
           )
         ''');
+        // ...existing code...
 
         // halter_devices
         await db.execute('''
@@ -167,6 +170,17 @@ class DBHelper {
             battery_percent BIGINT,
             horse_id TEXT
           )
+        ''');
+
+        // halter_devices
+        await db.execute('''
+          CREATE TABLE halter_device_power_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            device_id TEXT,
+            power_on_time TEXT,
+            power_off_time TEXT,
+            duration_on INTEGER
+          );
         ''');
 
         // Hardcoded insert for halter_devices
