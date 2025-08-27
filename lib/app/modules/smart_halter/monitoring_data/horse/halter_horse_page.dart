@@ -125,6 +125,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
               items: const [
                 DropdownMenuItem(value: "Jantan", child: Text("Jantan")),
                 DropdownMenuItem(value: "Betina", child: Text("Betina")),
+                DropdownMenuItem(value: "Kebiri", child: Text("Kebiri")),
               ],
               onChanged: (v) => modalSetState(() => selectedGender = v),
             ),
@@ -269,6 +270,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
             items: [
               DropdownMenuItem(value: "Jantan", child: Text("Jantan")),
               DropdownMenuItem(value: "Betina", child: Text("Betina")),
+              DropdownMenuItem(value: "Kebiri", child: Text("Kebiri")),
             ],
             onChanged: (v) {
               setState(() {

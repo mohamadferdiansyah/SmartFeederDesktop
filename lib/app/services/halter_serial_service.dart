@@ -629,11 +629,11 @@ class HalterSerialService extends GetxService {
   //       int pitch = randInt(-45, 90);
   //       int yaw = randInt(-180, 180);
   //       int arus = 0;
-  //       double voltase = double.parse(randDouble(3200, 4200));
-  //       // int bpm = randInt(28, 120);
-  //       // double spo = double.parse(randDouble(90, 100));
-  //       // double suhu = double.parse(randDouble(35, 40));
-  //       // double respirasi = double.parse(randDouble(8, 30));
+  // double voltase = double.parse(randDouble(3200, 4200));
+  // int bpm = randInt(28, 120);
+  // double spo = double.parse(randDouble(90, 100));
+  // double suhu = double.parse(randDouble(35, 40));
+  // double respirasi = double.parse(randDouble(8, 30));
   //       int bpm = 10;
   //       double spo = 10;
   //       double suhu = 10;
@@ -670,7 +670,7 @@ class HalterSerialService extends GetxService {
   void startDummySerial() {
     final rnd = Random();
     _dummyTimer?.cancel();
-    _dummyTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+    _dummyTimer = Timer.periodic(const Duration(seconds: 2), (_) {
       // Helper untuk acak double dengan 2 desimal
       String randDouble(num min, num max) =>
           (min + rnd.nextDouble() * (max - min)).toStringAsFixed(2);
@@ -697,10 +697,10 @@ class HalterSerialService extends GetxService {
         int yaw = randInt(-180, 180);
         int arus = 0;
         double voltase = double.parse(randDouble(3200, 4200));
-        int bpm = 31;
-        double spo = 93;
-        double suhu = 21;
-        double respirasi = 11;
+        int bpm = 30;
+        double spo = 96;
+        double suhu = 38;
+        double respirasi = 10;
 
         // Format langsung SHIPB...
         return "SHIPB$deviceId,"

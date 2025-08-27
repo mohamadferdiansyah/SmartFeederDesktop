@@ -1299,16 +1299,13 @@ class _DetailKudaView extends StatelessWidget {
                                           const SizedBox(width: 8),
                                           Text(
                                             controller
-                                                        .getHorseById(
-                                                          controller
-                                                                  .selectedRoom
-                                                                  .horseId ??
-                                                              '',
-                                                        )
-                                                        .gender ==
-                                                    'male'
-                                                ? 'Jantan'
-                                                : 'Betina',
+                                                .getHorseById(
+                                                  controller
+                                                          .selectedRoom
+                                                          .horseId ??
+                                                      '',
+                                                )
+                                                .gender,
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               color: Colors.blue,
