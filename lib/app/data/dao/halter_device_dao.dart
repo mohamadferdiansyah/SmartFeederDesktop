@@ -40,7 +40,7 @@ class HalterDeviceDao {
       'halter_devices',
       model.toMap(),
       where: 'device_id = ?',
-      whereArgs: [model.deviceId],
+      whereArgs: [model.deviceId],  
     );
   }
 

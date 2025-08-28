@@ -47,6 +47,120 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
     }).toList();
   }
 
+  void _showDeviceFormModal({
+    HalterDeviceModel? device,
+    required bool isEdit,
+    required Function(HalterDeviceModel) onSubmit,
+    BuildContext? parentContext,
+  }) async {
+    final idCtrl = TextEditingController(text: device?.deviceId ?? '');
+
+    showCustomDialog(
+      context: parentContext ?? context,
+      title: isEdit ? 'Edit Device' : 'Tambah Device',
+      icon: isEdit ? Icons.edit : Icons.add_circle_rounded,
+      iconColor: isEdit ? Colors.amber : Colors.green,
+      showConfirmButton: true,
+      confirmText: isEdit ? "Simpan" : "Tambah",
+      cancelText: "Batal",
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isEdit) ...[
+            Row(
+              children: [
+                const Text(
+                  "Device ID: ",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                ),
+                Text(
+                  device!.deviceId,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+          CustomInput(
+            label: "Device ID (Wajib diisi)",
+            controller: idCtrl,
+            hint: "Masukkan Device ID (Format: SHIPB001)",
+          ),
+        ],
+      ),
+      onConfirm: () {
+        if (idCtrl.text.trim().isEmpty) {
+          Get.snackbar(
+            "Input Tidak Lengkap",
+            "Device ID wajib diisi.",
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
+          );
+          return;
+        }
+        final newDevice = HalterDeviceModel(
+          deviceId: idCtrl.text.trim(),
+          status: device?.status ?? 'off',
+          batteryPercent: device?.batteryPercent ?? 0,
+          horseId: device?.horseId,
+        );
+        onSubmit(newDevice);
+      },
+    );
+  }
+
+  void _showDeviceFormModalEdit(
+    HalterDeviceModel device,
+    Function(HalterDeviceModel) onSubmit, {
+    BuildContext? parentContext,
+  }) async {
+    final idCtrl = TextEditingController(text: device.deviceId);
+
+    showCustomDialog(
+      context: parentContext ?? context,
+      title: 'Edit Device',
+      icon: Icons.edit,
+      iconColor: Colors.amber,
+      showConfirmButton: true,
+      confirmText: "Simpan",
+      cancelText: "Batal",
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CustomInput(
+            label: "Device ID (Wajib diisi)",
+            controller: idCtrl,
+            hint: "Masukkan Device ID",
+          ),
+        ],
+      ),
+      onConfirm: () {
+        if (idCtrl.text.trim().isEmpty) {
+          Get.snackbar(
+            "Input Tidak Lengkap",
+            "Device ID wajib diisi.",
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
+          );
+          return;
+        }
+        final editedDevice = HalterDeviceModel(
+          deviceId: idCtrl.text.trim(),
+          status: device.status,
+          batteryPercent: device.batteryPercent,
+          horseId: device.horseId,
+        );
+        onSubmit(editedDevice);
+      },
+    );
+  }
+
   // Modal, detail, dan lain-lain (SAMA seperti contoh sebelumnya)
   void _showDetailModal(HalterDeviceModel device) {
     showCustomDialog(
@@ -321,10 +435,10 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                         final tableWidth =
                             MediaQuery.of(context).size.width - 72.0;
                         final idW = tableWidth * 0.10;
-                        final horseW = tableWidth * 0.15;
+                        final horseW = tableWidth * 0.13;
                         final statusW = tableWidth * 0.10;
                         final batteryW = tableWidth * 0.10;
-                        final actionW = tableWidth * 0.30;
+                        final actionW = tableWidth * 0.32;
 
                         final dataSource = HalterDeviceDataTableSource(
                           context: context,
@@ -334,6 +448,15 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                           onPilihKuda: _showPilihKudaModal,
                           onLepasAlat: _showLepasAlatModal,
                           onDelete: _confirmDelete,
+                          onEdit: (device) => _showDeviceFormModalEdit(device, (
+                            editedDevice,
+                          ) async {
+                            await _controller.updateDevice(
+                              editedDevice,
+                              oldDeviceId: device.deviceId,
+                            );
+                            _controller.refreshDevices();
+                          }),
                         );
 
                         return SingleChildScrollView(
@@ -343,6 +466,25 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
+                                  CustomButton(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.1,
+                                    height: 50,
+                                    backgroundColor: Colors.green,
+                                    fontSize: 18,
+                                    icon: Icons.add_circle_rounded,
+                                    text: 'Tambah Data',
+                                    onPressed: () {
+                                      _showDeviceFormModal(
+                                        isEdit: false,
+                                        onSubmit: (device) async {
+                                          await _controller.addDevice(device);
+                                          _controller.refreshDevices();
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  Spacer(),
                                   Text(
                                     'Export Data :',
                                     style: const TextStyle(fontSize: 16),
@@ -381,6 +523,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 15),
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
@@ -533,6 +676,7 @@ class HalterDeviceDataTableSource extends DataTableSource {
   final String Function(String?) getHorseName;
   final void Function(HalterDeviceModel) onDetail;
   final void Function(HalterDeviceModel) onPilihKuda;
+  final void Function(HalterDeviceModel) onEdit;
   final void Function(HalterDeviceModel) onDelete;
   final void Function(HalterDeviceModel) onLepasAlat;
   final HalterDeviceController _controller = Get.find<HalterDeviceController>();
@@ -543,6 +687,7 @@ class HalterDeviceDataTableSource extends DataTableSource {
     required this.getHorseName,
     required this.onDetail,
     required this.onPilihKuda,
+    required this.onEdit,
     required this.onDelete,
     required this.onLepasAlat,
   });
@@ -634,6 +779,18 @@ class HalterDeviceDataTableSource extends DataTableSource {
                       fontSize: 14,
                       onPressed: () => onLepasAlat(device),
                     ),
+              const SizedBox(width: 6),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.amber),
+                  tooltip: 'Edit',
+                  onPressed: () => onEdit(device),
+                ),
+              ),
               const SizedBox(width: 6),
               Container(
                 decoration: BoxDecoration(
@@ -917,6 +1074,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                   child: DataTable(
                     columns: const [
                       DataColumn(label: Text("No")),
+                      DataColumn(label: Text("Time")),
                       DataColumn(label: Text("Device Id")),
                       DataColumn(label: Text("Latitude (°)")),
                       DataColumn(label: Text("Longitude (°)")),
@@ -935,19 +1093,26 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                       DataColumn(label: Text("Roll (°)")),
                       DataColumn(label: Text("Pitch (°)")),
                       DataColumn(label: Text("Yaw (°)")),
-                      DataColumn(label: Text("Arus (A)")),
+                      // DataColumn(label: Text("Arus (A)")),
                       DataColumn(label: Text("Tegangan (mV)")),
                       DataColumn(label: Text("BPM (x/min)")),
                       DataColumn(label: Text("SPO (%)")),
                       DataColumn(label: Text("Suhu (°C)")),
                       DataColumn(label: Text("Respirasi (x/min)")),
-                      DataColumn(label: Text("Time")),
+                      DataColumn(label: Text("Interval (milisecond)")),
                     ],
                     rows: List.generate(filteredData.length, (i) {
                       final d = filteredData[i];
                       return DataRow(
                         cells: [
                           DataCell(Center(child: Text('${i + 1}'))),
+                          DataCell(
+                            Center(
+                              child: Text(
+                                d.time != null ? d.time.toIso8601String() : "-",
+                              ),
+                            ),
+                          ),
                           DataCell(Center(child: Text(d.deviceId))),
                           DataCell(Center(child: Text('${d.latitude ?? "-"}'))),
                           DataCell(
@@ -968,7 +1133,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                           DataCell(Center(child: Text('${d.roll ?? "-"}'))),
                           DataCell(Center(child: Text('${d.pitch ?? "-"}'))),
                           DataCell(Center(child: Text('${d.yaw ?? "-"}'))),
-                          DataCell(Center(child: Text('${d.current ?? "-"}'))),
+                          // DataCell(Center(child: Text('${d.current ?? "-"}'))),
                           DataCell(Center(child: Text('${d.voltage ?? "-"}'))),
                           DataCell(
                             Center(child: Text('${d.heartRate ?? "-"}')),
@@ -980,13 +1145,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                           DataCell(
                             Center(child: Text('${d.respiratoryRate ?? "-"}')),
                           ),
-                          DataCell(
-                            Center(
-                              child: Text(
-                                d.time != null ? d.time.toIso8601String() : "-",
-                              ),
-                            ),
-                          ),
+                          DataCell(Center(child: Text('${d.interval ?? "-"}'))),
                         ],
                       );
                     }),

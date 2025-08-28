@@ -279,9 +279,9 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                         final tableWidth =
                             MediaQuery.of(context).size.width - 72;
                         final noW = tableWidth * 0.04;
-                        final dataW = tableWidth * 0.52;
-                        final tglW = tableWidth * 0.12;
-                        final aksiW = tableWidth * 0.12;
+                        final dataW = tableWidth * 0.42;
+                        final tglW = tableWidth * 0.13;
+                        final aksiW = tableWidth * 0.10;
 
                         return Theme(
                           data: Theme.of(context).copyWith(
@@ -316,6 +316,19 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                               ),
                               DataColumn(
                                 label: SizedBox(
+                                  width: tglW,
+                                  child: const Center(
+                                    child: Text(
+                                      'Tanggal',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                label: SizedBox(
                                   width: dataW,
                                   child: const Center(
                                     child: Text(
@@ -329,10 +342,10 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                               ),
                               DataColumn(
                                 label: SizedBox(
-                                  width: tglW,
+                                  width: aksiW,
                                   child: const Center(
                                     child: Text(
-                                      'Tanggal',
+                                      'Jenis',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -403,13 +416,27 @@ class HalterRawDataTableSource extends DataTableSource {
       index: index,
       cells: [
         DataCell(Center(child: Text('${index + 1}'))),
+        DataCell(Center(child: Text(item.time.toString()))),
+        DataCell(Center(child: Text(item.data))),
         DataCell(
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Text(item.data),
+          Center(
+            child: Text(
+              item.data.startsWith("SHIPB")
+                  ? "Halter"
+                  : item.data.startsWith("SRIPB")
+                  ? "Node Room"
+                  : "-",
+              style: TextStyle(
+                color: item.data.startsWith("SHIPB")
+                    ? Colors.deepOrange
+                    : item.data.startsWith("SRIPB")
+                    ? Colors.blue
+                    : Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ),
-        DataCell(Center(child: Text(item.time.toString()))),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -45,6 +45,141 @@ class _HalterNodePageState extends State<HalterNodePage> {
     }).toList();
   }
 
+  // ...existing code...
+  void _showNodeFormModal({
+    NodeRoomModel? node,
+    required bool isEdit,
+    required Function(NodeRoomModel) onSubmit,
+    BuildContext? parentContext,
+  }) async {
+    final idCtrl = TextEditingController(text: node?.deviceId ?? '');
+
+    showCustomDialog(
+      context: parentContext ?? context,
+      title: isEdit ? 'Edit Node Device' : 'Tambah Node Device',
+      icon: isEdit ? Icons.edit : Icons.add_circle_rounded,
+      iconColor: isEdit ? Colors.amber : Colors.green,
+      showConfirmButton: true,
+      confirmText: isEdit ? "Simpan" : "Tambah",
+      cancelText: "Batal",
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isEdit) ...[
+            Row(
+              children: [
+                const Text(
+                  "Device ID: ",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                ),
+                Text(
+                  node!.deviceId,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+          CustomInput(
+            label: "Device ID (Wajib diisi)",
+            controller: idCtrl,
+            hint: "Masukkan Device ID (Format: SRIPB001)",
+          ),
+        ],
+      ),
+      onConfirm: () {
+        if (idCtrl.text.trim().isEmpty) {
+          Get.snackbar(
+            "Input Tidak Lengkap",
+            "Device ID wajib diisi.",
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
+          );
+          return;
+        }
+        final newNode = NodeRoomModel(
+          deviceId: idCtrl.text.trim(),
+          temperature: node?.temperature ?? 0,
+          humidity: node?.humidity ?? 0,
+          lightIntensity: node?.lightIntensity ?? 0,
+          time: node?.time,
+        );
+        onSubmit(newNode);
+      },
+    );
+  }
+
+  void _showNodeFormModalEdit(
+    NodeRoomModel node,
+    Function(NodeRoomModel) onSubmit, {
+    BuildContext? parentContext,
+  }) async {
+    final idCtrl = TextEditingController(text: node.deviceId);
+
+    showCustomDialog(
+      context: parentContext ?? context,
+      title: 'Edit Node Device',
+      icon: Icons.edit,
+      iconColor: Colors.amber,
+      showConfirmButton: true,
+      confirmText: "Simpan",
+      cancelText: "Batal",
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              const Text(
+                "Device ID: ",
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
+              Text(
+                node.deviceId,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          CustomInput(
+            label: "Device ID (Wajib diisi)",
+            controller: idCtrl,
+            hint: "Masukkan Device ID",
+          ),
+        ],
+      ),
+      onConfirm: () {
+        if (idCtrl.text.trim().isEmpty) {
+          Get.snackbar(
+            "Input Tidak Lengkap",
+            "Device ID wajib diisi.",
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
+          );
+          return;
+        }
+        final editedNode = NodeRoomModel(
+          deviceId: idCtrl.text.trim(),
+          temperature: node.temperature,
+          humidity: node.humidity,
+          lightIntensity: node.lightIntensity,
+          time: node.time,
+        );
+        onSubmit(editedNode);
+      },
+    );
+  }
+  // ...existing code...
+
   void _showPilihRuanganModal(NodeRoomModel node) {
     String? selectedRoomId; // atau node.roomId jika model ada field roomId
 
@@ -295,6 +430,12 @@ class _HalterNodePageState extends State<HalterNodePage> {
                           nodes: nodes,
                           onDetail: _showDetailModal,
                           onDelete: _confirmDelete,
+                          onEdit: (node) =>
+                              _showNodeFormModalEdit(node, (editedNode) async {
+                                await _controller.deleteNode(node.deviceId);
+                                await _controller.addNode(editedNode);
+                                await _controller.loadNode();
+                              }),
                           onLepasRuangan: _showLepasRuanganModal,
                           onSelectRoom: (node) {
                             _showPilihRuanganModal(node);
@@ -308,6 +449,25 @@ class _HalterNodePageState extends State<HalterNodePage> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
+                                  CustomButton(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.1,
+                                    height: 50,
+                                    backgroundColor: Colors.green,
+                                    fontSize: 18,
+                                    icon: Icons.add_circle_rounded,
+                                    text: 'Tambah Data',
+                                    onPressed: () {
+                                      _showNodeFormModal(
+                                        isEdit: false,
+                                        onSubmit: (node) async {
+                                          await _controller.addNode(node);
+                                          await _controller.loadNode();
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  Spacer(),
                                   Text(
                                     'Export Data :',
                                     style: const TextStyle(fontSize: 16),
@@ -344,6 +504,7 @@ class _HalterNodePageState extends State<HalterNodePage> {
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 15),
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
@@ -495,6 +656,7 @@ class NodeRoomDataTableSource extends DataTableSource {
   final List<NodeRoomModel> nodes;
   final void Function(NodeRoomModel) onDetail;
   final void Function(NodeRoomModel) onSelectRoom;
+  final void Function(NodeRoomModel) onEdit;
   final void Function(NodeRoomModel) onDelete;
   final void Function(NodeRoomModel) onLepasRuangan;
   final HalterNodeController _controller = Get.find<HalterNodeController>();
@@ -504,6 +666,7 @@ class NodeRoomDataTableSource extends DataTableSource {
     required this.nodes,
     required this.onDetail,
     required this.onSelectRoom,
+    required this.onEdit,
     required this.onDelete,
     required this.onLepasRuangan,
   });
@@ -607,6 +770,18 @@ class NodeRoomDataTableSource extends DataTableSource {
               //     onSelectRoom(node);
               //   },
               // ),
+              const SizedBox(width: 6),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.amber),
+                  tooltip: 'Edit',
+                  onPressed: () => onEdit(node),
+                ),
+              ),
               const SizedBox(width: 6),
               Container(
                 decoration: BoxDecoration(
@@ -902,6 +1077,15 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                         ),
                         DataColumn(
                           label: SizedBox(
+                            width: timeW,
+                            child: const Text(
+                              "Time",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: SizedBox(
                             width: devIdW,
                             child: const Text(
                               "Device Id",
@@ -936,15 +1120,6 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                             ),
                           ),
                         ),
-                        DataColumn(
-                          label: SizedBox(
-                            width: timeW,
-                            child: const Text(
-                              "Time",
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
                       ],
                       rows: List.generate(filteredData.length, (i) {
                         final d = filteredData[i];
@@ -955,6 +1130,17 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                                 width: noW,
                                 child: Text(
                                   '${i + 1}',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: timeW,
+                                child: Text(
+                                  d.time != null
+                                      ? d.time!.toIso8601String()
+                                      : '-',
                                   textAlign: TextAlign.center,
                                 ),
                               ),
@@ -991,20 +1177,6 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                                 width: lightW,
                                 child: Text(
                                   d.lightIntensity.toStringAsFixed(2),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              SizedBox(
-                                width: timeW,
-                                child: Text(
-                                  d.time != null
-                                      ? d.time!
-                                            .toIso8601String()
-                                            .split('T')[1]
-                                            .split('.')[0]
-                                      : '-',
                                   textAlign: TextAlign.center,
                                 ),
                               ),

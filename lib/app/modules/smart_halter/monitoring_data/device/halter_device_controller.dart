@@ -30,13 +30,24 @@ class HalterDeviceController extends GetxController {
   //   });
   // }
 
+  Future<void> addDevice(HalterDeviceModel model) async {
+    await dataController.addHalterDevice(model);
+  }
+
   Future<void> refreshDevices() async {
     await dataController.loadHalterDevicesFromDb();
   }
 
-  Future<void> updateDevice(HalterDeviceModel model) async {
-    await dataController.updateHalterDevice(model);
+  Future<void> updateDevice(HalterDeviceModel newDevice, {String? oldDeviceId}) async {
+  if (oldDeviceId != null && oldDeviceId != newDevice.deviceId) {
+    // Jika deviceId berubah, hapus device lama lalu tambah device baru
+    await deleteDevice(oldDeviceId);
+    await addDevice(newDevice);
+  } else {
+    await dataController.updateHalterDevice(newDevice);
   }
+  await refreshDevices();
+}
 
   Future<void> deleteDevice(String deviceId) async {
     await dataController.deleteHalterDevice(deviceId);
@@ -158,7 +169,7 @@ class HalterDeviceController extends GetxController {
       'Roll',
       'Pitch',
       'Yaw',
-      'Arus',
+      // 'Arus',
       'Tegangan',
       'BPM',
       'SPO',
@@ -213,7 +224,7 @@ class HalterDeviceController extends GetxController {
         TextCellValue('${d.roll ?? "-"}'),
         TextCellValue('${d.pitch ?? "-"}'),
         TextCellValue('${d.yaw ?? "-"}'),
-        TextCellValue('${d.current ?? "-"}'),
+        // TextCellValue('${d.current ?? "-"}'),
         TextCellValue('${d.voltage ?? "-"}'),
         TextCellValue('${d.heartRate ?? "-"}'),
         TextCellValue('${d.spo ?? "-"}'),
@@ -282,7 +293,7 @@ class HalterDeviceController extends GetxController {
             'Roll',
             'Pitch',
             'Yaw',
-            'Arus',
+            // 'Arus',
             'Tegangan',
             'BPM',
             'SPO',
@@ -312,7 +323,7 @@ class HalterDeviceController extends GetxController {
               '${d.roll ?? "-"}',
               '${d.pitch ?? "-"}',
               '${d.yaw ?? "-"}',
-              '${d.current ?? "-"}',
+              // '${d.current ?? "-"}',
               '${d.voltage ?? "-"}',
               '${d.heartRate ?? "-"}',
               '${d.spo ?? "-"}',

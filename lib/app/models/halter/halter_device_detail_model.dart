@@ -7,19 +7,19 @@ class HalterDeviceDetailModel {
   final double? altitude;
   final int? sog;
   final int? cog;
-  final double? acceX;
-  final double? acceY;
-  final double? acceZ;
-  final double? gyroX;
-  final double? gyroY;
-  final double? gyroZ;
-  final double? magX;
-  final double? magY;
-  final double? magZ;
-  final int? roll;
+  // final double? acceX;
+  // final double? acceY;
+  // final double? acceZ;
+  // final double? gyroX;
+  // final double? gyroY;
+  // final double? gyroZ;
+  // final double? magX;
+  // final double? magY;
+  // final double? magZ;
   final int? pitch;
   final int? yaw;
-  final double? current;
+  final int? roll;
+  // final double? current;
   final double? voltage;
   final double? heartRate;
   final double? spo;
@@ -27,6 +27,7 @@ class HalterDeviceDetailModel {
   final double? respiratoryRate;
   final String deviceId;
   final DateTime time;
+  final int? interval;
   final int? rssi; // dBm (misal -40)
   final double? snr; // dB (misal 9.50)
 
@@ -37,19 +38,19 @@ class HalterDeviceDetailModel {
     this.altitude,
     this.sog,
     this.cog,
-    this.acceX,
-    this.acceY,
-    this.acceZ,
-    this.gyroX,
-    this.gyroY,
-    this.gyroZ,
-    this.magX,
-    this.magY,
-    this.magZ,
+    // this.acceX,
+    // this.acceY,
+    // this.acceZ,
+    // this.gyroX,
+    // this.gyroY,
+    // this.gyroZ,
+    // this.magX,
+    // this.magY,
+    // this.magZ,
     this.roll,
     this.pitch,
     this.yaw,
-    this.current,
+    // this.current,
     this.voltage,
     this.heartRate,
     this.spo,
@@ -57,6 +58,7 @@ class HalterDeviceDetailModel {
     this.respiratoryRate,
     required this.deviceId,
     required this.time,
+    this.interval,
     this.rssi,
     this.snr,
   });
@@ -69,19 +71,19 @@ class HalterDeviceDetailModel {
         altitude: (map['altitude'] as num?)?.toDouble(),
         sog: (map['sog'] as num?)?.toInt(),
         cog: (map['cog'] as num?)?.toInt(),
-        acceX: (map['acce_x'] as num?)?.toDouble(),
-        acceY: (map['acce_y'] as num?)?.toDouble(),
-        acceZ: (map['acce_z'] as num?)?.toDouble(),
-        gyroX: (map['gyro_x'] as num?)?.toDouble(),
-        gyroY: (map['gyro_y'] as num?)?.toDouble(),
-        gyroZ: (map['gyro_z'] as num?)?.toDouble(),
-        magX: (map['mag_x'] as num?)?.toDouble(),
-        magY: (map['mag_y'] as num?)?.toDouble(),
-        magZ: (map['mag_z'] as num?)?.toDouble(),
-        roll: (map['roll'] as num?)?.toInt(),
+        // acceX: (map['acce_x'] as num?)?.toDouble(),
+        // acceY: (map['acce_y'] as num?)?.toDouble(),
+        // acceZ: (map['acce_z'] as num?)?.toDouble(),
+        // gyroX: (map['gyro_x'] as num?)?.toDouble(),
+        // gyroY: (map['gyro_y'] as num?)?.toDouble(),
+        // gyroZ: (map['gyro_z'] as num?)?.toDouble(),
+        // magX: (map['mag_x'] as num?)?.toDouble(),
+        // magY: (map['mag_y'] as num?)?.toDouble(),
+        // magZ: (map['mag_z'] as num?)?.toDouble(),
         pitch: (map['pitch'] as num?)?.toInt(),
         yaw: (map['yaw'] as num?)?.toInt(),
-        current: (map['current'] as num?)?.toDouble(),
+        roll: (map['roll'] as num?)?.toInt(),
+        // current: (map['current'] as num?)?.toDouble(),
         voltage: (map['voltage'] as num?)?.toDouble(),
         heartRate: (map['heart_rate'] as num?)?.toDouble(),
         spo: (map['spo'] as num?)?.toDouble(),
@@ -89,6 +91,7 @@ class HalterDeviceDetailModel {
         respiratoryRate: (map['respiratory_rate'] as num?)?.toDouble(),
         deviceId: map['device_id'],
         time: DateTime.parse(map['time']),
+        interval: (map['interval'] as num?)?.toInt(),
         rssi: map['rssi'],
         snr: (map['snr'] as num?)?.toDouble(),
       );
@@ -100,19 +103,19 @@ class HalterDeviceDetailModel {
     'altitude': altitude,
     'sog': sog,
     'cog': cog,
-    'acce_x': acceX,
-    'acce_y': acceY,
-    'acce_z': acceZ,
-    'gyro_x': gyroX,
-    'gyro_y': gyroY,
-    'gyro_z': gyroZ,
-    'mag_x': magX,
-    'mag_y': magY,
-    'mag_z': magZ,
-    'roll': roll,
+    // 'acce_x': acceX,
+    // 'acce_y': acceY,
+    // 'acce_z': acceZ,
+    // 'gyro_x': gyroX,
+    // 'gyro_y': gyroY,
+    // 'gyro_z': gyroZ,
+    // 'mag_x': magX,
+    // 'mag_y': magY,
+    // 'mag_z': magZ,
     'pitch': pitch,
     'yaw': yaw,
-    'current': current,
+    'roll': roll,
+    // 'current': current,
     'voltage': voltage,
     'heart_rate': heartRate,
     'spo': spo,
@@ -120,6 +123,7 @@ class HalterDeviceDetailModel {
     'respiratory_rate': respiratoryRate,
     'device_id': deviceId,
     'time': time.toIso8601String(),
+    'interval': interval,
     'rssi': rssi,
     'snr': snr,
   };
@@ -137,34 +141,34 @@ class HalterDeviceDetailModel {
       raw = raw.substring(0, raw.length - 1);
     }
     final parts = raw.split(',');
+
+    // Gabungkan header dan device id jika format baru
+    String deviceId;
+    if (parts[0] == 'SHIPB' && parts.length > 1) {
+      deviceId = '${parts[0]}${parts[1]}';
+    } else {
+      deviceId = parts[0];
+    }
+
     final uuid = const Uuid().v4();
 
     return HalterDeviceDetailModel(
       detailId: uuid,
-      deviceId: parts[0],
-      latitude: _toDouble(parts[1]),
-      longitude: _toDouble(parts[2]),
-      altitude: _toDouble(parts[3]),
-      sog: _toInt(parts[4]),
-      cog: _toInt(parts[5]),
-      acceX: _toDouble(parts[6]),
-      acceY: _toDouble(parts[7]),
-      acceZ: _toDouble(parts[8]),
-      gyroX: _toDouble(parts[9]),
-      gyroY: _toDouble(parts[10]),
-      gyroZ: _toDouble(parts[11]),
-      magX: _toDouble(parts[12]),
-      magY: _toDouble(parts[13]),
-      magZ: _toDouble(parts[14]),
-      roll: _toInt(parts[15]),
-      pitch: _toInt(parts[16]),
-      yaw: _toInt(parts[17]),
-      current: _toDouble(parts[18]),
-      voltage: _toDouble(parts[19]),
-      heartRate: _toDouble(parts[20]),
-      spo: _toDouble(parts[21]),
-      temperature: _toDouble(parts[22]),
-      respiratoryRate: _toDouble(parts[23]),
+      deviceId: deviceId,
+      latitude: _toDouble(parts[2]),
+      longitude: _toDouble(parts[3]),
+      altitude: _toDouble(parts[4]),
+      sog: _toInt(parts[5]),
+      cog: _toInt(parts[6]),
+      pitch: _toInt(parts[7]),
+      yaw: _toInt(parts[8]),
+      roll: _toInt(parts[9]),
+      voltage: _toDouble(parts[10]),
+      heartRate: _toDouble(parts[11]),
+      spo: _toDouble(parts[12]),
+      temperature: _toDouble(parts[13]),
+      respiratoryRate: _toDouble(parts[14]),
+      interval: _toInt(parts[15]),
       time: DateTime.now(),
       rssi: rssi,
       snr: snr,

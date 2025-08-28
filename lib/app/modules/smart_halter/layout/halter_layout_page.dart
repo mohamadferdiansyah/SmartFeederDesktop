@@ -41,24 +41,24 @@ class HalterLayoutPage extends StatelessWidget {
           icon: Icons.pets_rounded,
         ),
         SidebarMenuItem(
-          title: "Data Halter Device",
+          title: "Data Node Halter Device",
           page: HalterDevicePage(),
           icon: Icons.device_hub_rounded,
         ),
         SidebarMenuItem(
-          title: "Data Node Device",
+          title: "Data Node Room Device",
           page: HalterNodePage(),
           icon: Icons.devices_rounded,
-        ),
-        SidebarMenuItem(
-          title: "Data Ruang",
-          page: HalterRoomPage(),
-          icon: Icons.meeting_room_rounded,
         ),
         SidebarMenuItem(
           title: "Data Kandang",
           page: HalterStablePage(),
           icon: Icons.house_siding_rounded,
+        ),
+        SidebarMenuItem(
+          title: "Data Ruang",
+          page: HalterRoomPage(),
+          icon: Icons.meeting_room_rounded,
         ),
         SidebarMenuItem(
           title: "Data CCTV",
