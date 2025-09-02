@@ -1156,7 +1156,7 @@ class _DetailKudaView extends StatelessWidget {
                                   children: [
                                     Row(
                                       children: [
-                                        Text('Id Perangkat:'),
+                                        Text('ID Perangkat:'),
                                         const SizedBox(width: 8),
                                         Text(
                                           controller
@@ -1295,7 +1295,7 @@ class _DetailKudaView extends StatelessWidget {
                                       ),
                                       Row(
                                         children: [
-                                          Text('Gender:'),
+                                          Text('Jenis Kelamin:'),
                                           const SizedBox(width: 8),
                                           Text(
                                             controller
@@ -1548,8 +1548,8 @@ class _DetailKudaView extends StatelessWidget {
                       value: detail?.temperature?.toString() ?? "-",
                     ),
                     BiometrikLegendItem(
-                      color: Color(0xFF6A7891),
-                      label: "Kadar Oksigen Dalam Darah (%)",
+                      color: Colors.blue,
+                      label: "SpO₂ (%)",
                       value: detail?.spo?.toString() ?? "-",
                     ),
                     BiometrikLegendItem(
@@ -1614,93 +1614,93 @@ class _DetailKudaView extends StatelessWidget {
               }),
               const SizedBox(height: 12),
               Container(height: 4, color: Colors.blue[100]),
-              const SizedBox(height: 8),
-              Obx(() {
-                if (controller.filteredRoomList.isEmpty ||
-                    controller.selectedRoom.horseId == null ||
-                    controller.selectedRoom.horseId!.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'Tidak ada data kuda',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
-                    ),
-                  );
-                }
-                final detail = controller.getSelectedHorseDetail(
-                  controller.selectedRoom.horseId ?? '',
-                );
-                final posture = detail == null
-                    ? "Tidak ada data"
-                    : controller.getHorsePosition(
-                        pitch: detail.pitch ?? 0,
-                        roll: detail.roll ?? 0,
-                        yaw: detail.yaw ?? 0,
-                        // detail.acceX ?? 0,
-                        // detail.acceY ?? 0,
-                        // detail.acceZ ?? 0,
-                      );
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      "Postur Kuda",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Keterangan Postur
-                        Expanded(
-                          flex: 3,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Postur Kuda:",
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                posture,
-                                style: TextStyle(
-                                  fontSize: 26,
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              // Text(
-                              //   "Akurasi : 98%",
-                              //   style: TextStyle(fontSize: 16),
-                              // ),
-                            ],
-                          ),
-                        ),
-                        // Gambar kuda
-                        Expanded(
-                          flex: 1,
-                          child: Padding(
-                            padding: EdgeInsets.only(right: 24.0),
-                            child: Image(
-                              image: AssetImage('assets/images/horse.png'),
-                              height: 200,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    Container(height: 4, color: Colors.blue[100]),
-                  ],
-                );
-              }),
+              // const SizedBox(height: 8),
+              // Obx(() {
+              //   if (controller.filteredRoomList.isEmpty ||
+              //       controller.selectedRoom.horseId == null ||
+              //       controller.selectedRoom.horseId!.isEmpty) {
+              //     return Center(
+              //       child: Text(
+              //         'Tidak ada data kuda',
+              //         style: TextStyle(fontSize: 18, color: Colors.grey),
+              //       ),
+              //     );
+              //   }
+              //   final detail = controller.getSelectedHorseDetail(
+              //     controller.selectedRoom.horseId ?? '',
+              //   );
+              //   final posture = detail == null
+              //       ? "Tidak ada data"
+              //       : controller.getHorsePosition(
+              //           pitch: detail.pitch ?? 0,
+              //           roll: detail.roll ?? 0,
+              //           yaw: detail.yaw ?? 0,
+              //           // detail.acceX ?? 0,
+              //           // detail.acceY ?? 0,
+              //           // detail.acceZ ?? 0,
+              //         );
+              //   return Column(
+              //     crossAxisAlignment: CrossAxisAlignment.stretch,
+              //     children: [
+              //       const Text(
+              //         "Postur Kuda",
+              //         style: TextStyle(
+              //           fontWeight: FontWeight.bold,
+              //           fontSize: 18,
+              //         ),
+              //       ),
+              //       const SizedBox(height: 14),
+              //       Row(
+              //         crossAxisAlignment: CrossAxisAlignment.start,
+              //         children: [
+              //           // Keterangan Postur
+              //           Expanded(
+              //             flex: 3,
+              //             child: Column(
+              //               crossAxisAlignment: CrossAxisAlignment.start,
+              //               children: [
+              //                 Text(
+              //                   "Postur Kuda:",
+              //                   style: TextStyle(
+              //                     fontSize: 22,
+              //                     fontWeight: FontWeight.w600,
+              //                   ),
+              //                 ),
+              //                 SizedBox(height: 8),
+              //                 Text(
+              //                   posture,
+              //                   style: TextStyle(
+              //                     fontSize: 26,
+              //                     color: Colors.blue,
+              //                     fontWeight: FontWeight.bold,
+              //                   ),
+              //                 ),
+              //                 // Text(
+              //                 //   "Akurasi : 98%",
+              //                 //   style: TextStyle(fontSize: 16),
+              //                 // ),
+              //               ],
+              //             ),
+              //           ),
+              //           // Gambar kuda
+              //           Expanded(
+              //             flex: 1,
+              //             child: Padding(
+              //               padding: EdgeInsets.only(right: 24.0),
+              //               child: Image(
+              //                 image: AssetImage('assets/images/horse.png'),
+              //                 height: 200,
+              //                 fit: BoxFit.contain,
+              //               ),
+              //             ),
+              //           ),
+              //         ],
+              //       ),
+              //       const SizedBox(height: 18),
+              //       Container(height: 4, color: Colors.blue[100]),
+              //     ],
+              //   );
+              // }),
             ],
           ),
         ),
@@ -1737,15 +1737,15 @@ class _DetailRuanganView extends StatelessWidget {
                         Icon(Icons.videocam, size: 90, color: Colors.grey[400]),
                         const SizedBox(height: 8),
                         DropdownButton<String>(
-                          value: "Not Connected",
+                          value: "Tidak Terhubung",
                           items: const [
                             DropdownMenuItem(
-                              value: "Not Connected",
-                              child: Text("Not Connected"),
+                              value: "Tidak Terhubung",
+                              child: Text("Tidak Terhubung"),
                             ),
                             DropdownMenuItem(
-                              value: "Connected",
-                              child: Text("Connected"),
+                              value: "Terhubung",
+                              child: Text("Terhubung"),
                             ),
                           ],
                           onChanged: (value) {},
@@ -1760,15 +1760,15 @@ class _DetailRuanganView extends StatelessWidget {
                         Icon(Icons.videocam, size: 90, color: Colors.grey[400]),
                         const SizedBox(height: 8),
                         DropdownButton<String>(
-                          value: "Not Connected",
+                          value: "Tidak Terhubung",
                           items: const [
                             DropdownMenuItem(
-                              value: "Not Connected",
-                              child: Text("Not Connected"),
+                              value: "Tidak Terhubung",
+                              child: Text("Tidak Terhubung"),
                             ),
                             DropdownMenuItem(
-                              value: "Connected",
-                              child: Text("Connected"),
+                              value: "Terhubung",
+                              child: Text("Terhubung"),
                             ),
                           ],
                           onChanged: (value) {},
@@ -2004,13 +2004,7 @@ class _BiometricChartTabSectionState extends State<BiometricChartTabSection> {
         Colors.black,
       ),
       ("Suhu Badan", widget.suhuSpots, "Suhu Badan (°C)", "Waktu", Colors.red),
-      (
-        "Kadar Oksigen Dalam Darah",
-        widget.spoSpots,
-        "Kadar Oksigen (%)",
-        "Waktu",
-        Colors.blue,
-      ),
+      ("SpO₂", widget.spoSpots, "SpO₂ (%)", "Waktu", Colors.blue),
       (
         "Respirasi",
         widget.respirasiSpots,

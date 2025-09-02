@@ -11,11 +11,11 @@ class HalterThresholdController extends GetxController {
   void onInit() {
     halterThresholds.value = {
       for (var t in DataSensorThreshold.getThresholds('halter_thresholds'))
-        t.sensorName: t
+        t.sensorName: t,
     };
     nodeRoomThresholds.value = {
       for (var t in DataSensorThreshold.getThresholds('node_room_thresholds'))
-        t.sensorName: t
+        t.sensorName: t,
     };
     super.onInit();
   }

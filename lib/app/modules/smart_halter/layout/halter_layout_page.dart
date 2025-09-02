@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/data_logs/log_calibration/halter_calibration_log_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/data_logs/log_device/halter_device_power_log_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/help/halter_help_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/layout/halter_layout_controller.dart';
@@ -106,7 +107,7 @@ class HalterLayoutPage extends StatelessWidget {
         SidebarMenuItem(title: "Log Device", page: HalterDevicePowerLogPage()),
         SidebarMenuItem(
           title: "Log Kalibrasi",
-          page: HalterTableRuleEnginePage(),
+          page: HalterCalibrationLogPage(),
         ),
       ],
     ),

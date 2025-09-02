@@ -12,6 +12,7 @@ import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
+import 'package:toastification/toastification.dart';
 
 class HalterTableRuleEnginePage extends StatefulWidget {
   const HalterTableRuleEnginePage({super.key});
@@ -78,7 +79,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
             children: [
               Expanded(
                 child: CustomInput(
-                  label: "Suhu Min",
+                  label: "Suhu Min (°C)",
                   controller: suhuMinCtrl,
                   hint: "Contoh: 37.0",
                   keyboardType: TextInputType.number,
@@ -90,7 +91,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
               const SizedBox(width: 12),
               Expanded(
                 child: CustomInput(
-                  label: "Suhu Max",
+                  label: "Suhu Max (°C)",
                   controller: suhuMaxCtrl,
                   hint: "Contoh: 39.0",
                   keyboardType: TextInputType.number,
@@ -106,7 +107,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
             children: [
               Expanded(
                 child: CustomInput(
-                  label: "BPM Min",
+                  label: "Detak Jantung Min (bpm)",
                   controller: bpmMinCtrl,
                   hint: "Contoh: 28",
                   keyboardType: TextInputType.number,
@@ -116,7 +117,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
               const SizedBox(width: 12),
               Expanded(
                 child: CustomInput(
-                  label: "BPM Max",
+                  label: "Detak Jantung Max (bpm)",
                   controller: bpmMaxCtrl,
                   hint: "Contoh: 60",
                   keyboardType: TextInputType.number,
@@ -130,7 +131,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
             children: [
               Expanded(
                 child: CustomInput(
-                  label: "SPO Min",
+                  label: "SpO₂ Min (%)",
                   controller: spoMinCtrl,
                   hint: "Contoh: 93",
                   keyboardType: TextInputType.number,
@@ -142,7 +143,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
               const SizedBox(width: 12),
               Expanded(
                 child: CustomInput(
-                  label: "SPO Max",
+                  label: "SpO₂ Max (%)",
                   controller: spoMaxCtrl,
                   hint: "Contoh: 100",
                   keyboardType: TextInputType.number,
@@ -158,7 +159,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
             children: [
               Expanded(
                 child: CustomInput(
-                  label: "Respirasi Min",
+                  label: "Respirasi Min (nafas/menit)",
                   controller: respMinCtrl,
                   hint: "Contoh: 8",
                   keyboardType: TextInputType.number,
@@ -168,7 +169,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
               const SizedBox(width: 12),
               Expanded(
                 child: CustomInput(
-                  label: "Respirasi Max",
+                  label: "Respirasi Max (nafas/menit)",
                   controller: respMaxCtrl,
                   hint: "Contoh: 24",
                   keyboardType: TextInputType.number,
@@ -324,7 +325,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
             children: [
               Expanded(
                 child: CustomInput(
-                  label: "Pitch Min",
+                  label: "Pitch Min (°)",
                   controller: pitchMinCtrl,
                   hint: "Contoh: -10",
                   keyboardType: TextInputType.number,
@@ -336,7 +337,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
               const SizedBox(width: 12),
               Expanded(
                 child: CustomInput(
-                  label: "Pitch Max",
+                  label: "Pitch Max (°)",
                   controller: pitchMaxCtrl,
                   hint: "Contoh: 10",
                   keyboardType: TextInputType.number,
@@ -352,7 +353,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
             children: [
               Expanded(
                 child: CustomInput(
-                  label: "Roll Min",
+                  label: "Roll Min (°)",
                   controller: rollMinCtrl,
                   hint: "Contoh: -10",
                   keyboardType: TextInputType.number,
@@ -364,7 +365,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
               const SizedBox(width: 12),
               Expanded(
                 child: CustomInput(
-                  label: "Roll Max",
+                  label: "Roll Max (°)",
                   controller: rollMaxCtrl,
                   hint: "Contoh: 10",
                   keyboardType: TextInputType.number,
@@ -380,7 +381,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
             children: [
               Expanded(
                 child: CustomInput(
-                  label: "Yaw Min",
+                  label: "Yaw Min (°)",
                   controller: yawMinCtrl,
                   hint: "Contoh: -20",
                   keyboardType: TextInputType.number,
@@ -392,7 +393,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
               const SizedBox(width: 12),
               Expanded(
                 child: CustomInput(
-                  label: "Yaw Max",
+                  label: "Yaw Max (°)",
                   controller: yawMaxCtrl,
                   hint: "Contoh: 20",
                   keyboardType: TextInputType.number,
@@ -591,7 +592,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                         size: 18,
                                       ),
                                     ),
-                                    const TextSpan(text: " Suhu: "),
+                                    const TextSpan(text: " Suhu (°C): "),
                                     TextSpan(
                                       text: c.suhuMin != null
                                           ? "Min ${c.suhuMin}"
@@ -627,7 +628,9 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                         size: 18,
                                       ),
                                     ),
-                                    const TextSpan(text: " BPM: "),
+                                    const TextSpan(
+                                      text: " Detak Jantung (bpm): ",
+                                    ),
                                     TextSpan(
                                       text: c.heartRateMin != null
                                           ? "Min ${c.heartRateMin}"
@@ -663,7 +666,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                         size: 18,
                                       ),
                                     ),
-                                    const TextSpan(text: " SPO: "),
+                                    const TextSpan(text: " SpO₂ (%): "),
                                     TextSpan(
                                       text: c.spoMin != null
                                           ? "Min ${c.spoMin}"
@@ -699,7 +702,9 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                         size: 18,
                                       ),
                                     ),
-                                    const TextSpan(text: " Respirasi: "),
+                                    const TextSpan(
+                                      text: " Respirasi (nafas/menit): ",
+                                    ),
                                     TextSpan(
                                       text: c.respirasiMin != null
                                           ? "Min ${c.respirasiMin}"
@@ -750,8 +755,101 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                       height: 36,
                                       fontSize: 14,
                                       borderRadius: 8,
-                                      onPressed: () => controller
-                                          .deleteBiometricClassification(idx),
+                                      onPressed: () {
+                                        final confirmCtrl =
+                                            TextEditingController();
+                                        showCustomDialog(
+                                          context: context,
+                                          title: "Konfirmasi Hapus",
+                                          icon: Icons.delete,
+                                          iconColor: Colors.red,
+                                          showConfirmButton: true,
+                                          confirmText: "Hapus",
+                                          cancelText: "Batal",
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                'Ketik nama rule di bawah ini untuk konfirmasi hapus:',
+                                                style: const TextStyle(
+                                                  fontSize: 15,
+                                                ),
+                                              ),
+                                              Text(
+                                                c.name,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 12),
+                                              TextField(
+                                                controller: confirmCtrl,
+                                                decoration: InputDecoration(
+                                                  hintText:
+                                                      "ketik ${c.name} untuk hapus",
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                    borderSide: BorderSide(
+                                                      color: AppColors.primary
+                                                          .withOpacity(0.5),
+                                                    ),
+                                                  ),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              12,
+                                                            ),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                              color: AppColors
+                                                                  .primary,
+                                                              width: 1.5,
+                                                            ),
+                                                      ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          onConfirm: () {
+                                            if (confirmCtrl.text.trim() !=
+                                                c.name) {
+                                              Get.snackbar(
+                                                "Nama Tidak Sesuai",
+                                                "Nama rule yang diketik tidak sesuai.",
+                                                snackPosition:
+                                                    SnackPosition.TOP,
+                                                backgroundColor:
+                                                    Colors.redAccent,
+                                                colorText: Colors.white,
+                                              );
+                                              return;
+                                            }
+                                            controller
+                                                .deleteBiometricClassification(
+                                                  idx,
+                                                );
+                                            toastification.show(
+                                              context: context,
+                                              title: const Text(
+                                                'Rule berhasil dihapus',
+                                              ),
+                                              type: ToastificationType.success,
+                                              alignment: Alignment.topCenter,
+                                              autoCloseDuration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
                                     ),
                                   ),
                                 ],
@@ -852,7 +950,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                         size: 18,
                                       ),
                                     ),
-                                    const TextSpan(text: " Pitch: "),
+                                    const TextSpan(text: " Pitch (°): "),
                                     TextSpan(
                                       text: c.pitchMin != null
                                           ? "Min ${c.pitchMin}"
@@ -888,7 +986,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                         size: 18,
                                       ),
                                     ),
-                                    const TextSpan(text: " Roll: "),
+                                    const TextSpan(text: " Roll (°): "),
                                     TextSpan(
                                       text: c.rollMin != null
                                           ? "Min ${c.rollMin}"
@@ -924,7 +1022,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                         size: 18,
                                       ),
                                     ),
-                                    const TextSpan(text: " Yaw: "),
+                                    const TextSpan(text: " Yaw (°): "),
                                     TextSpan(
                                       text: c.yawMin != null
                                           ? "Min ${c.yawMin}"
@@ -975,8 +1073,101 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                       height: 36,
                                       fontSize: 14,
                                       borderRadius: 8,
-                                      onPressed: () => controller
-                                          .deletePositionClassification(idx),
+                                      onPressed: () {
+                                        final confirmCtrl =
+                                            TextEditingController();
+                                        showCustomDialog(
+                                          context: context,
+                                          title: "Konfirmasi Hapus",
+                                          icon: Icons.delete,
+                                          iconColor: Colors.red,
+                                          showConfirmButton: true,
+                                          confirmText: "Hapus",
+                                          cancelText: "Batal",
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                'Ketik nama rule di bawah ini untuk konfirmasi hapus:',
+                                                style: const TextStyle(
+                                                  fontSize: 15,
+                                                ),
+                                              ),
+                                              Text(
+                                                c.name,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 12),
+                                              TextField(
+                                                controller: confirmCtrl,
+                                                decoration: InputDecoration(
+                                                  hintText:
+                                                      "ketik ${c.name} untuk hapus",
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                    borderSide: BorderSide(
+                                                      color: AppColors.primary
+                                                          .withOpacity(0.5),
+                                                    ),
+                                                  ),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              12,
+                                                            ),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                              color: AppColors
+                                                                  .primary,
+                                                              width: 1.5,
+                                                            ),
+                                                      ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          onConfirm: () {
+                                            if (confirmCtrl.text.trim() !=
+                                                c.name) {
+                                              Get.snackbar(
+                                                "Nama Tidak Sesuai",
+                                                "Nama rule yang diketik tidak sesuai.",
+                                                snackPosition:
+                                                    SnackPosition.TOP,
+                                                backgroundColor:
+                                                    Colors.redAccent,
+                                                colorText: Colors.white,
+                                              );
+                                              return;
+                                            }
+                                            controller
+                                                .deletePositionClassification(
+                                                  idx,
+                                                );
+                                            toastification.show(
+                                              context: context,
+                                              title: const Text(
+                                                'Rule berhasil dihapus',
+                                              ),
+                                              type: ToastificationType.success,
+                                              alignment: Alignment.topCenter,
+                                              autoCloseDuration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
                                     ),
                                   ),
                                 ],

@@ -96,7 +96,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                       ),
                       Tab(
                         text: "Form Pengujian",
-                        icon: Icon(Icons.info_outline_rounded),
+                        icon: Icon(Icons.assignment_rounded),
                       ),
                     ],
                   ),
@@ -124,13 +124,6 @@ class HalterSettingPageState extends State<HalterSettingPage> {
             ),
           ),
         ),
-        Align(
-          alignment: Alignment.bottomRight,
-          child: Padding(
-            padding: const EdgeInsets.only(right: 32, bottom: 32),
-            child: _buildTestingModeFloatingButton(context),
-          ),
-        ),
       ],
     );
   }
@@ -147,7 +140,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                 titleFontSize: 20,
                 headerHeight: 50,
                 trailing: Icon(
-                  Icons.device_hub_rounded,
+                  Icons.wifi_rounded,
                   color: Colors.white,
                   size: 30,
                 ),
@@ -162,7 +155,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                       children: [
                         CustomCard(
                           withExpanded: false,
-                          title: 'Cloud Connection',
+                          title: 'Koneksi Cloud',
                           headerColor: AppColors.primary,
                           headerHeight: 50,
                           titleFontSize: 18,
@@ -296,7 +289,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                           ),
                         ),
                         CustomCard(
-                          title: 'Lora Connection',
+                          title: 'Koneksi Lora',
                           headerColor: AppColors.primary,
                           withExpanded: false,
                           headerHeight: 50,
@@ -591,7 +584,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                 titleFontSize: 20,
                 headerHeight: 50,
                 trailing: Icon(
-                  Icons.device_hub_rounded,
+                  Icons.house_siding_rounded,
                   color: Colors.white,
                   size: 30,
                 ),
@@ -817,6 +810,8 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 12),
+                      buildModeRealSwitchSimple(context),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -913,67 +908,62 @@ class HalterSettingPageState extends State<HalterSettingPage> {
     );
   }
 
-  Widget _buildTestingModeFloatingButton(BuildContext context) {
+  Widget buildModeRealSwitchSimple(BuildContext context) {
     final HalterSerialService serialService = Get.find<HalterSerialService>();
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.18),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.science_rounded,
-            color: serialService.isTestingMode ? Colors.green : Colors.red,
-            size: 28,
-          ),
-          const SizedBox(width: 10),
           Text(
-            'Mode Testing',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-              fontSize: 16,
-            ),
+            'Mode Real',
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
           ),
-          const SizedBox(width: 12),
-          StatefulBuilder(
-            builder: (context, setStateSwitch) {
-              return Switch(
-                value: serialService.isTestingMode,
-                activeColor: Colors.green,
-                inactiveThumbColor: Colors.red,
-                onChanged: (val) {
-                  serialService.setTestingMode(val);
-                  setStateSwitch(() {});
-                  setState(() {});
-                  toastification.show(
-                    context: context,
-                    title: Text(
-                      val ? 'Mode Testing Aktif' : 'Mode Testing Nonaktif',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    type: val
-                        ? ToastificationType.success
-                        : ToastificationType.info,
-                    alignment: Alignment.topCenter,
-                    autoCloseDuration: const Duration(seconds: 2),
-                  );
-                },
-              );
-            },
+          const SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.science_rounded,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                StatefulBuilder(
+                  builder: (context, setStateSwitch) {
+                    return Switch(
+                      value: !serialService.isTestingMode,
+                      activeColor: Colors.green,
+                      inactiveThumbColor: Colors.red,
+                      onChanged: (val) {
+                        serialService.setTestingMode(!val);
+                        setStateSwitch(() {});
+                        toastification.show(
+                          context: context,
+                          title: Text(
+                            val ? 'Mode Real Aktif' : 'Mode Testing Aktif',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          type: val
+                              ? ToastificationType.success
+                              : ToastificationType.info,
+                          alignment: Alignment.topCenter,
+                          autoCloseDuration: const Duration(seconds: 2),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -286,7 +286,7 @@ class _HalterStablePageState extends State<HalterStablePage> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: CustomInput(
-                          label: "Cari Kandang",
+                          label: "Cari kandang",
                           controller: _searchController,
                           icon: Icons.search,
                           hint: 'Masukkan ID, Nama, Alamat',

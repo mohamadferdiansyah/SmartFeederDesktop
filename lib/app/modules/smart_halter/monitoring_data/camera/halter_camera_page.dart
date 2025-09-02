@@ -328,7 +328,7 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: CustomInput(
-                          label: "Cari Cctv",
+                          label: "Cari cctv",
                           controller: _searchController,
                           icon: Icons.search,
                           hint: 'Masukkan ID, Nama, Alamat',

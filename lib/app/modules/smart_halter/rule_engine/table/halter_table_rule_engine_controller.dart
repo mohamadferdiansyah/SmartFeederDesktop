@@ -236,9 +236,9 @@ class HalterTableRuleEngineController extends GetxController {
   }
 
   String positionClassify({
-    required int? pitch,
-    required int? roll,
-    required int? yaw,
+    required double? pitch,
+    required double? roll,
+    required double? yaw,
   }) {
     HalterPositionRuleEngineModel? bestMatch;
     int bestScore = -1;

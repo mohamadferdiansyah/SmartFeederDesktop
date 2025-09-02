@@ -2,21 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
-import 'package:smart_feeder_desktop/app/models/halter/halter_device_power_log_model.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_halter/data_logs/log_device/halter_device_power_log_controller.dart';
-import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_calibration_log_model.dart';
+import 'halter_calibration_log_controller.dart';
 
-class HalterDevicePowerLogPage extends StatefulWidget {
-  const HalterDevicePowerLogPage({super.key});
+class HalterCalibrationLogPage extends StatefulWidget {
+  const HalterCalibrationLogPage({super.key});
 
   @override
-  State<HalterDevicePowerLogPage> createState() =>
-      _HalterDevicePowerLogPageState();
+  State<HalterCalibrationLogPage> createState() =>
+      _HalterCalibrationLogPageState();
 }
 
-class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
-  final HalterDevicePowerLogController controller =
-      Get.find<HalterDevicePowerLogController>();
+class _HalterCalibrationLogPageState extends State<HalterCalibrationLogPage> {
+  final HalterCalibrationLogController controller =
+      Get.find<HalterCalibrationLogController>();
   final TextEditingController _searchController = TextEditingController();
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   int? _sortColumnIndex;
@@ -33,26 +32,22 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
     });
   }
 
-  List<HalterDevicePowerLogModel> _filteredLogs(
-    List<HalterDevicePowerLogModel> logs,
+  List<HalterCalibrationLogModel> _filteredLogs(
+    List<HalterCalibrationLogModel> logs,
   ) {
     if (_searchText.isEmpty) return logs;
     return logs.where((log) {
       return log.deviceId.toLowerCase().contains(_searchText) ||
-          (log.powerOnTime != null &&
-              DateFormat(
-                'dd-MM-yyyy HH:mm:ss',
-              ).format(log.powerOnTime).toLowerCase().contains(_searchText)) ||
-          (log.powerOffTime != null &&
-              DateFormat(
-                'dd-MM-yyyy HH:mm:ss',
-              ).format(log.powerOffTime!).toLowerCase().contains(_searchText));
+          log.sensorName.toLowerCase().contains(_searchText) ||
+          DateFormat(
+            'dd-MM-yyyy HH:mm:ss',
+          ).format(log.timestamp).toLowerCase().contains(_searchText);
     }).toList();
   }
 
   void _sort<T>(
-    List<HalterDevicePowerLogModel> logs,
-    Comparable<T> Function(HalterDevicePowerLogModel d) getField,
+    List<HalterCalibrationLogModel> logs,
+    Comparable<T> Function(HalterCalibrationLogModel d) getField,
     bool ascending,
   ) {
     logs.sort((a, b) {
@@ -111,7 +106,7 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
                   child: Row(
                     children: [
                       Text(
-                        'Log Nyala/Mati Halter Device',
+                        'Log Kalibrasi Halter Device',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -131,35 +126,41 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
                   vertical: 12.0,
                 ),
                 child: Obx(() {
-                  final logs = controller.logList.toList();
+                  final logs = controller.logs.toList();
                   final filteredLogs = _filteredLogs(logs)
                     ..sort(
-                      (a, b) => b.powerOnTime.compareTo(a.powerOnTime),
+                      (a, b) => b.timestamp.compareTo(a.timestamp),
                     ); // urut desc
-
+                    
                   if (_sortColumnIndex != null) {
                     switch (_sortColumnIndex!) {
                       case 0:
                         _sort(filteredLogs, (d) => d.deviceId, _sortAscending);
                         break;
                       case 1:
-                        _sort(
-                          filteredLogs,
-                          (d) => d.powerOnTime,
-                          _sortAscending,
-                        );
+                        _sort(filteredLogs, (d) => d.timestamp, _sortAscending);
                         break;
                       case 2:
                         _sort(
                           filteredLogs,
-                          (d) => d.powerOffTime ?? DateTime(0),
+                          (d) => d.sensorName,
                           _sortAscending,
                         );
                         break;
                       case 3:
+                        _sort(filteredLogs, (d) => d.referensi, _sortAscending);
+                        break;
+                      case 4:
                         _sort(
                           filteredLogs,
-                          (d) => d.durationOn?.inMinutes ?? 0,
+                          (d) => d.sensorValue,
+                          _sortAscending,
+                        );
+                        break;
+                      case 5:
+                        _sort(
+                          filteredLogs,
+                          (d) => d.nilaiKalibrasi,
                           _sortAscending,
                         );
                         break;
@@ -170,12 +171,27 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: CustomInput(
-                          label: "Cari Log Device",
+                        child: TextField(
                           controller: _searchController,
-                          icon: Icons.search,
-                          hint: 'Masukkan Device ID atau Waktu',
-                          fontSize: 24,
+                          decoration: InputDecoration(
+                            labelText: "Cari Log Kalibrasi",
+                            hintText: 'Masukkan Device ID, Sensor, atau Waktu',
+                            prefixIcon: const Icon(Icons.search),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: AppColors.primary.withOpacity(0.5),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: AppColors.primary,
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                          style: const TextStyle(fontSize: 18),
                         ),
                       ),
                       Align(
@@ -222,7 +238,7 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
                             ),
                             DataColumn(
                               label: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.13,
+                                width: MediaQuery.of(context).size.width * 0.1,
                                 child: const Center(
                                   child: Text(
                                     'Device ID',
@@ -241,10 +257,10 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
                             ),
                             DataColumn(
                               label: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.2,
+                                width: MediaQuery.of(context).size.width * 0.14,
                                 child: const Center(
                                   child: Text(
-                                    'Waktu Nyala',
+                                    'Timestamp',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -260,10 +276,10 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
                             ),
                             DataColumn(
                               label: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.2,
+                                width: MediaQuery.of(context).size.width * 0.14,
                                 child: const Center(
                                   child: Text(
-                                    'Waktu Mati',
+                                    'Nama Sensor',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -279,10 +295,48 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
                             ),
                             DataColumn(
                               label: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.13,
+                                width: MediaQuery.of(context).size.width * 0.09,
                                 child: const Center(
                                   child: Text(
-                                    'Durasi Nyala',
+                                    'Data lookup (Referensi)',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              onSort: (columnIndex, ascending) {
+                                setState(() {
+                                  _sortColumnIndex = columnIndex;
+                                  _sortAscending = ascending;
+                                });
+                              },
+                            ),
+                            DataColumn(
+                              label: SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.09,
+                                child: const Center(
+                                  child: Text(
+                                    'Data Sensor',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              onSort: (columnIndex, ascending) {
+                                setState(() {
+                                  _sortColumnIndex = columnIndex;
+                                  _sortAscending = ascending;
+                                });
+                              },
+                            ),
+                            DataColumn(
+                              label: SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.09,
+                                child: const Center(
+                                  child: Text(
+                                    'Nilai Kalibrasi',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -297,7 +351,7 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
                               },
                             ),
                           ],
-                          source: DevicePowerLogDataTableSource(filteredLogs),
+                          source: CalibrationLogDataTableSource(filteredLogs),
                           rowsPerPage: _rowsPerPage,
                           availableRowsPerPage: const [5, 10, 20],
                           onRowsPerPageChanged: (value) {
@@ -320,10 +374,10 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
   }
 }
 
-class DevicePowerLogDataTableSource extends DataTableSource {
-  final List<HalterDevicePowerLogModel> logs;
+class CalibrationLogDataTableSource extends DataTableSource {
+  final List<HalterCalibrationLogModel> logs;
 
-  DevicePowerLogDataTableSource(this.logs);
+  CalibrationLogDataTableSource(this.logs);
 
   @override
   DataRow getRow(int index) {
@@ -336,28 +390,14 @@ class DevicePowerLogDataTableSource extends DataTableSource {
         DataCell(
           Center(
             child: Text(
-              DateFormat('dd-MM-yyyy HH:mm:ss').format(log.powerOnTime),
+              DateFormat('dd-MM-yyyy HH:mm:ss').format(log.timestamp),
             ),
           ),
         ),
-        DataCell(
-          Center(
-            child: Text(
-              log.powerOffTime != null
-                  ? DateFormat('dd-MM-yyyy HH:mm:ss').format(log.powerOffTime!)
-                  : '-',
-            ),
-          ),
-        ),
-        DataCell(
-          Center(
-            child: Text(
-              log.durationOn != null
-                  ? '${log.durationOn!.inMinutes} menit'
-                  : '-',
-            ),
-          ),
-        ),
+        DataCell(Center(child: Text(log.sensorName))),
+        DataCell(Center(child: Text(log.referensi))),
+        DataCell(Center(child: Text(log.sensorValue))),
+        DataCell(Center(child: Text(log.nilaiKalibrasi))),
       ],
     );
   }

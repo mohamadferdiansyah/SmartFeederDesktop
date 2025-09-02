@@ -173,9 +173,9 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
               runSpacing: 16,
               children: [
                 _buildSettingWithCard(
-                  'Pengaturan Suhu',
-                  'Suhu Minimal',
-                  'Suhu Maksimal',
+                  'Pengaturan Suhu Tubuh (°C)',
+                  'Suhu Tubuh Minimal',
+                  'Suhu Tubuh Maksimal',
                   suhuMinCtrl,
                   suhuMaxCtrl,
                   () {
@@ -214,9 +214,9 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   Icons.thermostat_outlined,
                 ),
                 _buildSettingWithCard(
-                  'Pengaturan Kadar Oksigen Darah',
-                  'SPO Minimal',
-                  'SPO Maksimal',
+                  'Pengaturan SpO₂ (%)',
+                  'SpO₂ Minimal',
+                  'SpO₂ Maksimal',
                   spoMinCtrl,
                   spoMaxCtrl,
                   () {
@@ -255,9 +255,9 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   Icons.monitor_heart_outlined,
                 ),
                 _buildSettingWithCard(
-                  'Pengaturan BPM',
-                  'BPM Minimal',
-                  'BPM Maksimal',
+                  'Pengaturan Detak Jantung (bpm)',
+                  'Detak Jantung Minimal',
+                  'Detak Jantung Maksimal',
                   bpmMinCtrl,
                   bpmMaxCtrl,
                   () {
@@ -296,7 +296,7 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   Icons.monitor_weight_outlined,
                 ),
                 _buildSettingWithCard(
-                  'Pengaturan Respirasi',
+                  'Pengaturan Respirasi (nafas/menit)',
                   'Respirasi Maksimal',
                   null,
                   respMaxCtrl,
@@ -361,8 +361,8 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
               runSpacing: 16,
               children: [
                 _buildSettingWithCard(
-                  'Pengaturan Baterai Halter',
-                  'Minimal Baterai (%)',
+                  'Pengaturan Baterai Halter (%)',
+                  'Minimal Baterai',
                   null,
                   batteryMinCtrl,
                   null,
@@ -428,7 +428,7 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
               runSpacing: 16,
               children: [
                 _buildSettingWithCard(
-                  'Pengaturan Suhu Ruangan',
+                  'Pengaturan Suhu Ruangan (°C)',
                   'Suhu Minimal',
                   'Suhu Maksimal',
                   roomTempMinCtrl,
@@ -477,7 +477,7 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   Icons.thermostat_outlined,
                 ),
                 _buildSettingWithCard(
-                  'Pengaturan Kelembapan Ruangan',
+                  'Pengaturan Kelembapan Ruangan (%)',
                   'Kelembapan Minimal',
                   'Kelembapan Maksimal',
                   roomHumMinCtrl,
@@ -526,9 +526,9 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   Icons.water_drop_outlined,
                 ),
                 _buildSettingWithCard(
-                  'Pengaturan Lux Ruangan',
-                  'Lux Minimal',
-                  'Lux Maksimal',
+                  'Pengaturan Cahaya Ruangan (Lux)',
+                  'Cahaya Minimal',
+                  'Cahaya Maksimal',
                   roomLuxMinCtrl,
                   roomLuxMaxCtrl,
                   () {
@@ -556,14 +556,14 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                     toastification.show(
                       context: context,
                       title: const Text(
-                        'Berhasil Menyimpan Pengaturan Lux Ruangan',
+                        'Berhasil Menyimpan Pengaturan Cahaya Ruangan',
                       ),
                       type: ToastificationType.success,
                       description: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Lux Min: ${roomLuxMinCtrl.text}'),
-                          Text('Lux Max: ${roomLuxMaxCtrl.text}'),
+                          Text('Cahaya Min: ${roomLuxMinCtrl.text}'),
+                          Text('Cahaya Max: ${roomLuxMaxCtrl.text}'),
                         ],
                       ),
                       alignment: Alignment.topCenter,

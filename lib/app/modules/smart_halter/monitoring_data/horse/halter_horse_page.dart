@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/horse_model.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/horse/detail/halter_horse_detail_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/horse/halter_horse_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
@@ -21,6 +25,9 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
   int? _sortColumnIndex;
   bool _sortAscending = true;
   String _searchText = "";
+  HorseModel? _selectedHorseDetail;
+
+  List<XFile> _selectedImages = [];
 
   @override
   void initState() {
@@ -30,6 +37,18 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
       setState(() {
         _searchText = _searchController.text.trim().toLowerCase();
       });
+    });
+  }
+
+  void _showDetailModal(HorseModel horse) {
+    setState(() {
+      _selectedHorseDetail = horse;
+    });
+  }
+
+  void _closeDetail() {
+    setState(() {
+      _selectedHorseDetail = null;
     });
   }
 
@@ -53,6 +72,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
     required Function(HorseModel) onSubmit,
     BuildContext? parentContext,
   }) async {
+    _selectedImages = [];
     String newId = horse?.horseId ?? '';
     if (!isEdit) {
       newId = await _controller.getNextHorseId();
@@ -65,126 +85,376 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
     );
     String? selectedRoomId = horse?.roomId;
     String? selectedCategory = horse?.category;
+    final birthPlaceCtrl = TextEditingController(text: horse?.birthPlace ?? '');
+    DateTime? birthDate = horse?.birthDate;
+    DateTime? settleDate = horse?.settleDate;
+    final lengthCtrl = TextEditingController(
+      text: horse?.length?.toString() ?? '',
+    );
+    final weightCtrl = TextEditingController(
+      text: horse?.weight?.toString() ?? '',
+    );
+    final heightCtrl = TextEditingController(
+      text: horse?.height?.toString() ?? '',
+    );
+    final chestCircumCtrl = TextEditingController(
+      text: horse?.chestCircum?.toString() ?? '',
+    );
+    final skinColorCtrl = TextEditingController(text: horse?.skinColor ?? '');
+    final markDescCtrl = TextEditingController(text: horse?.markDesc ?? '');
+    List<String> photos = horse?.photos ?? [];
 
     showCustomDialog(
       context: parentContext ?? context,
+      width: MediaQuery.of(context).size.width * 0.5,
       title: isEdit ? 'Edit Kuda' : 'Tambah Kuda',
       icon: isEdit ? Icons.edit : Icons.add_circle_rounded,
       iconColor: isEdit ? Colors.amber : Colors.green,
       showConfirmButton: true,
       confirmText: isEdit ? "Simpan" : "Tambah",
       cancelText: "Batal",
-      content: StatefulBuilder(
-        builder: (context, modalSetState) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isEdit || newId.isNotEmpty) ...[
-              Row(
-                children: [
-                  const Text(
-                    "ID Kuda: ",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                  ),
-                  Text(
-                    newId,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+      content: SingleChildScrollView(
+        child: StatefulBuilder(
+          builder: (context, modalSetState) => Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // KIRI: Identitas dasar
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (isEdit || newId.isNotEmpty) ...[
+                      Row(
+                        children: [
+                          const Text(
+                            "ID Kuda: ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            newId,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    CustomInput(
+                      label: "Nama Kuda (Wajib diisi)",
+                      controller: nameCtrl,
+                      hint: "Masukkan nama kuda",
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
-            CustomInput(
-              label: "Nama Kuda (Wajib diisi)",
-              controller: nameCtrl,
-              hint: "Masukkan nama kuda",
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: selectedType,
-              isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: "Jenis Kuda (Wajib diisi)",
-              ),
-              items: const [
-                DropdownMenuItem(value: "local", child: Text("Lokal")),
-                DropdownMenuItem(value: "crossbred", child: Text("Crossbred")),
-              ],
-              onChanged: (v) => modalSetState(() => selectedType = v),
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: selectedGender,
-              isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: "Gender (Wajib diisi)",
-              ),
-              items: const [
-                DropdownMenuItem(value: "Jantan", child: Text("Jantan")),
-                DropdownMenuItem(value: "Betina", child: Text("Betina")),
-                DropdownMenuItem(value: "Kebiri", child: Text("Kebiri")),
-              ],
-              onChanged: (v) => modalSetState(() => selectedGender = v),
-            ),
-            const SizedBox(height: 16),
-            CustomInput(
-              label: "Umur (tahun, wajib diisi)",
-              controller: ageCtrl,
-              hint: "Masukkan umur kuda",
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: selectedCategory,
-              isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: "Kategori (opsional)",
-              ),
-              items: const [
-                DropdownMenuItem(
-                  value: null,
-                  child: Text("Tidak ada kategori"),
-                ),
-                DropdownMenuItem(value: "Produksi", child: Text("Produksi")),
-                DropdownMenuItem(value: "Imunisasi", child: Text("Imunisasi")),
-                DropdownMenuItem(value: "Sehat", child: Text("Sehat")),
-                DropdownMenuItem(value: "Lainnya", child: Text("Lainnya")),
-              ],
-              onChanged: (v) => modalSetState(() => selectedCategory = v),
-            ),
-            const SizedBox(height: 16),
-            Obx(() {
-              final filteredRooms = _controller.roomList
-                  .where((r) => r.horseId == null || r.horseId == '')
-                  .toList();
-              final selectedValue =
-                  filteredRooms.any((r) => r.roomId == selectedRoomId)
-                  ? selectedRoomId
-                  : null;
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: selectedType,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: "Jenis Kuda (Wajib diisi)",
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: "local", child: Text("Lokal")),
+                        DropdownMenuItem(
+                          value: "crossbred",
+                          child: Text("Crossbred"),
+                        ),
+                      ],
+                      onChanged: (v) => modalSetState(() => selectedType = v),
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: selectedGender,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: "Jenis Kelamin (Wajib diisi)",
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: "Jantan",
+                          child: Text("Jantan"),
+                        ),
+                        DropdownMenuItem(
+                          value: "Betina",
+                          child: Text("Betina"),
+                        ),
+                        DropdownMenuItem(
+                          value: "Kebiri",
+                          child: Text("Kebiri"),
+                        ),
+                      ],
+                      onChanged: (v) => modalSetState(() => selectedGender = v),
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Umur (tahun, wajib diisi)",
+                      controller: ageCtrl,
+                      hint: "Masukkan umur kuda",
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: selectedCategory,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: "Kategori (opsional)",
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text("Tidak ada kategori"),
+                        ),
+                        DropdownMenuItem(
+                          value: "Produksi",
+                          child: Text("Produksi"),
+                        ),
+                        DropdownMenuItem(
+                          value: "Imunisasi",
+                          child: Text("Imunisasi"),
+                        ),
+                        DropdownMenuItem(value: "Sehat", child: Text("Sehat")),
+                        DropdownMenuItem(
+                          value: "Lainnya",
+                          child: Text("Lainnya"),
+                        ),
+                      ],
+                      onChanged: (v) =>
+                          modalSetState(() => selectedCategory = v),
+                    ),
+                    const SizedBox(height: 16),
+                    Obx(() {
+                      final filteredRooms = _controller.roomList
+                          .where((r) => r.horseId == null || r.horseId == '')
+                          .toList();
+                      final selectedValue =
+                          filteredRooms.any((r) => r.roomId == selectedRoomId)
+                          ? selectedRoomId
+                          : null;
 
-              return DropdownButtonFormField<String>(
-                value: selectedValue,
-                isExpanded: true,
-                decoration: const InputDecoration(labelText: "Ruangan"),
-                items: [
-                  const DropdownMenuItem(
-                    value: null,
-                    child: Text("Tidak Dikandangkan"),
-                  ),
-                  ...filteredRooms.map(
-                    (r) => DropdownMenuItem(
-                      value: r.roomId,
-                      child: Text("${r.roomId} - ${r.name}"),
+                      return DropdownButtonFormField<String>(
+                        value: selectedValue,
+                        isExpanded: true,
+                        decoration: const InputDecoration(labelText: "Ruangan"),
+                        items: [
+                          const DropdownMenuItem(
+                            value: null,
+                            child: Text("Tidak Dikandangkan"),
+                          ),
+                          ...filteredRooms.map(
+                            (r) => DropdownMenuItem(
+                              value: r.roomId,
+                              child: Text("${r.roomId} - ${r.name}"),
+                            ),
+                          ),
+                        ],
+                        onChanged: (v) =>
+                            modalSetState(() => selectedRoomId = v),
+                      );
+                    }),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Tempat Lahir",
+                      hint: "Masukan Tempat Lahir",
+                      controller: birthPlaceCtrl,
                     ),
-                  ),
-                ],
-                onChanged: (v) => modalSetState(() => selectedRoomId = v),
-              );
-            }),
-          ],
+                    const SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: birthDate ?? DateTime.now(),
+                          firstDate: DateTime(1990),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          modalSetState(() => birthDate = picked);
+                        }
+                      },
+                      child: AbsorbPointer(
+                        child: CustomInput(
+                          label: "Tanggal Lahir",
+                          controller: TextEditingController(
+                            text: birthDate != null
+                                ? "${birthDate!.toIso8601String().split('T').first}"
+                                : "",
+                          ),
+                          icon: Icons.calendar_today,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: settleDate ?? DateTime.now(),
+                          firstDate: DateTime(1990),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          modalSetState(() => settleDate = picked);
+                        }
+                      },
+                      child: AbsorbPointer(
+                        child: CustomInput(
+                          label: "Tanggal Menetap",
+                          controller: TextEditingController(
+                            text: settleDate != null
+                                ? "${settleDate!.toIso8601String().split('T').first}"
+                                : "",
+                          ),
+                          icon: Icons.calendar_today,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 32),
+              // KANAN: Detail fisik dan foto
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          "",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          '',
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Panjang Kuda (cm)",
+                      hint: "Masukan Panjang Kuda",
+                      controller: lengthCtrl,
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Berat Kuda (kg)",
+                      hint: "Masukan Berat Kuda",
+                      controller: weightCtrl,
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Tinggi Kuda (cm)",
+                      hint: "Masukan Tinggi Kuda",
+                      controller: heightCtrl,
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Lingkar Dada Kuda (cm)",
+                      hint: "Masukan Lingkar Dada Kuda",
+                      controller: chestCircumCtrl,
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Warna Kulit",
+                      hint: "Masukan Warna Kulit Kuda",
+                      controller: skinColorCtrl,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Deskripsi Tanda",
+                      hint: "Masukan Deskripsi Tanda Kuda",
+                      controller: markDescCtrl,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomButton(
+                      onPressed: () async {
+                        final ImagePicker picker = ImagePicker();
+                        final List<XFile> images = await picker
+                            .pickMultiImage();
+                        modalSetState(() {
+                          _selectedImages.addAll(images);
+                        });
+                      },
+                      height: 40,
+                      text: 'Pilih Foto Kuda',
+                      iconTrailing: Icons.photo_rounded,
+                      backgroundColor: AppColors.primary,
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 90,
+                      child: Scrollbar(
+                        thumbVisibility: true,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: _selectedImages
+                              .asMap()
+                              .entries
+                              .map(
+                                (entry) => Stack(
+                                  alignment: Alignment.topRight,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(right: 8),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.file(
+                                          File(entry.value.path),
+                                          width: 80,
+                                          height: 80,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 2,
+                                      right: 2,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          modalSetState(() {
+                                            _selectedImages.removeAt(entry.key);
+                                          });
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.red.withOpacity(0.8),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          padding: const EdgeInsets.all(2),
+                                          child: const Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       onConfirm: () {
@@ -196,7 +466,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
             ageCtrl.text.trim().isEmpty) {
           Get.snackbar(
             "Input Tidak Lengkap",
-            "Nama, Jenis, Gender, dan Umur wajib diisi.",
+            "Nama, Jenis, Jenis Kelamin, dan Umur wajib diisi.",
             snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.redAccent,
             colorText: Colors.white,
@@ -224,6 +494,16 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
           age: ageInt,
           roomId: selectedRoomId,
           category: selectedCategory,
+          birthPlace: birthPlaceCtrl.text.trim(),
+          birthDate: birthDate,
+          settleDate: settleDate,
+          length: double.tryParse(lengthCtrl.text.trim()),
+          weight: double.tryParse(weightCtrl.text.trim()),
+          height: double.tryParse(heightCtrl.text.trim()),
+          chestCircum: double.tryParse(chestCircumCtrl.text.trim()),
+          skinColor: skinColorCtrl.text.trim(),
+          markDesc: markDescCtrl.text.trim(),
+          photos: _selectedImages.map((img) => img.path).toList(),
         );
         onSubmit(newHorse);
       },
@@ -235,101 +515,399 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
     Function(HorseModel) onSubmit, {
     BuildContext? parentContext,
   }) async {
+    // Reset foto setiap buka modal edit
+    _selectedImages = horse.photos != null
+        ? horse.photos!.map((path) => XFile(path)).toList()
+        : [];
+
+    String newId = horse.horseId;
     final nameCtrl = TextEditingController(text: horse.name);
-    final typeCtrl = TextEditingController(text: horse.type);
+    String? selectedType = horse.type;
     String? selectedGender = horse.gender;
     final ageCtrl = TextEditingController(text: horse.age.toString());
     String? selectedRoomId = horse.roomId;
     String? selectedCategory = horse.category;
+    final birthPlaceCtrl = TextEditingController(text: horse.birthPlace ?? '');
+    DateTime? birthDate = horse.birthDate;
+    DateTime? settleDate = horse.settleDate;
+    final lengthCtrl = TextEditingController(
+      text: horse.length?.toString() ?? '',
+    );
+    final weightCtrl = TextEditingController(
+      text: horse.weight?.toString() ?? '',
+    );
+    final heightCtrl = TextEditingController(
+      text: horse.height?.toString() ?? '',
+    );
+    final chestCircumCtrl = TextEditingController(
+      text: horse.chestCircum?.toString() ?? '',
+    );
+    final skinColorCtrl = TextEditingController(text: horse.skinColor ?? '');
+    final markDescCtrl = TextEditingController(text: horse.markDesc ?? '');
 
     showCustomDialog(
       context: parentContext ?? context,
+      width: MediaQuery.of(context).size.width * 0.5,
       title: 'Edit Kuda',
       icon: Icons.edit,
       iconColor: Colors.amber,
       showConfirmButton: true,
       confirmText: "Simpan",
       cancelText: "Batal",
-      content: StatefulBuilder(
-        builder: (context, modalSetState) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                const Text(
-                  "ID Kuda: ",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+      content: SingleChildScrollView(
+        child: StatefulBuilder(
+          builder: (context, modalSetState) => Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // KIRI: Identitas dasar
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          "ID Kuda: ",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          newId,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Nama Kuda (Wajib diisi)",
+                      controller: nameCtrl,
+                      hint: "Masukkan nama kuda",
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: selectedType,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: "Jenis Kuda (Wajib diisi)",
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: "local", child: Text("Lokal")),
+                        DropdownMenuItem(
+                          value: "crossbred",
+                          child: Text("Crossbred"),
+                        ),
+                      ],
+                      onChanged: (v) => modalSetState(() => selectedType = v),
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: selectedGender,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: "Jenis Kelamin (Wajib diisi)",
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: "Jantan",
+                          child: Text("Jantan"),
+                        ),
+                        DropdownMenuItem(
+                          value: "Betina",
+                          child: Text("Betina"),
+                        ),
+                        DropdownMenuItem(
+                          value: "Kebiri",
+                          child: Text("Kebiri"),
+                        ),
+                      ],
+                      onChanged: (v) => modalSetState(() => selectedGender = v),
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Umur (tahun, wajib diisi)",
+                      controller: ageCtrl,
+                      hint: "Masukkan umur kuda",
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: selectedCategory,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: "Kategori (opsional)",
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text("Tidak ada kategori"),
+                        ),
+                        DropdownMenuItem(
+                          value: "Produksi",
+                          child: Text("Produksi"),
+                        ),
+                        DropdownMenuItem(
+                          value: "Imunisasi",
+                          child: Text("Imunisasi"),
+                        ),
+                        DropdownMenuItem(value: "Sehat", child: Text("Sehat")),
+                        DropdownMenuItem(
+                          value: "Lainnya",
+                          child: Text("Lainnya"),
+                        ),
+                      ],
+                      onChanged: (v) =>
+                          modalSetState(() => selectedCategory = v),
+                    ),
+                    const SizedBox(height: 16),
+                    Obx(() {
+                      final filteredRooms = _controller.roomList
+                          .where((r) => r.horseId == null || r.horseId == '')
+                          .toList();
+                      final selectedValue =
+                          filteredRooms.any((r) => r.roomId == selectedRoomId)
+                          ? selectedRoomId
+                          : null;
+
+                      return DropdownButtonFormField<String>(
+                        value: selectedValue,
+                        isExpanded: true,
+                        decoration: const InputDecoration(labelText: "Ruangan"),
+                        items: [
+                          const DropdownMenuItem(
+                            value: null,
+                            child: Text("Tidak Dikandangkan"),
+                          ),
+                          ...filteredRooms.map(
+                            (r) => DropdownMenuItem(
+                              value: r.roomId,
+                              child: Text("${r.roomId} - ${r.name}"),
+                            ),
+                          ),
+                        ],
+                        onChanged: (v) =>
+                            modalSetState(() => selectedRoomId = v),
+                      );
+                    }),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Tempat Lahir",
+                      hint: "Masukan Tempat Lahir",
+                      controller: birthPlaceCtrl,
+                    ),
+                    const SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: birthDate ?? DateTime.now(),
+                          firstDate: DateTime(1990),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          modalSetState(() => birthDate = picked);
+                        }
+                      },
+                      child: AbsorbPointer(
+                        child: CustomInput(
+                          label: "Tanggal Lahir",
+                          controller: TextEditingController(
+                            text: birthDate != null
+                                ? "${birthDate!.toIso8601String().split('T').first}"
+                                : "",
+                          ),
+                          icon: Icons.calendar_today,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: settleDate ?? DateTime.now(),
+                          firstDate: DateTime(1990),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          modalSetState(() => settleDate = picked);
+                        }
+                      },
+                      child: AbsorbPointer(
+                        child: CustomInput(
+                          label: "Tanggal Menetap",
+                          controller: TextEditingController(
+                            text: settleDate != null
+                                ? "${settleDate!.toIso8601String().split('T').first}"
+                                : "",
+                          ),
+                          icon: Icons.calendar_today,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  horse.horseId,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            CustomInput(
-              label: "Nama Kuda (Wajib diisi)",
-              controller: nameCtrl,
-              hint: "Masukkan nama kuda",
-            ),
-            const SizedBox(height: 16),
-            CustomInput(
-              label: "Jenis (Wajib diisi)",
-              controller: typeCtrl,
-              hint: "Masukkan jenis kuda",
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: selectedGender,
-              isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: "Gender (Wajib diisi)",
               ),
-              items: [
-                DropdownMenuItem(value: "Jantan", child: Text("Jantan")),
-                DropdownMenuItem(value: "Betina", child: Text("Betina")),
-                DropdownMenuItem(value: "Kebiri", child: Text("Kebiri")),
-              ],
-              onChanged: (v) => modalSetState(() => selectedGender = v),
-            ),
-            const SizedBox(height: 16),
-            CustomInput(
-              label: "Umur (tahun, wajib diisi)",
-              controller: ageCtrl,
-              hint: "Masukkan umur kuda",
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: selectedCategory,
-              isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: "Kategori (opsional)",
-              ),
-              items: const [
-                DropdownMenuItem(
-                  value: null,
-                  child: Text("Tidak ada kategori"),
+              const SizedBox(width: 32),
+              // KANAN: Detail fisik dan foto
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          "",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          '',
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Panjang Kuda (cm)",
+                      hint: "Masukan Panjang Kuda",
+                      controller: lengthCtrl,
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Berat Kuda (kg)",
+                      hint: "Masukan Berat Kuda",
+                      controller: weightCtrl,
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Tinggi Kuda (cm)",
+                      hint: "Masukan Tinggi Kuda",
+                      controller: heightCtrl,
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Lingkar Dada Kuda (cm)",
+                      hint: "Masukan Lingkar Dada Kuda",
+                      controller: chestCircumCtrl,
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Warna Kulit Kuda",
+                      hint: "Masukan Warna Kulit Kuda",
+                      controller: skinColorCtrl,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomInput(
+                      label: "Deskripsi Tanda",
+                      hint: "Masukan Deskripsi Tanda",
+                      controller: markDescCtrl,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomButton(
+                      onPressed: () async {
+                        final ImagePicker picker = ImagePicker();
+                        final List<XFile> images = await picker
+                            .pickMultiImage();
+                        if (images != null) {
+                          modalSetState(() {
+                            _selectedImages.addAll(images);
+                          });
+                        }
+                      },
+                      height: 40,
+                      text: 'Pilih Foto Kuda',
+                      iconTrailing: Icons.photo_rounded,
+                      backgroundColor: AppColors.primary,
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 90,
+                      child: Scrollbar(
+                        thumbVisibility: true,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: _selectedImages
+                              .where(
+                                (img) => img.path.isNotEmpty,
+                              ) // <-- filter path kosong
+                              .toList()
+                              .asMap()
+                              .entries
+                              .map(
+                                (entry) => Stack(
+                                  alignment: Alignment.topRight,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(right: 8),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.file(
+                                          File(entry.value.path),
+                                          width: 80,
+                                          height: 80,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 2,
+                                      right: 2,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          modalSetState(() {
+                                            _selectedImages.removeAt(entry.key);
+                                          });
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.red.withOpacity(0.8),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          padding: const EdgeInsets.all(2),
+                                          child: const Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                DropdownMenuItem(value: "sport", child: Text("Sport")),
-                DropdownMenuItem(value: "breeding", child: Text("Breeding")),
-                DropdownMenuItem(value: "pet", child: Text("Pet")),
-                DropdownMenuItem(value: "other", child: Text("Other")),
-              ],
-              onChanged: (v) => modalSetState(() => selectedCategory = v),
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
       onConfirm: () {
         if (nameCtrl.text.trim().isEmpty ||
-            typeCtrl.text.trim().isEmpty ||
+            selectedType == null ||
             selectedGender == null ||
-            selectedGender!.isEmpty ||
+            selectedType == null ||
+            selectedGender == null ||
             ageCtrl.text.trim().isEmpty) {
           Get.snackbar(
             "Input Tidak Lengkap",
@@ -356,41 +934,24 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
         final editedHorse = HorseModel(
           horseId: horse.horseId,
           name: nameCtrl.text.trim(),
-          type: typeCtrl.text.trim(),
+          type: selectedType!,
           gender: selectedGender!,
           age: ageInt,
           roomId: selectedRoomId,
           category: selectedCategory,
+          birthPlace: birthPlaceCtrl.text.trim(),
+          birthDate: birthDate,
+          settleDate: settleDate,
+          length: double.tryParse(lengthCtrl.text.trim()),
+          weight: double.tryParse(weightCtrl.text.trim()),
+          height: double.tryParse(heightCtrl.text.trim()),
+          chestCircum: double.tryParse(chestCircumCtrl.text.trim()),
+          skinColor: skinColorCtrl.text.trim(),
+          markDesc: markDescCtrl.text.trim(),
+          photos: _selectedImages.map((img) => img.path).toList(),
         );
         onSubmit(editedHorse);
       },
-    );
-  }
-
-  void _showDetailModal(HorseModel horse) {
-    showCustomDialog(
-      context: context,
-      title: "Detail Kuda",
-      icon: Icons.info_outline,
-      iconColor: Colors.blueGrey,
-      showConfirmButton: false,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _detailRow("ID", horse.horseId),
-          const SizedBox(height: 8),
-          _detailRow("Nama", horse.name),
-          const SizedBox(height: 8),
-          _detailRow("Jenis", horse.type),
-          const SizedBox(height: 8),
-          _detailRow("Gender", horse.gender),
-          const SizedBox(height: 8),
-          _detailRow("Umur", horse.age.toString()),
-          const SizedBox(height: 8),
-          _detailRow("Ruangan", horse.roomId ?? "Tidak Digunakan"),
-        ],
-      ),
     );
   }
 
@@ -410,131 +971,68 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
     );
   }
 
-  void _showPilihRuanganModal(HorseModel horse, Function(HorseModel) onSubmit) {
-    String? selectedRoomId; // atau node.roomId jika model ada field roomId
-
+  void _keluarkanKudaDariKandang(HorseModel horse) {
     showCustomDialog(
       context: context,
-      title: "Pilih Ruangan",
-      icon: Icons.house_siding_rounded,
-      iconColor: AppColors.primary,
+      title: "Keluarkan Kuda dari Kandang",
+      icon: Icons.exit_to_app,
+      iconColor: Colors.orange,
+      message: "Keluarkan ${horse.name} dari kandang?",
       showConfirmButton: true,
-      confirmText: "Simpan",
+      confirmText: "Keluarkan",
       cancelText: "Batal",
-      // content: Obx(() {
-      //   final roomList = _controller.roomList;
-      //   // Semua deviceSerial yang sudah dipakai room lain (kecuali node ini)
-      //   final allUsedDeviceSerials = roomList
-      //       .where(
-      //         (r) => r.deviceSerial != null && r.deviceSerial != node.deviceId,
-      //       )
-      //       .map((r) => r.deviceSerial)
-      //       .toSet();
-
-      //   // Hanya ruangan yang belum dipakai atau memang sedang dipakai node ini
-      //   final availableRooms = roomList
-      //       .where(
-      //         (r) =>
-      //             r.deviceSerial == node.deviceId ||
-      //             r.deviceSerial == null ||
-      //             r.deviceSerial == '',
-      //       )
-      //       .toList();
-
-      //   // Validasi value
-      //   final validIds = availableRooms.map((r) => r.roomId).toList();
-      //   final value =
-      //       (selectedRoomId != null && validIds.contains(selectedRoomId))
-      //       ? selectedRoomId
-      //       : null;
-
-      //   return DropdownButtonFormField<String>(
-      //     value: value,
-      //     isExpanded: true,
-      //     decoration: const InputDecoration(labelText: "Ruangan"),
-      //     items: [
-      //       const DropdownMenuItem(value: null, child: Text("Tidak Digunakan")),
-      //       ...availableRooms.map(
-      //         (r) => DropdownMenuItem(
-      //           value: r.roomId,
-      //           child: Text("${r.roomId} - ${r.name}"),
-      //         ),
-      //       ),
-      //     ],
-      //     onChanged: (v) => setState(() => selectedRoomId = v),
-      //   );
-      // }),
-      // onConfirm: () async {
-      //   await _controller.pilihRuanganUntukNode(node.deviceId, selectedRoomId);
-      //   await _controller.loadNode(); // Tambahkan ini agar refresh RxList
-      // },
-      content: Obx(() {
-        final filteredRooms = _controller.roomList
-            .where(
-              (r) =>
-                  r.horseId == null ||
-                  r.horseId == '' ||
-                  r.horseId == horse.horseId,
-            )
-            .toList();
-        final selectedValue =
-            filteredRooms.any((r) => r.roomId == selectedRoomId)
-            ? selectedRoomId
-            : null;
-
-        return DropdownButtonFormField<String>(
-          value: selectedValue,
-          isExpanded: true,
-          decoration: const InputDecoration(labelText: "Ruangan"),
-          items: [
-            const DropdownMenuItem(
-              value: null,
-              child: Text("Tidak Dikandangkan"),
-            ),
-            ...filteredRooms.map(
-              (r) => DropdownMenuItem(
-                value: r.roomId,
-                child: Text("${r.roomId} - ${r.name}"),
-              ),
-            ),
-          ],
-          onChanged: (v) => setState(() {
-            selectedRoomId = v;
-          }),
-        );
-      }),
-      onConfirm: () {
-        final editedHorse = HorseModel(
-          horseId: horse.horseId,
-          name: horse.name,
-          type: horse.type,
-          gender: horse.gender,
-          age: horse.age,
-          roomId: selectedRoomId,
-        );
-        onSubmit(editedHorse);
+      onConfirm: () async {
+        await _controller.keluarkanKudaDariKandang(horse.horseId);
       },
     );
   }
 
-  void _showLepasRuanganModal(HorseModel horse, Function(HorseModel) onSubmit) {
+  void _masukanKudaKeKandang(HorseModel horse, Function(HorseModel) onSubmit) {
+    // Cari room yang kolom horse_id == horse.horseId
+    final room = _controller.roomList.firstWhereOrNull(
+      (r) => r.horseId == horse.horseId,
+    );
+
     showCustomDialog(
       context: context,
-      title: "Konfirmasi Lepas Ruangan",
-      icon: Icons.link_off,
-      iconColor: Colors.orange,
-      message: "Keluarkan ${horse.name} dari ruangan?",
+      title: "Masukkan Kuda ke Kandang",
+      icon: Icons.house_siding_rounded,
+      iconColor: AppColors.primary,
+      message: room != null
+          ? "Masukkan kuda ${horse.name} ke ruangan ${room.name} (${room.roomId})?"
+          : "Kuda belum dipasangkan ke ruangan manapun.",
       showConfirmButton: true,
-      confirmText: "Lepas",
+      confirmText: "Konfirmasi",
       cancelText: "Batal",
       onConfirm: () {
+        if (room == null) {
+          Get.snackbar(
+            "Tidak Ada Ruangan",
+            "Kuda belum dipasangkan ke ruangan manapun.",
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
+          );
+          return;
+        }
         final editedHorse = HorseModel(
           horseId: horse.horseId,
           name: horse.name,
           type: horse.type,
           gender: horse.gender,
           age: horse.age,
-          roomId: null,
+          roomId: room.roomId,
+          category: horse.category,
+          birthPlace: horse.birthPlace,
+          birthDate: horse.birthDate,
+          settleDate: horse.settleDate,
+          length: horse.length,
+          weight: horse.weight,
+          height: horse.height,
+          chestCircum: horse.chestCircum,
+          skinColor: horse.skinColor,
+          markDesc: horse.markDesc,
+          photos: horse.photos,
         );
         onSubmit(editedHorse);
       },
@@ -555,6 +1053,13 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_selectedHorseDetail != null) {
+      return HalterHorseDetailWidget(
+        horse: _selectedHorseDetail!,
+        onBack: _closeDetail,
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Container(
@@ -867,7 +1372,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                                         width: genderW,
                                         child: const Center(
                                           child: Text(
-                                            'Gender',
+                                            'Jenis Kelamin',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -944,22 +1449,32 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                                   source: HorseDataTableSource(
                                     context: context,
                                     horses: horses,
-                                    onLepasRuangan: (horse) =>
-                                        _showLepasRuanganModal(horse, (
+                                    // onLepasRuangan: (horse) =>
+                                    //     _showLepasRuanganModal(horse, (
+                                    //       editedHorse,
+                                    //     ) async {
+                                    //       await _controller.updateHorse(
+                                    //         editedHorse,
+                                    //       );
+                                    //     }),
+                                    // onSelectRoom: (horse) =>
+                                    //     _showPilihRuanganModal(horse, (
+                                    //       editedHorse,
+                                    //     ) async {
+                                    //       await _controller.updateHorse(
+                                    //         editedHorse,
+                                    //       );
+                                    //     }),
+                                    onMasuk: (horse) => _masukanKudaKeKandang(
+                                      horse,
+                                      (editedHorse) async {
+                                        await _controller.updateHorse(
                                           editedHorse,
-                                        ) async {
-                                          await _controller.updateHorse(
-                                            editedHorse,
-                                          );
-                                        }),
-                                    onSelectRoom: (horse) =>
-                                        _showPilihRuanganModal(horse, (
-                                          editedHorse,
-                                        ) async {
-                                          await _controller.updateHorse(
-                                            editedHorse,
-                                          );
-                                        }),
+                                        );
+                                      },
+                                    ),
+                                    onKeluar: (horse) =>
+                                        _keluarkanKudaDariKandang(horse),
                                     onDetail: _showDetailModal,
                                     onEdit: (horse) => _showHorseFormModalEdit(
                                       horse,
@@ -1010,8 +1525,8 @@ class HorseDataTableSource extends DataTableSource {
   final Function(HorseModel) onDetail;
   final Function(HorseModel) onEdit;
   final Function(HorseModel) onDelete;
-  final Function(HorseModel) onLepasRuangan;
-  final Function(HorseModel) onSelectRoom;
+  final Function(HorseModel) onKeluar;
+  final Function(HorseModel) onMasuk;
   int _selectedCount = 0;
 
   HorseDataTableSource({
@@ -1020,13 +1535,16 @@ class HorseDataTableSource extends DataTableSource {
     required this.onDetail,
     required this.onEdit,
     required this.onDelete,
-    required this.onLepasRuangan,
-    required this.onSelectRoom,
+    required this.onKeluar,
+    required this.onMasuk,
   });
 
   @override
   DataRow getRow(int index) {
     final horse = horses[index];
+    final room = Get.find<HalterHorseController>().roomList.firstWhereOrNull(
+      (r) => r.horseId == horse.horseId,
+    );
     return DataRow.byIndex(
       index: index,
       cells: [
@@ -1067,27 +1585,31 @@ class HorseDataTableSource extends DataTableSource {
               const SizedBox(width: 6),
               horse.roomId != null
                   ? CustomButton(
-                      width: 170,
+                      width: 180,
                       height: 38,
                       backgroundColor: Colors.orange,
-                      text: 'Lepas Ruangan',
+                      text: 'Keluarkan Kuda',
                       icon: Icons.link_off,
                       borderRadius: 6,
                       fontSize: 14,
                       onPressed: () {
-                        onLepasRuangan(horse);
+                        onKeluar(horse);
                       },
                     )
                   : CustomButton(
-                      width: 170,
+                      width: 180,
                       height: 38,
-                      backgroundColor: AppColors.primary,
-                      text: 'Pilih Ruangan',
+                      backgroundColor: room != null
+                          ? AppColors.primary
+                          : Colors.grey,
+                      text: room != null ? 'Masukan Kuda' : 'Tidak Ada Ruang',
                       icon: Icons.house_siding_rounded,
                       borderRadius: 6,
                       fontSize: 14,
                       onPressed: () {
-                        onSelectRoom(horse);
+                        if (room != null) {
+                          onMasuk(horse);
+                        } else {}
                       },
                     ),
               const SizedBox(width: 6),

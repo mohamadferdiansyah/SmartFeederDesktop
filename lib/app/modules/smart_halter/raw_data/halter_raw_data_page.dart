@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/raw_data/halter_raw_data_controller.dart';
@@ -200,24 +201,24 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                             _dataSource.updateFilter(_controller.filteredList);
                           },
                         ),
-                        CustomButton(
-                          text: 'Stop dummy',
-                          width: 195,
-                          fontSize: 18,
-                          height: 48,
-                          onPressed: () {
-                            serialService.stopDummySerial();
-                          },
-                        ),
-                        CustomButton(
-                          text: 'Start dummy',
-                          width: 195,
-                          fontSize: 18,
-                          height: 48,
-                          onPressed: () {
-                            serialService.startDummySerial();
-                          },
-                        ),
+                        // CustomButton(
+                        //   text: 'Stop dummy',
+                        //   width: 195,
+                        //   fontSize: 18,
+                        //   height: 48,
+                        //   onPressed: () {
+                        //     serialService.stopDummySerial();
+                        //   },
+                        // ),
+                        // CustomButton(
+                        //   text: 'Start dummy',
+                        //   width: 195,
+                        //   fontSize: 18,
+                        //   height: 48,
+                        //   onPressed: () {
+                        //     serialService.startDummySerial();
+                        //   },
+                        // ),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -226,7 +227,15 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          '*menerima data setiap 30 detik - 1 menit',
+                          'Total Data: ${_controller.filteredList.length}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          '*menerima data setiap 15 - 30 detik',
                           style: const TextStyle(fontSize: 16),
                         ),
                         Spacer(),
@@ -319,7 +328,7 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                                   width: tglW,
                                   child: const Center(
                                     child: Text(
-                                      'Tanggal',
+                                      'Timestamp',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -416,7 +425,15 @@ class HalterRawDataTableSource extends DataTableSource {
       index: index,
       cells: [
         DataCell(Center(child: Text('${index + 1}'))),
-        DataCell(Center(child: Text(item.time.toString()))),
+        DataCell(
+          Center(
+            child: Text(
+              item.time != null
+                  ? DateFormat('dd-MM-yyyy HH:mm:ss').format(item.time!)
+                  : "-",
+            ),
+          ),
+        ),
         DataCell(Center(child: Text(item.data))),
         DataCell(
           Center(

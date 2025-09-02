@@ -53,6 +53,47 @@ class HalterRoomController extends GetxController {
     return await dataController.getNextRoomId();
   }
 
+  Future<void> lepasKudaDariRuangan(String roomId, String? horseId) async {
+    if (horseId != null) {
+      await dataController.roomDao.updateHorseId(roomId, null);
+      final horse = await dataController.horseDao.getById(horseId);
+      if (horse != null) {
+        final editedHorse = HorseModel(
+          horseId: horse.horseId,
+          name: horse.name,
+          type: horse.type,
+          gender: horse.gender,
+          age: horse.age,
+          roomId: null,
+          category: horse.category,
+          birthPlace: horse.birthPlace,
+          birthDate: horse.birthDate,
+          settleDate: horse.settleDate,
+          length: horse.length,
+          weight: horse.weight,
+          height: horse.height,
+          chestCircum: horse.chestCircum,
+          skinColor: horse.skinColor,
+          markDesc: horse.markDesc,
+          photos: horse.photos,
+        );
+        await dataController.horseDao.update(editedHorse);
+      }
+      await dataController.loadRoomsFromDb();
+      await dataController.loadHorsesFromDb();
+    }
+  }
+
+  Future<void> pilihKudaUntukRuangan(String roomId, String? horseId) async {
+    if (horseId == null) {
+      await dataController.roomDao.updateHorseId(roomId, null);
+    } else {
+      await dataController.assignHorseToRoom(horseId, roomId);
+    }
+    await dataController.loadRoomsFromDb();
+    await dataController.loadHorsesFromDb();
+  }
+
   Future<void> exportRoomExcel(
     List<RoomModel> data,
     String Function(List<String>) getCctvNames,

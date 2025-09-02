@@ -152,6 +152,7 @@ class HalterDeviceController extends GetxController {
     final sensorHeaders = [
       'No',
       'Device Id',
+      'Time',
       'Latitude',
       'Longitude',
       'Altitude',
@@ -175,7 +176,6 @@ class HalterDeviceController extends GetxController {
       'SPO',
       'Suhu',
       'Respirasi',
-      'Time',
     ];
 
     // Judul di tengah, misal di kolom ke-6 (index 5)
@@ -207,6 +207,7 @@ class HalterDeviceController extends GetxController {
       sheet.appendRow([
         TextCellValue('${i + 1}'),
         TextCellValue(d.deviceId),
+        TextCellValue(d.time != null ? d.time!.toIso8601String() : "-"),
         TextCellValue('${d.latitude ?? "-"}'),
         TextCellValue('${d.longitude ?? "-"}'),
         TextCellValue('${d.altitude ?? "-"}'),
@@ -230,7 +231,6 @@ class HalterDeviceController extends GetxController {
         TextCellValue('${d.spo ?? "-"}'),
         TextCellValue('${d.temperature ?? "-"}'),
         TextCellValue('${d.respiratoryRate ?? "-"}'),
-        TextCellValue(d.time != null ? d.time!.toIso8601String() : "-"),
       ]);
     }
 

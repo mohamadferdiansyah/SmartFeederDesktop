@@ -106,7 +106,7 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
                         _updateFields();
                         Get.snackbar(
                           "Berhasil",
-                          "Threshold sensor tersimpan",
+                          "Threshold sensor tersimpan $min - $max",
                           backgroundColor: Colors.green,
                           colorText: Colors.white,
                         );
@@ -167,16 +167,22 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
     String title = "Pengaturan ${selectedSensor.capitalizeFirst}";
     if (selectedSensor == "temperature") {
       icon = Icons.thermostat_outlined;
-      title = "Pengaturan Suhu";
+      title = "Pengaturan Suhu (°C)";
     } else if (selectedSensor == "heartRate") {
       icon = Icons.monitor_heart;
-      title = "Pengaturan BPM";
+      title = "Pengaturan Detak Jantung (bpm)";
     } else if (selectedSensor == "spo") {
       icon = Icons.local_fire_department_outlined;
-      title = "Pengaturan SPO";
+      title = "Pengaturan SpO₂ (%)";
     } else if (selectedSensor == "respiratoryRate") {
       icon = Icons.air_outlined;
-      title = "Pengaturan Respirasi";
+      title = "Pengaturan Respirasi (nafas/menit)";
+    } else if (selectedSensor == "humidity") {
+      icon = Icons.air_outlined;
+      title = "Pengaturan Kelembapan (%)";
+    } else if (selectedSensor == "lightIntensity") {
+      icon = Icons.air_outlined;
+      title = "Pengaturan Cahaya (Lux)";
     }
 
     return Padding(
@@ -297,7 +303,7 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    t.sensorName.capitalizeFirst ?? t.sensorName,
+                    "${_getSensorLabel(t.sensorName)} ${_getSensorUnit(t.sensorName)}",
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -340,6 +346,25 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
     );
   }
 
+  String _getSensorLabel(String sensor) {
+    switch (sensor) {
+      case "temperature":
+        return "Suhu";
+      case "heartRate":
+        return "Detak Jantung";
+      case "spo":
+        return "SpO₂";
+      case "respiratoryRate":
+        return "Respirasi";
+      case "humidity":
+        return "Kelembapan";
+      case "lightIntensity":
+        return "Cahaya";
+      default:
+        return sensor.capitalizeFirst ?? sensor;
+    }
+  }
+
   // Helper icon
   IconData _getSensorIcon(String sensor) {
     switch (sensor) {
@@ -357,6 +382,25 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
         return Icons.light_mode_outlined;
       default:
         return Icons.device_hub_rounded;
+    }
+  }
+
+  String _getSensorUnit(String sensor) {
+    switch (sensor) {
+      case "temperature":
+        return "(°C)";
+      case "heartRate":
+        return "(bpm)";
+      case "spo":
+        return "(%)";
+      case "respiratoryRate":
+        return "(nafas/menit)";
+      case "humidity":
+        return "(%)";
+      case "lightIntensity":
+        return "(lux)";
+      default:
+        return "";
     }
   }
 }

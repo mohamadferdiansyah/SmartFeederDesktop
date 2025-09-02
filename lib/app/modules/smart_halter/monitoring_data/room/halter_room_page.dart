@@ -282,228 +282,6 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
     );
   }
 
-  // void _showRoomFormModal({
-  //     RoomModel? room,
-  //     required bool isEdit,
-  //     required Function(RoomModel) onSubmit,
-  //     BuildContext? parentContext,
-  //   }) async {
-  //     String newId = room?.roomId ?? '';
-  //     if (!isEdit) {
-  //       newId = await _controller.getNextRoomId();
-  //     }
-  //     final nameCtrl = TextEditingController(text: room?.name ?? '');
-  //     String? selectedStableId = room?.stableId;
-  //     String? selectedDeviceSerial = room?.deviceSerial;
-  //     String? selectedHorseId = room?.horseId;
-
-  //     // Inisialisasi CCTV
-  //     List<String> initialCctvIds = room?.cctvId ?? [];
-  //     String? selectedCctv1 = initialCctvIds.isNotEmpty
-  //         ? initialCctvIds[0]
-  //         : null;
-  //     String? selectedCctv2 = initialCctvIds.length > 1
-  //         ? initialCctvIds[1]
-  //         : null;
-
-  //     showCustomDialog(
-  //       context: parentContext ?? context,
-  //       title: isEdit ? 'Edit Ruangan' : 'Tambah Ruangan',
-  //       icon: isEdit ? Icons.edit : Icons.add_circle_rounded,
-  //       iconColor: isEdit ? Colors.amber : Colors.green,
-  //       showConfirmButton: true,
-  //       confirmText: isEdit ? "Simpan" : "Tambah",
-  //       cancelText: "Batal",
-  //       content: Obx(() {
-  //         final stableList = _controller.stableList;
-  //         final cctvList = _controller.cctvList;
-  //         return StatefulBuilder(
-  //           builder: (context, setState) {
-  //             // List CCTV untuk dropdown kedua, hilangkan yang sudah dipilih di dropdown pertama
-  //             final cctvOptions2 = cctvList
-  //                 .where((c) => c.cctvId != selectedCctv1)
-  //                 .toList();
-
-  //             return Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 if (isEdit || newId.isNotEmpty) ...[
-  //                   Row(
-  //                     children: [
-  //                       const Text(
-  //                         "ID Ruangan: ",
-  //                         style: TextStyle(
-  //                           fontWeight: FontWeight.w600,
-  //                           fontSize: 16,
-  //                         ),
-  //                       ),
-  //                       Text(
-  //                         newId,
-  //                         style: const TextStyle(
-  //                           color: Colors.black,
-  //                           fontWeight: FontWeight.bold,
-  //                           fontSize: 16,
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                   const SizedBox(height: 16),
-  //                 ],
-  //                 CustomInput(
-  //                   label: "Nama Ruangan (Wajib diisi)",
-  //                   controller: nameCtrl,
-  //                   hint: "Masukkan nama ruangan",
-  //                 ),
-  //                 const SizedBox(height: 16),
-  //                 DropdownButtonFormField<String>(
-  //                   value: selectedStableId,
-  //                   isExpanded: true,
-  //                   decoration: const InputDecoration(
-  //                     labelText: "Kandang (Wajib diisi)",
-  //                   ),
-  //                   items: stableList
-  //                       .map(
-  //                         (s) => DropdownMenuItem(
-  //                           value: s.stableId,
-  //                           child: Text("${s.stableId} - ${s.name}"),
-  //                         ),
-  //                       )
-  //                       .toList(),
-  //                   onChanged: (v) {
-  //                     setState(() {
-  //                       selectedStableId = v;
-  //                     });
-  //                   },
-  //                 ),
-  //                 const SizedBox(height: 16),
-  //                 // Device Serial & HorseId dropdown kalau mau dipakai, buka komentar di bawah:
-  //                 // DropdownButtonFormField<String>(
-  //                 //   value: selectedDeviceSerial,
-  //                 //   isExpanded: true,
-  //                 //   decoration: const InputDecoration(labelText: "Device Id"),
-  //                 //   items: _controller.nodeRoomList
-  //                 //       .map((n) => DropdownMenuItem(
-  //                 //             value: n.deviceId,
-  //                 //             child: Text(n.deviceId),
-  //                 //           ))
-  //                 //       .toList(),
-  //                 //   onChanged: (v) {
-  //                 //     setState(() {
-  //                 //       selectedDeviceSerial = v;
-  //                 //     });
-  //                 //   },
-  //                 // ),
-  //                 // const SizedBox(height: 16),
-  //                 // DropdownButtonFormField<String>(
-  //                 //   value: selectedHorseId,
-  //                 //   isExpanded: true,
-  //                 //   decoration: const InputDecoration(labelText: "Kuda"),
-  //                 //   items: _controller.horseList
-  //                 //       .map((h) => DropdownMenuItem(
-  //                 //             value: h.horseId,
-  //                 //             child: Text("${h.horseId} - ${h.name}"),
-  //                 //           ))
-  //                 //       .toList(),
-  //                 //   onChanged: (v) {
-  //                 //     setState(() {
-  //                 //       selectedHorseId = v;
-  //                 //     });
-  //                 //   },
-  //                 // ),
-  //                 // const SizedBox(height: 16),
-  //                 // CCTV 1
-  //                 DropdownButtonFormField<String>(
-  //                   value: selectedCctv1,
-  //                   isExpanded: true,
-  //                   decoration: const InputDecoration(labelText: "CCTV 1"),
-  //                   items: cctvList
-  //                       .map(
-  //                         (c) => DropdownMenuItem(
-  //                           value: c.cctvId,
-  //                           child: Text("${c.cctvId} - ${c.ipAddress}"),
-  //                         ),
-  //                       )
-  //                       .toList(),
-  //                   onChanged: (v) {
-  //                     setState(() {
-  //                       selectedCctv1 = v;
-  //                       // Jika CCTV 2 sama dengan 1, reset CCTV 2
-  //                       if (selectedCctv2 == v) selectedCctv2 = null;
-  //                     });
-  //                   },
-  //                 ),
-  //                 const SizedBox(height: 12),
-  //                 // CCTV 2
-  //                 DropdownButtonFormField<String>(
-  //                   value: selectedCctv2,
-  //                   isExpanded: true,
-  //                   decoration: const InputDecoration(labelText: "CCTV 2"),
-  //                   items: [
-  //                     const DropdownMenuItem(
-  //                       value: null,
-  //                       child: Text("Tidak Ada CCTV kedua"),
-  //                     ),
-  //                     ...cctvOptions2.map(
-  //                       (c) => DropdownMenuItem(
-  //                         value: c.cctvId,
-  //                         child: Text("${c.cctvId} - ${c.ipAddress}"),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                   onChanged: (v) {
-  //                     setState(() {
-  //                       selectedCctv2 = v;
-  //                     });
-  //                   },
-  //                 ),
-  //               ],
-  //             );
-  //           },
-  //         );
-  //       }),
-  //       onConfirm: () {
-  //         if (nameCtrl.text.trim().isEmpty ||
-  //             selectedStableId == null ||
-  //             selectedStableId!.isEmpty) {
-  //           Get.snackbar(
-  //             "Input Tidak Lengkap",
-  //             "Nama Ruangan dan Kandang wajib diisi.",
-  //             snackPosition: SnackPosition.TOP,
-  //             backgroundColor: Colors.redAccent,
-  //             colorText: Colors.white,
-  //           );
-  //           return;
-  //         }
-
-  //         final String status =
-  //             (selectedHorseId != null && selectedHorseId!.isNotEmpty)
-  //             ? "used"
-  //             : "available";
-
-  //         final cctvIdList = [
-  //           if (selectedCctv1 != null) selectedCctv1,
-  //           if (selectedCctv2 != null) selectedCctv2,
-  //         ].whereType<String>().toList();
-
-  //         final newRoom = RoomModel(
-  //           roomId: newId,
-  //           name: nameCtrl.text.trim(),
-  //           deviceSerial: selectedDeviceSerial,
-  //           status: status,
-  //           cctvId: cctvIdList,
-  //           stableId: selectedStableId ?? "",
-  //           horseId: selectedHorseId,
-  //           remainingWater: 0,
-  //           remainingFeed: 0,
-  //           waterScheduleType: "",
-  //           feedScheduleType: "",
-  //         );
-  //         onSubmit(newRoom);
-  //       },
-  //     );
-  //   }
-
   void _showDetailModal(RoomModel room) {
     showCustomDialog(
       context: context,
@@ -782,6 +560,72 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
     );
   }
 
+  void _lepasKudaDariRuangan(RoomModel room) {
+    showCustomDialog(
+      context: context,
+      title: "Lepas Kuda dari Ruangan",
+      icon: Icons.link_off,
+      iconColor: Colors.orange,
+      message: "Lepaskan kuda dari ruangan ${room.name}?",
+      showConfirmButton: true,
+      confirmText: "Lepas",
+      cancelText: "Batal",
+      onConfirm: () async {
+        // Set horse_id di room dan room_id di horse jadi null
+        await _controller.lepasKudaDariRuangan(room.roomId, room.horseId);
+      },
+    );
+  }
+
+  void _showPilihKudaModal(RoomModel room, Function(String? horseId) onSubmit) {
+    String? selectedHorseId = room.horseId;
+
+    showCustomDialog(
+      context: context,
+      title: "Pilih Kuda",
+      icon: Icons.pets_rounded,
+      iconColor: AppColors.primary,
+      showConfirmButton: true,
+      confirmText: "Simpan",
+      cancelText: "Batal",
+      content: Obx(() {
+        // Hanya kuda yang belum dipakai atau memang sedang di room ini
+        final availableHorses = _controller.horseList
+            .where(
+              (h) =>
+                  h.roomId == null || h.roomId == '' || h.roomId == room.roomId,
+            )
+            .toList();
+
+        final selectedValue =
+            availableHorses.any((h) => h.horseId == selectedHorseId)
+            ? selectedHorseId
+            : null;
+
+        return DropdownButtonFormField<String>(
+          value: selectedValue,
+          isExpanded: true,
+          decoration: const InputDecoration(labelText: "Kuda"),
+          items: [
+            const DropdownMenuItem(value: null, child: Text("Tidak Ada Kuda")),
+            ...availableHorses.map(
+              (h) => DropdownMenuItem(
+                value: h.horseId,
+                child: Text("${h.horseId} - ${h.name}"),
+              ),
+            ),
+          ],
+          onChanged: (v) => setState(() {
+            selectedHorseId = v;
+          }),
+        );
+      }),
+      onConfirm: () {
+        onSubmit(selectedHorseId);
+      },
+    );
+  }
+
   Widget _detailRow(String label, String value) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 2),
     child: Row(
@@ -961,7 +805,16 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                           rooms: rooms,
                           getCctvNames: _controller.getCctvNames,
                           onDetail: _showDetailModal,
+                          onLepas: _lepasKudaDariRuangan,
                           onDelete: _confirmDelete,
+                          onSelectRoom: (room) => _showPilihKudaModal(room, (
+                            selectedHorseId,
+                          ) async {
+                            await _controller.pilihKudaUntukRuangan(
+                              room.roomId,
+                              selectedHorseId,
+                            );
+                          }),
                           onEdit: (room) =>
                               _showRoomFormModalEdit(room, (editedRoom) async {
                                 await _controller.updateRoom(editedRoom);
@@ -1195,6 +1048,8 @@ class RoomDataTableSource extends DataTableSource {
   final List<RoomModel> rooms;
   final String Function(List<String>) getCctvNames;
   final Function(RoomModel) onDetail;
+  final Function(RoomModel) onLepas;
+  final Function(RoomModel) onSelectRoom;
   final Function(RoomModel) onDelete;
   final Function(RoomModel) onEdit;
   int _selectedCount = 0;
@@ -1204,6 +1059,8 @@ class RoomDataTableSource extends DataTableSource {
     required this.rooms,
     required this.getCctvNames,
     required this.onDetail,
+    required this.onLepas,
+    required this.onSelectRoom,
     required this.onDelete,
     required this.onEdit,
   });
@@ -1246,6 +1103,32 @@ class RoomDataTableSource extends DataTableSource {
                 fontSize: 14,
                 onPressed: () => onEdit(room),
               ),
+              const SizedBox(width: 6),
+              room.horseId != null
+                  ? CustomButton(
+                      width: 150,
+                      height: 38,
+                      backgroundColor: Colors.orange,
+                      text: 'Lepas Kuda',
+                      icon: Icons.link_off,
+                      borderRadius: 6,
+                      fontSize: 14,
+                      onPressed: () {
+                        onLepas(room);
+                      },
+                    )
+                  : CustomButton(
+                      width: 150,
+                      height: 38,
+                      backgroundColor: AppColors.primary,
+                      text: 'Pilih Kuda',
+                      icon: Icons.pets_rounded,
+                      borderRadius: 6,
+                      fontSize: 14,
+                      onPressed: () {
+                        onSelectRoom(room);
+                      },
+                    ),
               const SizedBox(width: 6),
               Container(
                 decoration: BoxDecoration(

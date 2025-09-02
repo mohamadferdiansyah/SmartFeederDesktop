@@ -596,9 +596,65 @@ class DataController extends GetxController {
   }
 
   Future<void> assignHorseToRoom(String horseId, String roomId) async {
+    // 1. Update kolom horse_id di tabel rooms
     await roomDao.updateHorseId(roomId, horseId);
+
+    // 2. Update kolom room_id di tabel horses
+    final horse = await horseDao.getById(horseId);
+    if (horse != null) {
+      final editedHorse = HorseModel(
+        horseId: horse.horseId,
+        name: horse.name,
+        type: horse.type,
+        gender: horse.gender,
+        age: horse.age,
+        roomId: roomId,
+        category: horse.category,
+        birthPlace: horse.birthPlace,
+        birthDate: horse.birthDate,
+        settleDate: horse.settleDate,
+        length: horse.length,
+        weight: horse.weight,
+        height: horse.height,
+        chestCircum: horse.chestCircum,
+        skinColor: horse.skinColor,
+        markDesc: horse.markDesc,
+        photos: horse.photos,
+      );
+      await horseDao.update(editedHorse);
+    }
+
     await loadHorsesFromDb();
     await loadRoomsFromDb();
+  }
+
+  Future<void> keluarkanKudaDariKandang(String horseId) async {
+    // Ambil data kuda
+    final horse = await horseDao.getById(horseId);
+    if (horse != null) {
+      // Update hanya kolom room_id di tabel horses
+      final editedHorse = HorseModel(
+        horseId: horse.horseId,
+        name: horse.name,
+        type: horse.type,
+        gender: horse.gender,
+        age: horse.age,
+        roomId: null,
+        category: horse.category,
+        birthPlace: horse.birthPlace,
+        birthDate: horse.birthDate,
+        settleDate: horse.settleDate,
+        length: horse.length,
+        weight: horse.weight,
+        height: horse.height,
+        chestCircum: horse.chestCircum,
+        skinColor: horse.skinColor,
+        markDesc: horse.markDesc,
+        photos: horse.photos,
+      );
+      await horseDao.update(editedHorse);
+      await loadHorsesFromDb();
+    }
   }
 
   Future<void> deleteHorse(String horseId) async {

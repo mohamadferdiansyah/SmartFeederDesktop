@@ -64,6 +64,10 @@ class HalterHorseController extends GetxController {
     await dataController.loadRoomsFromDb();
   }
 
+  Future<void> keluarkanKudaDariKandang(String horseId) async {
+    await dataController.keluarkanKudaDariKandang(horseId);
+  }
+
   /// Generate next HorseId (misal "H001")
   Future<String> getNextHorseId() async {
     final list = await dataController.getAllHorses();

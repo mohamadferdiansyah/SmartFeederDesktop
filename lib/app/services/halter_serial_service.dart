@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/data/data_halter_device_calibration_offset.dart';
 import 'package:smart_feeder_desktop/app/data/data_threshold_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
@@ -114,6 +115,14 @@ class HalterSerialService extends GetxService {
       }
     }
   }
+
+  double getMin(String sensor) =>
+      thresholdController.halterThresholds[sensor]?.minValue ??
+      DataSensorThreshold.defaultMin(sensor);
+
+  double getMax(String sensor) =>
+      thresholdController.halterThresholds[sensor]?.maxValue ??
+      DataSensorThreshold.defaultMax(sensor);
 
   void pairingDevice() {
     for (final device in halterDeviceList) {
@@ -396,13 +405,15 @@ class HalterSerialService extends GetxService {
         //     ? 0 + calibrationController.respiration
         //     : detail.respiratoryRate! + calibrationController.respiration;
 
-        double getMin(String sensor) =>
-            thresholdController.halterThresholds[sensor]?.minValue ??
-            DataSensorThreshold.defaultMin(sensor);
-
-        double getMax(String sensor) =>
-            thresholdController.halterThresholds[sensor]?.maxValue ??
-            DataSensorThreshold.defaultMax(sensor);
+        print('Threshold terbaru:');
+        print(
+          'temperature: ${getMin('temperature')} - ${getMax('temperature')}',
+        );
+        print('heartRate: ${getMin('heartRate')} - ${getMax('heartRate')}');
+        print('spo: ${getMin('spo')} - ${getMax('spo')}');
+        print(
+          'respiratoryRate: ${getMin('respiratoryRate')} - ${getMax('respiratoryRate')}',
+        );
 
         bool isSensorAbnormal({
           required double temperatureRaw,
@@ -486,6 +497,12 @@ class HalterSerialService extends GetxService {
               respiratoryRateRaw: respiratoryRateRaw,
             )) {
           print('sensor abnormal, data diabaikan');
+          print(
+            'HR: $heartRateRaw, SPO: $spoRaw, Suhu: $temperatureRaw, Respirasi: $respiratoryRateRaw',
+          );
+          print(
+            'Threshold: HR(${getMin("heartRate")}-${getMax("heartRate")}), SPO(${getMin("spo")}-${getMax("spo")}), Suhu(${getMin("temperature")}-${getMax("temperature")}), Respirasi(${getMin("respiratoryRate")}-${getMax("respiratoryRate")})',
+          );
           return;
         }
 
@@ -506,11 +523,26 @@ class HalterSerialService extends GetxService {
         }
 
         // Step 3: Kalibrasi
-        final heartRate = heartRateRaw + calibrationController.heartRate;
-        final spo = spoRaw + calibrationController.spo;
-        final temperature = temperatureRaw + calibrationController.temperature;
+        // final heartRate = heartRateRaw + calibrationController.heartRate;
+        // final spo = spoRaw + calibrationController.spo;
+        // final temperature = temperatureRaw + calibrationController.temperature;
+        // final respiratoryRate =
+        //     respiratoryRateRaw + calibrationController.respiration;
+
+        final offset = DataHalterDeviceCalibrationOffset.getByDeviceId(
+          detail.deviceId,
+        );
+
+        final heartRate = heartRateRaw + (offset?.heartRateOffset ?? 0);
+        final spo = spoRaw + (offset?.spoOffset ?? 0);
+        final temperature = temperatureRaw + (offset?.temperatureOffset ?? 0);
         final respiratoryRate =
-            respiratoryRateRaw + calibrationController.respiration;
+            respiratoryRateRaw + (offset?.respirationOffset ?? 0);
+
+        print(offset?.heartRateOffset);
+        print(offset?.spoOffset);
+        print(offset?.temperatureOffset);
+        print(offset?.heartRateOffset);
 
         final fixedDetail = HalterDeviceDetailModel(
           detailId: detail.detailId,
@@ -577,6 +609,11 @@ class HalterSerialService extends GetxService {
           time: detail.time,
           rssi: detail.rssi,
           snr: detail.snr,
+        );
+
+        print("ini adalah ${detail.voltage}");
+        print(
+          'HR: $heartRateRaw, SPO: $spoRaw, Suhu: $temperatureRaw, Respirasi: $respiratoryRateRaw',
         );
 
         final indexDevice = halterDeviceList.indexWhere(
@@ -840,10 +877,10 @@ class HalterSerialService extends GetxService {
         // double spo = 96;
         // double suhu = 38;
         // double respirasi = 10;`
-        int bpm = 0;
-        double spo = 0;
-        double suhu = 0;
-        double respirasi = 0;
+        int bpm = 30;
+        double spo = 150;
+        double suhu = 38;
+        double respirasi = 10;
         int intervalData = 15000;
 
         final dataString =
@@ -878,11 +915,8 @@ class HalterSerialService extends GetxService {
         );
 
         // Format langsung SHIPB...
-        return "SHIPB,$deviceId,"
+        return "SHIPB,001,"
             "$latitude,$longitude,$altitude,$sog,$cog,"
-            // "$acceX,$acceY,$acceZ,"
-            // "$gyroX,$gyroY,$gyroZ,"
-            // "$magX,$magY,$magZ,"
             "$pitch,$yaw,$roll,"
             "$voltase,"
             "$bpm,$spo,$suhu,$respirasi,$intervalData,*";

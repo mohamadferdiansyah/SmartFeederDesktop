@@ -92,21 +92,21 @@ class DBHelper {
         ''');
 
         // Hardcoded insert for node_room_devices
-        await db.insert('node_room_devices', {
-          'device_id': 'SRIPB1223001',
-          'temperature': 25.5,
-          'humidity': 60.0,
-          'light_intensity': 300.0,
-          'time': DateTime.now().toIso8601String(),
-        }, conflictAlgorithm: ConflictAlgorithm.replace);
+        // await db.insert('node_room_devices', {
+        //   'device_id': 'SRIPB1223001',
+        //   'temperature': 25.5,
+        //   'humidity': 60.0,
+        //   'light_intensity': 300.0,
+        //   'time': DateTime.now().toIso8601String(),
+        // }, conflictAlgorithm: ConflictAlgorithm.replace);
 
-        await db.insert('node_room_devices', {
-          'device_id': 'SRIPB1223002',
-          'temperature': 26.0,
-          'humidity': 60.0,
-          'light_intensity': 300.0,
-          'time': DateTime.now().toIso8601String(),
-        }, conflictAlgorithm: ConflictAlgorithm.replace);
+        // await db.insert('node_room_devices', {
+        //   'device_id': 'SRIPB1223002',
+        //   'temperature': 26.0,
+        //   'humidity': 60.0,
+        //   'light_intensity': 300.0,
+        //   'time': DateTime.now().toIso8601String(),
+        // }, conflictAlgorithm: ConflictAlgorithm.replace);
 
         // rooms
         await db.execute('''
@@ -148,7 +148,18 @@ class DBHelper {
         ''');
 
         // horses
-        // ...existing code...
+        // await db.execute('''
+        //   CREATE TABLE horses (
+        //     horse_id TEXT PRIMARY KEY,
+        //     name TEXT,
+        //     type TEXT,
+        //     gender TEXT,
+        //     age BIGINT,
+        //     room_id TEXT,
+        //     category TEXT
+        //   )
+        // ''');
+
         await db.execute('''
           CREATE TABLE horses (
             horse_id TEXT PRIMARY KEY,
@@ -157,10 +168,19 @@ class DBHelper {
             gender TEXT,
             age BIGINT,
             room_id TEXT,
-            category TEXT
+            category TEXT,
+            birth_place TEXT,
+            birth_date TEXT,
+            settle_date TEXT,
+            length DOUBLE,
+            weight DOUBLE,
+            height DOUBLE,
+            chest_circum DOUBLE,
+            skin_color TEXT,
+            mark_desc TEXT,
+            photos TEXT
           )
         ''');
-        // ...existing code...
 
         // halter_devices
         await db.execute('''

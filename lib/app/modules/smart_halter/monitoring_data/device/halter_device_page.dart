@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 // Ganti dengan import model dan widget sesuai project-mu
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/data/data_team_halter.dart';
@@ -901,7 +902,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                   child: Row(
                     children: [
                       Text(
-                        'Detail Data Raw Device ${widget.deviceId}',
+                        'Detail Data Device ${widget.deviceId}',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -1074,7 +1075,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                   child: DataTable(
                     columns: const [
                       DataColumn(label: Text("No")),
-                      DataColumn(label: Text("Time")),
+                      DataColumn(label: Text("Timestamp")),
                       DataColumn(label: Text("Device Id")),
                       DataColumn(label: Text("Latitude (°)")),
                       DataColumn(label: Text("Longitude (°)")),
@@ -1095,11 +1096,10 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                       DataColumn(label: Text("Yaw (°)")),
                       // DataColumn(label: Text("Arus (A)")),
                       DataColumn(label: Text("Tegangan (mV)")),
-                      DataColumn(label: Text("BPM (x/min)")),
-                      DataColumn(label: Text("SPO (%)")),
+                      DataColumn(label: Text("Detak Jantung (bpm)")),
+                      DataColumn(label: Text("SpO₂ (%)")),
                       DataColumn(label: Text("Suhu (°C)")),
-                      DataColumn(label: Text("Respirasi (x/min)")),
-                      DataColumn(label: Text("Interval (milisecond)")),
+                      DataColumn(label: Text("Respirasi (nafas/menit)")),
                     ],
                     rows: List.generate(filteredData.length, (i) {
                       final d = filteredData[i];
@@ -1109,7 +1109,11 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                           DataCell(
                             Center(
                               child: Text(
-                                d.time != null ? d.time.toIso8601String() : "-",
+                                d.time != null
+                                    ? DateFormat(
+                                        'dd-MM-yyyy HH:mm:ss',
+                                      ).format(d.time)
+                                    : "-",
                               ),
                             ),
                           ),
@@ -1145,7 +1149,6 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                           DataCell(
                             Center(child: Text('${d.respiratoryRate ?? "-"}')),
                           ),
-                          DataCell(Center(child: Text('${d.interval ?? "-"}'))),
                         ],
                       );
                     }),

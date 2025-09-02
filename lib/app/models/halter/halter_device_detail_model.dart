@@ -16,9 +16,9 @@ class HalterDeviceDetailModel {
   // final double? magX;
   // final double? magY;
   // final double? magZ;
-  final int? pitch;
-  final int? yaw;
-  final int? roll;
+  final double? pitch;
+  final double? yaw;
+  final double? roll;
   // final double? current;
   final double? voltage;
   final double? heartRate;
@@ -80,9 +80,9 @@ class HalterDeviceDetailModel {
         // magX: (map['mag_x'] as num?)?.toDouble(),
         // magY: (map['mag_y'] as num?)?.toDouble(),
         // magZ: (map['mag_z'] as num?)?.toDouble(),
-        pitch: (map['pitch'] as num?)?.toInt(),
-        yaw: (map['yaw'] as num?)?.toInt(),
-        roll: (map['roll'] as num?)?.toInt(),
+        pitch: (map['pitch'] as num?)?.toDouble(),
+        yaw: (map['yaw'] as num?)?.toDouble(),
+        roll: (map['roll'] as num?)?.toDouble(),
         // current: (map['current'] as num?)?.toDouble(),
         voltage: (map['voltage'] as num?)?.toDouble(),
         heartRate: (map['heart_rate'] as num?)?.toDouble(),
@@ -160,9 +160,9 @@ class HalterDeviceDetailModel {
       altitude: _toDouble(parts[4]),
       sog: _toInt(parts[5]),
       cog: _toInt(parts[6]),
-      pitch: _toInt(parts[7]),
-      yaw: _toInt(parts[8]),
-      roll: _toInt(parts[9]),
+      pitch: _toDouble(parts[7]),
+      yaw: _toDouble(parts[8]),
+      roll: _toDouble(parts[9]),
       voltage: _toDouble(parts[10]),
       heartRate: _toDouble(parts[11]),
       spo: _toDouble(parts[12]),

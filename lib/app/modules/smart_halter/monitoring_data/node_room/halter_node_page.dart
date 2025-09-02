@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 // Ganti dengan import model dan widget sesuai project-mu
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
@@ -596,7 +597,7 @@ class _HalterNodePageState extends State<HalterNodePage> {
                                         width: lightW,
                                         child: const Center(
                                           child: Text(
-                                            'Cahaya',
+                                            'Cahaya (Lux)',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -678,11 +679,9 @@ class NodeRoomDataTableSource extends DataTableSource {
       index: index,
       cells: [
         DataCell(Center(child: Text(node.deviceId))),
-        DataCell(Center(child: Text('${node.temperature.toStringAsFixed(2)}'))),
-        DataCell(Center(child: Text('${node.humidity.toStringAsFixed(2)}'))),
-        DataCell(
-          Center(child: Text('${node.lightIntensity.toStringAsFixed(2)}')),
-        ),
+        DataCell(Center(child: Text(node.temperature.toStringAsFixed(2)))),
+        DataCell(Center(child: Text(node.humidity.toStringAsFixed(2)))),
+        DataCell(Center(child: Text(node.lightIntensity.toStringAsFixed(2)))),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -1079,7 +1078,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                           label: SizedBox(
                             width: timeW,
                             child: const Text(
-                              "Time",
+                              "Timestamp",
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -1097,7 +1096,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                           label: SizedBox(
                             width: tempW,
                             child: const Text(
-                              "Temperature (°C)",
+                              "Suhu (°C)",
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -1106,7 +1105,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                           label: SizedBox(
                             width: humidityW,
                             child: const Text(
-                              "Humidity (%)",
+                              "Kelembapan (%)",
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -1115,7 +1114,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                           label: SizedBox(
                             width: lightW,
                             child: const Text(
-                              "Light Intensity",
+                              "Indeks Cahaya (Lux)",
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -1139,7 +1138,9 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                                 width: timeW,
                                 child: Text(
                                   d.time != null
-                                      ? d.time!.toIso8601String()
+                                      ? DateFormat(
+                                          'dd-MM-yyyy HH:mm:ss',
+                                        ).format(d.time!)
                                       : '-',
                                   textAlign: TextAlign.center,
                                 ),

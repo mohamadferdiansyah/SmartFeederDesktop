@@ -158,6 +158,12 @@ class HalterDashboardController extends GetxController {
         .lastOrNull;
   }
 
+  StableModel? getStableByRoomId(String roomId) {
+    final room = roomList.firstWhereOrNull((r) => r.roomId == roomId);
+    if (room == null) return null;
+    return stableList.firstWhereOrNull((s) => s.stableId == room.stableId);
+  }
+
   String getRoomNameForLog(HalterLogModel log) {
     // Tipe log untuk ruangan
     final isRoomType =
@@ -213,8 +219,8 @@ class HalterDashboardController extends GetxController {
   }
 
   bool isRoomFilled(String roomId) {
-    final room = roomList.firstWhereOrNull((r) => r.roomId == roomId);
-    return room != null && room.horseId != null;
+    // Cek apakah ada horse yang roomId-nya sama dengan roomId yang dicek
+    return horseList.any((horse) => horse.roomId == roomId);
   }
 
   int getBatteryPercentByRoomId(String roomId) {
@@ -510,9 +516,9 @@ class HalterDashboardController extends GetxController {
   }
 
   String getHorsePosition({
-    required int? pitch,
-    required int? roll,
-    required int? yaw,
+    required double? pitch,
+    required double? roll,
+    required double? yaw,
   }) {
     return tableRuleEngineController.positionClassify(
       pitch: pitch,
@@ -520,7 +526,6 @@ class HalterDashboardController extends GetxController {
       yaw: yaw,
     );
   }
-
 
   // String getHorseHealth({
   //   required double? suhu,
