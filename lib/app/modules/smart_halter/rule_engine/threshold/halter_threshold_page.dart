@@ -110,6 +110,9 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
                           backgroundColor: Colors.green,
                           colorText: Colors.white,
                         );
+                        print(
+                          '==INI MIN:${controller.halterThresholds[selectedNodeSensor]?.minValue} INI MAX:${controller.halterThresholds[selectedNodeSensor]?.maxValue}',
+                        );
                       },
                       thresholds: controller.halterThresholds,
                     ),
@@ -159,7 +162,7 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
     required TextEditingController maxCtrl,
     required void Function(String?) onSensorChanged,
     required VoidCallback onSave,
-    required Map<String, HalterSensorThresholdModel> thresholds,
+    required RxMap<String, HalterSensorThresholdModel> thresholds,
   }) {
     String labelMin = "Batas Bawah";
     String labelMax = "Batas Atas";
@@ -204,7 +207,7 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
                       hint: "Pilih Sensor",
                       onChanged: onSensorChanged,
                     ),
-                    buildThresholdList(thresholds),
+                    buildThresholdListRealtime(rxThresholds: thresholds),
                   ],
                 ),
               ),
@@ -278,72 +281,74 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
   }
 
   // Widget threshold list, masukkan ke dalam Column bersama dropdown
-  Widget buildThresholdList(
-    Map<String, HalterSensorThresholdModel> thresholds,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: thresholds.values.map((t) {
-        return Card(
-          elevation: 0,
-          margin: const EdgeInsets.symmetric(vertical: 6),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          color: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-            child: Row(
-              children: [
-                Icon(
-                  _getSensorIcon(t.sensorName),
-                  color: AppColors.primary,
-                  size: 28,
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    "${_getSensorLabel(t.sensorName)} ${_getSensorUnit(t.sensorName)}",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+  Widget buildThresholdListRealtime({
+    required RxMap<String, HalterSensorThresholdModel> rxThresholds,
+  }) {
+    return Obx(() {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: rxThresholds.values.map((t) {
+          return Card(
+            elevation: 0,
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+              child: Row(
+                children: [
+                  Icon(
+                    _getSensorIcon(t.sensorName),
+                    color: AppColors.primary,
+                    size: 28,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      "${_getSensorLabel(t.sensorName)} ${_getSensorUnit(t.sensorName)}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      const TextSpan(
-                        text: "Min: ",
-                        style: TextStyle(color: Colors.black54),
-                      ),
-                      TextSpan(
-                        text: "${t.minValue}  ",
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        const TextSpan(
+                          text: "Min: ",
+                          style: TextStyle(color: Colors.black54),
                         ),
-                      ),
-                      const TextSpan(
-                        text: "Max: ",
-                        style: TextStyle(color: Colors.black54),
-                      ),
-                      TextSpan(
-                        text: "${t.maxValue}",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
+                        TextSpan(
+                          text: "${t.minValue}  ",
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                        const TextSpan(
+                          text: "Max: ",
+                          style: TextStyle(color: Colors.black54),
+                        ),
+                        TextSpan(
+                          text: "${t.maxValue}",
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      }).toList(),
-    );
+          );
+        }).toList(),
+      );
+    });
   }
 
   String _getSensorLabel(String sensor) {

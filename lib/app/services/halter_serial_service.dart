@@ -261,7 +261,9 @@ class HalterSerialService extends GetxService {
   }
 
   void _processBlockRoom(String block) async {
+    print('=============================');
     print('Processing block sripb:\n$block');
+    print('=============================');
     String? dataLine;
 
     for (var line in block.split('\n')) {
@@ -405,6 +407,7 @@ class HalterSerialService extends GetxService {
         //     ? 0 + calibrationController.respiration
         //     : detail.respiratoryRate! + calibrationController.respiration;
 
+        print('=============================');
         print('Threshold terbaru:');
         print(
           'temperature: ${getMin('temperature')} - ${getMax('temperature')}',
@@ -414,6 +417,7 @@ class HalterSerialService extends GetxService {
         print(
           'respiratoryRate: ${getMin('respiratoryRate')} - ${getMax('respiratoryRate')}',
         );
+        print('=============================');
 
         bool isSensorAbnormal({
           required double temperatureRaw,
@@ -500,9 +504,6 @@ class HalterSerialService extends GetxService {
           print(
             'HR: $heartRateRaw, SPO: $spoRaw, Suhu: $temperatureRaw, Respirasi: $respiratoryRateRaw',
           );
-          print(
-            'Threshold: HR(${getMin("heartRate")}-${getMax("heartRate")}), SPO(${getMin("spo")}-${getMax("spo")}), Suhu(${getMin("temperature")}-${getMax("temperature")}), Respirasi(${getMin("respiratoryRate")}-${getMax("respiratoryRate")})',
-          );
           return;
         }
 
@@ -539,10 +540,10 @@ class HalterSerialService extends GetxService {
         final respiratoryRate =
             respiratoryRateRaw + (offset?.respirationOffset ?? 0);
 
-        print(offset?.heartRateOffset);
-        print(offset?.spoOffset);
-        print(offset?.temperatureOffset);
-        print(offset?.heartRateOffset);
+        // print(offset?.heartRateOffset);
+        // print(offset?.spoOffset);
+        // print(offset?.temperatureOffset);
+        // print(offset?.heartRateOffset);
 
         final fixedDetail = HalterDeviceDetailModel(
           detailId: detail.detailId,
@@ -609,11 +610,6 @@ class HalterSerialService extends GetxService {
           time: detail.time,
           rssi: detail.rssi,
           snr: detail.snr,
-        );
-
-        print("ini adalah ${detail.voltage}");
-        print(
-          'HR: $heartRateRaw, SPO: $spoRaw, Suhu: $temperatureRaw, Respirasi: $respiratoryRateRaw',
         );
 
         final indexDevice = halterDeviceList.indexWhere(
@@ -746,7 +742,11 @@ class HalterSerialService extends GetxService {
           true,
         ); // <-- Tambahkan di sini
 
-        print('Parsed fixedDetail (with RSSI/SNR): $fixedDetail');
+        print('=============================');
+        print(
+          'Parsed fixedDetail : HR=${fixedDetail.heartRate} SPO2=${fixedDetail.spo} TEMP=${fixedDetail.temperature} RES=${fixedDetail.respiratoryRate}',
+        );
+        print('=============================');
       } catch (e) {
         print('Parsing error: $e');
       }
@@ -847,7 +847,7 @@ class HalterSerialService extends GetxService {
   void startDummySerial() {
     final rnd = Random();
     _dummyTimer?.cancel();
-    _dummyTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+    _dummyTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       // Helper untuk acak double dengan 2 desimal
       String randDouble(num min, num max) =>
           (min + rnd.nextDouble() * (max - min)).toStringAsFixed(2);
@@ -877,10 +877,10 @@ class HalterSerialService extends GetxService {
         // double spo = 96;
         // double suhu = 38;
         // double respirasi = 10;`
-        int bpm = 30;
-        double spo = 150;
-        double suhu = 38;
-        double respirasi = 10;
+        int bpm = 29;
+        double spo = 91;
+        double suhu = 32;
+        double respirasi = 11;
         int intervalData = 15000;
 
         final dataString =

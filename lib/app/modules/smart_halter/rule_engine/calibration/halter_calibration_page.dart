@@ -685,6 +685,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
 
       return CustomCard(
         title: 'Kalibrasi Halter',
+        withExpanded: false,
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

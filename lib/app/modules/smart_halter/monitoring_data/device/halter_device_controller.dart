@@ -38,16 +38,19 @@ class HalterDeviceController extends GetxController {
     await dataController.loadHalterDevicesFromDb();
   }
 
-  Future<void> updateDevice(HalterDeviceModel newDevice, {String? oldDeviceId}) async {
-  if (oldDeviceId != null && oldDeviceId != newDevice.deviceId) {
-    // Jika deviceId berubah, hapus device lama lalu tambah device baru
-    await deleteDevice(oldDeviceId);
-    await addDevice(newDevice);
-  } else {
-    await dataController.updateHalterDevice(newDevice);
+  Future<void> updateDevice(
+    HalterDeviceModel newDevice, {
+    String? oldDeviceId,
+  }) async {
+    if (oldDeviceId != null && oldDeviceId != newDevice.deviceId) {
+      // Jika deviceId berubah, hapus device lama lalu tambah device baru
+      await deleteDevice(oldDeviceId);
+      await addDevice(newDevice);
+    } else {
+      await dataController.updateHalterDevice(newDevice);
+    }
+    await refreshDevices();
   }
-  await refreshDevices();
-}
 
   Future<void> deleteDevice(String deviceId) async {
     await dataController.deleteHalterDevice(deviceId);
@@ -148,11 +151,11 @@ class HalterDeviceController extends GetxController {
 
     // --- Baris judul pemisah ---
     final deviceName = (data.isNotEmpty) ? data.first.deviceId : '';
-    final judul = 'DATA SMART HALTER DETAIL RAW DEVICE ($deviceName) ()';
+    final judul = 'DATA SMART HALTER DETAIL DEVICE ($deviceName)';
     final sensorHeaders = [
       'No',
-      'Device Id',
       'Time',
+      'Device Id',
       'Latitude',
       'Longitude',
       'Altitude',
@@ -206,8 +209,8 @@ class HalterDeviceController extends GetxController {
       final d = data[i];
       sheet.appendRow([
         TextCellValue('${i + 1}'),
-        TextCellValue(d.deviceId),
         TextCellValue(d.time != null ? d.time!.toIso8601String() : "-"),
+        TextCellValue(d.deviceId),
         TextCellValue('${d.latitude ?? "-"}'),
         TextCellValue('${d.longitude ?? "-"}'),
         TextCellValue('${d.altitude ?? "-"}'),
@@ -238,7 +241,7 @@ class HalterDeviceController extends GetxController {
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel (Detail Raw)',
       fileName:
-          'Smart_Halter_Detail_Raw_Device(${data.map((e) => e.deviceId).first}).xlsx',
+          'Smart_Halter_Detail_Device(${data.map((e) => e.deviceId).first}).xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );

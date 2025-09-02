@@ -77,18 +77,18 @@ class HalterRawDataController extends GetxController {
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
       TextCellValue('No'),
-      TextCellValue('Data'),
       TextCellValue('Tanggal'),
+      TextCellValue('Data'),
     ]);
     for (var d in data) {
       sheet.appendRow([
         TextCellValue(d.rawId.toString()),
-        TextCellValue(d.data),
         TextCellValue(
           d.time != null
               ? DateFormat('yyyy-MM-dd HH:mm:ss').format(d.time!)
               : '-',
         ),
+        TextCellValue(d.data),
       ]);
     }
     final fileBytes = excel.encode();
