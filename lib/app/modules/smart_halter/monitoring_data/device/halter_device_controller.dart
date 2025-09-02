@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/data/data_halter_device_calibration_offset.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/test_team_model.dart';
@@ -127,7 +128,45 @@ class HalterDeviceController extends GetxController {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
 
-    // Baris 1-4: Data tim penguji
+    final deviceName = (data.isNotEmpty) ? data.first.deviceId : '';
+    final judul = 'DATA SMART HALTER DETAIL DEVICE ($deviceName)';
+    final sensorHeaders = [
+      'No',
+      'Timestamp',
+      'Device Id',
+      'Latitude (°)',
+      'Longitude (°)',
+      'Altitude (m)',
+      'Kecepatan (SoG km/jam)',
+      'Arah (CoG °)',
+      'Roll (°)',
+      'Pitch (°)',
+      'Yaw (°)',
+      'Tegangan (mV)',
+      'Detak Jantung (beat/m)',
+      'SpO₂ (%)',
+      'Suhu (°C)',
+      'Respirasi (breath/m)',
+    ];
+    final offset = DataHalterDeviceCalibrationOffset.getByDeviceId(deviceName);
+    final statusText = offset == null ? 'Tidak Terkalibrasi' : 'Terkalibrasi';
+
+    // Baris 1: Judul (merge center)
+    sheet.appendRow([
+      TextCellValue(judul),
+      ...List.generate(sensorHeaders.length - 1, (_) => TextCellValue('')),
+    ]);
+    try {
+      sheet.merge(
+        CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),
+        CellIndex.indexByColumnRow(
+          columnIndex: sensorHeaders.length - 1,
+          rowIndex: 0,
+        ),
+      );
+    } catch (e) {}
+
+    // Baris 2-5: Data tim penguji
     sheet.appendRow([
       TextCellValue('Team Penguji'),
       TextCellValue(team?.teamName ?? '-'),
@@ -149,62 +188,17 @@ class HalterDeviceController extends GetxController {
       TextCellValue(team?.members?.join(', ') ?? '-'),
     ]);
 
-    // --- Baris judul pemisah ---
-    final deviceName = (data.isNotEmpty) ? data.first.deviceId : '';
-    final judul = 'DATA SMART HALTER DETAIL DEVICE ($deviceName)';
-    final sensorHeaders = [
-      'No',
-      'Timestamp',
-      'Device Id',
-      'Latitude (°)',
-      'Longitude (°)',
-      'Altitude (m)',
-      'Kecepatan (SoG km/jam)',
-      'Arah (CoG °)',
-      // 'Percepatan X (m/s²)',
-      // 'Percepatan Y (m/s²)',
-      // 'Percepatan Z (m/s²)',
-      // 'Gyro X (°/s)',
-      // 'Gyro Y (°/s)',
-      // 'Gyro Z (°/s)',
-      // 'Magnetik X (µT)',
-      // 'Magnetik Y (µT)',
-      // 'Magnetik Z (µT)',
-      'Roll (°)',
-      'Pitch (°)',
-      'Yaw (°)',
-      // 'Arus (A)',
-      'Tegangan (mV)',
-      'Detak Jantung (bpm)',
-      'SpO₂ (%)',
-      'Suhu (°C)',
-      'Respirasi (nafas/menit)',
-    ];
-
-    // Judul di tengah, misal di kolom ke-6 (index 5)
+    // Baris 6: Status Data
     sheet.appendRow([
-      TextCellValue(judul),
-      ...List.generate(sensorHeaders.length - 1, (_) => TextCellValue('')),
+      TextCellValue('Status Data:'),
+      TextCellValue(statusText),
+      ...List.generate(sensorHeaders.length - 2, (_) => TextCellValue('')),
     ]);
 
-    try {
-      sheet.merge(
-        CellIndex.indexByColumnRow(
-          columnIndex: 0,
-          rowIndex: 4,
-        ), // baris judul, kolom A
-        CellIndex.indexByColumnRow(
-          columnIndex: sensorHeaders.length - 1,
-          rowIndex: 4,
-        ),
-      );
-    } catch (e) {
-      // Kalau error, ignore saja (atau merge manual di Excel)
-    }
-
+    // Baris 7: Header
     sheet.appendRow(sensorHeaders.map((e) => TextCellValue(e)).toList());
 
-    // --- Data sensor baris berikut ---
+    // Data
     for (int i = 0; i < data.length; i++) {
       final d = data[i];
       sheet.appendRow([
@@ -216,19 +210,9 @@ class HalterDeviceController extends GetxController {
         TextCellValue('${d.altitude ?? "-"}'),
         TextCellValue('${d.sog ?? "-"}'),
         TextCellValue('${d.cog ?? "-"}'),
-        // TextCellValue('${d.acceX ?? "-"}'),
-        // TextCellValue('${d.acceY ?? "-"}'),
-        // TextCellValue('${d.acceZ ?? "-"}'),
-        // TextCellValue('${d.gyroX ?? "-"}'),
-        // TextCellValue('${d.gyroY ?? "-"}'),
-        // TextCellValue('${d.gyroZ ?? "-"}'),
-        // TextCellValue('${d.magX ?? "-"}'),
-        // TextCellValue('${d.magY ?? "-"}'),
-        // TextCellValue('${d.magZ ?? "-"}'),
         TextCellValue('${d.roll ?? "-"}'),
         TextCellValue('${d.pitch ?? "-"}'),
         TextCellValue('${d.yaw ?? "-"}'),
-        // TextCellValue('${d.current ?? "-"}'),
         TextCellValue('${d.voltage ?? "-"}'),
         TextCellValue('${d.heartRate ?? "-"}'),
         TextCellValue('${d.spo ?? "-"}'),
@@ -299,10 +283,10 @@ class HalterDeviceController extends GetxController {
             'Yaw (°)',
             // 'Arus (A)',
             'Tegangan (mV)',
-            'Detak Jantung (bpm)',
+            'Detak Jantung (beat/m)',
             'SpO₂ (%)',
             'Suhu (°C)',
-            'Respirasi (nafas/menit)',
+            'Respirasi (breath/m)',
           ],
           data: List.generate(data.length, (i) {
             final d = data[i];

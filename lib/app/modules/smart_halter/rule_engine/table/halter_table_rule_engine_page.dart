@@ -107,7 +107,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
             children: [
               Expanded(
                 child: CustomInput(
-                  label: "Detak Jantung Min (bpm)",
+                  label: "Detak Jantung Min (beat/m)",
                   controller: bpmMinCtrl,
                   hint: "Contoh: 28",
                   keyboardType: TextInputType.number,
@@ -117,7 +117,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
               const SizedBox(width: 12),
               Expanded(
                 child: CustomInput(
-                  label: "Detak Jantung Max (bpm)",
+                  label: "Detak Jantung Max (beat/m)",
                   controller: bpmMaxCtrl,
                   hint: "Contoh: 60",
                   keyboardType: TextInputType.number,
@@ -159,7 +159,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
             children: [
               Expanded(
                 child: CustomInput(
-                  label: "Respirasi Min (nafas/menit)",
+                  label: "Respirasi Min (breath/m)",
                   controller: respMinCtrl,
                   hint: "Contoh: 8",
                   keyboardType: TextInputType.number,
@@ -169,7 +169,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
               const SizedBox(width: 12),
               Expanded(
                 child: CustomInput(
-                  label: "Respirasi Max (nafas/menit)",
+                  label: "Respirasi Max (breath/m)",
                   controller: respMaxCtrl,
                   hint: "Contoh: 24",
                   keyboardType: TextInputType.number,
@@ -629,7 +629,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                       ),
                                     ),
                                     const TextSpan(
-                                      text: " Detak Jantung (bpm): ",
+                                      text: " Detak Jantung (beat/m): ",
                                     ),
                                     TextSpan(
                                       text: c.heartRateMin != null
@@ -703,7 +703,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                       ),
                                     ),
                                     const TextSpan(
-                                      text: " Respirasi (nafas/menit): ",
+                                      text: " Respirasi (breath/m): ",
                                     ),
                                     TextSpan(
                                       text: c.respirasiMin != null

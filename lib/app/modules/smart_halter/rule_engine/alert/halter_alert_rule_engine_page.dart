@@ -255,7 +255,7 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   Icons.monitor_heart_outlined,
                 ),
                 _buildSettingWithCard(
-                  'Pengaturan Detak Jantung (bpm)',
+                  'Pengaturan Detak Jantung (beat/m)',
                   'Detak Jantung Minimal',
                   'Detak Jantung Maksimal',
                   bpmMinCtrl,
@@ -296,7 +296,7 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   Icons.monitor_weight_outlined,
                 ),
                 _buildSettingWithCard(
-                  'Pengaturan Respirasi (nafas/menit)',
+                  'Pengaturan Respirasi (breath/m)',
                   'Respirasi Maksimal',
                   null,
                   respMaxCtrl,

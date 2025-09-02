@@ -1096,10 +1096,10 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                       DataColumn(label: Text("Yaw (°)")),
                       // DataColumn(label: Text("Arus (A)")),
                       DataColumn(label: Text("Tegangan (mV)")),
-                      DataColumn(label: Text("Detak Jantung (bpm)")),
+                      DataColumn(label: Text("Detak Jantung (beat/m)")),
                       DataColumn(label: Text("SpO₂ (%)")),
                       DataColumn(label: Text("Suhu (°C)")),
-                      DataColumn(label: Text("Respirasi (nafas/menit)")),
+                      DataColumn(label: Text("Respirasi (breath/m)")),
                     ],
                     rows: List.generate(filteredData.length, (i) {
                       final d = filteredData[i];

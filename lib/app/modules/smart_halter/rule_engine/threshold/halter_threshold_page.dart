@@ -173,13 +173,13 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
       title = "Pengaturan Suhu (°C)";
     } else if (selectedSensor == "heartRate") {
       icon = Icons.monitor_heart;
-      title = "Pengaturan Detak Jantung (bpm)";
+      title = "Pengaturan Detak Jantung (beat/m)";
     } else if (selectedSensor == "spo") {
       icon = Icons.local_fire_department_outlined;
       title = "Pengaturan SpO₂ (%)";
     } else if (selectedSensor == "respiratoryRate") {
       icon = Icons.air_outlined;
-      title = "Pengaturan Respirasi (nafas/menit)";
+      title = "Pengaturan Respirasi (breath/m)";
     } else if (selectedSensor == "humidity") {
       icon = Icons.air_outlined;
       title = "Pengaturan Kelembapan (%)";
@@ -395,11 +395,11 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
       case "temperature":
         return "(°C)";
       case "heartRate":
-        return "(bpm)";
+        return "(beat/m)";
       case "spo":
         return "(%)";
       case "respiratoryRate":
-        return "(nafas/menit)";
+        return "(breath/m)";
       case "humidity":
         return "(%)";
       case "lightIntensity":

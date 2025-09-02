@@ -834,7 +834,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                     HalterCalibrationLogModel(
                       deviceId: device.deviceId,
                       timestamp: DateTime.now(),
-                      sensorName: 'Detak Jantung (bpm)',
+                      sensorName: 'Detak Jantung (beat/m)',
                       referensi: referensi.heartRate.toStringAsFixed(2),
                       sensorValue: latest.heartRate?.toStringAsFixed(2) ?? "-",
                       nilaiKalibrasi:
@@ -857,7 +857,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                     HalterCalibrationLogModel(
                       deviceId: device.deviceId,
                       timestamp: DateTime.now(),
-                      sensorName: 'Respirasi (nafas/menit)',
+                      sensorName: 'Respirasi (breath/m)',
                       referensi: referensi.respiration.toStringAsFixed(2),
                       sensorValue:
                           latest.respiratoryRate?.toStringAsFixed(2) ?? "-",
@@ -941,7 +941,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                                     ).format(lastCalibration.updatedAt),
                                   ),
                                 ),
-                                DataCell(const Text('Detak Jantung (bpm)')),
+                                DataCell(const Text('Detak Jantung (beat/m)')),
                                 DataCell(
                                   Text(
                                     '${lastCalibration.heartRate.toStringAsFixed(2)}',
@@ -995,7 +995,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                                     ).format(lastCalibration.updatedAt),
                                   ),
                                 ),
-                                DataCell(const Text('Respirasi (nafas/menit)')),
+                                DataCell(const Text('Respirasi (breath/m)')),
                                 DataCell(
                                   Text(
                                     '${lastCalibration.respiration.toStringAsFixed(2)}',
@@ -1019,40 +1019,40 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                   ),
                 );
               }),
-            if (device != null)
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: CustomButton(
-                    text: 'Reset Kalibrasi',
-                    icon: Icons.refresh,
-                    backgroundColor: Colors.orange,
-                    height: 40,
-                    fontSize: 16,
-                    onPressed: () {
-                      DataHalterDeviceCalibrationOffset.save(
-                        HalterDeviceCalibrationOffsetModel(
-                          deviceId: device.deviceId,
-                          temperatureOffset: 0,
-                          heartRateOffset: 0,
-                          spoOffset: 0,
-                          respirationOffset: 0,
-                          updatedAt: DateTime.now(),
-                        ),
-                      );
-                      Get.snackbar(
-                        "Kalibrasi Direset",
-                        "Offset kalibrasi untuk device ${device.deviceId} sudah direset.",
-                        snackPosition: SnackPosition.TOP,
-                        backgroundColor: Colors.orange,
-                        colorText: Colors.white,
-                      );
-                      setState(() {});
-                    },
-                  ),
-                ),
-              ),
+            // if (device != null)
+            //   Align(
+            //     alignment: Alignment.bottomRight,
+            //     child: Padding(
+            //       padding: const EdgeInsets.only(top: 12),
+            //       child: CustomButton(
+            //         text: 'Reset Kalibrasi',
+            //         icon: Icons.refresh,
+            //         backgroundColor: Colors.orange,
+            //         height: 40,
+            //         fontSize: 16,
+            //         onPressed: () {
+            //           DataHalterDeviceCalibrationOffset.save(
+            //             HalterDeviceCalibrationOffsetModel(
+            //               deviceId: device.deviceId,
+            //               temperatureOffset: 0,
+            //               heartRateOffset: 0,
+            //               spoOffset: 0,
+            //               respirationOffset: 0,
+            //               updatedAt: DateTime.now(),
+            //             ),
+            //           );
+            //           Get.snackbar(
+            //             "Kalibrasi Direset",
+            //             "Offset kalibrasi untuk device ${device.deviceId} sudah direset.",
+            //             snackPosition: SnackPosition.TOP,
+            //             backgroundColor: Colors.orange,
+            //             colorText: Colors.white,
+            //           );
+            //           setState(() {});
+            //         },
+            //       ),y
+            //     ),
+            //   ),
           ],
         ),
       );

@@ -1539,7 +1539,7 @@ class _DetailKudaView extends StatelessWidget {
                   items: [
                     BiometrikLegendItem(
                       color: Color(0xFF23272F),
-                      label: "Detak Jantung (BPM)",
+                      label: "Detak Jantung (beat/m)",
                       value: detail?.heartRate?.toString() ?? "-",
                     ),
                     BiometrikLegendItem(
@@ -1554,7 +1554,7 @@ class _DetailKudaView extends StatelessWidget {
                     ),
                     BiometrikLegendItem(
                       color: Color(0xFFE28B1B),
-                      label: "Respirasi (BPM)",
+                      label: "Respirasi (breath/m)",
                       value: detail?.respiratoryRate?.toString() ?? "-",
                     ),
                   ],
@@ -1999,7 +1999,7 @@ class _BiometricChartTabSectionState extends State<BiometricChartTabSection> {
       (
         "Detak Jantung",
         widget.bpmSpots,
-        "Detak Jantung (BPM)",
+        "Detak Jantung (beat/m)",
         "Waktu",
         Colors.black,
       ),
@@ -2008,7 +2008,7 @@ class _BiometricChartTabSectionState extends State<BiometricChartTabSection> {
       (
         "Respirasi",
         widget.respirasiSpots,
-        "Respirasi (BPM)",
+        "Respirasi (breath/m)",
         "Waktu",
         Colors.orange,
       ),
