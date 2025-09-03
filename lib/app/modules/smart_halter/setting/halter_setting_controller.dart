@@ -6,7 +6,8 @@ import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
 class HalterSettingController extends GetxController {
   final HalterSerialService serialService = Get.find<HalterSerialService>();
-  final RxString deviceHeader = DataSettingHalter.getDeviceHeader().obs;
+  final RxString deviceHeader = DataSettingHalter.getNodeHalterHeader().obs;
+  final RxString nodeRoomHeader = DataSettingHalter.getNodeRoomHeader().obs;
 
   // Observable state
   final Rx<HalterSettingModel> setting = HalterSettingModel(
@@ -20,7 +21,12 @@ class HalterSettingController extends GetxController {
 
   void setDeviceHeader(String header) {
     deviceHeader.value = header;
-    DataSettingHalter.saveDeviceHeader(header);
+    DataSettingHalter.saveNodeHalterHeader(header);
+  }
+
+  void setNodeRoomHeader(String header) {
+    nodeRoomHeader.value = header;
+    DataSettingHalter.saveNodeRoomHeader(header);
   }
 
   // Update Cloud

@@ -6,6 +6,7 @@ import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/data/data_halter_device_calibration_offset.dart';
+import 'package:smart_feeder_desktop/app/data/data_setting_halter.dart';
 import 'package:smart_feeder_desktop/app/data/data_threshold_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
@@ -52,6 +53,7 @@ class HalterSerialService extends GetxService {
       RxList<String>(SerialPort.availablePorts);
 
   final header = Get.find<HalterSettingController>().deviceHeader.value;
+  final headerNodeRoom= Get.find<HalterSettingController>().nodeRoomHeader.value;
 
   final Map<String, Timer> _deviceTimeoutTimers = {};
   final Set<String> _pairingDevices = {};
@@ -250,7 +252,7 @@ class HalterSerialService extends GetxService {
           if (line.startsWith(header)) {
             // Proses langsung sebagai dataLine
             _processBlock(line);
-          } else if (line.startsWith('SRIPB')) {
+          } else if (line.startsWith(headerNodeRoom)) {
             _processBlockRoom(line);
           }
           // Jika ada RSSI/SNR, bisa tambahkan parsing di sini jika perlu
@@ -271,19 +273,23 @@ class HalterSerialService extends GetxService {
     print('Processing block sripb:\n$block');
     print('=============================');
     String? dataLine;
+    final headerNodeRoom = DataSettingHalter.getNodeRoomHeader();
 
     for (var line in block.split('\n')) {
-      if (line.startsWith('SRIPB')) {
+      if (line.startsWith(headerNodeRoom)) {
         dataLine = line;
       } else {
-        print('KAMU BUKAN IPB sripb');
+        print('KAMU BUKAN $headerNodeRoom');
         return;
       }
     }
 
     if (dataLine != null) {
       try {
-        final nodeRoom = NodeRoomModel.fromSerial(dataLine);
+        final nodeRoom = NodeRoomModel.fromSerial(
+          dataLine,
+          header: headerNodeRoom,
+        );
         latestNodeRoomData.value = nodeRoom;
         final index = nodeRoomList.indexWhere(
           (n) => n.deviceId == nodeRoom.deviceId,
@@ -324,22 +330,6 @@ class HalterSerialService extends GetxService {
     double? snr;
 
     for (var line in block.split('\n')) {
-      // if (line.startsWith('Data:')) {
-      //   final d = line.substring(5).trim();
-      //   if (d.startsWith('SHIPB')) {
-      //     dataLine = d;
-      //   }
-      // } else if (line.startsWith('RSSI:')) {
-      //   final match = RegExp(r'RSSI:\s*([-+]?\d+)').firstMatch(line);
-      //   if (match != null) {
-      //     rssi = int.tryParse(match.group(1)!);
-      //   }
-      // } else if (line.startsWith('SNR:')) {
-      //   final match = RegExp(r'SNR:\s*([-+]?\d*\.?\d*)').firstMatch(line);
-      //   if (match != null) {
-      //     snr = double.tryParse(match.group(1)!);
-      //   }
-      // }
       if (line.startsWith(header)) {
         dataLine = line;
       } else {
@@ -354,7 +344,7 @@ class HalterSerialService extends GetxService {
           dataLine,
           rssi: rssi,
           snr: snr,
-          header: header
+          header: header,
         );
 
         final calibrationController =
