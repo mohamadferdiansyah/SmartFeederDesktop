@@ -146,6 +146,7 @@ class HalterSerialService extends GetxService {
           status: 'pairing',
           batteryPercent: old.batteryPercent,
           horseId: old.horseId,
+          version: old.version,
         ),
       );
       _pairingDevices.add(deviceId);
@@ -167,6 +168,7 @@ class HalterSerialService extends GetxService {
                 status: 'off',
                 batteryPercent: old2.batteryPercent,
                 horseId: old2.horseId,
+                version: old2.version,
               ),
             );
             _pairingDevices.remove(deviceId);
@@ -194,6 +196,7 @@ class HalterSerialService extends GetxService {
               status: 'off',
               batteryPercent: old.batteryPercent,
               horseId: old.horseId,
+              version: old.version,
             ),
           );
           await logDeviceStatus(deviceId, false); // <-- Tambahkan di sini
@@ -406,6 +409,11 @@ class HalterSerialService extends GetxService {
         //     (detail.respiratoryRate == null || detail.respiratoryRate == 0)
         //     ? 0 + calibrationController.respiration
         //     : detail.respiratoryRate! + calibrationController.respiration;
+
+        thresholdController.halterThresholds.value = {
+          for (var t in DataSensorThreshold.getThresholds('halter_thresholds'))
+            t.sensorName: t,
+        };
 
         print('=============================');
         print('Threshold terbaru:');
@@ -645,6 +653,7 @@ class HalterSerialService extends GetxService {
                 status: 'on',
                 batteryPercent: old.batteryPercent,
                 horseId: old.horseId,
+                version: old.version,
               ),
             );
             _pairingDevices.remove(fixedDetail.deviceId);
@@ -667,6 +676,7 @@ class HalterSerialService extends GetxService {
               deviceId: fixedDetail.deviceId,
               status: 'on',
               batteryPercent: _voltageToPercent(fixedDetail.voltage).round(),
+              version: '2.0',
             ),
           );
         } else {
@@ -682,6 +692,7 @@ class HalterSerialService extends GetxService {
               status: 'on',
               batteryPercent: _voltageToPercent(fixedDetail.voltage).round(),
               horseId: halterDeviceList[indexDevice].horseId,
+              version: halterDeviceList[indexDevice].version,
             ),
           );
         }
@@ -742,11 +753,25 @@ class HalterSerialService extends GetxService {
           true,
         ); // <-- Tambahkan di sini
 
-        print('=============================');
         print(
-          'Parsed fixedDetail : HR=${fixedDetail.heartRate} SPO2=${fixedDetail.spo} TEMP=${fixedDetail.temperature} RES=${fixedDetail.respiratoryRate}',
+          '===============================================\n'
+          'ID Devices: ${fixedDetail.deviceId}\n'
+          'Latitude: ${fixedDetail.latitude}\n'
+          'Longitude: ${fixedDetail.longitude}\n'
+          'Altitude: ${fixedDetail.altitude}\n'
+          'Speed: ${fixedDetail.sog}\n'
+          'Course: ${fixedDetail.cog}\n'
+          'Pitch: ${fixedDetail.pitch}\n'
+          'Yaw: ${fixedDetail.yaw}\n'
+          'Roll: ${fixedDetail.roll}\n'
+          'VBAT: ${fixedDetail.voltage}\n'
+          'HR: ${fixedDetail.heartRate} (${detail.heartRate})\n'
+          'SPO: ${fixedDetail.spo} (${detail.spo})\n'
+          'Suhu: ${fixedDetail.temperature} (${detail.temperature})\n'
+          'Respiratory: ${fixedDetail.respiratoryRate} (${detail.respiratoryRate})\n'
+          'interval: ${fixedDetail.interval}\n'
+          '===============================================\n',
         );
-        print('=============================');
       } catch (e) {
         print('Parsing error: $e');
       }
@@ -877,10 +902,10 @@ class HalterSerialService extends GetxService {
         // double spo = 96;
         // double suhu = 38;
         // double respirasi = 10;`
-        int bpm = 29;
-        double spo = 91;
-        double suhu = 32;
-        double respirasi = 11;
+        int bpm = 32;
+        double spo = 99;
+        double suhu = 41;
+        double respirasi = 12;
         int intervalData = 15000;
 
         final dataString =

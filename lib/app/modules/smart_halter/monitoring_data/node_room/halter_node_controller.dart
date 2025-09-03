@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
@@ -62,25 +63,25 @@ class HalterNodeController extends GetxController {
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
       TextCellValue('No'),
-      TextCellValue('Device Id'),
-      TextCellValue('Temperature (°C)'),
-      TextCellValue('Humidity (%)'),
-      TextCellValue('Light Intensity'),
       TextCellValue('Time'),
+      TextCellValue('Device Id'),
+      TextCellValue('Suhu (°C)'),
+      TextCellValue('Kelembapan (%)'),
+      TextCellValue('Cahaya (lux)'),
     ]);
     for (int i = 0; i < data.length; i++) {
       final d = data[i];
       sheet.appendRow([
         TextCellValue('${i + 1}'),
+        TextCellValue(
+          d.time != null
+              ? DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time!)
+              : '-',
+        ),
         TextCellValue(d.deviceId),
         TextCellValue(d.temperature.toStringAsFixed(2)),
         TextCellValue(d.humidity.toStringAsFixed(2)),
         TextCellValue(d.lightIntensity.toStringAsFixed(2)),
-        TextCellValue(
-          d.time != null
-              ? d.time!.toIso8601String().split('T')[1].split('.')[0]
-              : '-',
-        ),
       ]);
     }
     final fileBytes = excel.encode();
@@ -103,11 +104,11 @@ class HalterNodeController extends GetxController {
         build: (context) => pw.Table.fromTextArray(
           headers: [
             'No',
-            'Device Id',
-            'Temperature (°C)',
-            'Humidity (%)',
-            'Light Intensity',
             'Time',
+            'Device Id',
+            'Suhu (°C)',
+            'Kelembapan (%)',
+            'Cahaya (lux)',
           ],
           data: List.generate(data.length, (i) {
             final d = data[i];
@@ -165,7 +166,8 @@ class HalterNodeController extends GetxController {
     final fileBytes = excel.encode();
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel Detail Node',
-      fileName: 'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId)}).xlsx',
+      fileName:
+          'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId)}).xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );
@@ -206,7 +208,8 @@ class HalterNodeController extends GetxController {
     );
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file PDF Detail Node',
-      fileName: 'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId)}).pdf',
+      fileName:
+          'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId)}).pdf',
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );

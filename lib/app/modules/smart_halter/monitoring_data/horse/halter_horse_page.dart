@@ -60,6 +60,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
           d.name.toLowerCase().contains(_searchText) ||
           d.type.toLowerCase().contains(_searchText) ||
           d.gender.toLowerCase().contains(_searchText) ||
+          (d.category ?? '').toLowerCase().contains(_searchText) ||
           d.age.toString().contains(_searchText) ||
           (d.roomId ?? '').toLowerCase().contains(_searchText);
     }).toList();
@@ -1133,7 +1134,8 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                         label: "Cari kuda",
                         controller: _searchController,
                         icon: Icons.search,
-                        hint: 'Masukkan ID, nama, jenis, gender, umur, ruangan',
+                        hint:
+                            'Masukkan ID, nama, jenis, kategori, gender, umur, atau ruangan',
                         fontSize: 24,
                       ),
                     ),

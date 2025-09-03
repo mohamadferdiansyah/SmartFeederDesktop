@@ -91,7 +91,7 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                   child: Row(
                     children: [
                       Text(
-                        'Data Serial Monitor',
+                        'Daftar Raw Data',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -175,8 +175,9 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                                       lastDate: DateTime(2100),
                                     );
                                     if (picked != null) {
-                                      final tgl =
-                                          "${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+                                      final tgl = DateFormat(
+                                        'dd-MM-yyyy',
+                                      ).format(picked);
                                       _controller.setSelectedDate(tgl);
                                       _dataSource.updateFilter(
                                         _controller.filteredList,
@@ -201,24 +202,24 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                             _dataSource.updateFilter(_controller.filteredList);
                           },
                         ),
-                        CustomButton(
-                          text: 'Stop dummy',
-                          width: 195,
-                          fontSize: 18,
-                          height: 48,
-                          onPressed: () {
-                            serialService.stopDummySerial();
-                          },
-                        ),
-                        CustomButton(
-                          text: 'Start dummy',
-                          width: 195,
-                          fontSize: 18,
-                          height: 48,
-                          onPressed: () {
-                            serialService.startDummySerial();
-                          },
-                        ),
+                        // CustomButton(
+                        //   text: 'Stop dummy',
+                        //   width: 195,
+                        //   fontSize: 18,
+                        //   height: 48,
+                        //   onPressed: () {
+                        //     serialService.stopDummySerial();
+                        //   },
+                        // ),
+                        // CustomButton(
+                        //   text: 'Start dummy',
+                        //   width: 195,
+                        //   fontSize: 18,
+                        //   height: 48,
+                        //   onPressed: () {
+                        //     serialService.startDummySerial();
+                        //   },
+                        // ),
                       ],
                     ),
                     const SizedBox(height: 16),

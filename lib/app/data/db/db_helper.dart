@@ -183,14 +183,17 @@ class DBHelper {
         ''');
 
         // halter_devices
+        // ...existing code...
         await db.execute('''
           CREATE TABLE halter_devices (
             device_id TEXT PRIMARY KEY,
             status TEXT,
             battery_percent BIGINT,
-            horse_id TEXT
+            horse_id TEXT,
+            version TEXT
           )
         ''');
+        // ...existing code...
 
         // halter_devices
         await db.execute('''

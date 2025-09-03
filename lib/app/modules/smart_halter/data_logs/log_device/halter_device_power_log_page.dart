@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_power_log_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/data_logs/log_device/halter_device_power_log_controller.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 
 class HalterDevicePowerLogPage extends StatefulWidget {
@@ -178,6 +179,41 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
                           fontSize: 24,
                         ),
                       ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Export Data :',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(width: 12),
+                          CustomButton(
+                            width: MediaQuery.of(context).size.width * 0.1,
+                            height: 50,
+                            backgroundColor: Colors.green,
+                            fontSize: 18,
+                            icon: Icons.table_view_rounded,
+                            text: 'Export Excel',
+                            onPressed: () {
+                              controller.exportLogExcel(filteredLogs);
+                            },
+                          ),
+                          const SizedBox(width: 12),
+                          CustomButton(
+                            width: MediaQuery.of(context).size.width * 0.1,
+                            height: 50,
+                            backgroundColor: Colors.redAccent,
+                            fontSize: 18,
+                            icon: Icons.picture_as_pdf,
+                            text: 'Export PDF',
+                            onPressed: () {
+                              controller.exportLogPDF(filteredLogs);
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(

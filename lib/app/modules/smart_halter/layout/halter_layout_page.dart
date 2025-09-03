@@ -42,12 +42,12 @@ class HalterLayoutPage extends StatelessWidget {
           icon: Icons.pets_rounded,
         ),
         SidebarMenuItem(
-          title: "Data Node Halter Device",
+          title: "Data Iot Node Halter",
           page: HalterDevicePage(),
           icon: Icons.device_hub_rounded,
         ),
         SidebarMenuItem(
-          title: "Data Node Room Device",
+          title: "Data IoT Node Kandang",
           page: HalterNodePage(),
           icon: Icons.devices_rounded,
         ),

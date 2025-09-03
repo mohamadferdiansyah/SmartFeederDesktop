@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 // Ganti dengan import model dan widget sesuai project-mu
@@ -7,6 +8,8 @@ import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/data/data_team_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_device_power_log_model.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/data_logs/log_device/halter_device_power_log_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/device/halter_device_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
@@ -44,6 +47,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
       return d.deviceId.toLowerCase().contains(_searchText) ||
           (d.horseId ?? '').toLowerCase().contains(_searchText) ||
           d.status.toLowerCase().contains(_searchText) ||
+          d.version.toLowerCase().contains(_searchText) ||
           d.batteryPercent.toString().contains(_searchText);
     }).toList();
   }
@@ -55,6 +59,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
     BuildContext? parentContext,
   }) async {
     final idCtrl = TextEditingController(text: device?.deviceId ?? '');
+    final versionCtrl = TextEditingController(text: device?.version ?? '1.5');
 
     showCustomDialog(
       context: parentContext ?? context,
@@ -91,6 +96,16 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
             controller: idCtrl,
             hint: "Masukkan Device ID (Format: SHIPB001)",
           ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            value: versionCtrl.text,
+            decoration: const InputDecoration(labelText: "Versi Device"),
+            items: const [
+              DropdownMenuItem(value: "1.5", child: Text("Versi 1.5")),
+              DropdownMenuItem(value: "2.0", child: Text("Versi 2.0")),
+            ],
+            onChanged: (v) => versionCtrl.text = v ?? "1.5",
+          ),
         ],
       ),
       onConfirm: () {
@@ -109,6 +124,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
           status: device?.status ?? 'off',
           batteryPercent: device?.batteryPercent ?? 0,
           horseId: device?.horseId,
+          version: versionCtrl.text,
         );
         onSubmit(newDevice);
       },
@@ -121,6 +137,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
     BuildContext? parentContext,
   }) async {
     final idCtrl = TextEditingController(text: device.deviceId);
+    final versionCtrl = TextEditingController(text: device.version);
 
     showCustomDialog(
       context: parentContext ?? context,
@@ -137,6 +154,16 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
             label: "Device ID (Wajib diisi)",
             controller: idCtrl,
             hint: "Masukkan Device ID",
+          ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            value: versionCtrl.text,
+            decoration: const InputDecoration(labelText: "Versi Device"),
+            items: const [
+              DropdownMenuItem(value: "1.5", child: Text("Versi 1.5")),
+              DropdownMenuItem(value: "2.0", child: Text("Versi 2.0")),
+            ],
+            onChanged: (v) => versionCtrl.text = v ?? "1.5",
           ),
         ],
       ),
@@ -156,6 +183,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
           status: device.status,
           batteryPercent: device.batteryPercent,
           horseId: device.horseId,
+          version: versionCtrl.text,
         );
         onSubmit(editedDevice);
       },
@@ -241,6 +269,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
           status: device.status,
           batteryPercent: device.batteryPercent,
           horseId: selectedHorseId,
+          version: device.version,
         );
         await _controller.updateDevice(updated);
       },
@@ -264,6 +293,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
           status: device.status,
           batteryPercent: device.batteryPercent,
           horseId: null,
+          version: device.version,
         );
         await _controller.updateDevice(updated);
       },
@@ -360,7 +390,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                   child: Row(
                     children: [
                       Text(
-                        'Daftar Halter Device',
+                        'Daftar IoT Node Halter',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -385,10 +415,10 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: CustomInput(
-                        label: "Cari device",
+                        label: "Cari IoT Node Halter",
                         controller: _searchController,
                         icon: Icons.search,
-                        hint: 'Masukkan ID, status, atau kuda',
+                        hint: 'Masukkan ID, versi, kuda, status, atau baterai',
                         fontSize: 24,
                       ),
                     ),
@@ -436,10 +466,11 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                         final tableWidth =
                             MediaQuery.of(context).size.width - 72.0;
                         final idW = tableWidth * 0.10;
-                        final horseW = tableWidth * 0.13;
-                        final statusW = tableWidth * 0.10;
-                        final batteryW = tableWidth * 0.10;
+                        final horseW = tableWidth * 0.10;
+                        final statusW = tableWidth * 0.09;
+                        final batteryW = tableWidth * 0.09;
                         final actionW = tableWidth * 0.32;
+                        final versionW = tableWidth * 0.05;
 
                         final dataSource = HalterDeviceDataTableSource(
                           context: context,
@@ -560,6 +591,25 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                         child: const Center(
                                           child: Text(
                                             'ID',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      onSort: (columnIndex, ascending) {
+                                        setState(() {
+                                          _sortColumnIndex = columnIndex;
+                                          _sortAscending = ascending;
+                                        });
+                                      },
+                                    ),
+                                    DataColumn(
+                                      label: SizedBox(
+                                        width: versionW,
+                                        child: const Center(
+                                          child: Text(
+                                            'Versi',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -700,6 +750,7 @@ class HalterDeviceDataTableSource extends DataTableSource {
       index: index,
       cells: [
         DataCell(Center(child: Text(device.deviceId))),
+        DataCell(Center(child: Text(device.version))),
         DataCell(Center(child: Text(getHorseName(device.horseId)))),
         DataCell(
           Center(child: Text(device.status == 'on' ? 'Aktif' : 'Tidak Aktif')),
@@ -839,20 +890,53 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
   DateTime? tanggalAwal;
   DateTime? tanggalAkhir;
   final HalterDeviceController _controller = Get.find<HalterDeviceController>();
+  int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
+  int? _sortColumnIndex;
+  bool _sortAscending = true;
 
-  List<HalterDeviceDetailModel> get filteredData {
-    // Filter by deviceId
-    var data = widget.allData
-        .where((d) => d.deviceId == widget.deviceId)
-        .toList();
-    // Filter tanggal jika dipilih
+  List<HalterDeviceDetailModel> _filteredData(
+    List<HalterDeviceDetailModel> data,
+  ) {
+    var filtered = data.where((d) => d.deviceId == widget.deviceId).toList();
     if (tanggalAwal != null) {
-      data = data.where((d) => d.time.isAfter(tanggalAwal!)).toList();
+      filtered = filtered.where((d) {
+        if (d.time == null) return false;
+        final tAwal = DateTime(
+          tanggalAwal!.year,
+          tanggalAwal!.month,
+          tanggalAwal!.day,
+        );
+        final tData = DateTime(d.time!.year, d.time!.month, d.time!.day);
+        return tData.isAtSameMomentAs(tAwal) || tData.isAfter(tAwal);
+      }).toList();
     }
     if (tanggalAkhir != null) {
-      data = data.where((d) => d.time.isBefore(tanggalAkhir!)).toList();
+      filtered = filtered.where((d) {
+        if (d.time == null) return false;
+        final tAkhir = DateTime(
+          tanggalAkhir!.year,
+          tanggalAkhir!.month,
+          tanggalAkhir!.day,
+        );
+        final tData = DateTime(d.time!.year, d.time!.month, d.time!.day);
+        return tData.isAtSameMomentAs(tAkhir) || tData.isBefore(tAkhir);
+      }).toList();
     }
-    return data;
+    return filtered;
+  }
+
+  void _sort<T>(
+    List<HalterDeviceDetailModel> data,
+    Comparable<T> Function(HalterDeviceDetailModel d) getField,
+    bool ascending,
+  ) {
+    data.sort((a, b) {
+      final aValue = getField(a);
+      final bValue = getField(b);
+      return ascending
+          ? Comparable.compare(aValue, bValue)
+          : Comparable.compare(bValue, aValue);
+    });
   }
 
   @override
@@ -861,7 +945,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
       insetPadding: const EdgeInsets.all(32),
       child: Container(
         width: MediaQuery.of(context).size.width * 0.9,
-        height: MediaQuery.of(context).size.height * 0.8,
+        height: MediaQuery.of(context).size.height * 0.82,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
@@ -883,7 +967,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
               width: double.infinity,
               decoration: BoxDecoration(
                 color: AppColors.primary,
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(8),
                   topRight: Radius.circular(8),
                 ),
@@ -903,7 +987,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                     children: [
                       Text(
                         'Detail Data Device ${widget.deviceId}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -919,7 +1003,6 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
               padding: const EdgeInsets.all(20.0),
               child: Row(
                 children: [
-                  // Tanggal Awal
                   Flexible(
                     child: TextField(
                       readOnly: true,
@@ -943,7 +1026,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                       ),
                       controller: TextEditingController(
                         text: tanggalAwal != null
-                            ? "${tanggalAwal!.toIso8601String().split('T').first}"
+                            ? DateFormat('dd-MM-yyyy').format(tanggalAwal!)
                             : "",
                       ),
                       onTap: () async {
@@ -953,13 +1036,22 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                           firstDate: DateTime(2020),
                           lastDate: DateTime(2100),
                         );
-                        if (picked != null)
-                          setState(() => tanggalAwal = picked);
+                        if (picked != null) {
+                          setState(() {
+                            tanggalAwal = picked;
+                            // Validasi dan swap jika perlu
+                            if (tanggalAkhir != null &&
+                                tanggalAwal!.isAfter(tanggalAkhir!)) {
+                              final temp = tanggalAwal;
+                              tanggalAwal = tanggalAkhir;
+                              tanggalAkhir = temp;
+                            }
+                          });
+                        }
                       },
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Tanggal Akhir
                   Flexible(
                     child: TextField(
                       readOnly: true,
@@ -983,7 +1075,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                       ),
                       controller: TextEditingController(
                         text: tanggalAkhir != null
-                            ? "${tanggalAkhir!.toIso8601String().split('T').first}"
+                            ? DateFormat('dd-MM-yyyy').format(tanggalAkhir!)
                             : "",
                       ),
                       onTap: () async {
@@ -993,23 +1085,22 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                           firstDate: DateTime(2020),
                           lastDate: DateTime(2100),
                         );
-                        if (picked != null)
-                          setState(() => tanggalAkhir = picked);
+                        if (picked != null) {
+                          setState(() {
+                            tanggalAkhir = picked;
+                            // Validasi dan swap jika perlu
+                            if (tanggalAwal != null &&
+                                tanggalAwal!.isAfter(tanggalAkhir!)) {
+                              final temp = tanggalAwal;
+                              tanggalAwal = tanggalAkhir;
+                              tanggalAkhir = temp;
+                            }
+                          });
+                        }
                       },
                     ),
                   ),
                   const SizedBox(width: 12),
-                  CustomButton(
-                    onPressed: () {
-                      setState(() {});
-                    },
-                    text: "Pilih Tanggal",
-                    width: 150,
-                    height: 50,
-                    backgroundColor: AppColors.primary,
-                    fontSize: 16,
-                  ),
-                  const SizedBox(width: 8),
                   CustomButton(
                     onPressed: () {
                       setState(() {
@@ -1034,7 +1125,10 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                     text: 'Export Excel',
                     onPressed: () {
                       final team = DataTeamHalter.getTeam();
-                      _controller.exportDetailExcel(filteredData, team);
+                      _controller.exportDetailExcel(
+                        _filteredData(_controller.detailHistoryList),
+                        team,
+                      );
                     },
                   ),
                   const SizedBox(width: 12),
@@ -1046,7 +1140,9 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                     icon: Icons.picture_as_pdf,
                     text: 'Export PDF',
                     onPressed: () {
-                      _controller.exportDetailPDF(filteredData);
+                      _controller.exportDetailPDF(
+                        _filteredData(_controller.detailHistoryList),
+                      );
                     },
                   ),
                 ],
@@ -1054,106 +1150,280 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Total Data: ${filteredData.length}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+              child: Obx(() {
+                final filtered = _filteredData(_controller.detailHistoryList);
+                final logList =
+                    Get.find<HalterDevicePowerLogController>().logList;
+                final logsForDevice = logList
+                    .where((log) => log.deviceId == widget.deviceId)
+                    .toList();
+
+                Duration totalDurasi = Duration.zero;
+                for (final log in logsForDevice) {
+                  if (log.durationOn != null) {
+                    totalDurasi += log.durationOn!;
+                  } else {
+                    // Jika alat masih nyala, hitung dari powerOnTime ke sekarang
+                    totalDurasi += DateTime.now().difference(log.powerOnTime);
+                  }
+                }
+                final jam = totalDurasi.inHours;
+                final menit = totalDurasi.inMinutes % 60;
+                final totalDurasiStr = jam > 0
+                    ? "$jam jam $menit menit"
+                    : "$menit menit";
+
+                // Untuk lastPowerOn (paling baru)
+                logsForDevice.sort(
+                  (a, b) => b.powerOnTime.compareTo(a.powerOnTime),
+                );
+                final lastLog = logsForDevice.isNotEmpty
+                    ? logsForDevice.first
+                    : null;
+                final lastPowerOn = lastLog?.powerOnTime;
+
+                int totalSinceOn = 0;
+                if (lastPowerOn != null) {
+                  final filteredSinceOn = filtered
+                      .where(
+                        (d) => d.time != null && d.time!.isAfter(lastPowerOn),
+                      )
+                      .toList();
+                  totalSinceOn = filteredSinceOn.length;
+                }
+
+                return Row(
+                  children: [
+                    // Total Data
+                    Text(
+                      'Total Data: ${filtered.length}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Text(
+                      'Total Durasi Nyala: $totalDurasiStr',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 32),
+                    // Data sejak nyala terakhir, jam nyala, rata-rata, durasi nyala
+                    Row(
+                      children: [
+                        Text(
+                          'Data Terbaru Dari ${lastPowerOn != null ? "(${DateFormat('HH:mm:ss').format(lastPowerOn)})" : ''}: $totalSinceOn',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 18),
+                        // Text(
+                        //   'Durasi nyala: $durasiNyala',
+                        //   style: const TextStyle(
+                        //     fontSize: 18,
+                        //     fontWeight: FontWeight.bold,
+                        //     color: Colors.green,
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                  ],
+                );
+              }),
             ),
             const SizedBox(height: 12),
             // Tabel data
             Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: DataTable(
-                    columns: const [
-                      DataColumn(label: Text("No")),
-                      DataColumn(label: Text("Timestamp")),
-                      DataColumn(label: Text("Device Id")),
-                      DataColumn(label: Text("Latitude (°)")),
-                      DataColumn(label: Text("Longitude (°)")),
-                      DataColumn(label: Text("Altitude (m)")),
-                      DataColumn(label: Text("SoG (km/h)")),
-                      DataColumn(label: Text("CoG (°)")),
-                      // DataColumn(label: Text("AcceX (m/s²)")),
-                      // DataColumn(label: Text("AcceY (m/s²)")),
-                      // DataColumn(label: Text("AcceZ (m/s²)")),
-                      // DataColumn(label: Text("GyroX (°/s)")),
-                      // DataColumn(label: Text("GyroY (°/s)")),
-                      // DataColumn(label: Text("GyroZ (°/s)")),
-                      // DataColumn(label: Text("MagX (μT)")),
-                      // DataColumn(label: Text("MagY (μT)")),
-                      // DataColumn(label: Text("MagZ (μT)")),
-                      DataColumn(label: Text("Roll (°)")),
-                      DataColumn(label: Text("Pitch (°)")),
-                      DataColumn(label: Text("Yaw (°)")),
-                      // DataColumn(label: Text("Arus (A)")),
-                      DataColumn(label: Text("Tegangan (mV)")),
-                      DataColumn(label: Text("Detak Jantung (beat/m)")),
-                      DataColumn(label: Text("SpO₂ (%)")),
-                      DataColumn(label: Text("Suhu (°C)")),
-                      DataColumn(label: Text("Respirasi (breath/m)")),
-                    ],
-                    rows: List.generate(filteredData.length, (i) {
-                      final d = filteredData[i];
-                      return DataRow(
-                        cells: [
-                          DataCell(Center(child: Text('${i + 1}'))),
-                          DataCell(
-                            Center(
-                              child: Text(
-                                d.time != null
-                                    ? DateFormat(
-                                        'dd-MM-yyyy HH:mm:ss',
-                                      ).format(d.time)
-                                    : "-",
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final tableWidth = constraints.maxWidth;
+                  final noW = tableWidth * 0.02;
+                  final timeW = tableWidth * 0.1;
+                  final devIdW = tableWidth * 0.08;
+                  final latW = tableWidth * 0.07;
+                  final longW = tableWidth * 0.07;
+                  final altW = tableWidth * 0.07;
+                  final sogW = tableWidth * 0.06;
+                  final cogW = tableWidth * 0.06;
+                  final rollW = tableWidth * 0.05;
+                  final pitchW = tableWidth * 0.05;
+                  final yawW = tableWidth * 0.05;
+                  final voltW = tableWidth * 0.07;
+                  final hrW = tableWidth * 0.09;
+                  final spoW = tableWidth * 0.07;
+                  final suhuW = tableWidth * 0.07;
+                  final respW = tableWidth * 0.08;
+
+                  return Obx(() {
+                    final filtered = _filteredData(
+                      _controller.detailHistoryList,
+                    );
+                    // Sort
+                    if (_sortColumnIndex != null) {
+                      switch (_sortColumnIndex!) {
+                        case 0:
+                          _sort<String>(
+                            filtered,
+                            (d) => d.deviceId,
+                            _sortAscending,
+                          );
+                          break;
+                        case 1:
+                          _sort<DateTime>(
+                            filtered,
+                            (d) => d.time ?? DateTime(2000),
+                            _sortAscending,
+                          );
+                          break;
+                      }
+                    }
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        cardColor: Colors.white,
+                        dataTableTheme: DataTableThemeData(
+                          headingRowColor: MaterialStateProperty.all(
+                            Colors.grey[200]!,
+                          ),
+                          dataRowColor: MaterialStateProperty.all(Colors.white),
+                        ),
+                      ),
+                      child: PaginatedDataTable(
+                        columnSpacing: 0,
+                        horizontalMargin: 0,
+                        sortColumnIndex: _sortColumnIndex,
+                        sortAscending: _sortAscending,
+                        columns: [
+                          DataColumn(
+                            label: SizedBox(
+                              width: noW,
+                              child: const Center(child: Text("No")),
+                            ),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _sortColumnIndex = columnIndex;
+                                _sortAscending = ascending;
+                              });
+                            },
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: timeW,
+                              child: const Center(child: Text("Timestamp")),
+                            ),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _sortColumnIndex = columnIndex;
+                                _sortAscending = ascending;
+                              });
+                            },
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: devIdW,
+                              child: const Center(child: Text("Device Id")),
+                            ),
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: latW,
+                              child: const Center(child: Text("Latitude (°)")),
+                            ),
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: longW,
+                              child: const Center(child: Text("Longitude (°)")),
+                            ),
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: altW,
+                              child: const Center(child: Text("Altitude (m)")),
+                            ),
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: sogW,
+                              child: const Center(child: Text("SoG (km/h)")),
+                            ),
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: cogW,
+                              child: const Center(child: Text("CoG (°)")),
+                            ),
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: rollW,
+                              child: const Center(child: Text("Roll (°)")),
+                            ),
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: pitchW,
+                              child: const Center(child: Text("Pitch (°)")),
+                            ),
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: yawW,
+                              child: const Center(child: Text("Yaw (°)")),
+                            ),
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: voltW,
+                              child: const Center(child: Text("Tegangan (mV)")),
+                            ),
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: hrW,
+                              child: const Center(
+                                child: Text("Detak Jantung (beat/m)"),
                               ),
                             ),
                           ),
-                          DataCell(Center(child: Text(d.deviceId))),
-                          DataCell(Center(child: Text('${d.latitude ?? "-"}'))),
-                          DataCell(
-                            Center(child: Text('${d.longitude ?? "-"}')),
+                          DataColumn(
+                            label: SizedBox(
+                              width: spoW,
+                              child: const Center(child: Text("SpO₂ (%)")),
+                            ),
                           ),
-                          DataCell(Center(child: Text('${d.altitude ?? "-"}'))),
-                          DataCell(Center(child: Text('${d.sog ?? "-"}'))),
-                          DataCell(Center(child: Text('${d.cog ?? "-"}'))),
-                          // DataCell(Center(child: Text('${d.acceX ?? "-"}'))),
-                          // DataCell(Center(child: Text('${d.acceY ?? "-"}'))),
-                          // DataCell(Center(child: Text('${d.acceZ ?? "-"}'))),
-                          // DataCell(Center(child: Text('${d.gyroX ?? "-"}'))),
-                          // DataCell(Center(child: Text('${d.gyroY ?? "-"}'))),
-                          // DataCell(Center(child: Text('${d.gyroZ ?? "-"}'))),
-                          // DataCell(Center(child: Text('${d.magX ?? "-"}'))),
-                          // DataCell(Center(child: Text('${d.magY ?? "-"}'))),
-                          // DataCell(Center(child: Text('${d.magZ ?? "-"}'))),
-                          DataCell(Center(child: Text('${d.roll ?? "-"}'))),
-                          DataCell(Center(child: Text('${d.pitch ?? "-"}'))),
-                          DataCell(Center(child: Text('${d.yaw ?? "-"}'))),
-                          // DataCell(Center(child: Text('${d.current ?? "-"}'))),
-                          DataCell(Center(child: Text('${d.voltage ?? "-"}'))),
-                          DataCell(
-                            Center(child: Text('${d.heartRate ?? "-"}')),
+                          DataColumn(
+                            label: SizedBox(
+                              width: suhuW,
+                              child: const Center(child: Text("Suhu (°C)")),
+                            ),
                           ),
-                          DataCell(Center(child: Text('${d.spo ?? "-"}'))),
-                          DataCell(
-                            Center(child: Text('${d.temperature ?? "-"}')),
-                          ),
-                          DataCell(
-                            Center(child: Text('${d.respiratoryRate ?? "-"}')),
+                          DataColumn(
+                            label: SizedBox(
+                              width: respW,
+                              child: const Center(
+                                child: Text("Respirasi (breath/m)"),
+                              ),
+                            ),
                           ),
                         ],
-                      );
-                    }),
-                  ),
-                ),
+                        source: HalterDeviceDetailDataTableSource(filtered),
+                        rowsPerPage: _rowsPerPage,
+                        availableRowsPerPage: const [5, 10],
+                        onRowsPerPageChanged: (value) {
+                          setState(() {
+                            _rowsPerPage = value ?? 5;
+                          });
+                        },
+                        showCheckboxColumn: false,
+                      ),
+                    );
+                  });
+                },
               ),
             ),
             // Tombol Tutup
@@ -1178,4 +1448,53 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
       ),
     );
   }
+}
+
+class HalterDeviceDetailDataTableSource extends DataTableSource {
+  final List<HalterDeviceDetailModel> data;
+
+  HalterDeviceDetailDataTableSource(this.data);
+
+  @override
+  DataRow getRow(int index) {
+    final d = data[index];
+    return DataRow.byIndex(
+      index: index,
+      cells: [
+        DataCell(Center(child: Text('${index + 1}'))),
+        DataCell(
+          Center(
+            child: Text(
+              d.time != null
+                  ? DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time!)
+                  : "-",
+            ),
+          ),
+        ),
+        DataCell(Center(child: Text(d.deviceId))),
+        DataCell(Center(child: Text('${d.latitude ?? "-"}'))),
+        DataCell(Center(child: Text('${d.longitude ?? "-"}'))),
+        DataCell(Center(child: Text('${d.altitude ?? "-"}'))),
+        DataCell(Center(child: Text('${d.sog ?? "-"}'))),
+        DataCell(Center(child: Text('${d.cog ?? "-"}'))),
+        DataCell(Center(child: Text('${d.roll ?? "-"}'))),
+        DataCell(Center(child: Text('${d.pitch ?? "-"}'))),
+        DataCell(Center(child: Text('${d.yaw ?? "-"}'))),
+        DataCell(Center(child: Text('${d.voltage ?? "-"}'))),
+        DataCell(Center(child: Text('${d.heartRate ?? "-"}'))),
+        DataCell(Center(child: Text('${d.spo ?? "-"}'))),
+        DataCell(Center(child: Text('${d.temperature ?? "-"}'))),
+        DataCell(Center(child: Text('${d.respiratoryRate ?? "-"}'))),
+      ],
+    );
+  }
+
+  @override
+  int get rowCount => data.length;
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get selectedRowCount => 0;
 }

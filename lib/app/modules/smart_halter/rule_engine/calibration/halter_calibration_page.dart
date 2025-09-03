@@ -30,6 +30,11 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
   final HalterCalibrationController controller =
       Get.find<HalterCalibrationController>();
 
+  final RxList<HalterDeviceCalibrationOffsetModel> offsetList =
+      <HalterDeviceCalibrationOffsetModel>[].obs;
+  final RxMap<String, HalterDeviceDetailModel> lastSensorMap =
+      <String, HalterDeviceDetailModel>{}.obs;
+
   // Tambahkan list log khusus
   List<DataRow> _logRows = [];
   final RxMap<String, bool> _isLoadingDevice = <String, bool>{}.obs;
@@ -42,29 +47,29 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
     );
   }
 
-  Future<HalterDeviceDetailModel?> _waitForLatestDeviceData(
+  Future<HalterDeviceDetailModel?> _waitForLatestRawDeviceData(
     String deviceId, {
     DateTime? lastTime,
     Duration timeout = const Duration(minutes: 1),
   }) async {
-    print('[Polling] Menunggu data deviceId: $deviceId ...');
-    final detailList = controller.dataController.detailHistory;
+    print('[Polling RAW] Menunggu data deviceId: $deviceId ...');
+    final detailList = controller.dataController.rawDetailHistoryList;
     final completer = Completer<HalterDeviceDetailModel?>();
     final start = DateTime.now();
 
     Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      print('[Polling] Cek data deviceId: $deviceId');
+      print('[Polling RAW] Cek data deviceId: $deviceId');
       final latest = detailList.lastWhereOrNull(
         (d) =>
             d.deviceId == deviceId &&
             (lastTime == null || d.time.isAfter(lastTime)),
       );
       if (latest != null) {
-        print('[Polling] Data BARU ditemukan untuk deviceId: $deviceId');
+        print('[Polling RAW] Data BARU ditemukan untuk deviceId: $deviceId');
         timer.cancel();
         completer.complete(latest);
       } else if (DateTime.now().difference(start) > timeout) {
-        print('[Polling] Timeout menunggu data deviceId: $deviceId');
+        print('[Polling RAW] Timeout menunggu data deviceId: $deviceId');
         timer.cancel();
         completer.complete(null);
       }
@@ -183,7 +188,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
     HalterDeviceCalibrationModel referensi,
   ) async {
     print('[Kalibrasi] Mulai kalibrasi deviceId: $deviceId');
-    final latest = await _waitForLatestDeviceData(deviceId);
+    final latest = await _waitForLatestRawDeviceData(deviceId);
 
     if (latest == null) {
       print(
@@ -253,6 +258,32 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
     indeksCahayaCtrl = TextEditingController(
       text: c.lightIntensity.toInt().toString(),
     );
+
+    // --- PATCH: load last calibration and raw data for each device ---
+    final halterDeviceList = controller.dataController.halterDeviceList;
+    for (final device in halterDeviceList) {
+      // 1. Ambil offset kalibrasi terakhir
+      final offset = DataHalterDeviceCalibrationOffset.getByDeviceId(
+        device.deviceId,
+      );
+      if (offset != null) {
+        final idx = offsetList.indexWhere((o) => o.deviceId == device.deviceId);
+        if (idx >= 0)
+          offsetList[idx] = offset;
+        else
+          offsetList.add(offset);
+      }
+
+      // 2. Ambil data RAW terakhir dari device
+      final rawDetailList = controller.dataController.rawDetailHistoryList;
+      final latestRaw = rawDetailList
+          .where((d) => d.deviceId == device.deviceId)
+          .sorted((a, b) => b.time.compareTo(a.time))
+          .firstOrNull;
+      if (latestRaw != null) {
+        lastSensorMap[device.deviceId] = latestRaw;
+      }
+    }
   }
 
   @override
@@ -737,12 +768,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                 backgroundColor: AppColors.primary,
                 isDisabled: isLoading,
                 onPressed: () async {
-                  var referensi = DataHalterDeviceCalibration.getByDeviceId(
-                    device.deviceId,
-                  );
-
                   final rule = rxSelectedRule?.value;
-
                   if (rule == null) {
                     Get.snackbar(
                       "Pilih Rule",
@@ -754,8 +780,8 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                     return;
                   }
 
-                  // Selalu update referensi dengan rule terbaru
-                  referensi = HalterDeviceCalibrationModel(
+                  // Buat referensi kalibrasi baru
+                  final referensi = HalterDeviceCalibrationModel(
                     deviceId: device.deviceId,
                     temperature: rule.suhuMin ?? rule.suhuMax ?? 0,
                     heartRate: (rule.heartRateMin ?? rule.heartRateMax ?? 0)
@@ -769,14 +795,15 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
 
                   _isLoadingDevice[device.deviceId] = true;
 
+                  // Polling data RAW terbaru setelah tombol diklik
                   final pollingStartTime = DateTime.now();
-                  final latest = await _waitForLatestDeviceData(
+                  final latestRaw = await _waitForLatestRawDeviceData(
                     device.deviceId,
                     lastTime: pollingStartTime,
                     timeout: const Duration(minutes: 1),
                   );
 
-                  if (latest == null) {
+                  if (latestRaw == null) {
                     Get.snackbar(
                       "Kalibrasi Gagal",
                       "Tidak ada data sensor baru dalam 1 menit.",
@@ -792,25 +819,27 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                   final offset = HalterDeviceCalibrationOffsetModel(
                     deviceId: device.deviceId,
                     temperatureOffset:
-                        referensi.temperature - (latest.temperature ?? 0),
+                        referensi.temperature - (latestRaw.temperature ?? 0),
                     heartRateOffset:
-                        referensi.heartRate - (latest.heartRate ?? 0),
-                    spoOffset: referensi.spo - (latest.spo ?? 0),
+                        referensi.heartRate - (latestRaw.heartRate ?? 0),
+                    spoOffset: referensi.spo - (latestRaw.spo ?? 0),
                     respirationOffset:
-                        referensi.respiration - (latest.respiratoryRate ?? 0),
+                        referensi.respiration -
+                        (latestRaw.respiratoryRate ?? 0),
                     updatedAt: DateTime.now(),
                   );
                   DataHalterDeviceCalibrationOffset.save(offset);
 
-                  // Update RxList deviceCalibrations dengan referensi terbaru
-                  final idx = deviceCalibrations.indexWhere(
-                    (c) => c.deviceId == device.deviceId,
+                  // Update RxList offset & lastSensor
+                  final idx = offsetList.indexWhere(
+                    (o) => o.deviceId == device.deviceId,
                   );
-                  if (idx != -1) {
-                    deviceCalibrations[idx] = referensi;
-                  } else {
-                    deviceCalibrations.add(referensi);
-                  }
+                  if (idx >= 0)
+                    offsetList[idx] = offset;
+                  else
+                    offsetList.add(offset);
+
+                  lastSensorMap[device.deviceId] = latestRaw;
 
                   _isLoadingDevice[device.deviceId] = false;
 
@@ -824,9 +853,9 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                       sensorName: 'Suhu Badan (°C)',
                       referensi: referensi.temperature.toStringAsFixed(2),
                       sensorValue:
-                          latest.temperature?.toStringAsFixed(2) ?? "-",
+                          latestRaw.temperature?.toStringAsFixed(2) ?? "-",
                       nilaiKalibrasi:
-                          (referensi.temperature - (latest.temperature ?? 0))
+                          (referensi.temperature - (latestRaw.temperature ?? 0))
                               .toStringAsFixed(2),
                     ),
                   );
@@ -836,9 +865,10 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                       timestamp: DateTime.now(),
                       sensorName: 'Detak Jantung (beat/m)',
                       referensi: referensi.heartRate.toStringAsFixed(2),
-                      sensorValue: latest.heartRate?.toStringAsFixed(2) ?? "-",
+                      sensorValue:
+                          latestRaw.heartRate?.toStringAsFixed(2) ?? "-",
                       nilaiKalibrasi:
-                          (referensi.heartRate - (latest.heartRate ?? 0))
+                          (referensi.heartRate - (latestRaw.heartRate ?? 0))
                               .toStringAsFixed(2),
                     ),
                   );
@@ -848,8 +878,8 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                       timestamp: DateTime.now(),
                       sensorName: 'SpO₂ (%)',
                       referensi: referensi.spo.toStringAsFixed(2),
-                      sensorValue: latest.spo?.toStringAsFixed(2) ?? "-",
-                      nilaiKalibrasi: (referensi.spo - (latest.spo ?? 0))
+                      sensorValue: latestRaw.spo?.toStringAsFixed(2) ?? "-",
+                      nilaiKalibrasi: (referensi.spo - (latestRaw.spo ?? 0))
                           .toStringAsFixed(2),
                     ),
                   );
@@ -860,10 +890,10 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                       sensorName: 'Respirasi (breath/m)',
                       referensi: referensi.respiration.toStringAsFixed(2),
                       sensorValue:
-                          latest.respiratoryRate?.toStringAsFixed(2) ?? "-",
+                          latestRaw.respiratoryRate?.toStringAsFixed(2) ?? "-",
                       nilaiKalibrasi:
                           (referensi.respiration -
-                                  (latest.respiratoryRate ?? 0))
+                                  (latestRaw.respiratoryRate ?? 0))
                               .toStringAsFixed(2),
                     ),
                   );
@@ -878,16 +908,15 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
               ),
             if (device != null)
               Obx(() {
-                final lastCalibration = deviceCalibrations.firstWhereOrNull(
-                  (c) => c.deviceId == device?.deviceId,
+                final offset = offsetList.firstWhereOrNull(
+                  (o) => o.deviceId == device.deviceId,
                 );
-                final offset = DataHalterDeviceCalibrationOffset.getByDeviceId(
-                  device?.deviceId ?? '',
-                );
-                final latestSensor = controller.dataController.detailHistory
-                    .lastWhereOrNull((d) => d.deviceId == device?.deviceId);
+                final latestRaw = lastSensorMap[device.deviceId];
 
-                print(latestSensor?.temperature);
+                final lastCalibration = deviceCalibrations.firstWhereOrNull(
+                  (c) => c.deviceId == device.deviceId,
+                );
+
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: DataTable(
@@ -896,7 +925,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                       DataColumn(label: Text('Nama Sensor')),
                       DataColumn(label: Text('Data lookup (Referensi)')),
                       DataColumn(label: Text('Data Sensor')),
-                      DataColumn(label: Text('Value Kalibrasi')),
+                      DataColumn(label: Text('Nilai Kalibrasi')),
                     ],
                     rows: [
                       if (lastCalibration != null)
@@ -914,20 +943,17 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                                 DataCell(const Text('Suhu Badan (°C)')),
                                 DataCell(
                                   Text(
-                                    '${lastCalibration.temperature.toStringAsFixed(2)} ',
+                                    '${lastCalibration.temperature.toStringAsFixed(2)}',
                                   ),
                                 ),
                                 DataCell(
                                   Text(
-                                    '${latestSensor?.temperature?.toStringAsFixed(2) ?? "-"} ',
+                                    '${latestRaw?.temperature?.toStringAsFixed(2) ?? "-"}',
                                   ),
                                 ),
                                 DataCell(
                                   Text(
-                                    offset?.temperatureOffset.toStringAsFixed(
-                                          2,
-                                        ) ??
-                                        "-",
+                                    '${offset?.temperatureOffset.toStringAsFixed(2) ?? "-"}',
                                   ),
                                 ),
                               ],
@@ -949,7 +975,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                                 ),
                                 DataCell(
                                   Text(
-                                    '${latestSensor?.heartRate?.toStringAsFixed(2) ?? "-"}',
+                                    '${latestRaw?.heartRate?.toStringAsFixed(2) ?? "-"}',
                                   ),
                                 ),
                                 DataCell(
@@ -976,7 +1002,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                                 ),
                                 DataCell(
                                   Text(
-                                    '${latestSensor?.spo?.toStringAsFixed(2) ?? "-"}',
+                                    '${latestRaw?.spo?.toStringAsFixed(2) ?? "-"}',
                                   ),
                                 ),
                                 DataCell(
@@ -1003,7 +1029,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                                 ),
                                 DataCell(
                                   Text(
-                                    '${latestSensor?.respiratoryRate?.toStringAsFixed(2) ?? "-"}',
+                                    '${latestRaw?.respiratoryRate?.toStringAsFixed(2) ?? "-"}',
                                   ),
                                 ),
                                 DataCell(

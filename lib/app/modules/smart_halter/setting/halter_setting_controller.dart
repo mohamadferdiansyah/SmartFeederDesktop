@@ -1,10 +1,12 @@
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
+import 'package:smart_feeder_desktop/app/data/data_setting_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_setting_model.dart';
 import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
 class HalterSettingController extends GetxController {
   final HalterSerialService serialService = Get.find<HalterSerialService>();
+  final RxString deviceHeader = DataSettingHalter.getDeviceHeader().obs;
 
   // Observable state
   final Rx<HalterSettingModel> setting = HalterSettingModel(
@@ -15,6 +17,11 @@ class HalterSettingController extends GetxController {
   ).obs;
 
   RxList<String> get availablePorts => RxList<String>(SerialPort.availablePorts);
+
+  void setDeviceHeader(String header) {
+    deviceHeader.value = header;
+    DataSettingHalter.saveDeviceHeader(header);
+  }
 
   // Update Cloud
   void updateCloud({required String url}) {

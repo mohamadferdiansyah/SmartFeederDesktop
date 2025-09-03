@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_calibration_log_model.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 import 'halter_calibration_log_controller.dart';
 
 class HalterCalibrationLogPage extends StatefulWidget {
@@ -131,7 +133,7 @@ class _HalterCalibrationLogPageState extends State<HalterCalibrationLogPage> {
                     ..sort(
                       (a, b) => b.timestamp.compareTo(a.timestamp),
                     ); // urut desc
-                    
+
                   if (_sortColumnIndex != null) {
                     switch (_sortColumnIndex!) {
                       case 0:
@@ -171,29 +173,49 @@ class _HalterCalibrationLogPageState extends State<HalterCalibrationLogPage> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: TextField(
+                        child: CustomInput(
+                          label: "Cari Log Kalibrasi",
                           controller: _searchController,
-                          decoration: InputDecoration(
-                            labelText: "Cari Log Kalibrasi",
-                            hintText: 'Masukkan Device ID, Sensor, atau Waktu',
-                            prefixIcon: const Icon(Icons.search),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: AppColors.primary.withOpacity(0.5),
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.primary,
-                                width: 1.5,
-                              ),
-                            ),
-                          ),
-                          style: const TextStyle(fontSize: 18),
+                          icon: Icons.search,
+                          hint: 'Masukkan Device ID, Sensor, atau Waktu',
+                          fontSize: 24,
                         ),
                       ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Export Data :',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(width: 12),
+                          CustomButton(
+                            width: MediaQuery.of(context).size.width * 0.1,
+                            height: 50,
+                            backgroundColor: Colors.green,
+                            fontSize: 18,
+                            icon: Icons.table_view_rounded,
+                            text: 'Export Excel',
+                            onPressed: () {
+                              controller.exportLogExcel(filteredLogs);
+                            },
+                          ),
+                          const SizedBox(width: 12),
+                          CustomButton(
+                            width: MediaQuery.of(context).size.width * 0.1,
+                            height: 50,
+                            backgroundColor: Colors.redAccent,
+                            fontSize: 18,
+                            icon: Icons.picture_as_pdf,
+                            text: 'Export PDF',
+                            onPressed: () {
+                              controller.exportLogPDF(filteredLogs);
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -238,26 +260,7 @@ class _HalterCalibrationLogPageState extends State<HalterCalibrationLogPage> {
                             ),
                             DataColumn(
                               label: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.1,
-                                child: const Center(
-                                  child: Text(
-                                    'Device ID',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              onSort: (columnIndex, ascending) {
-                                setState(() {
-                                  _sortColumnIndex = columnIndex;
-                                  _sortAscending = ascending;
-                                });
-                              },
-                            ),
-                            DataColumn(
-                              label: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.14,
+                                width: MediaQuery.of(context).size.width * 0.08,
                                 child: const Center(
                                   child: Text(
                                     'Timestamp',
@@ -276,7 +279,27 @@ class _HalterCalibrationLogPageState extends State<HalterCalibrationLogPage> {
                             ),
                             DataColumn(
                               label: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.14,
+                                width: MediaQuery.of(context).size.width * 0.1,
+                                child: const Center(
+                                  child: Text(
+                                    'Device ID',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              onSort: (columnIndex, ascending) {
+                                setState(() {
+                                  _sortColumnIndex = columnIndex;
+                                  _sortAscending = ascending;
+                                });
+                              },
+                            ),
+
+                            DataColumn(
+                              label: SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.16,
                                 child: const Center(
                                   child: Text(
                                     'Nama Sensor',
@@ -295,7 +318,7 @@ class _HalterCalibrationLogPageState extends State<HalterCalibrationLogPage> {
                             ),
                             DataColumn(
                               label: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.09,
+                                width: MediaQuery.of(context).size.width * 0.1,
                                 child: const Center(
                                   child: Text(
                                     'Data lookup (Referensi)',
@@ -314,7 +337,7 @@ class _HalterCalibrationLogPageState extends State<HalterCalibrationLogPage> {
                             ),
                             DataColumn(
                               label: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.09,
+                                width: MediaQuery.of(context).size.width * 0.1,
                                 child: const Center(
                                   child: Text(
                                     'Data Sensor',
@@ -333,7 +356,7 @@ class _HalterCalibrationLogPageState extends State<HalterCalibrationLogPage> {
                             ),
                             DataColumn(
                               label: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.09,
+                                width: MediaQuery.of(context).size.width * 0.1,
                                 child: const Center(
                                   child: Text(
                                     'Nilai Kalibrasi',
@@ -385,15 +408,15 @@ class CalibrationLogDataTableSource extends DataTableSource {
     return DataRow.byIndex(
       index: index,
       cells: [
-        DataCell(Center(child: Text('${index + 1}'))), // Index column
-        DataCell(Center(child: Text(log.deviceId))),
+        DataCell(Center(child: Text('${index + 1}'))),
         DataCell(
           Center(
             child: Text(
               DateFormat('dd-MM-yyyy HH:mm:ss').format(log.timestamp),
             ),
           ),
-        ),
+        ), // Index column
+        DataCell(Center(child: Text(log.deviceId))),
         DataCell(Center(child: Text(log.sensorName))),
         DataCell(Center(child: Text(log.referensi))),
         DataCell(Center(child: Text(log.sensorValue))),

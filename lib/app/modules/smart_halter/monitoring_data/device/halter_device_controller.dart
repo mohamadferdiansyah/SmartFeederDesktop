@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/data/data_halter_device_calibration_offset.dart';
@@ -203,7 +204,11 @@ class HalterDeviceController extends GetxController {
       final d = data[i];
       sheet.appendRow([
         TextCellValue('${i + 1}'),
-        TextCellValue(d.time != null ? d.time!.toIso8601String() : "-"),
+        TextCellValue(
+          d.time != null
+              ? DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time!)
+              : "-",
+        ),
         TextCellValue(d.deviceId),
         TextCellValue('${d.latitude ?? "-"}'),
         TextCellValue('${d.longitude ?? "-"}'),

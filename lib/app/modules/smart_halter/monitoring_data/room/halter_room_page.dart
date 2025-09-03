@@ -742,10 +742,11 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: CustomInput(
-                        label: "Cari ruangan",
+                        label: "Cari Ruangan",
                         controller: _searchController,
                         icon: Icons.search,
-                        hint: 'Masukkan ID, nama, status, jadwal, atau device',
+                        hint:
+                            'Masukkan ID, nama, node kandang, status, atau cctv',
                         fontSize: 24,
                       ),
                     ),
@@ -955,7 +956,7 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                                         width: serialW,
                                         child: const Center(
                                           child: Text(
-                                            'Device Id',
+                                            'Node Kandang ID',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),

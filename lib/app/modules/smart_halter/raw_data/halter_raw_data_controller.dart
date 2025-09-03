@@ -50,7 +50,10 @@ class HalterRawDataController extends GetxController {
           searchText.value.isEmpty ||
           item.data.toLowerCase().contains(searchText.value.toLowerCase());
       final matchDate =
-          selectedDate.value.isEmpty || item.time == selectedDate.value;
+          selectedDate.value.isEmpty ||
+          (item.time != null &&
+              DateFormat('dd-MM-yyyy').format(item.time!) ==
+                  selectedDate.value);
       return matchSearch && matchDate;
     }).toList();
   }
@@ -80,15 +83,20 @@ class HalterRawDataController extends GetxController {
       TextCellValue('Tanggal'),
       TextCellValue('Data'),
     ]);
+
+    String _sanitizeExcelString(String input) {
+      return input.replaceAll(RegExp(r'[^\x20-\x7E]'), '');
+    }
+
     for (var d in data) {
       sheet.appendRow([
         TextCellValue(d.rawId.toString()),
         TextCellValue(
           d.time != null
-              ? DateFormat('yyyy-MM-dd HH:mm:ss').format(d.time!)
+              ? DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time!)
               : '-',
         ),
-        TextCellValue(d.data),
+        TextCellValue(_sanitizeExcelString(d.data)),
       ]);
     }
     final fileBytes = excel.encode();

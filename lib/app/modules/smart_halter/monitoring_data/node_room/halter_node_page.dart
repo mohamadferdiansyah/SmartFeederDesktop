@@ -42,6 +42,7 @@ class _HalterNodePageState extends State<HalterNodePage> {
       return d.deviceId.toLowerCase().contains(_searchText) ||
           d.temperature.toString().contains(_searchText) ||
           d.humidity.toString().contains(_searchText) ||
+          d.humidity.toString().contains(_searchText) ||
           d.lightIntensity.toString().contains(_searchText);
     }).toList();
   }
@@ -346,7 +347,7 @@ class _HalterNodePageState extends State<HalterNodePage> {
                   child: Row(
                     children: [
                       Text(
-                        'Daftar Node Room Device',
+                        'Daftar IoT Node Kandang',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -371,7 +372,7 @@ class _HalterNodePageState extends State<HalterNodePage> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: CustomInput(
-                        label: "Cari node device",
+                        label: "Cari IoT Node Kandang",
                         controller: _searchController,
                         icon: Icons.search,
                         hint: 'Masukkan ID, suhu, kelembaban, light',
@@ -540,7 +541,7 @@ class _HalterNodePageState extends State<HalterNodePage> {
                                         width: idW,
                                         child: const Center(
                                           child: Text(
-                                            'Device ID',
+                                            'ID',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -829,16 +830,52 @@ class RoomNodeDataDialog extends StatefulWidget {
 class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
   DateTime? tanggalAwal;
   DateTime? tanggalAkhir;
+  int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
+  int? _sortColumnIndex;
+  bool _sortAscending = true;
   final HalterNodeController _controller = Get.find<HalterNodeController>();
 
   List<NodeRoomModel> get filteredData {
-    // Filter by deviceId
     var data = widget.allData
         .where((d) => d.deviceId == widget.deviceId)
         .toList();
-    // Jika NodeRoomModel punya timestamp, bisa filter tanggal di sini.
-    // Namun model sekarang tidak punya field time, jadi filter tanggal diabaikan.
+    if (tanggalAwal != null) {
+      data = data.where((d) {
+        if (d.time == null) return false;
+        final tAwal = DateTime(
+          tanggalAwal!.year,
+          tanggalAwal!.month,
+          tanggalAwal!.day,
+        );
+        final tData = DateTime(d.time!.year, d.time!.month, d.time!.day);
+        return tData.isAtSameMomentAs(tAwal) || tData.isAfter(tAwal);
+      }).toList();
+    }
+    if (tanggalAkhir != null) {
+      data = data.where((d) {
+        if (d.time == null) return false;
+        final tAkhir = DateTime(
+          tanggalAkhir!.year,
+          tanggalAkhir!.month,
+          tanggalAkhir!.day,
+        );
+        final tData = DateTime(d.time!.year, d.time!.month, d.time!.day);
+        return tData.isAtSameMomentAs(tAkhir) || tData.isBefore(tAkhir);
+      }).toList();
+    }
     return data;
+  }
+
+  void _sort<T extends Comparable>(
+    List<NodeRoomModel> data,
+    T Function(NodeRoomModel d) getField,
+    bool ascending,
+  ) {
+    data.sort((a, b) {
+      final aValue = getField(a);
+      final bValue = getField(b);
+      return ascending ? aValue.compareTo(bValue) : bValue.compareTo(aValue);
+    });
   }
 
   @override
@@ -847,7 +884,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
       insetPadding: const EdgeInsets.all(32),
       child: Container(
         width: MediaQuery.of(context).size.width * 0.9,
-        height: MediaQuery.of(context).size.height * 0.8,
+        height: MediaQuery.of(context).size.height * 0.82,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
@@ -929,7 +966,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                       ),
                       controller: TextEditingController(
                         text: tanggalAwal != null
-                            ? "${tanggalAwal!.toIso8601String().split('T').first}"
+                            ? DateFormat('dd-MM-yyyy').format(tanggalAwal!)
                             : "",
                       ),
                       onTap: () async {
@@ -939,8 +976,17 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                           firstDate: DateTime(2020),
                           lastDate: DateTime(2100),
                         );
-                        if (picked != null)
-                          setState(() => tanggalAwal = picked);
+                        if (picked != null) {
+                          setState(() {
+                            tanggalAwal = picked;
+                            if (tanggalAkhir != null &&
+                                tanggalAwal!.isAfter(tanggalAkhir!)) {
+                              final temp = tanggalAwal;
+                              tanggalAwal = tanggalAkhir;
+                              tanggalAkhir = temp;
+                            }
+                          });
+                        }
                       },
                     ),
                   ),
@@ -969,7 +1015,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                       ),
                       controller: TextEditingController(
                         text: tanggalAkhir != null
-                            ? "${tanggalAkhir!.toIso8601String().split('T').first}"
+                            ? DateFormat('dd-MM-yyyy').format(tanggalAkhir!)
                             : "",
                       ),
                       onTap: () async {
@@ -979,23 +1025,21 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                           firstDate: DateTime(2020),
                           lastDate: DateTime(2100),
                         );
-                        if (picked != null)
-                          setState(() => tanggalAkhir = picked);
+                        if (picked != null) {
+                          setState(() {
+                            tanggalAkhir = picked;
+                            if (tanggalAwal != null &&
+                                tanggalAwal!.isAfter(tanggalAkhir!)) {
+                              final temp = tanggalAwal;
+                              tanggalAwal = tanggalAkhir;
+                              tanggalAkhir = temp;
+                            }
+                          });
+                        }
                       },
                     ),
                   ),
                   const SizedBox(width: 12),
-                  CustomButton(
-                    onPressed: () {
-                      setState(() {});
-                    },
-                    text: "Pilih Tanggal",
-                    width: 150,
-                    height: 50,
-                    backgroundColor: AppColors.primary,
-                    fontSize: 16,
-                  ),
-                  const SizedBox(width: 8),
                   CustomButton(
                     onPressed: () {
                       setState(() {
@@ -1050,141 +1094,168 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                 ),
               ),
             ),
-            // Tabel data
+            const SizedBox(height: 12),
+            // Tabel data dengan pagination
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final tableWidth = constraints.maxWidth;
-                  final noW = tableWidth * 0.05; // 10%
-                  final devIdW = tableWidth * 0.15; // 18%
-                  final tempW = tableWidth * 0.15; // 18%
-                  final humidityW = tableWidth * 0.15; // 18%
-                  final lightW = tableWidth * 0.15; // 18%
-                  final timeW = tableWidth * 0.15; // 18%
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
+                  final noW = tableWidth * 0.05;
+                  final timeW = tableWidth * 0.17;
+                  final devIdW = tableWidth * 0.17;
+                  final tempW = tableWidth * 0.18;
+                  final humidityW = tableWidth * 0.18;
+                  final lightW = tableWidth * 0.18;
+
+                  List<NodeRoomModel> sortedData = List.from(filteredData);
+                  if (_sortColumnIndex != null) {
+                    switch (_sortColumnIndex!) {
+                      case 0:
+                        _sort<String>(
+                          sortedData,
+                          (d) => d.deviceId,
+                          _sortAscending,
+                        );
+                        break;
+                      case 1:
+                        _sort<DateTime>(
+                          sortedData,
+                          (d) => d.time ?? DateTime(2000),
+                          _sortAscending,
+                        );
+                        break;
+                      case 2:
+                        _sort<double>(
+                          sortedData,
+                          (d) => d.temperature,
+                          _sortAscending,
+                        );
+                        break;
+                      case 3:
+                        _sort<double>(
+                          sortedData,
+                          (d) => d.humidity,
+                          _sortAscending,
+                        );
+                        break;
+                      case 4:
+                        _sort<double>(
+                          sortedData,
+                          (d) => d.lightIntensity,
+                          _sortAscending,
+                        );
+                        break;
+                    }
+                  }
+
+                  return Theme(
+                    data: Theme.of(context).copyWith(
+                      cardColor: Colors.white,
+                      dataTableTheme: DataTableThemeData(
+                        headingRowColor: MaterialStateProperty.all(
+                          Colors.grey[200]!,
+                        ),
+                        dataRowColor: MaterialStateProperty.all(Colors.white),
+                      ),
+                    ),
+                    child: PaginatedDataTable(
+                      columnSpacing: 0,
+                      horizontalMargin: 0,
+                      sortColumnIndex: _sortColumnIndex,
+                      sortAscending: _sortAscending,
                       columns: [
                         DataColumn(
                           label: SizedBox(
                             width: noW,
-                            child: const Text(
-                              "No",
-                              textAlign: TextAlign.center,
-                            ),
+                            child: const Center(child: Text("No")),
                           ),
+                          onSort: (columnIndex, ascending) {
+                            setState(() {
+                              _sortColumnIndex = columnIndex;
+                              _sortAscending = ascending;
+                            });
+                          },
                         ),
                         DataColumn(
                           label: SizedBox(
                             width: timeW,
-                            child: const Text(
-                              "Timestamp",
-                              textAlign: TextAlign.center,
-                            ),
+                            child: const Center(child: Text("Timestamp")),
                           ),
+                          onSort: (columnIndex, ascending) {
+                            setState(() {
+                              _sortColumnIndex = columnIndex;
+                              _sortAscending = ascending;
+                            });
+                          },
                         ),
                         DataColumn(
                           label: SizedBox(
                             width: devIdW,
-                            child: const Text(
-                              "Device Id",
-                              textAlign: TextAlign.center,
-                            ),
+                            child: const Center(child: Text("ID")),
                           ),
+                          onSort: (columnIndex, ascending) {
+                            setState(() {
+                              _sortColumnIndex = columnIndex;
+                              _sortAscending = ascending;
+                            });
+                          },
                         ),
                         DataColumn(
                           label: SizedBox(
                             width: tempW,
-                            child: const Text(
-                              "Suhu (°C)",
-                              textAlign: TextAlign.center,
-                            ),
+                            child: const Center(child: Text("Suhu (°C)")),
                           ),
+                          onSort: (columnIndex, ascending) {
+                            setState(() {
+                              _sortColumnIndex = columnIndex;
+                              _sortAscending = ascending;
+                            });
+                          },
                         ),
                         DataColumn(
                           label: SizedBox(
                             width: humidityW,
-                            child: const Text(
-                              "Kelembapan (%)",
-                              textAlign: TextAlign.center,
-                            ),
+                            child: const Center(child: Text("Kelembapan (%)")),
                           ),
+                          onSort: (columnIndex, ascending) {
+                            setState(() {
+                              _sortColumnIndex = columnIndex;
+                              _sortAscending = ascending;
+                            });
+                          },
                         ),
                         DataColumn(
                           label: SizedBox(
                             width: lightW,
-                            child: const Text(
-                              "Indeks Cahaya (Lux)",
-                              textAlign: TextAlign.center,
+                            child: const Center(
+                              child: Text("Indeks Cahaya (Lux)"),
                             ),
                           ),
+                          onSort: (columnIndex, ascending) {
+                            setState(() {
+                              _sortColumnIndex = columnIndex;
+                              _sortAscending = ascending;
+                            });
+                          },
                         ),
                       ],
-                      rows: List.generate(filteredData.length, (i) {
-                        final d = filteredData[i];
-                        return DataRow(
-                          cells: [
-                            DataCell(
-                              SizedBox(
-                                width: noW,
-                                child: Text(
-                                  '${i + 1}',
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              SizedBox(
-                                width: timeW,
-                                child: Text(
-                                  d.time != null
-                                      ? DateFormat(
-                                          'dd-MM-yyyy HH:mm:ss',
-                                        ).format(d.time!)
-                                      : '-',
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              SizedBox(
-                                width: devIdW,
-                                child: Text(
-                                  d.deviceId,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              SizedBox(
-                                width: tempW,
-                                child: Text(
-                                  d.temperature.toStringAsFixed(2),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              SizedBox(
-                                width: humidityW,
-                                child: Text(
-                                  d.humidity.toStringAsFixed(2),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              SizedBox(
-                                width: lightW,
-                                child: Text(
-                                  d.lightIntensity.toStringAsFixed(2),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }),
+                      source: NodeRoomDetailDataTableSource(
+                        sortedData,
+                        noW,
+                        timeW,
+                        devIdW,
+                        tempW,
+                        humidityW,
+                        lightW,
+                      ),
+                      rowsPerPage: _rowsPerPage,
+                      availableRowsPerPage: const [5, 10, 20, 50, 100],
+                      onRowsPerPageChanged: (value) {
+                        setState(() {
+                          _rowsPerPage = value ?? 5;
+                        });
+                      },
+                      showCheckboxColumn: false,
                     ),
                   );
                 },
@@ -1212,4 +1283,80 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
       ),
     );
   }
+}
+
+class NodeRoomDetailDataTableSource extends DataTableSource {
+  final List<NodeRoomModel> data;
+  final double noW, timeW, devIdW, tempW, humidityW, lightW;
+
+  NodeRoomDetailDataTableSource(
+    this.data,
+    this.noW,
+    this.timeW,
+    this.devIdW,
+    this.tempW,
+    this.humidityW,
+    this.lightW,
+  );
+
+  @override
+  DataRow getRow(int index) {
+    final d = data[index];
+    return DataRow.byIndex(
+      index: index,
+      cells: [
+        DataCell(
+          SizedBox(
+            width: noW,
+            child: Center(child: Text('${index + 1}')),
+          ),
+        ),
+        DataCell(
+          SizedBox(
+            width: timeW,
+            child: Center(
+              child: Text(
+                d.time != null
+                    ? DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time!)
+                    : "-",
+              ),
+            ),
+          ),
+        ),
+        DataCell(
+          SizedBox(
+            width: devIdW,
+            child: Center(child: Text(d.deviceId)),
+          ),
+        ),
+        DataCell(
+          SizedBox(
+            width: tempW,
+            child: Center(child: Text(d.temperature.toStringAsFixed(2))),
+          ),
+        ),
+        DataCell(
+          SizedBox(
+            width: humidityW,
+            child: Center(child: Text(d.humidity.toStringAsFixed(2))),
+          ),
+        ),
+        DataCell(
+          SizedBox(
+            width: lightW,
+            child: Center(child: Text(d.lightIntensity.toStringAsFixed(2))),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  int get rowCount => data.length;
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get selectedRowCount => 0;
 }
