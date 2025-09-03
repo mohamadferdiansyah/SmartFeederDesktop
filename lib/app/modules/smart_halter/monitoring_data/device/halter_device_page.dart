@@ -11,6 +11,7 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart'
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_power_log_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/data_logs/log_device/halter_device_power_log_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/device/halter_device_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
@@ -25,6 +26,7 @@ class HalterDevicePage extends StatefulWidget {
 class _HalterDevicePageState extends State<HalterDevicePage> {
   final TextEditingController _searchController = TextEditingController();
   final HalterDeviceController _controller = Get.find<HalterDeviceController>();
+  final header = Get.find<HalterSettingController>().deviceHeader.value;
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   int? _sortColumnIndex;
   bool _sortAscending = true;
@@ -91,10 +93,37 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
             ),
             const SizedBox(height: 16),
           ],
-          CustomInput(
-            label: "Device ID (Wajib diisi)",
-            controller: idCtrl,
-            hint: "Masukkan Device ID (Format: SHIPB001)",
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  header,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: CustomInput(
+                  label: "Device ID (Wajib diisi)",
+                  controller: idCtrl,
+                  hint: "Masukkan ID (misal: 001)",
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
@@ -120,7 +149,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
           return;
         }
         final newDevice = HalterDeviceModel(
-          deviceId: idCtrl.text.trim(),
+          deviceId: '$header${idCtrl.text.trim()}',
           status: device?.status ?? 'off',
           batteryPercent: device?.batteryPercent ?? 0,
           horseId: device?.horseId,

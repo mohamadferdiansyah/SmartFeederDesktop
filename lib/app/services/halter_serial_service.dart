@@ -15,6 +15,7 @@ import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/alert/halter_alert_rule_engine_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/calibration/halter_calibration_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/threshold/halter_threshold_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
 
 class HalterSerialService extends GetxService {
   SerialPort? port;
@@ -49,6 +50,8 @@ class HalterSerialService extends GetxService {
 
   RxList<String> get availablePorts =>
       RxList<String>(SerialPort.availablePorts);
+
+  final header = Get.find<HalterSettingController>().deviceHeader.value;
 
   final Map<String, Timer> _deviceTimeoutTimers = {};
   final Set<String> _pairingDevices = {};
@@ -244,7 +247,7 @@ class HalterSerialService extends GetxService {
           _serialBuffer = _serialBuffer.substring(idx + 1);
 
           // Ambil data yang diawali SHIPB
-          if (line.startsWith('SHIPB')) {
+          if (line.startsWith(header)) {
             // Proses langsung sebagai dataLine
             _processBlock(line);
           } else if (line.startsWith('SRIPB')) {
@@ -337,7 +340,7 @@ class HalterSerialService extends GetxService {
       //     snr = double.tryParse(match.group(1)!);
       //   }
       // }
-      if (line.startsWith('SHIPB')) {
+      if (line.startsWith(header)) {
         dataLine = line;
       } else {
         print('KAMU BUKAN IPB');
@@ -351,6 +354,7 @@ class HalterSerialService extends GetxService {
           dataLine,
           rssi: rssi,
           snr: snr,
+          header: header
         );
 
         final calibrationController =
@@ -443,7 +447,7 @@ class HalterSerialService extends GetxService {
               respiratoryRateRaw > getMax('respiratoryRate');
         }
 
-        if (!detail.deviceId.startsWith("SHIPB")) {
+        if (!detail.deviceId.startsWith(header)) {
           print('deviceId tidak valid: ${detail.deviceId}');
           return;
         }

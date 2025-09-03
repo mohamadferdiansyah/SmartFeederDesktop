@@ -135,20 +135,21 @@ class HalterDeviceDetailModel {
     String line, {
     int? rssi,
     double? snr,
+    String? header, // Tambahkan parameter header
   }) {
     String raw = line;
-    if (raw.endsWith('*')) {
-      raw = raw.substring(0, raw.length - 1);
-    }
-    final parts = raw.split(',');
+  if (raw.endsWith('*')) {
+    raw = raw.substring(0, raw.length - 1);
+  }
+  final parts = raw.split(',');
 
-    // Gabungkan header dan device id jika format baru
-    String deviceId;
-    if (parts[0] == 'SHIPB' && parts.length > 1) {
-      deviceId = '${parts[0]}${parts[1]}';
-    } else {
-      deviceId = parts[0];
-    }
+  String deviceId;
+  final usedHeader = header ?? 'SHIPB';
+  if (parts[0] == usedHeader && parts.length > 1) {
+    deviceId = '${parts[0]}${parts[1]}';
+  } else {
+    deviceId = parts[0];
+  }
 
     final uuid = const Uuid().v4();
 

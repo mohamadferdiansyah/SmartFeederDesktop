@@ -40,9 +40,11 @@ class HalterSettingPageState extends State<HalterSettingPage> {
     text: 'https://smarthalter.ipb.ac.id',
   );
 
+  final TextEditingController _headerController = TextEditingController();
+
   String? _selectedLoraPort;
   bool _loraConnected = false;
-
+  String _selectedHeaderType = 'halter'; // 'halter' atau 'kandang'
   String? _selectedJenisPengiriman;
 
   @override
@@ -69,6 +71,8 @@ class HalterSettingPageState extends State<HalterSettingPage> {
         _anggotaControllers.add(TextEditingController());
       }
     }
+    _selectedHeaderType = 'halter';
+    _headerController.text = settingController.deviceHeader.value;
   }
 
   @override
@@ -130,301 +134,263 @@ class HalterSettingPageState extends State<HalterSettingPage> {
 
   Widget _buildSettingTab(BuildContext context) {
     return Center(
-      child: Column(
-        children: [
-          Wrap(
-            spacing: 24,
-            runSpacing: 24,
-            children: [
-              CustomCard(
-                titleFontSize: 20,
-                headerHeight: 50,
-                trailing: Icon(
-                  Icons.wifi_rounded,
-                  color: Colors.white,
-                  size: 30,
-                ),
-                withExpanded: false,
-                height: MediaQuery.of(context).size.height * 0.33,
-                title: "Pengaturan Koneksi",
-                content: Column(
-                  children: [
-                    Wrap(
-                      spacing: 18,
-                      runSpacing: 18,
-                      children: [
-                        CustomCard(
-                          withExpanded: false,
-                          title: 'Koneksi Cloud',
-                          headerColor: AppColors.primary,
-                          headerHeight: 50,
-                          titleFontSize: 18,
-                          width: MediaQuery.of(context).size.width * 0.24,
-                          height: MediaQuery.of(context).size.height * 0.24,
-                          borderRadius: 16,
-                          scrollable: false,
-                          content: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const Text('Cloud URL'),
-                              const SizedBox(height: 4),
-                              TextField(
-                                controller: _cloudUrlController,
-                                decoration: const InputDecoration(
-                                  isDense: true,
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primary,
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                      ),
-                                      onPressed: () {},
-                                      child: const Text('Simpan'),
-                                    ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Wrap(
+              spacing: 24,
+              runSpacing: 24,
+              children: [
+                CustomCard(
+                  titleFontSize: 20,
+                  headerHeight: 50,
+                  trailing: Icon(
+                    Icons.wifi_rounded,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                  withExpanded: false,
+                  height: MediaQuery.of(context).size.height * 0.33,
+                  title: "Pengaturan Koneksi",
+                  content: Column(
+                    children: [
+                      Wrap(
+                        spacing: 18,
+                        runSpacing: 18,
+                        children: [
+                          CustomCard(
+                            withExpanded: false,
+                            title: 'Koneksi Cloud',
+                            headerColor: AppColors.primary,
+                            headerHeight: 50,
+                            titleFontSize: 18,
+                            width: MediaQuery.of(context).size.width * 0.24,
+                            height: MediaQuery.of(context).size.height * 0.24,
+                            borderRadius: 16,
+                            scrollable: false,
+                            content: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const Text('Cloud URL'),
+                                const SizedBox(height: 4),
+                                TextField(
+                                  controller: _cloudUrlController,
+                                  decoration: const InputDecoration(
+                                    isDense: true,
+                                    border: OutlineInputBorder(),
                                   ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.blueGrey,
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        settingController.updateCloud(
-                                          url: _cloudUrlController.text,
-                                        );
-                                        toastification.show(
-                                          context: context,
-                                          title: Text(
-                                            'Koneksi Cloud Berhasil',
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
+                                ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.primary,
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
                                             ),
                                           ),
-                                          type: ToastificationType.success,
-                                          description: Text(
-                                            'Cloud URL: ${_cloudUrlController.text}',
-                                          ),
-                                          boxShadow: const [
-                                            BoxShadow(
-                                              color: Colors.black26,
-                                              blurRadius: 8,
-                                              offset: Offset(0, 2),
-                                            ),
-                                          ],
-                                          alignment: Alignment.topCenter,
-                                          autoCloseDuration: const Duration(
-                                            seconds: 2,
-                                          ),
-                                        );
-                                      },
-                                      child: const Text('Cek Koneksi'),
+                                        ),
+                                        onPressed: () {},
+                                        child: const Text('Simpan'),
+                                      ),
                                     ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blueGrey,
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          settingController.updateCloud(
+                                            url: _cloudUrlController.text,
+                                          );
+                                          toastification.show(
+                                            context: context,
+                                            title: Text(
+                                              'Koneksi Cloud Berhasil',
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            type: ToastificationType.success,
+                                            description: Text(
+                                              'Cloud URL: ${_cloudUrlController.text}',
+                                            ),
+                                            boxShadow: const [
+                                              BoxShadow(
+                                                color: Colors.black26,
+                                                blurRadius: 8,
+                                                offset: Offset(0, 2),
+                                              ),
+                                            ],
+                                            alignment: Alignment.topCenter,
+                                            autoCloseDuration: const Duration(
+                                              seconds: 2,
+                                            ),
+                                          );
+                                        },
+                                        child: const Text('Cek Koneksi'),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Obx(
+                                  () => LinearProgressIndicator(
+                                    value:
+                                        settingController
+                                            .setting
+                                            .value
+                                            .cloudUrl
+                                            .isNotEmpty
+                                        ? 1.0
+                                        : 0.2,
+                                    minHeight: 8,
+                                    color:
+                                        settingController
+                                            .setting
+                                            .value
+                                            .cloudUrl
+                                            .isNotEmpty
+                                        ? Colors.green
+                                        : Colors.orange,
+                                    backgroundColor: Colors.grey[300],
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Obx(
-                                () => LinearProgressIndicator(
-                                  value:
-                                      settingController
-                                          .setting
-                                          .value
-                                          .cloudUrl
-                                          .isNotEmpty
-                                      ? 1.0
-                                      : 0.2,
-                                  minHeight: 8,
-                                  color:
-                                      settingController
-                                          .setting
-                                          .value
-                                          .cloudUrl
-                                          .isNotEmpty
-                                      ? Colors.green
-                                      : Colors.orange,
-                                  backgroundColor: Colors.grey[300],
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                settingController
-                                        .setting
-                                        .value
-                                        .cloudUrl
-                                        .isNotEmpty
-                                    ? 'Terhubung'
-                                    : 'Tidak Terhubung',
-                                style: TextStyle(
-                                  color:
-                                      settingController
+                                const SizedBox(height: 4),
+                                Text(
+                                  settingController
                                           .setting
                                           .value
                                           .cloudUrl
                                           .isNotEmpty
-                                      ? Colors.green
-                                      : Colors.orange,
-                                  fontWeight: FontWeight.bold,
+                                      ? 'Terhubung'
+                                      : 'Tidak Terhubung',
+                                  style: TextStyle(
+                                    color:
+                                        settingController
+                                            .setting
+                                            .value
+                                            .cloudUrl
+                                            .isNotEmpty
+                                        ? Colors.green
+                                        : Colors.orange,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.right,
                                 ),
-                                textAlign: TextAlign.right,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        CustomCard(
-                          title: 'Koneksi Lora',
-                          headerColor: AppColors.primary,
-                          withExpanded: false,
-                          headerHeight: 50,
-                          titleFontSize: 18,
-                          width: MediaQuery.of(context).size.width * 0.24,
-                          height: MediaQuery.of(context).size.height * 0.24,
-                          borderRadius: 16,
-                          scrollable: false,
-                          content: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const Text('Port'),
-                              const SizedBox(height: 4),
-                              DropdownButtonFormField<String>(
-                                value:
-                                    _selectedLoraPort != null &&
-                                        settingController.availablePorts
-                                            .toSet()
-                                            .contains(_selectedLoraPort)
-                                    ? _selectedLoraPort
-                                    : null,
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  isDense: true,
-                                ),
-                                items: settingController.availablePorts
-                                    .toSet()
-                                    .map(
-                                      (port) => DropdownMenuItem(
-                                        value: port,
-                                        child: Text(port),
-                                      ),
-                                    )
-                                    .toList(),
-                                onChanged: (val) {
-                                  setState(() {
-                                    _selectedLoraPort = val;
-                                    _loraConnected = false;
-                                    settingController.updateLora(
-                                      port: _selectedLoraPort!,
-                                    );
-                                  });
-                                },
-                                hint: const Text('Pilih Port'),
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  // Tombol Simpan Port (optional, bisa diisi logic simpan port ke controller)
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primary,
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                      ),
-                                      onPressed: _selectedLoraPort == null
-                                          ? null
-                                          : () {
-                                              // Logic simpan port jika perlu
-                                            },
-                                      child: const Text('Simpan Port'),
-                                    ),
+                          CustomCard(
+                            title: 'Koneksi Lora',
+                            headerColor: AppColors.primary,
+                            withExpanded: false,
+                            headerHeight: 50,
+                            titleFontSize: 18,
+                            width: MediaQuery.of(context).size.width * 0.24,
+                            height: MediaQuery.of(context).size.height * 0.24,
+                            borderRadius: 16,
+                            scrollable: false,
+                            content: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const Text('Port'),
+                                const SizedBox(height: 4),
+                                DropdownButtonFormField<String>(
+                                  value:
+                                      _selectedLoraPort != null &&
+                                          settingController.availablePorts
+                                              .toSet()
+                                              .contains(_selectedLoraPort)
+                                      ? _selectedLoraPort
+                                      : null,
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    isDense: true,
                                   ),
-                                  const SizedBox(width: 10),
-                                  // Tombol Connect/Disconnect
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            _selectedLoraPort == null
-                                            ? Colors.grey.shade400
-                                            : _loraConnected
-                                            ? Colors.red
-                                            : Colors.green,
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
+                                  items: settingController.availablePorts
+                                      .toSet()
+                                      .map(
+                                        (port) => DropdownMenuItem(
+                                          value: port,
+                                          child: Text(port),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: (val) {
+                                    setState(() {
+                                      _selectedLoraPort = val;
+                                      _loraConnected = false;
+                                      settingController.updateLora(
+                                        port: _selectedLoraPort!,
+                                      );
+                                    });
+                                  },
+                                  hint: const Text('Pilih Port'),
+                                ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  children: [
+                                    // Tombol Simpan Port (optional, bisa diisi logic simpan port ke controller)
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.primary,
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
                                         ),
+                                        onPressed: _selectedLoraPort == null
+                                            ? null
+                                            : () {
+                                                // Logic simpan port jika perlu
+                                              },
+                                        child: const Text('Simpan Port'),
                                       ),
-                                      onPressed: _loraConnected
-                                          ? () {
-                                              setState(() {
-                                                _loraConnected = false;
-                                                settingController
-                                                    .disconnectSerial();
-                                                toastification.show(
-                                                  context: context,
-                                                  title: const Text(
-                                                    'Koneksi Lora Terputus',
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  type:
-                                                      ToastificationType.error,
-                                                  description: const Text(
-                                                    'Lora telah terputus.',
-                                                  ),
-                                                  boxShadow: const [
-                                                    BoxShadow(
-                                                      color: Colors.black26,
-                                                      blurRadius: 8,
-                                                      offset: Offset(0, 2),
-                                                    ),
-                                                  ],
-                                                  alignment:
-                                                      Alignment.topCenter,
-                                                  autoCloseDuration:
-                                                      const Duration(
-                                                        seconds: 2,
-                                                      ),
-                                                );
-                                              });
-                                            }
-                                          : () {
-                                              setState(() {
-                                                _loraConnected =
-                                                    !_loraConnected;
-                                                settingController.updateLora(
-                                                  port: _selectedLoraPort!,
-                                                );
-                                                if (_loraConnected) {
+                                    ),
+                                    const SizedBox(width: 10),
+                                    // Tombol Connect/Disconnect
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              _selectedLoraPort == null
+                                              ? Colors.grey.shade400
+                                              : _loraConnected
+                                              ? Colors.red
+                                              : Colors.green,
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: _loraConnected
+                                            ? () {
+                                                setState(() {
+                                                  _loraConnected = false;
+                                                  settingController
+                                                      .disconnectSerial();
                                                   toastification.show(
                                                     context: context,
                                                     title: const Text(
-                                                      'Koneksi Lora Berhasil',
+                                                      'Koneksi Lora Terputus',
                                                       style: TextStyle(
                                                         fontSize: 16,
                                                         fontWeight:
@@ -432,9 +398,9 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                                       ),
                                                     ),
                                                     type: ToastificationType
-                                                        .success,
-                                                    description: Text(
-                                                      'Port: $_selectedLoraPort',
+                                                        .error,
+                                                    description: const Text(
+                                                      'Lora telah terputus.',
                                                     ),
                                                     boxShadow: const [
                                                       BoxShadow(
@@ -450,283 +416,424 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                                           seconds: 2,
                                                         ),
                                                   );
-                                                }
-                                              });
-                                            },
-                                      child: Text(
-                                        _loraConnected
-                                            ? 'Putuskan'
-                                            : 'Hubungkan',
+                                                });
+                                              }
+                                            : () {
+                                                setState(() {
+                                                  _loraConnected =
+                                                      !_loraConnected;
+                                                  settingController.updateLora(
+                                                    port: _selectedLoraPort!,
+                                                  );
+                                                  if (_loraConnected) {
+                                                    toastification.show(
+                                                      context: context,
+                                                      title: const Text(
+                                                        'Koneksi Lora Berhasil',
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      type: ToastificationType
+                                                          .success,
+                                                      description: Text(
+                                                        'Port: $_selectedLoraPort',
+                                                      ),
+                                                      boxShadow: const [
+                                                        BoxShadow(
+                                                          color: Colors.black26,
+                                                          blurRadius: 8,
+                                                          offset: Offset(0, 2),
+                                                        ),
+                                                      ],
+                                                      alignment:
+                                                          Alignment.topCenter,
+                                                      autoCloseDuration:
+                                                          const Duration(
+                                                            seconds: 2,
+                                                          ),
+                                                    );
+                                                  }
+                                                });
+                                              },
+                                        child: Text(
+                                          _loraConnected
+                                              ? 'Putuskan'
+                                              : 'Hubungkan',
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              // Status Bar
-                              LinearProgressIndicator(
-                                value: 1,
-                                minHeight: 8,
-                                color: _loraConnected
-                                    ? Colors.green
-                                    : Colors.red,
-                                backgroundColor: Colors.grey[300],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _loraConnected
-                                    ? 'Terhubung'
-                                    : 'Tidak Terhubung',
-                                style: TextStyle(
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                // Status Bar
+                                LinearProgressIndicator(
+                                  value: 1,
+                                  minHeight: 8,
                                   color: _loraConnected
                                       ? Colors.green
                                       : Colors.red,
-                                  fontWeight: FontWeight.bold,
+                                  backgroundColor: Colors.grey[300],
                                 ),
-                                textAlign: TextAlign.right,
-                              ),
-                            ],
-                          ),
-                        ),
-                        CustomCard(
-                          title: 'Pengiriman Data Halter',
-                          headerColor: AppColors.primary,
-                          withExpanded: false,
-
-                          headerHeight: 50,
-                          titleFontSize: 18,
-                          width: MediaQuery.of(context).size.width * 0.24,
-                          height: MediaQuery.of(context).size.height * 0.24,
-                          borderRadius: 16,
-                          scrollable: false,
-                          content: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const Text('Jenis Pengiriman'),
-                              const SizedBox(height: 4),
-                              DropdownButtonFormField<String>(
-                                value: _selectedJenisPengiriman,
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  isDense: true,
-                                ),
-                                items: ['LoRa', 'Http', 'LoRa + Http']
-                                    .map(
-                                      (jenis) => DropdownMenuItem(
-                                        value: jenis,
-                                        child: Text(jenis),
-                                      ),
-                                    )
-                                    .toList(),
-                                onChanged: (val) {
-                                  setState(() {
-                                    _selectedJenisPengiriman = val;
-                                  });
-                                },
-                              ),
-                              const SizedBox(height: 16),
-                              SizedBox(
-                                width: double.infinity,
-                                height: 40,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _loraConnected
+                                      ? 'Terhubung'
+                                      : 'Tidak Terhubung',
+                                  style: TextStyle(
+                                    color: _loraConnected
+                                        ? Colors.green
+                                        : Colors.red,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  onPressed: () {
-                                    settingController.updateJenisPengiriman(
-                                      _selectedJenisPengiriman!,
-                                    );
-                                    toastification.show(
-                                      context: context,
-                                      title: const Text(
-                                        'Pengaturan Jenis Pengiriman Berhasil',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      type: ToastificationType.success,
-                                      description: Text(
-                                        'Jenis Pengiriman: $_selectedJenisPengiriman',
-                                      ),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.black26,
-                                          blurRadius: 8,
-                                          offset: Offset(0, 2),
-                                        ),
-                                      ],
-                                      alignment: Alignment.topCenter,
-                                      autoCloseDuration: const Duration(
-                                        seconds: 2,
-                                      ),
-                                    );
-                                  },
-                                  child: const Text(
-                                    'Simpan',
-                                    style: TextStyle(fontSize: 16),
-                                  ),
+                                  textAlign: TextAlign.right,
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              CustomCard(
-                titleFontSize: 20,
-                headerHeight: 50,
-                trailing: Icon(
-                  Icons.house_siding_rounded,
-                  color: Colors.white,
-                  size: 30,
-                ),
-                withExpanded: false,
-                height: MediaQuery.of(context).size.height * 0.33,
-                title: "Pengaturan Kandang",
-                content: Column(
-                  children: [
-                    Wrap(
-                      spacing: 18,
-                      runSpacing: 18,
-                      children: [
-                        CustomCard(
-                          title: 'Pilih Kandang',
-                          headerColor: AppColors.primary,
-                          withExpanded: false,
-                          headerHeight: 50,
-                          titleFontSize: 18,
-                          width: MediaQuery.of(context).size.width * 0.24,
-                          height: MediaQuery.of(context).size.height * 0.24,
-                          borderRadius: 16,
-                          scrollable: false,
-                          content: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const Text('Kandang'),
-                              const SizedBox(height: 4),
-                              Obx(() {
-                                final list = controller.stableList;
-                                // Cari apakah selectedStableId ada di list, kalau tidak, set null
-                                final selected =
-                                    list.any(
-                                      (s) =>
-                                          s.stableId ==
-                                          controller.selectedStableId.value,
-                                    )
-                                    ? controller.selectedStableId.value
-                                    : null;
+                          CustomCard(
+                            title: 'Pengiriman Data Halter',
+                            headerColor: AppColors.primary,
+                            withExpanded: false,
 
-                                if (selected == null && list.isNotEmpty) {
-                                  WidgetsBinding.instance.addPostFrameCallback((
-                                    _,
-                                  ) {
-                                    controller.setSelectedStableId(
-                                      list.first.stableId,
-                                    );
-                                  });
-                                }
-                                return DropdownButtonFormField<String>(
-                                  value: selected,
+                            headerHeight: 50,
+                            titleFontSize: 18,
+                            width: MediaQuery.of(context).size.width * 0.24,
+                            height: MediaQuery.of(context).size.height * 0.24,
+                            borderRadius: 16,
+                            scrollable: false,
+                            content: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const Text('Jenis Pengiriman'),
+                                const SizedBox(height: 4),
+                                DropdownButtonFormField<String>(
+                                  value: _selectedJenisPengiriman,
                                   decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
                                     isDense: true,
                                   ),
-                                  items: list
+                                  items: ['LoRa', 'Http', 'LoRa + Http']
                                       .map(
-                                        (stable) => DropdownMenuItem(
-                                          value: stable.stableId,
-                                          child: Text(stable.name),
+                                        (jenis) => DropdownMenuItem(
+                                          value: jenis,
+                                          child: Text(jenis),
                                         ),
                                       )
                                       .toList(),
                                   onChanged: (val) {
-                                    if (val != null) {
-                                      controller.setSelectedStableId(val);
-                                    }
+                                    setState(() {
+                                      _selectedJenisPengiriman = val;
+                                    });
                                   },
-                                  hint: const Text('Pilih Kandang'),
-                                );
-                              }),
-                              const SizedBox(height: 16),
-                              SizedBox(
-                                width: double.infinity,
-                                height: 40,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
+                                ),
+                                const SizedBox(height: 16),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 40,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      settingController.updateJenisPengiriman(
+                                        _selectedJenisPengiriman!,
+                                      );
+                                      toastification.show(
+                                        context: context,
+                                        title: const Text(
+                                          'Pengaturan Jenis Pengiriman Berhasil',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        type: ToastificationType.success,
+                                        description: Text(
+                                          'Jenis Pengiriman: $_selectedJenisPengiriman',
+                                        ),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 8,
+                                            offset: Offset(0, 2),
+                                          ),
+                                        ],
+                                        alignment: Alignment.topCenter,
+                                        autoCloseDuration: const Duration(
+                                          seconds: 2,
+                                        ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      'Simpan',
+                                      style: TextStyle(fontSize: 16),
                                     ),
                                   ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                CustomCard(
+                  titleFontSize: 20,
+                  headerHeight: 50,
+                  trailing: Icon(
+                    Icons.house_siding_rounded,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                  withExpanded: false,
+                  height: MediaQuery.of(context).size.height * 0.33,
+                  title: "Pengaturan Kandang",
+                  content: Column(
+                    children: [
+                      Wrap(
+                        spacing: 18,
+                        runSpacing: 18,
+                        children: [
+                          CustomCard(
+                            title: 'Pilih Kandang',
+                            headerColor: AppColors.primary,
+                            withExpanded: false,
+                            headerHeight: 50,
+                            titleFontSize: 18,
+                            width: MediaQuery.of(context).size.width * 0.24,
+                            height: MediaQuery.of(context).size.height * 0.24,
+                            borderRadius: 16,
+                            scrollable: false,
+                            content: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const Text('Kandang'),
+                                const SizedBox(height: 4),
+                                Obx(() {
+                                  final list = controller.stableList;
+                                  // Cari apakah selectedStableId ada di list, kalau tidak, set null
+                                  final selected =
+                                      list.any(
+                                        (s) =>
+                                            s.stableId ==
+                                            controller.selectedStableId.value,
+                                      )
+                                      ? controller.selectedStableId.value
+                                      : null;
+
+                                  if (selected == null && list.isNotEmpty) {
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                          controller.setSelectedStableId(
+                                            list.first.stableId,
+                                          );
+                                        });
+                                  }
+                                  return DropdownButtonFormField<String>(
+                                    value: selected,
+                                    decoration: const InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      isDense: true,
+                                    ),
+                                    items: list
+                                        .map(
+                                          (stable) => DropdownMenuItem(
+                                            value: stable.stableId,
+                                            child: Text(stable.name),
+                                          ),
+                                        )
+                                        .toList(),
+                                    onChanged: (val) {
+                                      if (val != null) {
+                                        controller.setSelectedStableId(val);
+                                      }
+                                    },
+                                    hint: const Text('Pilih Kandang'),
+                                  );
+                                }),
+                                const SizedBox(height: 16),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 40,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      toastification.show(
+                                        context: context,
+                                        title: Text(
+                                          'Pengaturan Kandang Berhasil',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        type: ToastificationType.success,
+                                        description: Text(
+                                          'Kandang: ${controller.selectedStableId.value}',
+                                        ),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 8,
+                                            offset: Offset(0, 2),
+                                          ),
+                                        ],
+                                        alignment: Alignment.topCenter,
+                                        autoCloseDuration: const Duration(
+                                          seconds: 2,
+                                        ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      'Simpan',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                LinearProgressIndicator(
+                                  value: 1, // contoh dummy
+                                  minHeight: 8,
+                                  color: Colors.green,
+                                  backgroundColor: Colors.grey[300],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Terhubung',
+                                  style: const TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.right,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                CustomCard(
+                  titleFontSize: 20,
+                  headerHeight: 50,
+                  trailing: Icon(
+                    Icons.house_siding_rounded,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                  withExpanded: false,
+                  height: MediaQuery.of(context).size.height * 0.34,
+                  title: "Pengaturan Lainnya",
+                  content: Column(
+                    children: [
+                      Wrap(
+                        spacing: 18,
+                        runSpacing: 18,
+                        children: [
+                          CustomCard(
+                            title: 'Header Device ID',
+                            headerColor: AppColors.primary,
+                            withExpanded: false,
+                            headerHeight: 50,
+                            titleFontSize: 18,
+                            width: MediaQuery.of(context).size.width * 0.24,
+                            height: MediaQuery.of(context).size.height * 0.26,
+                            borderRadius: 16,
+                            scrollable: false,
+                            content: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                DropdownButtonFormField<String>(
+                                  value: _selectedHeaderType,
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    isDense: true,
+                                  ),
+                                  items: const [
+                                    DropdownMenuItem(
+                                      value: 'halter',
+                                      child: Text('IoT Node Halter'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'kandang',
+                                      child: Text('IoT Node Kandang'),
+                                    ),
+                                  ],
+                                  onChanged: (val) {
+                                    setState(() {
+                                      _selectedHeaderType = val ?? 'halter';
+                                      // Update input sesuai tipe
+                                      if (_selectedHeaderType == 'halter') {
+                                        _headerController.text =
+                                            settingController
+                                                .deviceHeader
+                                                .value;
+                                      } else {
+                                        // Nanti: settingController.deviceNodeKandangHeader.value
+                                        _headerController.text =
+                                            ''; // Atau value node kandang jika sudah ada
+                                      }
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 12),
+                                CustomInput(
+                                  label: 'Header Device ID',
+                                  controller: _headerController,
+                                  hint: 'Masukan Header Device ID',
+                                ),
+                                const SizedBox(height: 12),
+                                CustomButton(
+                                  text: 'Simpan Header',
+                                  backgroundColor: AppColors.primary,
                                   onPressed: () {
+                                    if (_selectedHeaderType == 'halter') {
+                                      settingController.setDeviceHeader(
+                                        _headerController.text.trim(),
+                                      );
+                                    } else {
+                                      // Nanti: settingController.setDeviceNodeKandangHeader(_headerController.text.trim());
+                                    }
                                     toastification.show(
                                       context: context,
-                                      title: Text(
-                                        'Pengaturan Kandang Berhasil',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                      title: const Text(
+                                        'Header Device ID berhasil disimpan',
                                       ),
                                       type: ToastificationType.success,
-                                      description: Text(
-                                        'Kandang: ${controller.selectedStableId.value}',
-                                      ),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.black26,
-                                          blurRadius: 8,
-                                          offset: Offset(0, 2),
-                                        ),
-                                      ],
                                       alignment: Alignment.topCenter,
                                       autoCloseDuration: const Duration(
                                         seconds: 2,
                                       ),
                                     );
                                   },
-                                  child: const Text(
-                                    'Simpan',
-                                    style: TextStyle(fontSize: 16),
-                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 12),
-                              LinearProgressIndicator(
-                                value: 1, // contoh dummy
-                                minHeight: 8,
-                                color: Colors.green,
-                                backgroundColor: Colors.grey[300],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Terhubung',
-                                style: const TextStyle(
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.right,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
