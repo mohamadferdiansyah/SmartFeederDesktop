@@ -4,6 +4,9 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 // Ganti dengan import model dan widget sesuai project-mu
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/data/data_team_halter.dart';
+import 'package:smart_feeder_desktop/app/models/halter/node_room_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/node_room/halter_node_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
@@ -293,10 +296,7 @@ class _HalterNodePageState extends State<HalterNodePage> {
     showDialog(
       context: context,
       builder: (context) {
-        return RoomNodeDataDialog(
-          deviceId: node.deviceId,
-          allData: _controller.nodeRoomList.toList(),
-        );
+        return RoomNodeDataDialog(deviceId: node.deviceId);
       },
     );
   }
@@ -728,10 +728,7 @@ class NodeRoomDataTableSource extends DataTableSource {
                   showDialog(
                     context: context,
                     builder: (context) {
-                      return RoomNodeDataDialog(
-                        deviceId: node.deviceId,
-                        allData: nodes,
-                      );
+                      return RoomNodeDataDialog(deviceId: node.deviceId);
                     },
                   );
                 },
@@ -844,13 +841,8 @@ class NodeRoomDataTableSource extends DataTableSource {
 
 class RoomNodeDataDialog extends StatefulWidget {
   final String deviceId;
-  final List<NodeRoomModel> allData;
 
-  const RoomNodeDataDialog({
-    super.key,
-    required this.deviceId,
-    required this.allData,
-  });
+  const RoomNodeDataDialog({super.key, required this.deviceId});
 
   @override
   State<RoomNodeDataDialog> createState() => _RoomNodeDataDialogState();
@@ -862,10 +854,12 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   int? _sortColumnIndex;
   bool _sortAscending = true;
+  final DataController _dataController = Get.find<DataController>();
   final HalterNodeController _controller = Get.find<HalterNodeController>();
+  final team = DataTeamHalter.getTeam();
 
-  List<NodeRoomModel> get filteredData {
-    var data = widget.allData
+  List<NodeRoomDetailModel> get filteredData {
+    var data = _dataController.nodeRoomDetailHistory
         .where((d) => d.deviceId == widget.deviceId)
         .toList();
     if (tanggalAwal != null) {
@@ -895,9 +889,15 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
     return data;
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _dataController.loadNodeRoomDetailHistory();
+  }
+
   void _sort<T extends Comparable>(
-    List<NodeRoomModel> data,
-    T Function(NodeRoomModel d) getField,
+    List<NodeRoomDetailModel> data,
+    T Function(NodeRoomDetailModel d) getField,
     bool ascending,
   ) {
     data.sort((a, b) {
@@ -1092,7 +1092,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                     icon: Icons.table_view_rounded,
                     text: 'Export Excel',
                     onPressed: () {
-                      _controller.exportNodeRoomDetailExcel(filteredData);
+                      _controller.exportNodeRoomDetailExcel(filteredData, team);
                     },
                   ),
                   const SizedBox(width: 12),
@@ -1126,169 +1126,180 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
             const SizedBox(height: 12),
             // Tabel data dengan pagination
             Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final tableWidth = constraints.maxWidth;
-                  final noW = tableWidth * 0.05;
-                  final timeW = tableWidth * 0.17;
-                  final devIdW = tableWidth * 0.17;
-                  final tempW = tableWidth * 0.18;
-                  final humidityW = tableWidth * 0.18;
-                  final lightW = tableWidth * 0.18;
+              child: Obx(() {
+                final allData = _dataController.nodeRoomDetailHistory;
+                final filteredData = allData
+                    .where((d) => d.deviceId == widget.deviceId)
+                    .toList();
 
-                  List<NodeRoomModel> sortedData = List.from(filteredData);
-                  if (_sortColumnIndex != null) {
-                    switch (_sortColumnIndex!) {
-                      case 0:
-                        _sort<String>(
-                          sortedData,
-                          (d) => d.deviceId,
-                          _sortAscending,
-                        );
-                        break;
-                      case 1:
-                        _sort<DateTime>(
-                          sortedData,
-                          (d) => d.time ?? DateTime(2000),
-                          _sortAscending,
-                        );
-                        break;
-                      case 2:
-                        _sort<double>(
-                          sortedData,
-                          (d) => d.temperature,
-                          _sortAscending,
-                        );
-                        break;
-                      case 3:
-                        _sort<double>(
-                          sortedData,
-                          (d) => d.humidity,
-                          _sortAscending,
-                        );
-                        break;
-                      case 4:
-                        _sort<double>(
-                          sortedData,
-                          (d) => d.lightIntensity,
-                          _sortAscending,
-                        );
-                        break;
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final tableWidth = constraints.maxWidth;
+                    final noW = tableWidth * 0.05;
+                    final timeW = tableWidth * 0.17;
+                    final devIdW = tableWidth * 0.17;
+                    final tempW = tableWidth * 0.18;
+                    final humidityW = tableWidth * 0.18;
+                    final lightW = tableWidth * 0.18;
+
+                    List<NodeRoomDetailModel> sortedData = List.from(
+                      filteredData,
+                    );
+                    if (_sortColumnIndex != null) {
+                      switch (_sortColumnIndex!) {
+                        case 0:
+                          _sort<String>(
+                            sortedData,
+                            (d) => d.deviceId,
+                            _sortAscending,
+                          );
+                          break;
+                        case 1:
+                          _sort<DateTime>(
+                            sortedData,
+                            (d) => d.time ?? DateTime(2000),
+                            _sortAscending,
+                          );
+                          break;
+                        case 2:
+                          _sort<double>(
+                            sortedData,
+                            (d) => d.temperature,
+                            _sortAscending,
+                          );
+                          break;
+                        case 3:
+                          _sort<double>(
+                            sortedData,
+                            (d) => d.humidity,
+                            _sortAscending,
+                          );
+                          break;
+                        case 4:
+                          _sort<double>(
+                            sortedData,
+                            (d) => d.lightIntensity,
+                            _sortAscending,
+                          );
+                          break;
+                      }
                     }
-                  }
 
-                  return Theme(
-                    data: Theme.of(context).copyWith(
-                      cardColor: Colors.white,
-                      dataTableTheme: DataTableThemeData(
-                        headingRowColor: MaterialStateProperty.all(
-                          Colors.grey[200]!,
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        cardColor: Colors.white,
+                        dataTableTheme: DataTableThemeData(
+                          headingRowColor: MaterialStateProperty.all(
+                            Colors.grey[200]!,
+                          ),
+                          dataRowColor: MaterialStateProperty.all(Colors.white),
                         ),
-                        dataRowColor: MaterialStateProperty.all(Colors.white),
                       ),
-                    ),
-                    child: PaginatedDataTable(
-                      columnSpacing: 0,
-                      horizontalMargin: 0,
-                      sortColumnIndex: _sortColumnIndex,
-                      sortAscending: _sortAscending,
-                      columns: [
-                        DataColumn(
-                          label: SizedBox(
-                            width: noW,
-                            child: const Center(child: Text("No")),
-                          ),
-                          onSort: (columnIndex, ascending) {
-                            setState(() {
-                              _sortColumnIndex = columnIndex;
-                              _sortAscending = ascending;
-                            });
-                          },
-                        ),
-                        DataColumn(
-                          label: SizedBox(
-                            width: timeW,
-                            child: const Center(child: Text("Timestamp")),
-                          ),
-                          onSort: (columnIndex, ascending) {
-                            setState(() {
-                              _sortColumnIndex = columnIndex;
-                              _sortAscending = ascending;
-                            });
-                          },
-                        ),
-                        DataColumn(
-                          label: SizedBox(
-                            width: devIdW,
-                            child: const Center(child: Text("ID")),
-                          ),
-                          onSort: (columnIndex, ascending) {
-                            setState(() {
-                              _sortColumnIndex = columnIndex;
-                              _sortAscending = ascending;
-                            });
-                          },
-                        ),
-                        DataColumn(
-                          label: SizedBox(
-                            width: tempW,
-                            child: const Center(child: Text("Suhu (°C)")),
-                          ),
-                          onSort: (columnIndex, ascending) {
-                            setState(() {
-                              _sortColumnIndex = columnIndex;
-                              _sortAscending = ascending;
-                            });
-                          },
-                        ),
-                        DataColumn(
-                          label: SizedBox(
-                            width: humidityW,
-                            child: const Center(child: Text("Kelembapan (%)")),
-                          ),
-                          onSort: (columnIndex, ascending) {
-                            setState(() {
-                              _sortColumnIndex = columnIndex;
-                              _sortAscending = ascending;
-                            });
-                          },
-                        ),
-                        DataColumn(
-                          label: SizedBox(
-                            width: lightW,
-                            child: const Center(
-                              child: Text("Indeks Cahaya (Lux)"),
+                      child: PaginatedDataTable(
+                        columnSpacing: 0,
+                        horizontalMargin: 0,
+                        sortColumnIndex: _sortColumnIndex,
+                        sortAscending: _sortAscending,
+                        columns: [
+                          DataColumn(
+                            label: SizedBox(
+                              width: noW,
+                              child: const Center(child: Text("No")),
                             ),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _sortColumnIndex = columnIndex;
+                                _sortAscending = ascending;
+                              });
+                            },
                           ),
-                          onSort: (columnIndex, ascending) {
-                            setState(() {
-                              _sortColumnIndex = columnIndex;
-                              _sortAscending = ascending;
-                            });
-                          },
+                          DataColumn(
+                            label: SizedBox(
+                              width: timeW,
+                              child: const Center(child: Text("Timestamp")),
+                            ),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _sortColumnIndex = columnIndex;
+                                _sortAscending = ascending;
+                              });
+                            },
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: devIdW,
+                              child: const Center(child: Text("ID")),
+                            ),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _sortColumnIndex = columnIndex;
+                                _sortAscending = ascending;
+                              });
+                            },
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: tempW,
+                              child: const Center(child: Text("Suhu (°C)")),
+                            ),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _sortColumnIndex = columnIndex;
+                                _sortAscending = ascending;
+                              });
+                            },
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: humidityW,
+                              child: const Center(
+                                child: Text("Kelembapan (%)"),
+                              ),
+                            ),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _sortColumnIndex = columnIndex;
+                                _sortAscending = ascending;
+                              });
+                            },
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: lightW,
+                              child: const Center(
+                                child: Text("Indeks Cahaya (Lux)"),
+                              ),
+                            ),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _sortColumnIndex = columnIndex;
+                                _sortAscending = ascending;
+                              });
+                            },
+                          ),
+                        ],
+                        source: NodeRoomDetailDataTableSource(
+                          sortedData,
+                          noW,
+                          timeW,
+                          devIdW,
+                          tempW,
+                          humidityW,
+                          lightW,
                         ),
-                      ],
-                      source: NodeRoomDetailDataTableSource(
-                        sortedData,
-                        noW,
-                        timeW,
-                        devIdW,
-                        tempW,
-                        humidityW,
-                        lightW,
+                        rowsPerPage: _rowsPerPage,
+                        availableRowsPerPage: const [5, 10, 20, 50, 100],
+                        onRowsPerPageChanged: (value) {
+                          setState(() {
+                            _rowsPerPage = value ?? 5;
+                          });
+                        },
+                        showCheckboxColumn: false,
                       ),
-                      rowsPerPage: _rowsPerPage,
-                      availableRowsPerPage: const [5, 10, 20, 50, 100],
-                      onRowsPerPageChanged: (value) {
-                        setState(() {
-                          _rowsPerPage = value ?? 5;
-                        });
-                      },
-                      showCheckboxColumn: false,
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                );
+              }),
             ),
             // Tombol Tutup
             Align(
@@ -1315,7 +1326,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
 }
 
 class NodeRoomDetailDataTableSource extends DataTableSource {
-  final List<NodeRoomModel> data;
+  final List<NodeRoomDetailModel> data;
   final double noW, timeW, devIdW, tempW, humidityW, lightW;
 
   NodeRoomDetailDataTableSource(

@@ -12,6 +12,7 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_mode
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_power_log_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/node_room_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/alert/halter_alert_rule_engine_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/calibration/halter_calibration_controller.dart';
@@ -85,6 +86,10 @@ class HalterSerialService extends GetxService {
 
   Future<void> updateNodeRoomDevice(NodeRoomModel model) async {
     await dataController.updateNodeRoom(model);
+  }
+
+  Future<void> addNodeRoomDetail(NodeRoomDetailModel model) async {
+    await dataController.addNodeRoomDetail(model);
   }
 
   // Future<void> addNodeRoomDeviceDetail(NodeRoomModel model) async {
@@ -293,16 +298,19 @@ class HalterSerialService extends GetxService {
           header: headerNodeRoom,
         );
         latestNodeRoomData.value = nodeRoom;
+        // Simpan ke table utama (replace)
         final index = nodeRoomList.indexWhere(
           (n) => n.deviceId == nodeRoom.deviceId,
         );
         if (index == -1) {
-          // nodeRoomList.add(nodeRoom);
           addNodeRoomDevice(nodeRoom);
         } else {
-          // nodeRoomList[index] = nodeRoom;
           updateNodeRoomDevice(nodeRoom);
         }
+
+        // Simpan ke table detail/history (append)
+        final detailModel = NodeRoomDetailModel.fromNodeRoom(nodeRoom);
+        await addNodeRoomDetail(detailModel);
 
         controller.checkAndLogNode(
           nodeRoom.deviceId,
@@ -950,7 +958,7 @@ class HalterSerialService extends GetxService {
       });
       for (final did in deviceIds) {
         final dummyLine = makeDummyData(did);
-        _processBlockRoom("SRIPB,1,31.40,61.90,0.00,*");
+        _processBlockRoom("SRIPB,2,31.40,61.90,0.00,*");
       }
     });
   }

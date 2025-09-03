@@ -5,6 +5,7 @@ import 'package:smart_feeder_desktop/app/data/dao/halter_device_detail_dao.dart'
 import 'package:smart_feeder_desktop/app/data/dao/halter_device_power_log_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/horse_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/node_room_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/node_room_detail_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/room_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/stable_dao.dart';
 import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
@@ -21,6 +22,7 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart'
 import 'package:smart_feeder_desktop/app/models/feeder/history_entry_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_biometric_rule_engine_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/horse_health_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/node_room_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/models/horse_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
@@ -39,6 +41,8 @@ class DataController extends GetxController {
   final RxList<HorseModel> horseList = <HorseModel>[].obs;
 
   final RxList<NodeRoomModel> nodeRoomList = <NodeRoomModel>[].obs;
+
+  final RxList<NodeRoomDetailModel> nodeRoomDetailHistory = <NodeRoomDetailModel>[].obs;
 
   // Data Log Halter
   final RxList<HalterLogModel> halterLogList = <HalterLogModel>[].obs;
@@ -435,6 +439,7 @@ class DataController extends GetxController {
     initCctvDao(db);
     initHalterDeviceDetailDao(db);
     initHalterDevicePowerLog(db);
+    initNodeRoomDetailDao(db);
     // dst...
     await Future.wait([
       loadNodeRoomsFromDb(),
@@ -445,6 +450,7 @@ class DataController extends GetxController {
       loadCctvsFromDb(),
       loadAllHalterDeviceDetails(),
       loadHalterDevicePowerLogsFromDb(),
+      loadNodeRoomDetailHistory(),
       // dst...
     ]);
   }
@@ -757,6 +763,23 @@ class DataController extends GetxController {
     // Kosongkan deviceSerial di semua room yang deviceSerial == nodeDeviceId
     await roomDao.clearDeviceSerialInRooms(nodeDeviceId);
     await loadRoomsFromDb();
+  }
+
+  late NodeRoomDetailDao nodeRoomDetailDao;
+
+  void initNodeRoomDetailDao(Database db) {
+    nodeRoomDetailDao = NodeRoomDetailDao(db);
+  }
+
+  Future<void> addNodeRoomDetail(NodeRoomDetailModel model) async {
+    await nodeRoomDetailDao.insert(model);
+    nodeRoomDetailHistory.add(model);
+    await loadNodeRoomDetailHistory();
+  }
+
+  Future<void> loadNodeRoomDetailHistory() async {
+    final list = await nodeRoomDetailDao.getAll();
+    nodeRoomDetailHistory.assignAll(list);
   }
 
   // Data Cctv

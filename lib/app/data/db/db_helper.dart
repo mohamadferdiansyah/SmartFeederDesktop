@@ -91,6 +91,17 @@ class DBHelper {
           )
         ''');
 
+        await db.execute('''
+          CREATE TABLE node_room_detail (
+            detail_id TEXT PRIMARY KEY,
+            device_id TEXT,
+            temperature DOUBLE,
+            humidity DOUBLE,
+            light_intensity DOUBLE,
+            time TEXT
+          )
+        ''');
+
         // Hardcoded insert for node_room_devices
         // await db.insert('node_room_devices', {
         //   'device_id': 'SRIPB1223001',

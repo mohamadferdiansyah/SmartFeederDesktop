@@ -8,7 +8,9 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/node_room_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/test_team_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 
 class HalterNodeController extends GetxController {
@@ -115,12 +117,12 @@ class HalterNodeController extends GetxController {
             return [
               '${i + 1}',
               d.deviceId,
-              d.temperature.toStringAsFixed(2),
-              d.humidity.toStringAsFixed(2),
-              d.lightIntensity.toStringAsFixed(2),
               d.time != null
                   ? d.time!.toIso8601String().split('T')[1].split('.')[0]
                   : '-',
+              d.temperature.toStringAsFixed(2),
+              d.humidity.toStringAsFixed(2),
+              d.lightIntensity.toStringAsFixed(2),
             ];
           }),
         ),
@@ -137,70 +139,132 @@ class HalterNodeController extends GetxController {
     }
   }
 
-  Future<void> exportNodeRoomDetailExcel(List<NodeRoomModel> data) async {
-    var excel = Excel.createExcel();
-    Sheet sheet = excel['Sheet1'];
-    sheet.appendRow([
-      TextCellValue('No'),
-      TextCellValue('Device Id'),
-      TextCellValue('Temperature (°C)'),
-      TextCellValue('Humidity (%)'),
-      TextCellValue('Light Intensity'),
-      TextCellValue('Time'),
-    ]);
-    for (int i = 0; i < data.length; i++) {
-      final d = data[i];
-      sheet.appendRow([
-        TextCellValue('${i + 1}'),
-        TextCellValue(d.deviceId),
-        TextCellValue(d.temperature.toStringAsFixed(2)),
-        TextCellValue(d.humidity.toStringAsFixed(2)),
-        TextCellValue(d.lightIntensity.toStringAsFixed(2)),
-        TextCellValue(
-          d.time != null
-              ? d.time!.toIso8601String().split('T')[1].split('.')[0]
-              : '-',
-        ),
-      ]);
-    }
-    final fileBytes = excel.encode();
-    String? path = await FilePicker.platform.saveFile(
-      dialogTitle: 'Simpan file Excel Detail Node',
-      fileName:
-          'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId)}).xlsx',
-      type: FileType.custom,
-      allowedExtensions: ['xlsx'],
+  Future<void> exportNodeRoomDetailExcel(
+  List<NodeRoomDetailModel> data,
+  TestTeamModel? team,
+) async {
+  var excel = Excel.createExcel();
+  Sheet sheet = excel['Sheet1'];
+
+  final deviceName = (data.isNotEmpty) ? data.first.deviceId : '';
+  final judul = 'DATA SMART HALTER DETAIL NODE DEVICE ($deviceName)';
+  final sensorHeaders = [
+    'No',
+    'Time',
+    'Device Id',
+    'Suhu (°C)',
+    'Kelembapan (%)',
+    'Cahaya (lux)',
+  ];
+
+  // Baris 1: Judul (merge center)
+  sheet.appendRow([
+    TextCellValue(judul),
+    ...List.generate(sensorHeaders.length - 1, (_) => TextCellValue('')),
+  ]);
+  try {
+    sheet.merge(
+      CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),
+      CellIndex.indexByColumnRow(
+        columnIndex: sensorHeaders.length - 1,
+        rowIndex: 0,
+      ),
     );
-    if (path != null) {
-      await File(path).writeAsBytes(fileBytes!);
-    }
+  } catch (e) {}
+
+  // Baris 2-5: Data tim penguji
+  sheet.appendRow([
+    TextCellValue('Team Penguji'),
+    TextCellValue(team?.teamName ?? '-'),
+  ]);
+  sheet.appendRow([
+    TextCellValue('Lokasi Pengujian'),
+    TextCellValue(team?.location ?? '-'),
+  ]);
+  sheet.appendRow([
+    TextCellValue('Tanggal Pengujian'),
+    TextCellValue(
+      team?.date != null
+          ? "${team!.date!.day} ${_bulan(team.date!.month)} ${team.date!.year}"
+          : '-',
+    ),
+  ]);
+  sheet.appendRow([
+    TextCellValue('Anggota'),
+    TextCellValue(team?.members?.join(', ') ?? '-'),
+  ]);
+
+
+  // Baris 7: Header
+  sheet.appendRow(sensorHeaders.map((e) => TextCellValue(e)).toList());
+
+  // Data
+  for (int i = 0; i < data.length; i++) {
+    final d = data[i];
+    sheet.appendRow([
+      TextCellValue('${i + 1}'),
+      TextCellValue(DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time)),
+      TextCellValue(d.deviceId),
+      TextCellValue(d.temperature.toStringAsFixed(2)),
+      TextCellValue(d.humidity.toStringAsFixed(2)),
+      TextCellValue(d.lightIntensity.toStringAsFixed(2)),
+    ]);
   }
 
-  /// Export detail node ruangan ke PDF
-  Future<void> exportNodeRoomDetailPDF(List<NodeRoomModel> data) async {
+  final fileBytes = excel.encode();
+  String? path = await FilePicker.platform.saveFile(
+    dialogTitle: 'Simpan file Excel Detail Node',
+    fileName: 'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId).first}).xlsx',
+    type: FileType.custom,
+    allowedExtensions: ['xlsx'],
+  );
+  if (path != null) {
+    await File(path).writeAsBytes(fileBytes!);
+  }
+}
+
+// Helper untuk format bulan ke string
+String _bulan(int m) {
+  const bulanList = [
+    '',
+    'Januari',
+    'Februari',
+    'Maret',
+    'April',
+    'Mei',
+    'Juni',
+    'Juli',
+    'Agustus',
+    'September',
+    'Oktober',
+    'November',
+    'Desember',
+  ];
+  return bulanList[m];
+}
+
+  Future<void> exportNodeRoomDetailPDF(List<NodeRoomDetailModel> data) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Table.fromTextArray(
           headers: [
             'No',
-            'Device Id',
-            'Temperature (°C)',
-            'Humidity (%)',
-            'Light Intensity',
             'Time',
+            'Device Id',
+            'Suhu (°C)',
+            'Kelembapan (%)',
+            'Cahaya (lux)',
           ],
           data: List.generate(data.length, (i) {
             final d = data[i];
             return [
               '${i + 1}',
               d.deviceId,
+              DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time),
               d.temperature.toStringAsFixed(2),
               d.humidity.toStringAsFixed(2),
               d.lightIntensity.toStringAsFixed(2),
-              d.time != null
-                  ? d.time!.toIso8601String().split('T')[1].split('.')[0]
-                  : '-',
             ];
           }),
         ),
@@ -209,7 +273,7 @@ class HalterNodeController extends GetxController {
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file PDF Detail Node',
       fileName:
-          'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId)}).pdf',
+          'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId).first}).pdf',
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
