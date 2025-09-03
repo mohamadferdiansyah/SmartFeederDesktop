@@ -761,52 +761,71 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                             content: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                const Text('Header IoT Node Halter'),
-                                CustomInput(
-                                  label: 'Header Device ID Halter',
-                                  controller: _headerController,
-                                  hint: 'Contoh: SHIPB',
-                                ),
-                                const SizedBox(height: 8),
-                                CustomButton(
-                                  text: 'Simpan Header Halter',
-                                  backgroundColor: AppColors.primary,
-                                  onPressed: () {
-                                    settingController.setDeviceHeader(
-                                      _headerController.text.trim(),
-                                    );
-                                    toastification.show(
-                                      context: context,
-                                      title: const Text(
-                                        'Header Device Halter berhasil disimpan',
-                                      ),
-                                      type: ToastificationType.success,
-                                      alignment: Alignment.topCenter,
-                                      autoCloseDuration: const Duration(
-                                        seconds: 2,
-                                      ),
-                                    );
+                                DropdownButtonFormField<String>(
+                                  value: _selectedHeaderType,
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    isDense: true,
+                                  ),
+                                  items: const [
+                                    DropdownMenuItem(
+                                      value: 'halter',
+                                      child: Text('IoT Node Halter'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'kandang',
+                                      child: Text('IoT Node Kandang'),
+                                    ),
+                                  ],
+                                  onChanged: (val) {
+                                    setState(() {
+                                      _selectedHeaderType = val ?? 'halter';
+                                      if (_selectedHeaderType == 'halter') {
+                                        _headerController.text =
+                                            settingController
+                                                .deviceHeader
+                                                .value;
+                                      } else {
+                                        _nodeRoomHeaderController.text =
+                                            settingController
+                                                .nodeRoomHeader
+                                                .value;
+                                      }
+                                    });
                                   },
                                 ),
-                                const SizedBox(height: 16),
-                                const Text('Header IoT Node Kandang'),
-                                CustomInput(
-                                  label: 'Header Device ID Node Room',
-                                  controller: _nodeRoomHeaderController,
-                                  hint: 'Contoh: SRIPB',
-                                ),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 12),
+                                if (_selectedHeaderType == 'halter')
+                                  CustomInput(
+                                    label: 'Header Device ID Halter',
+                                    controller: _headerController,
+                                    hint: 'Masukan Header Device ID Halter',
+                                  ),
+                                if (_selectedHeaderType == 'kandang')
+                                  CustomInput(
+                                    label: 'Header Device ID Node Kandang',
+                                    controller: _nodeRoomHeaderController,
+                                    hint:
+                                        'Masukan Header Device ID Node Kandang',
+                                  ),
+                                const SizedBox(height: 12),
                                 CustomButton(
-                                  text: 'Simpan Header Node Room',
+                                  text: 'Simpan Header',
                                   backgroundColor: AppColors.primary,
                                   onPressed: () {
-                                    settingController.setNodeRoomHeader(
-                                      _nodeRoomHeaderController.text.trim(),
-                                    );
+                                    if (_selectedHeaderType == 'halter') {
+                                      settingController.setDeviceHeader(
+                                        _headerController.text.trim(),
+                                      );
+                                    } else {
+                                      settingController.setNodeRoomHeader(
+                                        _nodeRoomHeaderController.text.trim(),
+                                      );
+                                    }
                                     toastification.show(
                                       context: context,
                                       title: const Text(
-                                        'Header Node Room berhasil disimpan',
+                                        'Header Device ID berhasil disimpan',
                                       ),
                                       type: ToastificationType.success,
                                       alignment: Alignment.topCenter,

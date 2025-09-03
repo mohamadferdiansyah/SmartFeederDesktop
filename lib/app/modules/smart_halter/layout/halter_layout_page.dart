@@ -23,7 +23,7 @@ import 'package:smart_feeder_desktop/app/models/sidebar_menu_model.dart';
 
 class HalterLayoutPage extends StatelessWidget {
   HalterLayoutPage({super.key});
-  final controller = Get.put(HalterLayoutController());
+  final controller = Get.find<HalterLayoutController>();
 
   // Menu items smart halter (dummy content, silakan ganti sesuai kebutuhan)
   final List<SidebarMenuItem> menuItems = [

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/node_room/halter_node_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
@@ -55,6 +56,7 @@ class _HalterNodePageState extends State<HalterNodePage> {
     BuildContext? parentContext,
   }) async {
     final idCtrl = TextEditingController(text: node?.deviceId ?? '');
+    final header = Get.find<HalterSettingController>().nodeRoomHeader.value;
 
     showCustomDialog(
       context: parentContext ?? context,
@@ -86,10 +88,37 @@ class _HalterNodePageState extends State<HalterNodePage> {
             ),
             const SizedBox(height: 16),
           ],
-          CustomInput(
-            label: "Device ID (Wajib diisi)",
-            controller: idCtrl,
-            hint: "Masukkan Device ID (Format: SRIPB001)",
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  header,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: CustomInput(
+                  label: "Device ID (Wajib diisi)",
+                  controller: idCtrl,
+                  hint: "Masukkan ID (misal: 001)",
+                ),
+              ),
+            ],
           ),
         ],
       ),

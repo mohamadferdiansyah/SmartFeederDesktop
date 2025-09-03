@@ -52,8 +52,10 @@ class HalterSerialService extends GetxService {
   RxList<String> get availablePorts =>
       RxList<String>(SerialPort.availablePorts);
 
-  final header = Get.find<HalterSettingController>().deviceHeader.value;
-  final headerNodeRoom= Get.find<HalterSettingController>().nodeRoomHeader.value;
+  String get header => Get.find<HalterSettingController>().deviceHeader.value;
+
+  String get headerNodeRoom =>
+      Get.find<HalterSettingController>().nodeRoomHeader.value;
 
   final Map<String, Timer> _deviceTimeoutTimers = {};
   final Set<String> _pairingDevices = {};
@@ -948,7 +950,7 @@ class HalterSerialService extends GetxService {
       });
       for (final did in deviceIds) {
         final dummyLine = makeDummyData(did);
-        _processBlock(dummyLine);
+        _processBlockRoom("SRIPB,1,31.40,61.90,0.00,*");
       }
     });
   }

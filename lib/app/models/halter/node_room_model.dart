@@ -23,7 +23,7 @@ class NodeRoomModel {
     final usedHeader = header ?? 'SRIPB';
     String deviceId;
     if (parts[0] == usedHeader && parts.length > 1) {
-      deviceId = '${parts[0]},${parts[1]}';
+      deviceId = '${parts[0]}${parts[1]}';
     } else {
       deviceId = parts[0];
     }

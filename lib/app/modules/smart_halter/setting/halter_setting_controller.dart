@@ -5,7 +5,6 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_setting_model.dart
 import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
 class HalterSettingController extends GetxController {
-  final HalterSerialService serialService = Get.find<HalterSerialService>();
   final RxString deviceHeader = DataSettingHalter.getNodeHalterHeader().obs;
   final RxString nodeRoomHeader = DataSettingHalter.getNodeRoomHeader().obs;
 
@@ -17,7 +16,8 @@ class HalterSettingController extends GetxController {
     type: 'LoRa',
   ).obs;
 
-  RxList<String> get availablePorts => RxList<String>(SerialPort.availablePorts);
+  RxList<String> get availablePorts =>
+      RxList<String>(SerialPort.availablePorts);
 
   void setDeviceHeader(String header) {
     deviceHeader.value = header;
@@ -41,6 +41,7 @@ class HalterSettingController extends GetxController {
 
   // Update Lora
   void updateLora({required String port}) {
+    final HalterSerialService serialService = Get.find<HalterSerialService>();
     setting.value = HalterSettingModel(
       settingId: setting.value.settingId,
       cloudUrl: setting.value.cloudUrl,
@@ -62,6 +63,7 @@ class HalterSettingController extends GetxController {
   }
 
   void disconnectSerial() {
+    final HalterSerialService serialService = Get.find<HalterSerialService>();
     serialService.closeSerial();
   }
 }
