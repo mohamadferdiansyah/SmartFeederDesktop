@@ -120,7 +120,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: _buildOtherTab(context),
+                            child: _buildTeamTestTab(context),
                           ),
                         ],
                       ),
@@ -707,22 +707,6 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 12),
-                                LinearProgressIndicator(
-                                  value: 1, // contoh dummy
-                                  minHeight: 8,
-                                  color: Colors.green,
-                                  backgroundColor: Colors.grey[300],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Terhubung',
-                                  style: const TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.right,
-                                ),
                               ],
                             ),
                           ),
@@ -851,7 +835,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
     );
   }
 
-  Widget _buildOtherTab(BuildContext context) {
+  Widget _buildTeamTestTab(BuildContext context) {
     return Center(
       child: Column(
         children: [
@@ -872,7 +856,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                   const SizedBox(height: 12),
                   CustomInput(
                     controller: _namaTimController,
-                    label: 'Tim Pengujian',
+                    label: 'Tim Pengujian *',
                     hint: 'Masukan Tim Pengujian',
                   ),
                   const SizedBox(height: 12),
@@ -881,7 +865,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                     children: [
                       Expanded(
                         child: CustomInput(
-                          label: 'Lokasi Pengujian',
+                          label: 'Lokasi Pengujian *',
                           hint: 'Masukan Lokasi Pengujian',
                           controller: _lokasiController,
                         ),
@@ -936,7 +920,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Anggota Pengujian',
+                    'Anggota Pengujian *',
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
@@ -991,13 +975,47 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                   const SizedBox(height: 18),
                   CustomButton(
                     onPressed: () {
-                      final namaTim = _namaTimController.text;
-                      final lokasi = _lokasiController.text;
+                      final namaTim = _namaTimController.text.trim();
+                      final lokasi = _lokasiController.text.trim();
                       final tanggal = _tanggal;
                       final anggota = _anggotaControllers
-                          .map((c) => c.text)
+                          .map((c) => c.text.trim())
                           .where((t) => t.isNotEmpty)
                           .toList();
+
+                      // Validasi
+                      if (namaTim.isEmpty) {
+                        toastification.show(
+                          context: context,
+                          title: const Text('Nama Tim Penguji wajib diisi'),
+                          type: ToastificationType.error,
+                          alignment: Alignment.topCenter,
+                          autoCloseDuration: const Duration(seconds: 2),
+                        );
+                        return;
+                      }
+                      if (lokasi.isEmpty) {
+                        toastification.show(
+                          context: context,
+                          title: const Text('Lokasi Pengujian wajib diisi'),
+                          type: ToastificationType.error,
+                          alignment: Alignment.topCenter,
+                          autoCloseDuration: const Duration(seconds: 2),
+                        );
+                        return;
+                      }
+                      if (anggota.isEmpty) {
+                        toastification.show(
+                          context: context,
+                          title: const Text(
+                            'Minimal 1 anggota penguji wajib diisi',
+                          ),
+                          type: ToastificationType.error,
+                          alignment: Alignment.topCenter,
+                          autoCloseDuration: const Duration(seconds: 2),
+                        );
+                        return;
+                      }
 
                       final team = TestTeamModel(
                         teamName: namaTim,

@@ -87,7 +87,8 @@ class DBHelper {
             temperature DOUBLE,
             humidity DOUBLE,
             light_intensity DOUBLE,
-            time TEXT
+            time TEXT,
+            version TEXT
           )
         ''');
 

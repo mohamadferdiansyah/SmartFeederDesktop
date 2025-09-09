@@ -70,7 +70,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           CustomInput(
-            label: "Nama Klasifikasi (Wajib diisi)",
+            label: "Nama Klasifikasi *",
             controller: nameCtrl,
             hint: "Masukkan nama klasifikasi",
           ),
@@ -316,7 +316,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           CustomInput(
-            label: "Nama Klasifikasi (Wajib diisi)",
+            label: "Nama Klasifikasi *",
             controller: nameCtrl,
             hint: "Masukkan nama klasifikasi",
           ),

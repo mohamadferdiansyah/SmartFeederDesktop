@@ -4,6 +4,7 @@ class NodeRoomModel {
   final double humidity;
   final double lightIntensity;
   final DateTime? time;
+  final String version;
 
   NodeRoomModel({
     required this.deviceId,
@@ -11,9 +12,10 @@ class NodeRoomModel {
     required this.humidity,
     required this.lightIntensity,
     this.time,
+    required this.version
   });
 
-  factory NodeRoomModel.fromSerial(String line, {String? header}) {
+  factory NodeRoomModel.fromSerial(String line, {String? header, String version = "2.0"}) {
     String raw = line;
     if (raw.endsWith('*')) {
       raw = raw.substring(0, raw.length - 1);
@@ -33,6 +35,7 @@ class NodeRoomModel {
       humidity: double.tryParse(parts[3]) ?? 0.0,
       lightIntensity: double.tryParse(parts[4]) ?? 0.0,
       time: DateTime.now(),
+      version: version,
     );
   }
 
@@ -45,6 +48,7 @@ class NodeRoomModel {
       time: map['time'] != null
           ? DateTime.tryParse(map['time'].toString())
           : null,
+      version: map['version'] ?? '2.0', // Default jika null
     );
   }
 
@@ -55,6 +59,7 @@ class NodeRoomModel {
       'humidity': humidity,
       'light_intensity': lightIntensity,
       'time': time?.toIso8601String(),
+      'version': version,
     };
   }
 }

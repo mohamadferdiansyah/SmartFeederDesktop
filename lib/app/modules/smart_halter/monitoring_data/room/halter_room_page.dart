@@ -102,7 +102,7 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
             const SizedBox(height: 16),
           ],
           CustomInput(
-            label: "Nama Ruangan (Wajib diisi)",
+            label: "Nama Ruangan *",
             controller: nameCtrl,
             hint: "Masukkan nama ruangan",
           ),
@@ -112,9 +112,7 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
             return DropdownButtonFormField<String>(
               value: selectedStableId,
               isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: "Kandang (Wajib diisi)",
-              ),
+              decoration: const InputDecoration(labelText: "Kandang *"),
               items: stableList
                   .map(
                     (s) => DropdownMenuItem(
@@ -357,7 +355,7 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
           ),
           const SizedBox(height: 16),
           CustomInput(
-            label: "Nama Ruangan (Wajib diisi)",
+            label: "Nama Ruangan *",
             controller: nameCtrl,
             hint: "Masukkan nama ruangan",
           ),
@@ -367,9 +365,7 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
             return DropdownButtonFormField<String>(
               value: selectedStableId,
               isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: "Kandang (Wajib diisi)",
-              ),
+              decoration: const InputDecoration(labelText: "Kandang *"),
               items: stableList
                   .map(
                     (s) => DropdownMenuItem(

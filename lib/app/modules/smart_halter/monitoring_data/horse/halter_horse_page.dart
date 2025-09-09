@@ -147,7 +147,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       const SizedBox(height: 16),
                     ],
                     CustomInput(
-                      label: "Nama Kuda (Wajib diisi)",
+                      label: "Nama Kuda *",
                       controller: nameCtrl,
                       hint: "Masukkan nama kuda",
                     ),
@@ -156,7 +156,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       value: selectedType,
                       isExpanded: true,
                       decoration: const InputDecoration(
-                        labelText: "Jenis Kuda (Wajib diisi)",
+                        labelText: "Jenis Kuda *",
                       ),
                       items: const [
                         DropdownMenuItem(value: "local", child: Text("Lokal")),
@@ -172,7 +172,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       value: selectedGender,
                       isExpanded: true,
                       decoration: const InputDecoration(
-                        labelText: "Jenis Kelamin (Wajib diisi)",
+                        labelText: "Jenis Kelamin *",
                       ),
                       items: const [
                         DropdownMenuItem(
@@ -192,7 +192,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                     ),
                     const SizedBox(height: 16),
                     CustomInput(
-                      label: "Umur (tahun, wajib diisi)",
+                      label: "Umur *",
                       controller: ageCtrl,
                       hint: "Masukkan umur kuda",
                       keyboardType: TextInputType.number,
@@ -201,9 +201,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                     DropdownButtonFormField<String>(
                       value: selectedCategory,
                       isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: "Kategori (opsional)",
-                      ),
+                      decoration: const InputDecoration(labelText: "Kategori"),
                       items: const [
                         DropdownMenuItem(
                           value: null,
@@ -586,7 +584,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                     ),
                     const SizedBox(height: 16),
                     CustomInput(
-                      label: "Nama Kuda (Wajib diisi)",
+                      label: "Nama Kuda *",
                       controller: nameCtrl,
                       hint: "Masukkan nama kuda",
                     ),
@@ -595,7 +593,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       value: selectedType,
                       isExpanded: true,
                       decoration: const InputDecoration(
-                        labelText: "Jenis Kuda (Wajib diisi)",
+                        labelText: "Jenis Kuda *",
                       ),
                       items: const [
                         DropdownMenuItem(value: "local", child: Text("Lokal")),
@@ -611,7 +609,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       value: selectedGender,
                       isExpanded: true,
                       decoration: const InputDecoration(
-                        labelText: "Jenis Kelamin (Wajib diisi)",
+                        labelText: "Jenis Kelamin *",
                       ),
                       items: const [
                         DropdownMenuItem(

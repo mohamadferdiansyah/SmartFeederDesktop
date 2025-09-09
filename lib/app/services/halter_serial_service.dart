@@ -293,22 +293,39 @@ class HalterSerialService extends GetxService {
 
     if (dataLine != null) {
       try {
-        final nodeRoom = NodeRoomModel.fromSerial(
+        // Parse deviceId dari serial
+        final tempNode = NodeRoomModel.fromSerial(
           dataLine,
           header: headerNodeRoom,
         );
-        latestNodeRoomData.value = nodeRoom;
-        // Simpan ke table utama (replace)
+        // Cari node lama di RxList/database
         final index = nodeRoomList.indexWhere(
-          (n) => n.deviceId == nodeRoom.deviceId,
+          (n) => n.deviceId == tempNode.deviceId,
         );
+        String version = tempNode.version;
+        if (index != -1) {
+          // Jika sudah ada, ambil versi lama
+          version = nodeRoomList[index].version;
+        }
+        // Buat nodeRoom baru dengan versi yang benar
+        final nodeRoom = NodeRoomModel(
+          deviceId: tempNode.deviceId,
+          temperature: tempNode.temperature,
+          humidity: tempNode.humidity,
+          lightIntensity: tempNode.lightIntensity,
+          time: tempNode.time,
+          version: version,
+        );
+        latestNodeRoomData.value = nodeRoom;
+
+        // Update RxList dan DB
         if (index == -1) {
           addNodeRoomDevice(nodeRoom);
         } else {
           updateNodeRoomDevice(nodeRoom);
         }
 
-        // Simpan ke table detail/history (append)
+        // Simpan ke detail/history
         final detailModel = NodeRoomDetailModel.fromNodeRoom(nodeRoom);
         await addNodeRoomDetail(detailModel);
 

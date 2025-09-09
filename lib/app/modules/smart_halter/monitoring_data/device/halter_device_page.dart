@@ -118,7 +118,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
               const SizedBox(width: 8),
               Expanded(
                 child: CustomInput(
-                  label: "Device ID (Wajib diisi)",
+                  label: "Device ID *",
                   controller: idCtrl,
                   hint: "Masukkan ID (misal: 001)",
                 ),
@@ -180,7 +180,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           CustomInput(
-            label: "Device ID (Wajib diisi)",
+            label: "Device ID *",
             controller: idCtrl,
             hint: "Masukkan Device ID",
           ),

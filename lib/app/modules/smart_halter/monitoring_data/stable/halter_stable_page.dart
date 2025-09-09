@@ -89,13 +89,13 @@ class _HalterStablePageState extends State<HalterStablePage> {
             const SizedBox(height: 16),
           ],
           CustomInput(
-            label: "Nama",
+            label: "Nama *",
             controller: nameCtrl,
             hint: "Masukkan nama kandang",
           ),
           const SizedBox(height: 16),
           CustomInput(
-            label: "Alamat",
+            label: "Alamat *",
             controller: addrCtrl,
             hint: "Masukkan alamat kandang",
           ),

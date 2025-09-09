@@ -60,6 +60,7 @@ class _HalterNodePageState extends State<HalterNodePage> {
   }) async {
     final idCtrl = TextEditingController(text: node?.deviceId ?? '');
     final header = Get.find<HalterSettingController>().nodeRoomHeader.value;
+    final versionCtrl = TextEditingController(text: node?.version ?? '1.5');
 
     showCustomDialog(
       context: parentContext ?? context,
@@ -116,12 +117,22 @@ class _HalterNodePageState extends State<HalterNodePage> {
               const SizedBox(width: 8),
               Expanded(
                 child: CustomInput(
-                  label: "Device ID (Wajib diisi)",
+                  label: "Device ID *",
                   controller: idCtrl,
                   hint: "Masukkan ID (misal: 001)",
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            value: versionCtrl.text,
+            decoration: const InputDecoration(labelText: "Versi Device"),
+            items: const [
+              DropdownMenuItem(value: "1.5", child: Text("Versi 1.5")),
+              DropdownMenuItem(value: "2.0", child: Text("Versi 2.0")),
+            ],
+            onChanged: (v) => versionCtrl.text = v ?? "1.5",
           ),
         ],
       ),
@@ -136,12 +147,16 @@ class _HalterNodePageState extends State<HalterNodePage> {
           );
           return;
         }
+        final header = Get.find<HalterSettingController>().nodeRoomHeader.value;
+        final deviceId = '$header${idCtrl.text.trim()}';
+
         final newNode = NodeRoomModel(
-          deviceId: idCtrl.text.trim(),
+          deviceId: deviceId,
           temperature: node?.temperature ?? 0,
           humidity: node?.humidity ?? 0,
           lightIntensity: node?.lightIntensity ?? 0,
           time: node?.time,
+          version: versionCtrl.text,
         );
         onSubmit(newNode);
       },
@@ -153,7 +168,15 @@ class _HalterNodePageState extends State<HalterNodePage> {
     Function(NodeRoomModel) onSubmit, {
     BuildContext? parentContext,
   }) async {
-    final idCtrl = TextEditingController(text: node.deviceId);
+    // Ambil header dari deviceId yang sudah ada
+    final header = Get.find<HalterSettingController>().nodeRoomHeader.value;
+    // Ambil versi dari node
+    final versionCtrl = TextEditingController(text: node.version);
+    // Ambil id tanpa header (jika deviceId sudah ada header di depan)
+    final idWithoutHeader = node.deviceId.startsWith(header)
+        ? node.deviceId.substring(header.length)
+        : node.deviceId;
+    final idCtrl = TextEditingController(text: idWithoutHeader);
 
     showCustomDialog(
       context: parentContext ?? context,
@@ -167,26 +190,46 @@ class _HalterNodePageState extends State<HalterNodePage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              const Text(
-                "Device ID: ",
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  header,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: AppColors.primary,
+                  ),
+                ),
               ),
-              Text(
-                node.deviceId,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+              const SizedBox(width: 8),
+              Expanded(
+                child: CustomInput(
+                  label: "Device ID *",
+                  controller: idCtrl,
+                  hint: "Masukkan ID (misal: 001)",
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          CustomInput(
-            label: "Device ID (Wajib diisi)",
-            controller: idCtrl,
-            hint: "Masukkan Device ID",
+          DropdownButtonFormField<String>(
+            value: versionCtrl.text,
+            decoration: const InputDecoration(labelText: "Versi Device"),
+            items: const [
+              DropdownMenuItem(value: "1.5", child: Text("Versi 1.5")),
+              DropdownMenuItem(value: "2.0", child: Text("Versi 2.0")),
+            ],
+            onChanged: (v) => versionCtrl.text = v ?? "1.5",
           ),
         ],
       ),
@@ -201,18 +244,19 @@ class _HalterNodePageState extends State<HalterNodePage> {
           );
           return;
         }
+        final deviceId = '$header${idCtrl.text.trim()}';
         final editedNode = NodeRoomModel(
-          deviceId: idCtrl.text.trim(),
+          deviceId: deviceId,
           temperature: node.temperature,
           humidity: node.humidity,
           lightIntensity: node.lightIntensity,
           time: node.time,
+          version: versionCtrl.text,
         );
         onSubmit(editedNode);
       },
     );
   }
-  // ...existing code...
 
   void _showPilihRuanganModal(NodeRoomModel node) {
     String? selectedRoomId; // atau node.roomId jika model ada field roomId
@@ -451,10 +495,11 @@ class _HalterNodePageState extends State<HalterNodePage> {
                         final tableWidth =
                             MediaQuery.of(context).size.width - 72.0;
                         final idW = tableWidth * 0.10;
-                        final tempW = tableWidth * 0.11;
-                        final humW = tableWidth * 0.11;
-                        final lightW = tableWidth * 0.11;
+                        final tempW = tableWidth * 0.08;
+                        final humW = tableWidth * 0.08;
+                        final lightW = tableWidth * 0.08;
                         final actionW = tableWidth * 0.32;
+                        final versionW = tableWidth * 0.09;
 
                         final dataSource = NodeRoomDataTableSource(
                           context: context,
@@ -586,6 +631,19 @@ class _HalterNodePageState extends State<HalterNodePage> {
                                     ),
                                     DataColumn(
                                       label: SizedBox(
+                                        width: versionW,
+                                        child: const Center(
+                                          child: Text(
+                                            'Versi',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: SizedBox(
                                         width: tempW,
                                         child: const Center(
                                           child: Text(
@@ -709,6 +767,7 @@ class NodeRoomDataTableSource extends DataTableSource {
       index: index,
       cells: [
         DataCell(Center(child: Text(node.deviceId))),
+        DataCell(SizedBox(child: Center(child: Text(node.version)))),
         DataCell(Center(child: Text(node.temperature.toStringAsFixed(2)))),
         DataCell(Center(child: Text(node.humidity.toStringAsFixed(2)))),
         DataCell(Center(child: Text(node.lightIntensity.toStringAsFixed(2)))),
