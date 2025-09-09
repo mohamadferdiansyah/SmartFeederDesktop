@@ -5,11 +5,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/data/data_halter_calibration_log.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_calibration_log_model.dart';
 
 class HalterCalibrationLogController extends GetxController {
-  RxList<HalterCalibrationLogModel> logs = <HalterCalibrationLogModel>[].obs;
+  final DataController dataController = Get.find<DataController>();
+  RxList<HalterCalibrationLogModel> get logs =>
+      dataController.calibrationLogList;
 
   @override
   void onInit() {
@@ -17,9 +20,8 @@ class HalterCalibrationLogController extends GetxController {
     super.onInit();
   }
 
-  void addLog(HalterCalibrationLogModel log) {
-    logs.add(log);
-    DataHalterCalibrationLog.saveAll(logs);
+  void addLog(HalterCalibrationLogModel log) async {
+    await dataController.addCalibrationLog(log);
   }
 
   void clearLogs() {

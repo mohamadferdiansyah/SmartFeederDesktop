@@ -1035,6 +1035,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                         context: context,
                         title: const Text('Data Tim Penguji Tersimpan'),
                         type: ToastificationType.success,
+                        style: ToastificationStyle.fillColored,
                         alignment: Alignment.topCenter,
                         autoCloseDuration: const Duration(seconds: 2),
                       );

@@ -1,4 +1,5 @@
 class HalterBiometricRuleEngineModel {
+  final int? id;
   final String name;
   final double? suhuMin;
   final double? suhuMax;
@@ -10,6 +11,7 @@ class HalterBiometricRuleEngineModel {
   final int? respirasiMax;
 
   HalterBiometricRuleEngineModel({
+    this.id,
     required this.name,
     this.suhuMin,
     this.suhuMax,
@@ -20,6 +22,32 @@ class HalterBiometricRuleEngineModel {
     this.respirasiMin,
     this.respirasiMax,
   });
+
+  factory HalterBiometricRuleEngineModel.fromMap(Map<String, dynamic> map) => HalterBiometricRuleEngineModel(
+    id: map['id'],
+    name: map['name'],
+    suhuMin: map['suhu_min'] != null ? (map['suhu_min'] as num?)?.toDouble() : null,
+    suhuMax: map['suhu_max'] != null ? (map['suhu_max'] as num?)?.toDouble() : null,
+    heartRateMin: map['heart_rate_min'],
+    heartRateMax: map['heart_rate_max'],
+    spoMin: map['spo_min'] != null ? (map['spo_min'] as num?)?.toDouble() : null,
+    spoMax: map['spo_max'] != null ? (map['spo_max'] as num?)?.toDouble() : null,
+    respirasiMin: map['respirasi_min'],
+    respirasiMax: map['respirasi_max'],
+  );
+
+  Map<String, dynamic> toMap() => {
+    if (id != null) 'id': id,
+    'name': name,
+    'suhu_min': suhuMin,
+    'suhu_max': suhuMax,
+    'heart_rate_min': heartRateMin,
+    'heart_rate_max': heartRateMax,
+    'spo_min': spoMin,
+    'spo_max': spoMax,
+    'respirasi_min': respirasiMin,
+    'respirasi_max': respirasiMax,
+  };
 
   factory HalterBiometricRuleEngineModel.fromJson(Map<String, dynamic> json) =>
       HalterBiometricRuleEngineModel(

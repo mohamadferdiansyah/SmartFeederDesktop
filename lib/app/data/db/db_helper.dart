@@ -267,7 +267,7 @@ class DBHelper {
         // halter_raw_data
         await db.execute('''
           CREATE TABLE halter_raw_data (
-            raw_id BIGINT PRIMARY KEY,
+            raw_id INTEGER PRIMARY KEY AUTOINCREMENT,
             data TEXT,
             time TEXT
           )
@@ -276,11 +276,55 @@ class DBHelper {
         // halter_horse_logs
         await db.execute('''
           CREATE TABLE halter_horse_logs (
-            log_id BIGINT PRIMARY KEY,
+            log_id INTEGER PRIMARY KEY AUTOINCREMENT,
             message TEXT,
             type TEXT,
             time TEXT,
-            device_id TEXT
+            device_id TEXT,
+            is_high INTEGER
+          )
+        ''');
+
+        // halter_table_rule_biometric_logs
+        await db.execute('''
+          CREATE TABLE halter_biometric_rule_engine (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            suhu_min DOUBLE,
+            suhu_max DOUBLE,
+            heart_rate_min INTEGER,
+            heart_rate_max INTEGER,
+            spo_min DOUBLE,
+            spo_max DOUBLE,
+            respirasi_min INTEGER,
+            respirasi_max INTEGER
+          )
+        ''');
+
+        // halter_table_rule_position_logs
+        await db.execute('''
+          CREATE TABLE halter_position_rule_engine (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            pitch_min DOUBLE,
+            pitch_max DOUBLE,
+            roll_min DOUBLE,
+            roll_max DOUBLE,
+            yaw_min DOUBLE,
+            yaw_max DOUBLE
+          )
+        ''');
+
+        // Data log kalibrasi halter
+        await db.execute('''
+          CREATE TABLE halter_calibration_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            device_id TEXT,
+            timestamp TEXT,
+            sensor_name TEXT,
+            referensi TEXT,
+            sensor_value TEXT,
+            nilai_kalibrasi TEXT
           )
         ''');
 

@@ -1,8 +1,13 @@
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/dao/cctv_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter_alert_rule_engine_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter_biometric_rule_engine_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter_calibration_log_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/halter_device_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/halter_device_detail_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/halter_device_power_log_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter_position_rule_engine_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter_raw_data_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/horse_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/node_room_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/node_room_detail_dao.dart';
@@ -10,6 +15,7 @@ import 'package:smart_feeder_desktop/app/data/dao/room_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/stable_dao.dart';
 import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
 import 'package:smart_feeder_desktop/app/models/halter/cctv_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_calibration_log_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_power_log_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_log_model.dart';
@@ -42,7 +48,8 @@ class DataController extends GetxController {
 
   final RxList<NodeRoomModel> nodeRoomList = <NodeRoomModel>[].obs;
 
-  final RxList<NodeRoomDetailModel> nodeRoomDetailHistory = <NodeRoomDetailModel>[].obs;
+  final RxList<NodeRoomDetailModel> nodeRoomDetailHistory =
+      <NodeRoomDetailModel>[].obs;
 
   // Data Log Halter
   final RxList<HalterLogModel> halterLogList = <HalterLogModel>[].obs;
@@ -429,6 +436,9 @@ class DataController extends GetxController {
   final RxList<HalterDevicePowerLogModel> halterDeviceLogList =
       <HalterDevicePowerLogModel>[].obs;
 
+  final RxList<HalterCalibrationLogModel> calibrationLogList =
+      <HalterCalibrationLogModel>[].obs;
+
   Future<void> initAllDaosAndLoadAll() async {
     final db = await DBHelper.database;
     initNodeRoomDao(db);
@@ -440,6 +450,11 @@ class DataController extends GetxController {
     initHalterDeviceDetailDao(db);
     initHalterDevicePowerLog(db);
     initNodeRoomDetailDao(db);
+    initHalterRawDataDao(db);
+    initHalterAlertRuleEngineDao(db);
+    inithalterBiometricRuleEngineDao(db);
+    initHalterPositionRuleEngineDao(db);
+    initHalterCalibrationLogDao(db);
     // dst...
     await Future.wait([
       loadNodeRoomsFromDb(),
@@ -451,6 +466,11 @@ class DataController extends GetxController {
       loadAllHalterDeviceDetails(),
       loadHalterDevicePowerLogsFromDb(),
       loadNodeRoomDetailHistory(),
+      loadRawDataFromDb(),
+      loadHalterAlertLogsFromDb(),
+      loadBiometricRulesFromDb(),
+      loadPositionRulesFromDb(),
+      loadCalibrationLogsFromDb()
       // dst...
     ]);
   }
@@ -874,5 +894,141 @@ class DataController extends GetxController {
   Future<void> loadHalterDevicePowerLogsFromDb() async {
     final list = await halterDevicePowerLogDao.getAll();
     halterDeviceLogList.assignAll(list);
+  }
+
+  // Data Raw
+
+  late HalterRawDataDao halterRawDataDao;
+
+  void initHalterRawDataDao(Database db) {
+    halterRawDataDao = HalterRawDataDao(db);
+  }
+
+  Future<void> addRawData(HalterRawDataModel model) async {
+    await halterRawDataDao.insert(model);
+    await loadRawDataFromDb();
+  }
+
+  Future<void> loadRawDataFromDb() async {
+    final list = await halterRawDataDao.getAll();
+    rawData.assignAll(list);
+  }
+
+  Future<void> deleteRawDataById(int rawId) async {
+    await halterRawDataDao.deleteById(rawId);
+    await loadRawDataFromDb();
+  }
+
+  Future<void> clearAllRawData() async {
+    await halterRawDataDao.clearAll();
+    rawData.clear();
+  }
+
+  // Data Halter Log Alert Rule Engine
+  late HalterAlertRuleEngineDao halterAlertRuleEngineDao;
+
+  void initHalterAlertRuleEngineDao(Database db) {
+    halterAlertRuleEngineDao = HalterAlertRuleEngineDao(db);
+  }
+
+  Future<void> addHalterAlertLog(HalterLogModel model) async {
+    await halterAlertRuleEngineDao.insert(model);
+    await loadHalterAlertLogsFromDb();
+  }
+
+  Future<void> loadHalterAlertLogsFromDb() async {
+    final list = await halterAlertRuleEngineDao.getAll();
+    halterLogList.assignAll(list);
+  }
+
+  Future<void> deleteHalterAlertLogById(int logId) async {
+    await halterAlertRuleEngineDao.deleteById(logId);
+    await loadHalterAlertLogsFromDb();
+  }
+
+  Future<void> clearAllHalterAlertLogs() async {
+    await halterAlertRuleEngineDao.clearAll();
+    halterLogList.clear();
+  }
+
+  // Data Halter biometric
+  late HalterBiometricRuleEngineDao halterBiometricRuleEngineDao;
+
+  void inithalterBiometricRuleEngineDao(Database db) {
+    halterBiometricRuleEngineDao = HalterBiometricRuleEngineDao(db);
+  }
+
+  Future<void> loadBiometricRulesFromDb() async {
+    final list = await halterBiometricRuleEngineDao.getAll();
+    biometricClassificationList.assignAll(list);
+  }
+
+  Future<void> addBiometricRule(HalterBiometricRuleEngineModel model) async {
+    await halterBiometricRuleEngineDao.insert(model);
+    await loadBiometricRulesFromDb();
+  }
+
+  Future<void> updateBiometricRule(HalterBiometricRuleEngineModel model) async {
+    await halterBiometricRuleEngineDao.update(model);
+    await loadBiometricRulesFromDb();
+  }
+
+  Future<void> deleteBiometricRule(int id) async {
+    await halterBiometricRuleEngineDao.delete(id);
+    await loadBiometricRulesFromDb();
+  }
+
+  // Data Halter position
+  late HalterPositionRuleEngineDao halterPositionRuleEngineDao;
+
+  void initHalterPositionRuleEngineDao(Database db) {
+    halterPositionRuleEngineDao = HalterPositionRuleEngineDao(db);
+  }
+
+  Future<void> loadPositionRulesFromDb() async {
+    final list = await halterPositionRuleEngineDao.getAll();
+    positionClassificationList.assignAll(list);
+  }
+
+  Future<void> addPositionRule(HalterPositionRuleEngineModel model) async {
+    await halterPositionRuleEngineDao.insert(model);
+    await loadPositionRulesFromDb();
+  }
+
+  Future<void> updatePositionRule(HalterPositionRuleEngineModel model) async {
+    await halterPositionRuleEngineDao.update(model);
+    await loadPositionRulesFromDb();
+  }
+
+  Future<void> deletePositionRule(int id) async {
+    await halterPositionRuleEngineDao.delete(id);
+    await loadPositionRulesFromDb();
+  }
+
+  // Data Halter log kalibrasi
+  late HalterCalibrationLogDao halterCalibrationLogDao;
+
+  void initHalterCalibrationLogDao(Database db) {
+    halterCalibrationLogDao = HalterCalibrationLogDao(db);
+  }
+
+  Future<void> addCalibrationLog(HalterCalibrationLogModel model) async {
+    await halterCalibrationLogDao.insert(model);
+    await loadCalibrationLogsFromDb();
+  }
+
+  Future<void> loadCalibrationLogsFromDb() async {
+    final list = await halterCalibrationLogDao.getAll();
+    calibrationLogList.assignAll(list);
+  }
+
+  Future<void> deleteCalibrationLog(int id) async {
+    await halterCalibrationLogDao.delete(id);
+    await loadCalibrationLogsFromDb();
+  }
+
+  Future<void> clearAllCalibrationLogs() async {
+    await halterCalibrationLogDao.clearAll();
+    calibrationLogList.clear();
   }
 }

@@ -6,7 +6,6 @@ import 'package:smart_feeder_desktop/app/data/data_halter_device_calibration.dar
 import 'package:smart_feeder_desktop/app/models/halter/halter_calibration_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_calibration_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
-import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
 class HalterCalibrationController extends GetxController {
   var calibration = HalterCalibrationModel(

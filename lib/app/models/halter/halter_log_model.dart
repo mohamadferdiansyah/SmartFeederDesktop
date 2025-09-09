@@ -1,5 +1,5 @@
 class HalterLogModel {
-  final int logId;
+  final int? logId; // nullable
   final String message;
   final String type;
   final DateTime? time;
@@ -7,7 +7,7 @@ class HalterLogModel {
   final bool isHigh;
 
   HalterLogModel({
-    required this.logId,
+    this.logId,
     required this.message,
     required this.type,
     this.time,
@@ -21,13 +21,16 @@ class HalterLogModel {
     type: map['type'],
     time: map['time'] != null ? DateTime.tryParse(map['time']) : null,
     deviceId: map['device_id'],
+    isHigh: (map['is_high'] ?? 0) == 1,
   );
 
   Map<String, dynamic> toMap() => {
-    'log_id': logId,
+    // Jangan sertakan logId jika null
+    if (logId != null) 'log_id': logId,
     'message': message,
     'type': type,
     'time': time?.toIso8601String(),
     'device_id': deviceId,
+    'is_high': isHigh ? 1 : 0,
   };
 }

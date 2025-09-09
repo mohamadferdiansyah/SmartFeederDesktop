@@ -92,6 +92,10 @@ class HalterSerialService extends GetxService {
     await dataController.addNodeRoomDetail(model);
   }
 
+  Future<void> addRawData(HalterRawDataModel model) async {
+    await dataController.addRawData(model);
+  }
+
   // Future<void> addNodeRoomDeviceDetail(NodeRoomModel model) async {
   //   await dataController.addHalterDeviceDetail(model);
   // }
@@ -337,12 +341,16 @@ class HalterSerialService extends GetxService {
           time: nodeRoom.time,
         );
 
-        rawData.add(
-          HalterRawDataModel(
-            rawId: rawData.length + 1,
-            data: dataLine,
-            time: DateTime.now(),
-          ),
+        // rawData.add(
+        //   HalterRawDataModel(
+        //     rawId: rawData.length + 1,
+        //     data: dataLine,
+        //     time: DateTime.now(),
+        //   ),
+        // );
+
+        await addRawData(
+          HalterRawDataModel(rawId: 0, data: dataLine, time: DateTime.now()),
         );
       } catch (e) {
         print('NodeRoom parsing error: $e');
@@ -595,10 +603,18 @@ class HalterSerialService extends GetxService {
           roll: detail.roll,
           // current: detail.current,
           voltage: detail.voltage,
-          heartRate: heartRate,
-          spo: spo >= 100 ? 100 : spo,
-          temperature: temperature,
-          respiratoryRate: respiratoryRate,
+          heartRate: heartRate != null
+              ? double.parse(heartRate.toStringAsFixed(1))
+              : null,
+          spo: spo != null
+              ? double.parse((spo >= 100 ? 100 : spo).toStringAsFixed(1))
+              : null,
+          temperature: temperature != null
+              ? double.parse(temperature.toStringAsFixed(1))
+              : null,
+          respiratoryRate: respiratoryRate != null
+              ? double.parse(respiratoryRate.toStringAsFixed(1))
+              : null,
           interval: detail.interval,
           deviceId: detail.deviceId,
           time: detail.time,
@@ -630,10 +646,18 @@ class HalterSerialService extends GetxService {
           roll: detail.roll,
           // current: detail.current,
           voltage: detail.voltage,
-          heartRate: heartRateRaw,
-          spo: spoRaw,
-          temperature: temperatureRaw,
-          respiratoryRate: respiratoryRateRaw,
+          heartRate: heartRateRaw != null
+              ? double.parse(heartRateRaw.toStringAsFixed(1))
+              : null,
+          spo: spoRaw != null
+              ? double.parse((spoRaw >= 100 ? 100 : spoRaw).toStringAsFixed(1))
+              : null,
+          temperature: temperatureRaw != null
+              ? double.parse(temperatureRaw.toStringAsFixed(1))
+              : null,
+          respiratoryRate: respiratoryRateRaw != null
+              ? double.parse(respiratoryRateRaw.toStringAsFixed(1))
+              : null,
           interval: detail.interval,
           deviceId: detail.deviceId,
           time: detail.time,
@@ -727,41 +751,36 @@ class HalterSerialService extends GetxService {
         //   dataController.updateHalterDeviceDetail(fixedDetail);
         // }
 
-        // Cek jika ada parameter 0
-        if (heartRate == 0 ||
-            spo == 0 ||
-            temperature == 0 ||
-            respiratoryRate == 0) {
-          // Hanya masuk rawData
-          rawData.add(
-            HalterRawDataModel(
-              rawId: rawData.length + 1,
-              data: dataLine,
-              time: DateTime.now(),
-            ),
-          );
-          print('Data sensor 0, hanya masuk rawData');
-          return;
-        }
-
         addHalterDeviceDetail(fixedDetail);
 
-        controller.checkAndLogHalter(
-          fixedDetail.deviceId,
-          suhu: fixedDetail.temperature,
-          spo: fixedDetail.spo,
-          bpm: fixedDetail.heartRate,
-          respirasi: fixedDetail.respiratoryRate,
-          time: fixedDetail.time,
-          battery: _voltageToPercent(fixedDetail.voltage).round(),
-        );
+        if (indexDevice != -1 &&
+            halterDeviceList[indexDevice].horseId != null) {
+          controller.checkAndLogHalter(
+            fixedDetail.deviceId,
+            suhu: fixedDetail.temperature,
+            spo: fixedDetail.spo,
+            bpm: fixedDetail.heartRate,
+            respirasi: fixedDetail.respiratoryRate,
+            time: fixedDetail.time,
+            battery: _voltageToPercent(fixedDetail.voltage).round(),
+          );
+        }
 
         rawDetailHistoryList.add(
           rawDetail,
         ); // detail = hasil fromSerial, belum dimanipulasi
 
         final validatedLine = replaceNanWithRandom(dataLine);
-        rawData.add(
+
+        // rawData.add(
+        //   HalterRawDataModel(
+        //     rawId: rawData.length + 1,
+        //     data: validatedLine,
+        //     time: DateTime.now(),
+        //   ),
+        // );
+
+        await addRawData(
           HalterRawDataModel(
             rawId: rawData.length + 1,
             data: validatedLine,
@@ -918,14 +937,15 @@ class HalterSerialService extends GetxService {
         int roll = randInt(-45, 90);
         int pitch = randInt(-45, 90);
         int yaw = randInt(-180, 180);
-        double voltase = double.parse(randDouble(3200, 4200));
+        // double voltase = double.parse(randDouble(3200, 4200));
+        double voltase = 3200;
         // int bpm = 30;
         // double spo = 96;
         // double suhu = 38;
         // double respirasi = 10;`
         int bpm = 32;
         double spo = 99;
-        double suhu = 41;
+        double suhu = 35.5;
         double respirasi = 12;
         int intervalData = 15000;
 
@@ -975,7 +995,8 @@ class HalterSerialService extends GetxService {
       });
       for (final did in deviceIds) {
         final dummyLine = makeDummyData(did);
-        _processBlockRoom("SRIPB,2,31.40,61.90,0.00,*");
+        _processBlockRoom("SRIPB,2,19.40,29.90,0.00,*");
+        // _processBlock(dummyLine);
       }
     });
   }

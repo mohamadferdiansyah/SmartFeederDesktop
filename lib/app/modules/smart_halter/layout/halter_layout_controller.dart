@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/table/halter_table_rule_engine_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
 import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 
@@ -22,6 +23,7 @@ class HalterLayoutController extends GetxController {
   final HalterSettingController settingController =
       Get.find<HalterSettingController>();
   final HalterSerialService serialService = Get.find<HalterSerialService>();
+  final HalterTableRuleEngineController tableRuleEngineController = Get.find<HalterTableRuleEngineController>();
 
   @override
   void onInit() {
@@ -31,6 +33,7 @@ class HalterLayoutController extends GetxController {
       // Setelah semua data di-load, bisa melakukan inisialisasi lain jika perlu
       await dashboardController.refreshStableList();
       await dashboardController.refreshRoomList();
+      await tableRuleEngineController.loadDefaultIfEmpty();
 
       serialService.pairingDevice();
 

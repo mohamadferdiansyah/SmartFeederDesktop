@@ -338,7 +338,7 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                 ),
                 _buildLogCard(
                   title: "Log Alert Kesehatan Kuda",
-                  allowedTypes: ['suhu', 'spo', 'bpm', 'respirasi'],
+                  allowedTypes: ['temperature', 'spo', 'bpm', 'respirasi'],
                   logs: controller.halterHorseLogList,
                 ),
               ],

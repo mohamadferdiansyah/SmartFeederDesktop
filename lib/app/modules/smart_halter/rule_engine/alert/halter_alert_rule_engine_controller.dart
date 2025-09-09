@@ -26,6 +26,10 @@ class HalterAlertRuleEngineController extends GetxController {
     DataRuleHalter.saveSetting(setting.value);
   }
 
+  Future<void> addAlertLog(HalterLogModel model) async {
+    await dataController.addHalterAlertLog(model);
+  }
+
   void checkAndLogNode(
     String deviceId, {
     int? logId,
@@ -33,87 +37,75 @@ class HalterAlertRuleEngineController extends GetxController {
     double? humidity,
     double? lightIntensity,
     DateTime? time,
-  }) {
+  }) async {
     final s = setting.value;
     final now = time ?? DateTime.now();
     if (temperature != null) {
       if (temperature < s.tempMin) {
-        halterHorseLogList.add(
-          HalterLogModel(
-            logId: logId ?? 0,
-            deviceId: deviceId,
-            message: 'Suhu Ruangan terlalu rendah: ($temperature°C)',
-            time: now,
-            type: 'room_temperature',
-            isHigh: false,
-          ),
+        final log = HalterLogModel(
+          deviceId: deviceId,
+          message: 'Suhu Ruangan terlalu rendah: ($temperature°C)',
+          time: now,
+          type: 'room_temperature',
+          isHigh: false,
         );
+        await addAlertLog(log);
       } else if (temperature > s.tempMax) {
-        halterHorseLogList.add(
-          HalterLogModel(
-            logId: logId ?? 0,
-            deviceId: deviceId,
-            message: 'Suhu Ruangan terlalu tinggi: ($temperature°C)',
-            time: now,
-            type: 'room_temperature',
-            isHigh: true,
-          ),
+        final log = HalterLogModel(
+          deviceId: deviceId,
+          message: 'Suhu Ruangan terlalu tinggi: ($temperature°C)',
+          time: now,
+          type: 'room_temperature',
+          isHigh: true,
         );
+        await addAlertLog(log);
       }
     }
 
     if (humidity != null && humidity > s.humidityMax) {
-      halterHorseLogList.add(
-        HalterLogModel(
-          logId: logId ?? 0,
-          deviceId: deviceId,
-          message: 'Kelembapan Ruangan terlalu tinggi: ($humidity%)',
-          time: now,
-          type: 'humidity',
-          isHigh: true,
-        ),
+      final log = HalterLogModel(
+        deviceId: deviceId,
+        message: 'Kelembapan Ruangan terlalu tinggi: ($humidity%)',
+        time: now,
+        type: 'humidity',
+        isHigh: true,
       );
+      await addAlertLog(log);
     }
 
     if (humidity != null && humidity < s.humidityMin) {
-      halterHorseLogList.add(
-        HalterLogModel(
-          logId: logId ?? 0,
-          deviceId: deviceId,
-          message: 'Kelembapan Ruangan terlalu rendah: ($humidity%)',
-          time: now,
-          type: 'humidity',
-          isHigh: false,
-        ),
+      final log = HalterLogModel(
+        deviceId: deviceId,
+        message: 'Kelembapan Ruangan terlalu rendah: ($humidity%)',
+        time: now,
+        type: 'humidity',
+        isHigh: false,
       );
+      await addAlertLog(log);
     }
 
     if (lightIntensity != null && lightIntensity > s.lightIntensityMax) {
-      halterHorseLogList.add(
-        HalterLogModel(
-          logId: logId ?? 0,
-          deviceId: deviceId,
-          message:
-              'Intensitas cahaya Ruangan terlalu tinggi: ($lightIntensity lux)',
-          time: now,
-          type: 'light_intensity',
-          isHigh: true,
-        ),
+      final log = HalterLogModel(
+        deviceId: deviceId,
+        message:
+            'Intensitas cahaya Ruangan terlalu tinggi: ($lightIntensity lux)',
+        time: now,
+        type: 'light_intensity',
+        isHigh: true,
       );
+      await addAlertLog(log);
     }
 
     if (lightIntensity != null && lightIntensity < s.lightIntensityMin) {
-      halterHorseLogList.add(
-        HalterLogModel(
-          logId: logId ?? 0,
-          deviceId: deviceId,
-          message:
-              'Intensitas cahaya Ruangan terlalu rendah: ($lightIntensity lux)',
-          time: now,
-          type: 'light_intensity',
-          isHigh: false,
-        ),
+      final log = HalterLogModel(
+        deviceId: deviceId,
+        message:
+            'Intensitas cahaya Ruangan terlalu rendah: ($lightIntensity lux)',
+        time: now,
+        type: 'light_intensity',
+        isHigh: false,
       );
+      await addAlertLog(log);
     }
   }
 
@@ -126,112 +118,96 @@ class HalterAlertRuleEngineController extends GetxController {
     double? respirasi,
     int? battery,
     DateTime? time,
-  }) {
+  }) async {
     final s = setting.value;
     final now = time ?? DateTime.now();
     if (suhu != null) {
       if (suhu < s.tempMin) {
-        halterHorseLogList.add(
-          HalterLogModel(
-            logId: logId ?? 0,
-            deviceId: deviceId,
-            message: 'Suhu kuda terlalu rendah: ($suhu°C)',
-            time: now,
-            type: 'temperature',
-            isHigh: false,
-          ),
+        final log = HalterLogModel(
+          deviceId: deviceId,
+          message: 'Suhu kuda terlalu rendah: ($suhu°C)',
+          time: now,
+          type: 'temperature',
+          isHigh: false,
         );
+        await addAlertLog(log);
       } else if (suhu > s.tempMax) {
-        halterHorseLogList.add(
-          HalterLogModel(
-            logId: logId ?? 0,
-            deviceId: deviceId,
-            message: 'Suhu kuda terlalu tinggi: ($suhu°C)',
-            time: now,
-            type: 'temperature',
-            isHigh: true,
-          ),
+        final log = HalterLogModel(
+          deviceId: deviceId,
+          message: 'Suhu kuda terlalu tinggi: ($suhu°C)',
+          time: now,
+          type: 'temperature',
+          isHigh: true,
         );
+        await addAlertLog(log);
       }
     }
 
     if (spo != null) {
       if (spo < s.spoMin) {
-        halterHorseLogList.add(
-          HalterLogModel(
-            logId: logId ?? 0,
-            deviceId: deviceId,
-            message: 'Kadar oksigen terlalu rendah: ($spo%)',
-            time: now,
-            type: 'spo',
-            isHigh: false,
-          ),
+        final log = HalterLogModel(
+          deviceId: deviceId,
+          message: 'Kadar oksigen terlalu rendah: ($spo%)',
+          time: now,
+          type: 'spo',
+          isHigh: false,
         );
+        await addAlertLog(log);
       } else if (spo > s.spoMax) {
-        halterHorseLogList.add(
-          HalterLogModel(
-            logId: logId ?? 0,
-            deviceId: deviceId,
-            message: 'Kadar oksigen terlalu tinggi: ($spo%)',
-            time: now,
-            type: 'spo',
-            isHigh: true,
-          ),
+        final log = HalterLogModel(
+          deviceId: deviceId,
+          message: 'Kadar oksigen terlalu tinggi: ($spo%)',
+          time: now,
+          type: 'spo',
+          isHigh: true,
         );
+        await addAlertLog(log);
       }
     }
 
     if (bpm != null) {
       if (bpm < s.heartRateMin) {
-        halterHorseLogList.add(
-          HalterLogModel(
-            logId: logId ?? 0,
-            deviceId: deviceId,
-            message: 'Detak jantung terlalu rendah: ($bpm bpm)',
-            time: now,
-            type: 'bpm',
-            isHigh: false,
-          ),
+        final log = HalterLogModel(
+          deviceId: deviceId,
+          message: 'Detak jantung terlalu rendah: ($bpm bpm)',
+          time: now,
+          type: 'bpm',
+          isHigh: false,
         );
+        await addAlertLog(log);
       } else if (bpm > s.heartRateMax) {
-        halterHorseLogList.add(
-          HalterLogModel(
-            logId: logId ?? 0,
-            deviceId: deviceId,
-            message: 'Detak jantung terlalu tinggi: ($bpm bpm)',
-            time: now,
-            type: 'bpm',
-            isHigh: true,
-          ),
+        final log = HalterLogModel(
+          deviceId: deviceId,
+          message: 'Detak jantung terlalu tinggi: ($bpm bpm)',
+          time: now,
+          type: 'bpm',
+          isHigh: true,
         );
+        await addAlertLog(log);
       }
     }
 
     // Untuk respirasi, hanya jika lebih dari max
     if (respirasi != null && (respirasi > s.respiratoryMax)) {
-      halterHorseLogList.add(
-        HalterLogModel(
-          logId: logId ?? 0,
-          deviceId: deviceId,
-          message: 'Respirasi terlalu tinggi: ($respirasi)',
-          time: now,
-          type: 'respirasi',
-          isHigh: true,
-        ),
+      final log = HalterLogModel(
+        deviceId: deviceId,
+        message: 'Respirasi terlalu tinggi: ($respirasi)',
+        time: now,
+        type: 'respirasi',
+        isHigh: true,
       );
+      await addAlertLog(log);
     }
 
     if (battery != null && battery < s.batteryMin) {
-      halterHorseLogList.add(
-        HalterLogModel(
-          logId: logId ?? 0,
-          deviceId: deviceId,
-          message: 'Baterai Halter terlalu rendah: ($battery%)',
-          time: now,
-          type: 'battery',
-          isHigh: true,
-        ),
+      final log = HalterLogModel(
+        deviceId: deviceId,
+        message: 'Baterai Halter terlalu rendah: ($battery%)',
+        time: now,
+        type: 'battery',
+        isHigh: true,
       );
+      await addAlertLog(log);
     }
   }
 }

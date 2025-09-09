@@ -1,4 +1,5 @@
 class HalterCalibrationLogModel {
+  final int? id;
   final String deviceId;
   final DateTime timestamp;
   final String sensorName;
@@ -7,6 +8,7 @@ class HalterCalibrationLogModel {
   final String nilaiKalibrasi;
 
   HalterCalibrationLogModel({
+    this.id,
     required this.deviceId,
     required this.timestamp,
     required this.sensorName,
@@ -14,6 +16,27 @@ class HalterCalibrationLogModel {
     required this.sensorValue,
     required this.nilaiKalibrasi,
   });
+
+  Map<String, dynamic> toMap() => {
+    if (id != null) 'id': id,
+    'device_id': deviceId,
+    'timestamp': timestamp.toIso8601String(),
+    'sensor_name': sensorName,
+    'referensi': referensi,
+    'sensor_value': sensorValue,
+    'nilai_kalibrasi': nilaiKalibrasi,
+  };
+
+  factory HalterCalibrationLogModel.fromMap(Map<String, dynamic> map) =>
+      HalterCalibrationLogModel(
+        id: map['id'],
+        deviceId: map['device_id'],
+        timestamp: DateTime.parse(map['timestamp']),
+        sensorName: map['sensor_name'],
+        referensi: map['referensi'],
+        sensorValue: map['sensor_value'],
+        nilaiKalibrasi: map['nilai_kalibrasi'],
+      );
 
   Map<String, dynamic> toJson() => {
     'deviceId': deviceId,

@@ -15,15 +15,17 @@ class HalterTableRuleEngineController extends GetxController {
 
   @override
   void onInit() {
-    biometricClassificationList.assignAll(DataTableRuleHalter.getBiometricList());
+    biometricClassificationList.assignAll(
+      DataTableRuleHalter.getBiometricList(),
+    );
     positionClassificationList.assignAll(DataTableRuleHalter.getPositionList());
     loadDefaultIfEmpty();
     super.onInit();
   }
 
-  void loadDefaultIfEmpty() {
+  Future<void> loadDefaultIfEmpty() async {
     if (biometricClassificationList.isEmpty) {
-      biometricClassificationList.assignAll([
+      final defaultRules = [
         HalterBiometricRuleEngineModel(
           name: "Normal",
           suhuMin: 37.2,
@@ -101,12 +103,18 @@ class HalterTableRuleEngineController extends GetxController {
           respirasiMin: 8,
           respirasiMax: 16,
         ),
-      ]);
-      DataTableRuleHalter.saveBiometricList(biometricClassificationList);
+      ];
+
+      // Insert ke database satu per satu
+      for (final rule in defaultRules) {
+        await dataController.addBiometricRule(rule);
+      }
+      // Setelah insert, refresh RxList dari database
+      await dataController.loadBiometricRulesFromDb();
     }
 
     if (positionClassificationList.isEmpty) {
-      positionClassificationList.assignAll([
+      final defaultRules = [
         HalterPositionRuleEngineModel(
           name: "Kepala Normal",
           pitchMin: -10,
@@ -136,39 +144,49 @@ class HalterTableRuleEngineController extends GetxController {
           rollMin: -90,
           rollMax: -15,
         ),
-      ]);
-      DataTableRuleHalter.savePositionList(positionClassificationList);
+      ];
+      for (final rule in defaultRules) {
+        await dataController.addPositionRule(rule);
+      }
+      // Setelah insert, refresh RxList dari database
+      await dataController.loadPositionRulesFromDb();
     }
   }
 
-  void addBiometricClassification(HalterBiometricRuleEngineModel model) {
-    biometricClassificationList.add(model);
-    DataTableRuleHalter.saveBiometricList(biometricClassificationList);
+  void addBiometricClassification(HalterBiometricRuleEngineModel model) async {
+    await dataController.addBiometricRule(model);
   }
 
-  void updateBiometricClassification(int index, HalterBiometricRuleEngineModel model) {
-    biometricClassificationList[index] = model;
-    DataTableRuleHalter.saveBiometricList(biometricClassificationList);
+  void updateBiometricClassification(
+    int index,
+    HalterBiometricRuleEngineModel model,
+  ) async {
+    await dataController.updateBiometricRule(model);
   }
 
-  void deleteBiometricClassification(int index) {
-    biometricClassificationList.removeAt(index);
-    DataTableRuleHalter.saveBiometricList(biometricClassificationList);
-  }
-  
-  void addPositionClassification(HalterPositionRuleEngineModel model) {
-    positionClassificationList.add(model);
-    DataTableRuleHalter.savePositionList(positionClassificationList);
+  void deleteBiometricClassification(int index) async {
+    final rule = biometricClassificationList[index];
+    if (rule.id != null) {
+      await dataController.deleteBiometricRule(rule.id!);
+    }
   }
 
-  void updatePositionClassification(int index, HalterPositionRuleEngineModel model) {
-    positionClassificationList[index] = model;
-    DataTableRuleHalter.savePositionList(positionClassificationList);
+  void addPositionClassification(HalterPositionRuleEngineModel model) async {
+    await dataController.addPositionRule(model);
   }
 
-  void deletePositionClassification(int index) {
-    positionClassificationList.removeAt(index);
-    DataTableRuleHalter.savePositionList(positionClassificationList);
+  void updatePositionClassification(
+    int index,
+    HalterPositionRuleEngineModel model,
+  ) async {
+    await dataController.updatePositionRule(model);
+  }
+
+  void deletePositionClassification(int index) async {
+    final rule = positionClassificationList[index];
+    if (rule.id != null) {
+      await dataController.deletePositionRule(rule.id!);
+    }
   }
 
   String biometricClassify({

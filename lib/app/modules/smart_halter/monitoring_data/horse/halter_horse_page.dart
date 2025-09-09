@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
@@ -8,8 +9,10 @@ import 'package:smart_feeder_desktop/app/models/horse_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/horse/detail/halter_horse_detail_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/horse/halter_horse_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
+import 'package:toastification/toastification.dart';
 
 class HalterHorsePage extends StatefulWidget {
   const HalterHorsePage({super.key});
@@ -196,6 +199,11 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       controller: ageCtrl,
                       hint: "Masukkan umur kuda",
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d*$'),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
@@ -344,6 +352,11 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       hint: "Masukan Panjang Kuda",
                       controller: lengthCtrl,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d*$'),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     CustomInput(
@@ -351,6 +364,11 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       hint: "Masukan Berat Kuda",
                       controller: weightCtrl,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d*$'),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     CustomInput(
@@ -358,6 +376,11 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       hint: "Masukan Tinggi Kuda",
                       controller: heightCtrl,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d*$'),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     CustomInput(
@@ -365,6 +388,11 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       hint: "Masukan Lingkar Dada Kuda",
                       controller: chestCircumCtrl,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d*$'),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     CustomInput(
@@ -463,34 +491,23 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
             selectedType!.isEmpty ||
             selectedGender!.isEmpty ||
             ageCtrl.text.trim().isEmpty) {
-          Get.snackbar(
-            "Input Tidak Lengkap",
-            "Nama, Jenis, Jenis Kelamin, dan Umur wajib diisi.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Data Tidak Lengkap!',
+            description: 'Lengkapi Data Kuda.',
           );
           return;
         }
 
         final int? ageInt = int.tryParse(ageCtrl.text.trim());
-        if (ageInt == null || ageInt <= 0) {
-          Get.snackbar(
-            "Input Tidak Valid",
-            "Umur harus berupa angka > 0.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
-          );
-          return;
-        }
 
         final newHorse = HorseModel(
           horseId: newId,
           name: nameCtrl.text.trim(),
           type: selectedType!,
           gender: selectedGender!,
-          age: ageInt,
+          age: ageInt!,
           roomId: selectedRoomId,
           category: selectedCategory,
           birthPlace: birthPlaceCtrl.text.trim(),
@@ -505,6 +522,12 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
           photos: _selectedImages.map((img) => img.path).toList(),
         );
         onSubmit(newHorse);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Ditambahkan!',
+          description: 'Data Kuda Ditambahkan.',
+        );
       },
     );
   }
@@ -633,6 +656,9 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       controller: ageCtrl,
                       hint: "Masukkan umur kuda",
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
@@ -783,6 +809,11 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       hint: "Masukan Panjang Kuda",
                       controller: lengthCtrl,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d*$'),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     CustomInput(
@@ -790,6 +821,11 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       hint: "Masukan Berat Kuda",
                       controller: weightCtrl,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d*$'),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     CustomInput(
@@ -797,6 +833,11 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       hint: "Masukan Tinggi Kuda",
                       controller: heightCtrl,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d*$'),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     CustomInput(
@@ -804,6 +845,11 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       hint: "Masukan Lingkar Dada Kuda",
                       controller: chestCircumCtrl,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d*$'),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     CustomInput(
@@ -908,34 +954,23 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
             selectedType == null ||
             selectedGender == null ||
             ageCtrl.text.trim().isEmpty) {
-          Get.snackbar(
-            "Input Tidak Lengkap",
-            "Nama, Jenis, Gender, dan Umur wajib diisi.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Data Tidak Lengkap!',
+            description: 'Lengkapi Data Kuda.',
           );
           return;
         }
 
         final int? ageInt = int.tryParse(ageCtrl.text.trim());
-        if (ageInt == null || ageInt <= 0) {
-          Get.snackbar(
-            "Input Tidak Valid",
-            "Umur harus berupa angka > 0.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
-          );
-          return;
-        }
 
         final editedHorse = HorseModel(
           horseId: horse.horseId,
           name: nameCtrl.text.trim(),
           type: selectedType!,
           gender: selectedGender!,
-          age: ageInt,
+          age: ageInt!,
           roomId: selectedRoomId,
           category: selectedCategory,
           birthPlace: birthPlaceCtrl.text.trim(),
@@ -950,6 +985,12 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
           photos: _selectedImages.map((img) => img.path).toList(),
         );
         onSubmit(editedHorse);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Diubah!',
+          description: 'Data Kuda "${horse.name}" Diubah.',
+        );
       },
     );
   }
@@ -966,6 +1007,12 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
       cancelText: "Batal",
       onConfirm: () async {
         await _controller.deleteHorse(horse.horseId);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Dihapus!',
+          description: 'Data Kuda "${horse.name}" Dihapus.',
+        );
       },
     );
   }
@@ -982,6 +1029,12 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
       cancelText: "Batal",
       onConfirm: () async {
         await _controller.keluarkanKudaDariKandang(horse.horseId);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Dikeluarkan!',
+          description: '"${horse.name}" Dikeluarkan Dari Kandang.',
+        );
       },
     );
   }
@@ -1005,12 +1058,11 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
       cancelText: "Batal",
       onConfirm: () {
         if (room == null) {
-          Get.snackbar(
-            "Tidak Ada Ruangan",
-            "Kuda belum dipasangkan ke ruangan manapun.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Tidak Ada Ruangan!',
+            description: 'Kuda belum dipasangkan ke ruangan manapun.',
           );
           return;
         }
@@ -1034,6 +1086,12 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
           photos: horse.photos,
         );
         onSubmit(editedHorse);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Dimasukan!',
+          description: '"${horse.name}" Dimasukan Ke Kandang.',
+        );
       },
     );
   }
@@ -1242,8 +1300,15 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                                     fontSize: 18,
                                     icon: Icons.table_view_rounded,
                                     text: 'Export Excel',
-                                    onPressed: () {
-                                      _controller.exportToExcel(horses);
+                                    onPressed: () async {
+                                      await _controller.exportToExcel(horses);
+                                      showAppToast(
+                                        context: context,
+                                        type: ToastificationType.success,
+                                        title: 'Berhasil Export!',
+                                        description:
+                                            'Data Kuda Diexport Ke Excel.',
+                                      );
                                     },
                                   ),
                                   const SizedBox(width: 12),
@@ -1255,8 +1320,15 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                                     fontSize: 18,
                                     icon: Icons.picture_as_pdf,
                                     text: 'Export PDF',
-                                    onPressed: () {
-                                      _controller.exportToPDF(horses);
+                                    onPressed: () async {
+                                      await _controller.exportToPDF(horses);
+                                      showAppToast(
+                                        context: context,
+                                        type: ToastificationType.success,
+                                        title: 'Berhasil Export!',
+                                        description:
+                                            'Data Kuda Diexport Ke PDF.',
+                                      );
                                     },
                                   ),
                                 ],

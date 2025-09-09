@@ -257,6 +257,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
         }
 
         final newModel = HalterBiometricRuleEngineModel(
+          id: model?.id,
           name: name,
           suhuMin: suhuMin.isNotEmpty ? double.tryParse(suhuMin) : null,
           suhuMax: suhuMax.isNotEmpty ? double.tryParse(suhuMax) : null,
@@ -469,6 +470,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
         }
 
         final newModel = HalterPositionRuleEngineModel(
+          id: model?.id,
           name: name,
           pitchMin: pitchMin.isNotEmpty ? double.tryParse(pitchMin) : null,
           pitchMax: pitchMax.isNotEmpty ? double.tryParse(pitchMax) : null,

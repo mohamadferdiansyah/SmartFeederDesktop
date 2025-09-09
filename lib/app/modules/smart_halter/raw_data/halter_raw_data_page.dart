@@ -227,13 +227,17 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Text(
-                          'Total Data: ${_controller.filteredList.length}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        Obx(() {
+                          final totalData = _controller.filteredList.length;
+
+                          return Text(
+                            'Total Data: $totalData',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        }),
                         const SizedBox(width: 12),
                         Text(
                           '*menerima data setiap 15 - 30 detik',

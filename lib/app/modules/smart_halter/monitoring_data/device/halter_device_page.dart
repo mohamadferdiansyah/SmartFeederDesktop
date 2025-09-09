@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 // Ganti dengan import model dan widget sesuai project-mu
@@ -13,8 +14,10 @@ import 'package:smart_feeder_desktop/app/modules/smart_halter/data_logs/log_devi
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/device/halter_device_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
+import 'package:toastification/toastification.dart';
 
 class HalterDevicePage extends StatefulWidget {
   const HalterDevicePage({Key? key}) : super(key: key);
@@ -121,6 +124,9 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                   label: "Device ID *",
                   controller: idCtrl,
                   hint: "Masukkan ID (misal: 001)",
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                  ],
                 ),
               ),
             ],
@@ -139,12 +145,11 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
       ),
       onConfirm: () {
         if (idCtrl.text.trim().isEmpty) {
-          Get.snackbar(
-            "Input Tidak Lengkap",
-            "Device ID wajib diisi.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Data Tidak Lengkap!',
+            description: 'Lengkapi Data Halter.',
           );
           return;
         }
@@ -156,6 +161,12 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
           version: versionCtrl.text,
         );
         onSubmit(newDevice);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Ditambahkan!',
+          description: 'Data Halter Ditambahkan.',
+        );
       },
     );
   }
@@ -165,7 +176,11 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
     Function(HalterDeviceModel) onSubmit, {
     BuildContext? parentContext,
   }) async {
-    final idCtrl = TextEditingController(text: device.deviceId);
+    final header = Get.find<HalterSettingController>().deviceHeader.value;
+    final idWithoutHeader = device.deviceId.startsWith(header)
+        ? device.deviceId.substring(header.length)
+        : device.deviceId;
+    final idCtrl = TextEditingController(text: idWithoutHeader);
     final versionCtrl = TextEditingController(text: device.version);
 
     showCustomDialog(
@@ -179,10 +194,40 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CustomInput(
-            label: "Device ID *",
-            controller: idCtrl,
-            hint: "Masukkan Device ID",
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  header,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: CustomInput(
+                  label: "Device ID *",
+                  controller: idCtrl,
+                  hint: "Masukkan ID (misal: 001)",
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
@@ -198,23 +243,28 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
       ),
       onConfirm: () {
         if (idCtrl.text.trim().isEmpty) {
-          Get.snackbar(
-            "Input Tidak Lengkap",
-            "Device ID wajib diisi.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Data Tidak Lengkap!',
+            description: 'Lengkapi Data Halter.',
           );
           return;
         }
         final editedDevice = HalterDeviceModel(
-          deviceId: idCtrl.text.trim(),
+          deviceId: '$header${idCtrl.text.trim()}',
           status: device.status,
           batteryPercent: device.batteryPercent,
           horseId: device.horseId,
           version: versionCtrl.text,
         );
         onSubmit(editedDevice);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Diubah!',
+          description: 'Data Halter "${editedDevice.deviceId}" Diubah.',
+        );
       },
     );
   }
@@ -301,6 +351,12 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
           version: device.version,
         );
         await _controller.updateDevice(updated);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Dipasang!',
+          description: 'Halter Dipasang Di Kuda.',
+        );
       },
     );
   }
@@ -325,6 +381,12 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
           version: device.version,
         );
         await _controller.updateDevice(updated);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Dilepas!',
+          description: 'Halter Dilepas Dari Kuda.',
+        );
       },
     );
   }
@@ -341,6 +403,12 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
       cancelText: "Batal",
       onConfirm: () async {
         await _controller.deleteDevice(device.deviceId);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Dihapus!',
+          description: 'Data "${device.deviceId}" Dihapus.',
+        );
       },
     );
   }
@@ -559,10 +627,17 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                     fontSize: 18,
                                     icon: Icons.table_view_rounded,
                                     text: 'Export Excel',
-                                    onPressed: () {
-                                      _controller.exportDeviceExcel(
+                                    onPressed: () async {
+                                      await _controller.exportDeviceExcel(
                                         devices,
                                         _controller.getHorseNameById,
+                                      );
+                                      showAppToast(
+                                        context: context,
+                                        type: ToastificationType.success,
+                                        title: 'Berhasil Export!',
+                                        description:
+                                            'Data Halter Diexport Ke Excel.',
                                       );
                                     },
                                   ),
@@ -575,10 +650,17 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                     fontSize: 18,
                                     icon: Icons.picture_as_pdf,
                                     text: 'Export PDF',
-                                    onPressed: () {
-                                      _controller.exportDevicePDF(
+                                    onPressed: () async {
+                                      await _controller.exportDevicePDF(
                                         devices,
                                         _controller.getHorseNameById,
+                                      );
+                                      showAppToast(
+                                        context: context,
+                                        type: ToastificationType.success,
+                                        title: 'Berhasil Export!',
+                                        description:
+                                            'Data Halter Diexport Ke PDF.',
                                       );
                                     },
                                   ),
