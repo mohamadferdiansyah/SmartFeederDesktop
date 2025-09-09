@@ -22,6 +22,7 @@ class HalterSettingPage extends StatefulWidget {
 class HalterSettingPageState extends State<HalterSettingPage> {
   final HalterDashboardController controller = Get.find();
   final HalterSettingController settingController = Get.find();
+  final HalterSerialService serialService = Get.find<HalterSerialService>();
 
   final team = DataTeamHalter.getTeam();
 
@@ -48,6 +49,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
   bool _loraConnected = false;
   String _selectedHeaderType = 'halter'; // 'halter' atau 'kandang'
   String? _selectedJenisPengiriman;
+  bool _modeReal = true; // true = mode real aktif, false = testing
 
   @override
   void initState() {
@@ -76,6 +78,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
     _selectedHeaderType = 'halter';
     _headerController.text = settingController.deviceHeader.value;
     _nodeRoomHeaderController.text = settingController.nodeRoomHeader.value;
+    _modeReal = !serialService.isTestingMode;
   }
 
   @override
@@ -837,7 +840,8 @@ class HalterSettingPageState extends State<HalterSettingPage> {
 
   Widget _buildTeamTestTab(BuildContext context) {
     return Center(
-      child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           CustomCard(
             title: 'Form Penguji',
@@ -1025,6 +1029,8 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                       );
                       DataTeamHalter.saveTeam(team);
 
+                      serialService.setTestingMode(!_modeReal);
+
                       toastification.show(
                         context: context,
                         title: const Text('Data Tim Penguji Tersimpan'),
@@ -1041,13 +1047,69 @@ class HalterSettingPageState extends State<HalterSettingPage> {
               ),
             ),
           ),
+          const SizedBox(height: 24),
+          CustomCard(
+            title: 'Keterangan',
+            headerHeight: 50,
+            titleFontSize: 18,
+            withExpanded: false,
+            width: MediaQuery.of(context).size.width * 0.23,
+            height: MediaQuery.of(context).size.height * 0.58,
+            content: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '• Data tim penguji digunakan untuk identifikasi hasil pengujian alat dan pelacakan hasil monitoring.',
+                    style: TextStyle(fontSize: 15, color: Colors.black87),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    '• Pastikan semua form terisi sebelum menyimpan agar data pengujian valid.',
+                    style: TextStyle(fontSize: 15, color: Colors.black87),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    '• Tanggal pengujian otomatis mengikuti tanggal hari ini.',
+                    style: TextStyle(fontSize: 15, color: Colors.black87),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    '• Anggota tim dapat ditambah atau dikurangi sesuai kebutuhan.',
+                    style: TextStyle(fontSize: 15, color: Colors.black87),
+                  ),
+                  SizedBox(height: 16),
+                  Divider(),
+                  SizedBox(height: 8),
+                  Text(
+                    'Mode Real',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.green,
+                    ),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    '• Jika Mode Real AKTIF: Halter digunakan di kuda asli, validasi suhu dan sensor akan berjalan sesuai standar kesehatan kuda.',
+                    style: TextStyle(fontSize: 15, color: Colors.black87),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    '• Jika Mode Real NON-AKTIF: Halter hanya untuk test sensor, validasi suhu dan sensor tidak aktif (data sensor tetap masuk meski tidak normal).',
+                    style: TextStyle(fontSize: 15, color: Colors.black87),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget buildModeRealSwitchSimple(BuildContext context) {
-    final HalterSerialService serialService = Get.find<HalterSerialService>();
     return Padding(
       padding: const EdgeInsets.only(left: 16.0),
       child: Column(
@@ -1075,27 +1137,14 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                 StatefulBuilder(
                   builder: (context, setStateSwitch) {
                     return Switch(
-                      value: !serialService.isTestingMode,
+                      value: _modeReal,
                       activeColor: Colors.green,
                       inactiveThumbColor: Colors.red,
                       onChanged: (val) {
-                        serialService.setTestingMode(!val);
+                        setState(() {
+                          _modeReal = val;
+                        });
                         setStateSwitch(() {});
-                        toastification.show(
-                          context: context,
-                          title: Text(
-                            val ? 'Mode Real Aktif' : 'Mode Testing Aktif',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          type: val
-                              ? ToastificationType.success
-                              : ToastificationType.info,
-                          alignment: Alignment.topCenter,
-                          autoCloseDuration: const Duration(seconds: 2),
-                        );
                       },
                     );
                   },
