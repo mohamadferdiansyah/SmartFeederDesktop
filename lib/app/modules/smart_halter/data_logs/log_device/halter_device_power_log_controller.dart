@@ -10,7 +10,8 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_device_power_log_m
 
 class HalterDevicePowerLogController extends GetxController {
   final DataController dataController = Get.find<DataController>();
-  RxList<HalterDevicePowerLogModel> get logList => dataController.halterDeviceLogList;
+  RxList<HalterDevicePowerLogModel> get logList =>
+      dataController.halterDeviceLogList;
 
   @override
   void onInit() {
@@ -18,7 +19,7 @@ class HalterDevicePowerLogController extends GetxController {
     dataController.loadHalterDevicePowerLogsFromDb();
   }
 
-  Future<void> exportLogExcel(List<HalterDevicePowerLogModel> logs) async {
+  Future<bool> exportLogExcel(List<HalterDevicePowerLogModel> logs) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
@@ -33,7 +34,9 @@ class HalterDevicePowerLogController extends GetxController {
       sheet.appendRow([
         TextCellValue('${i + 1}'),
         TextCellValue(log.deviceId),
-        TextCellValue(DateFormat('dd-MM-yyyy HH:mm:ss').format(log.powerOnTime)),
+        TextCellValue(
+          DateFormat('dd-MM-yyyy HH:mm:ss').format(log.powerOnTime),
+        ),
         TextCellValue(
           log.powerOffTime != null
               ? DateFormat('dd-MM-yyyy HH:mm:ss').format(log.powerOffTime!)
@@ -43,8 +46,8 @@ class HalterDevicePowerLogController extends GetxController {
           log.durationOn != null
               ? '${log.durationOn!.inMinutes}'
               : log.powerOffTime == null
-                  ? '${DateTime.now().difference(log.powerOnTime).inMinutes}'
-                  : '-',
+              ? '${DateTime.now().difference(log.powerOnTime).inMinutes}'
+              : '-',
         ),
       ]);
     }
@@ -57,10 +60,12 @@ class HalterDevicePowerLogController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(fileBytes!);
+      return true;
     }
+    return false;
   }
 
-  Future<void> exportLogPDF(List<HalterDevicePowerLogModel> logs) async {
+  Future<bool> exportLogPDF(List<HalterDevicePowerLogModel> logs) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
@@ -84,8 +89,8 @@ class HalterDevicePowerLogController extends GetxController {
               log.durationOn != null
                   ? '${log.durationOn!.inMinutes}'
                   : log.powerOffTime == null
-                      ? '${DateTime.now().difference(log.powerOnTime).inMinutes}'
-                      : '-',
+                  ? '${DateTime.now().difference(log.powerOnTime).inMinutes}'
+                  : '-',
             ];
           }),
         ),
@@ -99,6 +104,8 @@ class HalterDevicePowerLogController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(await pdf.save());
+      return true;
     }
+    return false;
   }
 }

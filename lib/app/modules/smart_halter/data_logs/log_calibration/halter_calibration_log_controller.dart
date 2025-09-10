@@ -29,7 +29,7 @@ class HalterCalibrationLogController extends GetxController {
     DataHalterCalibrationLog.clear();
   }
 
-  Future<void> exportLogExcel(List<HalterCalibrationLogModel> logs) async {
+  Future<bool> exportLogExcel(List<HalterCalibrationLogModel> logs) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
@@ -62,10 +62,12 @@ class HalterCalibrationLogController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(fileBytes!);
+      return true;
     }
+    return false;
   }
 
-  Future<void> exportLogPDF(List<HalterCalibrationLogModel> logs) async {
+  Future<bool> exportLogPDF(List<HalterCalibrationLogModel> logs) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
@@ -102,6 +104,8 @@ class HalterCalibrationLogController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(await pdf.save());
+      return true;
     }
+    return false;
   }
 }

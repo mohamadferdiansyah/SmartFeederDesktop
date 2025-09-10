@@ -9,6 +9,7 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_biometric_rule_eng
 import 'package:smart_feeder_desktop/app/models/halter/halter_position_rule_engine_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/table/halter_table_rule_engine_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
@@ -84,7 +85,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                   hint: "Contoh: 37.0",
                   keyboardType: TextInputType.number,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
                   ],
                 ),
               ),
@@ -96,7 +97,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                   hint: "Contoh: 39.0",
                   keyboardType: TextInputType.number,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
                   ],
                 ),
               ),
@@ -136,7 +137,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                   hint: "Contoh: 93",
                   keyboardType: TextInputType.number,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
                   ],
                 ),
               ),
@@ -148,7 +149,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                   hint: "Contoh: 100",
                   keyboardType: TextInputType.number,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
                   ],
                 ),
               ),
@@ -205,12 +206,11 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
         ].any((v) => v.isNotEmpty);
 
         if (name.isEmpty || !isAnyFieldFilled) {
-          Get.snackbar(
-            "Input Tidak Lengkap",
-            "Nama wajib diisi dan minimal satu parameter harus diisi.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Data Tidak Lengkap!',
+            description: 'Nama Dan Min. 1 Parameter Wajib Diisi.',
           );
           return;
         }
@@ -246,12 +246,11 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
           }
         }
         if (error != null) {
-          Get.snackbar(
-            "Input Tidak Valid",
-            error,
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Data Tidak Valid!',
+            description: error,
           );
           return;
         }
@@ -271,8 +270,20 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
 
         if (model == null) {
           controller.addBiometricClassification(newModel);
+          showAppToast(
+            context: context,
+            type: ToastificationType.success,
+            title: 'Berhasil Ditambahkan!',
+            description: 'Data Klasifikasi Ditambahkan.',
+          );
         } else if (index != null) {
           controller.updateBiometricClassification(index, newModel);
+          showAppToast(
+            context: context,
+            type: ToastificationType.success,
+            title: 'Berhasil Diubah!',
+            description: 'Data Klasifikasi "${model.name}" Diubah.',
+          );
         }
       },
     );
@@ -331,7 +342,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                   hint: "Contoh: -10",
                   keyboardType: TextInputType.number,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.-]')),
+                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
                   ],
                 ),
               ),
@@ -343,7 +354,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                   hint: "Contoh: 10",
                   keyboardType: TextInputType.number,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.-]')),
+                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
                   ],
                 ),
               ),
@@ -359,7 +370,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                   hint: "Contoh: -10",
                   keyboardType: TextInputType.number,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.-]')),
+                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
                   ],
                 ),
               ),
@@ -371,7 +382,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                   hint: "Contoh: 10",
                   keyboardType: TextInputType.number,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.-]')),
+                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
                   ],
                 ),
               ),
@@ -387,7 +398,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                   hint: "Contoh: -20",
                   keyboardType: TextInputType.number,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.-]')),
+                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
                   ],
                 ),
               ),
@@ -399,7 +410,7 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                   hint: "Contoh: 20",
                   keyboardType: TextInputType.number,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.-]')),
+                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
                   ],
                 ),
               ),
@@ -426,12 +437,11 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
         ].any((v) => v.isNotEmpty);
 
         if (name.isEmpty || !isAnyFieldFilled) {
-          Get.snackbar(
-            "Input Tidak Lengkap",
-            "Nama wajib diisi dan minimal satu parameter harus diisi.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Data Tidak Lengkap!',
+            description: 'Nama Dan Min. 1 Parameter Wajib Diisi.',
           );
           return;
         }
@@ -459,12 +469,11 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
           }
         }
         if (error != null) {
-          Get.snackbar(
-            "Input Tidak Valid",
-            error,
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Data Tidak Valid!',
+            description: error,
           );
           return;
         }
@@ -482,8 +491,20 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
 
         if (model == null) {
           controller.addPositionClassification(newModel);
+          showAppToast(
+            context: context,
+            type: ToastificationType.success,
+            title: 'Berhasil Ditambahkan!',
+            description: 'Data Klasifikasi Ditambahkan.',
+          );
         } else if (index != null) {
           controller.updatePositionClassification(index, newModel);
+          showAppToast(
+            context: context,
+            type: ToastificationType.success,
+            title: 'Berhasil Diubah!',
+            description: 'Data Klasifikasi "${model.name}" Diubah.',
+          );
         }
       },
     );
@@ -823,14 +844,12 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                           onConfirm: () {
                                             if (confirmCtrl.text.trim() !=
                                                 c.name) {
-                                              Get.snackbar(
-                                                "Nama Tidak Sesuai",
-                                                "Nama rule yang diketik tidak sesuai.",
-                                                snackPosition:
-                                                    SnackPosition.TOP,
-                                                backgroundColor:
-                                                    Colors.redAccent,
-                                                colorText: Colors.white,
+                                              showAppToast(
+                                                context: context,
+                                                type: ToastificationType.error,
+                                                title: 'Data Tidak Valid!',
+                                                description:
+                                                    'Nama Rule Tidak Valid.',
                                               );
                                               return;
                                             }
@@ -838,16 +857,12 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                                 .deleteBiometricClassification(
                                                   idx,
                                                 );
-                                            toastification.show(
+                                            showAppToast(
                                               context: context,
-                                              title: const Text(
-                                                'Rule berhasil dihapus',
-                                              ),
                                               type: ToastificationType.success,
-                                              alignment: Alignment.topCenter,
-                                              autoCloseDuration: const Duration(
-                                                seconds: 2,
-                                              ),
+                                              title: 'Berhasil Dihapus!',
+                                              description:
+                                                  'Data Klasifikasi Dihapus.',
                                             );
                                           },
                                         );
@@ -1141,14 +1156,12 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                           onConfirm: () {
                                             if (confirmCtrl.text.trim() !=
                                                 c.name) {
-                                              Get.snackbar(
-                                                "Nama Tidak Sesuai",
-                                                "Nama rule yang diketik tidak sesuai.",
-                                                snackPosition:
-                                                    SnackPosition.TOP,
-                                                backgroundColor:
-                                                    Colors.redAccent,
-                                                colorText: Colors.white,
+                                              showAppToast(
+                                                context: context,
+                                                type: ToastificationType.error,
+                                                title: 'Data Tidak Valid!',
+                                                description:
+                                                    'Nama Rule Tidak Valid.',
                                               );
                                               return;
                                             }
@@ -1156,16 +1169,12 @@ class _HalterTableRuleEnginePageState extends State<HalterTableRuleEnginePage> {
                                                 .deletePositionClassification(
                                                   idx,
                                                 );
-                                            toastification.show(
+                                            showAppToast(
                                               context: context,
-                                              title: const Text(
-                                                'Rule berhasil dihapus',
-                                              ),
                                               type: ToastificationType.success,
-                                              alignment: Alignment.topCenter,
-                                              autoCloseDuration: const Duration(
-                                                seconds: 2,
-                                              ),
+                                              title: 'Berhasil Dihapus!',
+                                              description:
+                                                  'Data Klasifikasi Dihapus.',
                                             );
                                           },
                                         );

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/halter/cctv_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/camera/halter_camera_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
+import 'package:toastification/toastification.dart';
 
 class HalterCameraPage extends StatefulWidget {
   const HalterCameraPage({super.key});
@@ -96,12 +99,18 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
             label: "Ip Address *",
             controller: ipCtrl,
             hint: "Masukkan nama Cctv",
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+            ],
           ),
           const SizedBox(height: 16),
           CustomInput(
             label: "Port *",
             controller: portCtrl,
             hint: "Masukkan Port Cctv",
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+            ],
           ),
           const SizedBox(height: 16),
           CustomInput(
@@ -122,12 +131,11 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
             portCtrl.text.trim().isEmpty ||
             usernameCtrl.text.trim().isEmpty ||
             passwordCtrl.text.trim().isEmpty) {
-          Get.snackbar(
-            "Input Tidak Lengkap",
-            "Semua field wajib diisi.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Data Tidak Lengkap!',
+            description: 'Lengkapi Data Node Kandang.',
           );
           return;
         }
@@ -140,6 +148,21 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
           password: passwordCtrl.text.trim(),
         );
         onSubmit(newCctv);
+        if (isEdit) {
+          showAppToast(
+            context: context,
+            type: ToastificationType.success,
+            title: 'Berhasil Diubah!',
+            description: 'Data CCTV "${cctv?.cctvId}" Diubah.',
+          );
+        } else {
+          showAppToast(
+            context: context,
+            type: ToastificationType.success,
+            title: 'Berhasil Ditambahkan!',
+            description: 'Data CCTV Ditambahkan.',
+          );
+        }
       },
     );
   }
@@ -195,6 +218,12 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
       cancelText: "Batal",
       onConfirm: () async {
         await _controller.deleteCctv(cctv.cctvId);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Dihapus!',
+          description: 'Data CCTV "${cctv.cctvId}" Dihapus.',
+        );
       },
     );
   }
@@ -384,9 +413,20 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
                                     fontSize: 18,
                                     icon: Icons.table_view_rounded,
                                     text: 'Export Excel',
-                                    onPressed: () {
-                                      _controller.exportCctvExcel(
-                                        filteredCctvs,
+                                    onPressed: () async {
+                                      final success = await _controller
+                                          .exportCctvExcel(filteredCctvs);
+                                      showAppToast(
+                                        context: context,
+                                        type: success
+                                            ? ToastificationType.success
+                                            : ToastificationType.error,
+                                        title: success
+                                            ? 'Berhasil Export!'
+                                            : 'Export Dibatalkan!',
+                                        description: success
+                                            ? 'Data CCTV Diexport Ke Excel.'
+                                            : 'Export data CCTV dibatalkan.',
                                       );
                                     },
                                   ),
@@ -399,8 +439,21 @@ class _HalterCameraPageState extends State<HalterCameraPage> {
                                     fontSize: 18,
                                     icon: Icons.picture_as_pdf,
                                     text: 'Export PDF',
-                                    onPressed: () {
-                                      _controller.exportCctvPDF(filteredCctvs);
+                                    onPressed: () async {
+                                      final success = await _controller
+                                          .exportCctvPDF(filteredCctvs);
+                                      showAppToast(
+                                        context: context,
+                                        type: success
+                                            ? ToastificationType.success
+                                            : ToastificationType.error,
+                                        title: success
+                                            ? 'Berhasil Export!'
+                                            : 'Export Dibatalkan!',
+                                        description: success
+                                            ? 'Data CCTV Diexport Ke PDF.'
+                                            : 'Export data CCTV dibatalkan.',
+                                      );
                                     },
                                   ),
                                 ],

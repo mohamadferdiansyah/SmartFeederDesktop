@@ -200,9 +200,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                       hint: "Masukkan umur kuda",
                       keyboardType: TextInputType.number,
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                          RegExp(r'^\d*\.?\d*$'),
-                        ),
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -1301,13 +1299,19 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                                     icon: Icons.table_view_rounded,
                                     text: 'Export Excel',
                                     onPressed: () async {
-                                      await _controller.exportToExcel(horses);
+                                      final success = await _controller
+                                          .exportToExcel(horses);
                                       showAppToast(
                                         context: context,
-                                        type: ToastificationType.success,
-                                        title: 'Berhasil Export!',
-                                        description:
-                                            'Data Kuda Diexport Ke Excel.',
+                                        type: success
+                                            ? ToastificationType.success
+                                            : ToastificationType.error,
+                                        title: success
+                                            ? 'Berhasil Export!'
+                                            : 'Export Dibatalkan!',
+                                        description: success
+                                            ? 'Data Kuda Diexport Ke Excel.'
+                                            : 'Export data kuda dibatalkan.',
                                       );
                                     },
                                   ),
@@ -1321,13 +1325,19 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                                     icon: Icons.picture_as_pdf,
                                     text: 'Export PDF',
                                     onPressed: () async {
-                                      await _controller.exportToPDF(horses);
+                                      final success = await _controller
+                                          .exportToPDF(horses);
                                       showAppToast(
                                         context: context,
-                                        type: ToastificationType.success,
-                                        title: 'Berhasil Export!',
-                                        description:
-                                            'Data Kuda Diexport Ke PDF.',
+                                        type: success
+                                            ? ToastificationType.success
+                                            : ToastificationType.error,
+                                        title: success
+                                            ? 'Berhasil Export!'
+                                            : 'Export Dibatalkan!',
+                                        description: success
+                                            ? 'Data Kuda Diexport Ke PDF.'
+                                            : 'Export data kuda dibatalkan.',
                                       );
                                     },
                                   ),

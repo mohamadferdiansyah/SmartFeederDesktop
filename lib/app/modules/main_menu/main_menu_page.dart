@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/modules/login/login_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_main_menu_card.dart';
+import 'package:toastification/toastification.dart';
 
 class MainMenuPage extends StatelessWidget {
   const MainMenuPage({super.key});
@@ -12,7 +14,7 @@ class MainMenuPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final LoginController loginController = Get.find<LoginController>();
-    
+
     return Scaffold(
       body: Stack(
         children: [
@@ -197,9 +199,15 @@ class MainMenuPage extends StatelessWidget {
                     confirmText: 'Keluar',
                     cancelText: 'Batal',
                     icon: Icons.logout,
-                    iconColor: AppColors.primary,
+                    iconColor: Colors.red,
                     onConfirm: () {
                       loginController.logout();
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.success,
+                        title: 'Berhasil Logout!',
+                        description: 'Anda Telah Logout.',
+                      );
                     },
                   );
                 },

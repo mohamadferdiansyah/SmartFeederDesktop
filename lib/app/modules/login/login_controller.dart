@@ -19,7 +19,8 @@ class LoginController extends GetxController {
         // Sukses login, bisa navigasi ke main menu
         return true;
       } else {
-        error.value = 'Login gagal, response tidak valid.';
+        // Ambil pesan error dari response jika ada
+        error.value = result['Error'] ?? 'Login gagal, response tidak valid.';
         return false;
       }
     } catch (e) {

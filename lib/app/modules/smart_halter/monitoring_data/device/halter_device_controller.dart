@@ -58,7 +58,7 @@ class HalterDeviceController extends GetxController {
     await dataController.deleteHalterDevice(deviceId);
   }
 
-  Future<void> exportDeviceExcel(
+  Future<bool> exportDeviceExcel(
     List<HalterDeviceModel> data,
     String Function(String?) getHorseName,
   ) async {
@@ -85,11 +85,13 @@ class HalterDeviceController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(fileBytes!);
+      return true;
     }
+    return false;
   }
 
   /// Export data device utama ke PDF
-  Future<void> exportDevicePDF(
+  Future<bool> exportDevicePDF(
     List<HalterDeviceModel> data,
     String Function(String?) getHorseName,
   ) async {
@@ -118,11 +120,13 @@ class HalterDeviceController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(await pdf.save());
+      return true;
     }
+    return false;
   }
 
   /// Export detail data raw device ke Excel
-  Future<void> exportDetailExcel(
+  Future<bool> exportDetailExcel(
     List<HalterDeviceDetailModel> data,
     TestTeamModel? team,
   ) async {
@@ -236,7 +240,9 @@ class HalterDeviceController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(fileBytes!);
+      return true;
     }
+    return false;
   }
 
   // Helper untuk format bulan ke string
@@ -260,7 +266,7 @@ class HalterDeviceController extends GetxController {
   }
 
   /// Export detail data raw device ke PDF
-  Future<void> exportDetailPDF(List<HalterDeviceDetailModel> data) async {
+  Future<bool> exportDetailPDF(List<HalterDeviceDetailModel> data) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
@@ -336,7 +342,9 @@ class HalterDeviceController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(await pdf.save());
+      return true;
     }
+    return false;
   }
 
   String getHorseNameById(String? horseId) {

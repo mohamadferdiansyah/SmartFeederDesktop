@@ -4,8 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_power_log_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/data_logs/log_device/halter_device_power_log_controller.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
+import 'package:toastification/toastification.dart';
 
 class HalterDevicePowerLogPage extends StatefulWidget {
   const HalterDevicePowerLogPage({super.key});
@@ -195,8 +197,22 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
                             fontSize: 18,
                             icon: Icons.table_view_rounded,
                             text: 'Export Excel',
-                            onPressed: () {
-                              controller.exportLogExcel(filteredLogs);
+                            onPressed: () async {
+                              final success = await controller.exportLogExcel(
+                                filteredLogs,
+                              );
+                              showAppToast(
+                                context: context,
+                                type: success
+                                    ? ToastificationType.success
+                                    : ToastificationType.error,
+                                title: success
+                                    ? 'Berhasil Export!'
+                                    : 'Export Dibatalkan!',
+                                description: success
+                                    ? 'Log Power Device Diexport Ke Excel.'
+                                    : 'Export log power device dibatalkan.',
+                              );
                             },
                           ),
                           const SizedBox(width: 12),
@@ -207,8 +223,22 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
                             fontSize: 18,
                             icon: Icons.picture_as_pdf,
                             text: 'Export PDF',
-                            onPressed: () {
-                              controller.exportLogPDF(filteredLogs);
+                            onPressed: () async {
+                              final success = await controller.exportLogPDF(
+                                filteredLogs,
+                              );
+                              showAppToast(
+                                context: context,
+                                type: success
+                                    ? ToastificationType.success
+                                    : ToastificationType.error,
+                                title: success
+                                    ? 'Berhasil Export!'
+                                    : 'Export Dibatalkan!',
+                                description: success
+                                    ? 'Log Power Device Diexport Ke PDF.'
+                                    : 'Export log power device dibatalkan.',
+                              );
                             },
                           ),
                         ],

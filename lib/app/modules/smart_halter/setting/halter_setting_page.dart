@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/data/data_team_halter.dart';
@@ -6,6 +7,7 @@ import 'package:smart_feeder_desktop/app/models/halter/test_team_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
 import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
@@ -200,7 +202,15 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                             ),
                                           ),
                                         ),
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          showAppToast(
+                                            context: context,
+                                            type: ToastificationType.success,
+                                            title: 'Berhasil Simpan!',
+                                            description:
+                                                'Koneksi ${_cloudUrlController.text} Disimpan.',
+                                          );
+                                        },
                                         child: const Text('Simpan'),
                                       ),
                                     ),
@@ -220,30 +230,12 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                           settingController.updateCloud(
                                             url: _cloudUrlController.text,
                                           );
-                                          toastification.show(
+                                          showAppToast(
                                             context: context,
-                                            title: Text(
-                                              'Koneksi Cloud Berhasil',
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
                                             type: ToastificationType.success,
-                                            description: Text(
-                                              'Cloud URL: ${_cloudUrlController.text}',
-                                            ),
-                                            boxShadow: const [
-                                              BoxShadow(
-                                                color: Colors.black26,
-                                                blurRadius: 8,
-                                                offset: Offset(0, 2),
-                                              ),
-                                            ],
-                                            alignment: Alignment.topCenter,
-                                            autoCloseDuration: const Duration(
-                                              seconds: 2,
-                                            ),
+                                            title: 'Berhasil Cek Koneski!',
+                                            description:
+                                                'Koneksi ${_cloudUrlController.text} Aktif.',
                                           );
                                         },
                                         child: const Text('Cek Koneksi'),
@@ -349,27 +341,6 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                 const SizedBox(height: 12),
                                 Row(
                                   children: [
-                                    // Tombol Simpan Port (optional, bisa diisi logic simpan port ke controller)
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.primary,
-                                          foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                        ),
-                                        onPressed: _selectedLoraPort == null
-                                            ? null
-                                            : () {
-                                                // Logic simpan port jika perlu
-                                              },
-                                        child: const Text('Simpan Port'),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
                                     // Tombol Connect/Disconnect
                                     Expanded(
                                       child: ElevatedButton(
@@ -551,30 +522,12 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                       settingController.updateJenisPengiriman(
                                         _selectedJenisPengiriman!,
                                       );
-                                      toastification.show(
+                                      showAppToast(
                                         context: context,
-                                        title: const Text(
-                                          'Pengaturan Jenis Pengiriman Berhasil',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
                                         type: ToastificationType.success,
-                                        description: Text(
-                                          'Jenis Pengiriman: $_selectedJenisPengiriman',
-                                        ),
-                                        boxShadow: const [
-                                          BoxShadow(
-                                            color: Colors.black26,
-                                            blurRadius: 8,
-                                            offset: Offset(0, 2),
-                                          ),
-                                        ],
-                                        alignment: Alignment.topCenter,
-                                        autoCloseDuration: const Duration(
-                                          seconds: 2,
-                                        ),
+                                        title: 'Berhasil Diubah!',
+                                        description:
+                                            'Jenis Pengiriman $_selectedJenisPengiriman Disimpan.',
                                       );
                                     },
                                     child: const Text(
@@ -678,30 +631,12 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                       ),
                                     ),
                                     onPressed: () {
-                                      toastification.show(
+                                      showAppToast(
                                         context: context,
-                                        title: Text(
-                                          'Pengaturan Kandang Berhasil',
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
                                         type: ToastificationType.success,
-                                        description: Text(
-                                          'Kandang: ${controller.selectedStableId.value}',
-                                        ),
-                                        boxShadow: const [
-                                          BoxShadow(
-                                            color: Colors.black26,
-                                            blurRadius: 8,
-                                            offset: Offset(0, 2),
-                                          ),
-                                        ],
-                                        alignment: Alignment.topCenter,
-                                        autoCloseDuration: const Duration(
-                                          seconds: 2,
-                                        ),
+                                        title: 'Berhasil Dipilih!',
+                                        description:
+                                            'Kandang ${controller.selectedStableId.value} Dipilih.',
                                       );
                                     },
                                     child: const Text(
@@ -787,6 +722,11 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                     label: 'Header Device ID Halter',
                                     controller: _headerController,
                                     hint: 'Masukan Header Device ID Halter',
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.allow(
+                                        RegExp(r'[a-zA-Z\s]'),
+                                      ),
+                                    ],
                                   ),
                                 if (_selectedHeaderType == 'kandang')
                                   CustomInput(
@@ -794,6 +734,11 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                     controller: _nodeRoomHeaderController,
                                     hint:
                                         'Masukan Header Device ID Node Kandang',
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.allow(
+                                        RegExp(r'[a-zA-Z\s]'),
+                                      ),
+                                    ],
                                   ),
                                 const SizedBox(height: 12),
                                 CustomButton(
@@ -801,25 +746,51 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                   backgroundColor: AppColors.primary,
                                   onPressed: () {
                                     if (_selectedHeaderType == 'halter') {
+                                      if (_headerController.text
+                                          .trim()
+                                          .isEmpty) {
+                                        showAppToast(
+                                          context: context,
+                                          type: ToastificationType.error,
+                                          title: 'Data Tidak Lengkap!',
+                                          description:
+                                              'Lengkapi Data Header ID.',
+                                        );
+                                        return;
+                                      }
                                       settingController.setDeviceHeader(
                                         _headerController.text.trim(),
                                       );
+                                      showAppToast(
+                                        context: context,
+                                        type: ToastificationType.success,
+                                        title: 'Berhasil Diubah!',
+                                        description: 'Header Halter Diubah.',
+                                      );
                                     } else {
+                                      if (_nodeRoomHeaderController.text
+                                          .trim()
+                                          .isEmpty) {
+                                        showAppToast(
+                                          context: context,
+                                          type: ToastificationType.error,
+                                          title: 'Data Tidak Lengkap!',
+                                          description:
+                                              'Lengkapi Data Header ID.',
+                                        );
+                                        return;
+                                      }
                                       settingController.setNodeRoomHeader(
                                         _nodeRoomHeaderController.text.trim(),
                                       );
+                                      showAppToast(
+                                        context: context,
+                                        type: ToastificationType.success,
+                                        title: 'Berhasil Diubah!',
+                                        description:
+                                            'Header Node Kandang Diubah.',
+                                      );
                                     }
-                                    toastification.show(
-                                      context: context,
-                                      title: const Text(
-                                        'Header Device ID berhasil disimpan',
-                                      ),
-                                      type: ToastificationType.success,
-                                      alignment: Alignment.topCenter,
-                                      autoCloseDuration: const Duration(
-                                        seconds: 2,
-                                      ),
-                                    );
                                   },
                                 ),
                               ],
@@ -988,35 +959,41 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                           .toList();
 
                       // Validasi
-                      if (namaTim.isEmpty) {
-                        toastification.show(
+                      if (namaTim.isEmpty &&
+                          lokasi.isEmpty &&
+                          anggota.isEmpty) {
+                        showAppToast(
                           context: context,
-                          title: const Text('Nama Tim Penguji wajib diisi'),
                           type: ToastificationType.error,
-                          alignment: Alignment.topCenter,
-                          autoCloseDuration: const Duration(seconds: 2),
+                          title: 'Data Tidak Lengkap!',
+                          description: 'Lengkapi Data Tim Penguji.',
+                        );
+                        return;
+                      }
+                      if (namaTim.isEmpty) {
+                        showAppToast(
+                          context: context,
+                          type: ToastificationType.error,
+                          title: 'Data Tidak Lengkap!',
+                          description: 'Nama Tim Penguji Wajib Diisi.',
                         );
                         return;
                       }
                       if (lokasi.isEmpty) {
-                        toastification.show(
+                        showAppToast(
                           context: context,
-                          title: const Text('Lokasi Pengujian wajib diisi'),
                           type: ToastificationType.error,
-                          alignment: Alignment.topCenter,
-                          autoCloseDuration: const Duration(seconds: 2),
+                          title: 'Data Tidak Lengkap!',
+                          description: 'Lokasi Pengujian Wajib Diisi.',
                         );
                         return;
                       }
                       if (anggota.isEmpty) {
-                        toastification.show(
+                        showAppToast(
                           context: context,
-                          title: const Text(
-                            'Minimal 1 anggota penguji wajib diisi',
-                          ),
                           type: ToastificationType.error,
-                          alignment: Alignment.topCenter,
-                          autoCloseDuration: const Duration(seconds: 2),
+                          title: 'Data Tidak Lengkap!',
+                          description: 'Minimal 1 Anggota Penguji Wajib Diisi.',
                         );
                         return;
                       }
@@ -1031,13 +1008,11 @@ class HalterSettingPageState extends State<HalterSettingPage> {
 
                       serialService.setTestingMode(!_modeReal);
 
-                      toastification.show(
+                      showAppToast(
                         context: context,
-                        title: const Text('Data Tim Penguji Tersimpan'),
                         type: ToastificationType.success,
-                        style: ToastificationStyle.fillColored,
-                        alignment: Alignment.topCenter,
-                        autoCloseDuration: const Duration(seconds: 2),
+                        title: 'Berhasil Disimpan!',
+                        description: 'Data Tim Penguji Disimpan.',
                       );
                     },
                     text: 'Simpan',

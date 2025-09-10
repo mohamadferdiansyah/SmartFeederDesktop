@@ -60,7 +60,7 @@ class HalterNodeController extends GetxController {
   }
 
   /// Export detail node ruangan ke Excel
-  Future<void> exportNodeRoomExcel(List<NodeRoomModel> data) async {
+  Future<bool> exportNodeRoomExcel(List<NodeRoomModel> data) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
@@ -95,11 +95,13 @@ class HalterNodeController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(fileBytes!);
+      return true;
     }
+    return false;
   }
 
   /// Export detail node ruangan ke PDF
-  Future<void> exportNodeRoomPDF(List<NodeRoomModel> data) async {
+  Future<bool> exportNodeRoomPDF(List<NodeRoomModel> data) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
@@ -136,114 +138,118 @@ class HalterNodeController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(await pdf.save());
+      return true;
     }
+    return false;
   }
 
-  Future<void> exportNodeRoomDetailExcel(
-  List<NodeRoomDetailModel> data,
-  TestTeamModel? team,
-) async {
-  var excel = Excel.createExcel();
-  Sheet sheet = excel['Sheet1'];
+  Future<bool> exportNodeRoomDetailExcel(
+    List<NodeRoomDetailModel> data,
+    TestTeamModel? team,
+  ) async {
+    var excel = Excel.createExcel();
+    Sheet sheet = excel['Sheet1'];
 
-  final deviceName = (data.isNotEmpty) ? data.first.deviceId : '';
-  final judul = 'DATA SMART HALTER DETAIL NODE DEVICE ($deviceName)';
-  final sensorHeaders = [
-    'No',
-    'Time',
-    'Device Id',
-    'Suhu (°C)',
-    'Kelembapan (%)',
-    'Cahaya (lux)',
-  ];
+    final deviceName = (data.isNotEmpty) ? data.first.deviceId : '';
+    final judul = 'DATA SMART HALTER DETAIL NODE DEVICE ($deviceName)';
+    final sensorHeaders = [
+      'No',
+      'Time',
+      'Device Id',
+      'Suhu (°C)',
+      'Kelembapan (%)',
+      'Cahaya (lux)',
+    ];
 
-  // Baris 1: Judul (merge center)
-  sheet.appendRow([
-    TextCellValue(judul),
-    ...List.generate(sensorHeaders.length - 1, (_) => TextCellValue('')),
-  ]);
-  try {
-    sheet.merge(
-      CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),
-      CellIndex.indexByColumnRow(
-        columnIndex: sensorHeaders.length - 1,
-        rowIndex: 0,
-      ),
-    );
-  } catch (e) {}
-
-  // Baris 2-5: Data tim penguji
-  sheet.appendRow([
-    TextCellValue('Team Penguji'),
-    TextCellValue(team?.teamName ?? '-'),
-  ]);
-  sheet.appendRow([
-    TextCellValue('Lokasi Pengujian'),
-    TextCellValue(team?.location ?? '-'),
-  ]);
-  sheet.appendRow([
-    TextCellValue('Tanggal Pengujian'),
-    TextCellValue(
-      team?.date != null
-          ? "${team!.date!.day} ${_bulan(team.date!.month)} ${team.date!.year}"
-          : '-',
-    ),
-  ]);
-  sheet.appendRow([
-    TextCellValue('Anggota'),
-    TextCellValue(team?.members?.join(', ') ?? '-'),
-  ]);
-
-
-  // Baris 7: Header
-  sheet.appendRow(sensorHeaders.map((e) => TextCellValue(e)).toList());
-
-  // Data
-  for (int i = 0; i < data.length; i++) {
-    final d = data[i];
+    // Baris 1: Judul (merge center)
     sheet.appendRow([
-      TextCellValue('${i + 1}'),
-      TextCellValue(DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time)),
-      TextCellValue(d.deviceId),
-      TextCellValue(d.temperature.toStringAsFixed(2)),
-      TextCellValue(d.humidity.toStringAsFixed(2)),
-      TextCellValue(d.lightIntensity.toStringAsFixed(2)),
+      TextCellValue(judul),
+      ...List.generate(sensorHeaders.length - 1, (_) => TextCellValue('')),
     ]);
+    try {
+      sheet.merge(
+        CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),
+        CellIndex.indexByColumnRow(
+          columnIndex: sensorHeaders.length - 1,
+          rowIndex: 0,
+        ),
+      );
+    } catch (e) {}
+
+    // Baris 2-5: Data tim penguji
+    sheet.appendRow([
+      TextCellValue('Team Penguji'),
+      TextCellValue(team?.teamName ?? '-'),
+    ]);
+    sheet.appendRow([
+      TextCellValue('Lokasi Pengujian'),
+      TextCellValue(team?.location ?? '-'),
+    ]);
+    sheet.appendRow([
+      TextCellValue('Tanggal Pengujian'),
+      TextCellValue(
+        team?.date != null
+            ? "${team!.date!.day} ${_bulan(team.date!.month)} ${team.date!.year}"
+            : '-',
+      ),
+    ]);
+    sheet.appendRow([
+      TextCellValue('Anggota'),
+      TextCellValue(team?.members?.join(', ') ?? '-'),
+    ]);
+
+    // Baris 7: Header
+    sheet.appendRow(sensorHeaders.map((e) => TextCellValue(e)).toList());
+
+    // Data
+    for (int i = 0; i < data.length; i++) {
+      final d = data[i];
+      sheet.appendRow([
+        TextCellValue('${i + 1}'),
+        TextCellValue(DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time)),
+        TextCellValue(d.deviceId),
+        TextCellValue(d.temperature.toStringAsFixed(2)),
+        TextCellValue(d.humidity.toStringAsFixed(2)),
+        TextCellValue(d.lightIntensity.toStringAsFixed(2)),
+      ]);
+    }
+
+    final fileBytes = excel.encode();
+    String? path = await FilePicker.platform.saveFile(
+      dialogTitle: 'Simpan file Excel Detail Node',
+      fileName:
+          'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId).first}).xlsx',
+      type: FileType.custom,
+      allowedExtensions: ['xlsx'],
+    );
+    if (path != null) {
+      await File(path).writeAsBytes(fileBytes!);
+      return true;
+    }
+    return false;
   }
 
-  final fileBytes = excel.encode();
-  String? path = await FilePicker.platform.saveFile(
-    dialogTitle: 'Simpan file Excel Detail Node',
-    fileName: 'Smart_Halter_Node_Device_Detail(${data.map((e) => e.deviceId).first}).xlsx',
-    type: FileType.custom,
-    allowedExtensions: ['xlsx'],
-  );
-  if (path != null) {
-    await File(path).writeAsBytes(fileBytes!);
+  // Helper untuk format bulan ke string
+  String _bulan(int m) {
+    const bulanList = [
+      '',
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    return bulanList[m];
   }
-}
 
-// Helper untuk format bulan ke string
-String _bulan(int m) {
-  const bulanList = [
-    '',
-    'Januari',
-    'Februari',
-    'Maret',
-    'April',
-    'Mei',
-    'Juni',
-    'Juli',
-    'Agustus',
-    'September',
-    'Oktober',
-    'November',
-    'Desember',
-  ];
-  return bulanList[m];
-}
-
-  Future<void> exportNodeRoomDetailPDF(List<NodeRoomDetailModel> data) async {
+  Future<bool> exportNodeRoomDetailPDF(List<NodeRoomDetailModel> data) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
@@ -279,7 +285,9 @@ String _bulan(int m) {
     );
     if (path != null) {
       await File(path).writeAsBytes(await pdf.save());
+      return true;
     }
+    return false;
   }
 
   // bool isRoomHaveNode(String deviceSerial) {

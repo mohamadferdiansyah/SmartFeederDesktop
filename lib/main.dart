@@ -39,7 +39,7 @@ class SmartFeederApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'SmartFeeder Desktop',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/main-menu',
+      initialRoute: '/login',
       getPages: AppPages.pages,
       theme: ThemeData(
         primaryColor: AppColors.primary,

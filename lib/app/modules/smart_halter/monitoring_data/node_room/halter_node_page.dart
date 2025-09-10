@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 // Ganti dengan import model dan widget sesuai project-mu
@@ -11,8 +12,10 @@ import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/node_room/halter_node_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
+import 'package:toastification/toastification.dart';
 
 class HalterNodePage extends StatefulWidget {
   const HalterNodePage({Key? key}) : super(key: key);
@@ -120,6 +123,9 @@ class _HalterNodePageState extends State<HalterNodePage> {
                   label: "Device ID *",
                   controller: idCtrl,
                   hint: "Masukkan ID (misal: 001)",
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                  ],
                 ),
               ),
             ],
@@ -138,12 +144,11 @@ class _HalterNodePageState extends State<HalterNodePage> {
       ),
       onConfirm: () {
         if (idCtrl.text.trim().isEmpty) {
-          Get.snackbar(
-            "Input Tidak Lengkap",
-            "Device ID wajib diisi.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Data Tidak Lengkap!',
+            description: 'Lengkapi Data Node Kandang.',
           );
           return;
         }
@@ -159,6 +164,12 @@ class _HalterNodePageState extends State<HalterNodePage> {
           version: versionCtrl.text,
         );
         onSubmit(newNode);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Ditambahkan!',
+          description: 'Data Node Kandang Ditambahkan.',
+        );
       },
     );
   }
@@ -235,12 +246,11 @@ class _HalterNodePageState extends State<HalterNodePage> {
       ),
       onConfirm: () {
         if (idCtrl.text.trim().isEmpty) {
-          Get.snackbar(
-            "Input Tidak Lengkap",
-            "Device ID wajib diisi.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Data Tidak Lengkap!',
+            description: 'Lengkapi Data Node Kandang.',
           );
           return;
         }
@@ -254,6 +264,12 @@ class _HalterNodePageState extends State<HalterNodePage> {
           version: versionCtrl.text,
         );
         onSubmit(editedNode);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Diubah!',
+          description: 'Data Node Kandang "${node.deviceId} Diubah.',
+        );
       },
     );
   }
@@ -313,8 +329,23 @@ class _HalterNodePageState extends State<HalterNodePage> {
         );
       }),
       onConfirm: () async {
+        if (selectedRoomId == null) {
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Gagal Dipasang!',
+            description: 'Pilih Ruangan Untuk Dipasang.',
+          );
+          return;
+        }
         await _controller.pilihRuanganUntukNode(node.deviceId, selectedRoomId);
         await _controller.loadNode(); // Tambahkan ini agar refresh RxList
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Node Kandang Dipasang!',
+          description: 'Node Kandang Dipasang Di "${selectedRoomId}".',
+        );
       },
     );
   }
@@ -332,6 +363,12 @@ class _HalterNodePageState extends State<HalterNodePage> {
       onConfirm: () async {
         await _controller.pilihRuanganUntukNode(node.deviceId, null);
         await _controller.loadNode(); // Tambahkan ini agar refresh RxList
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Node Kandang Dilepas!',
+          description: 'Node Kandang Dilepas Dari Ruangan.',
+        );
       },
     );
   }
@@ -357,6 +394,12 @@ class _HalterNodePageState extends State<HalterNodePage> {
       cancelText: "Batal",
       onConfirm: () async {
         await _controller.deleteNode(node.deviceId);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Dihapus!',
+          description: 'Data Node Kandang "${node.deviceId}" Dihapus.',
+        );
       },
     );
   }
@@ -557,9 +600,22 @@ class _HalterNodePageState extends State<HalterNodePage> {
                                     fontSize: 18,
                                     icon: Icons.table_view_rounded,
                                     text: 'Export Excel',
-                                    onPressed: () {
-                                      _controller.exportNodeRoomExcel(
-                                        _controller.nodeRoomList.toList(),
+                                    onPressed: () async {
+                                      final success = await _controller
+                                          .exportNodeRoomExcel(
+                                            _controller.nodeRoomList.toList(),
+                                          );
+                                      showAppToast(
+                                        context: context,
+                                        type: success
+                                            ? ToastificationType.success
+                                            : ToastificationType.error,
+                                        title: success
+                                            ? 'Berhasil Export!'
+                                            : 'Export Dibatalkan!',
+                                        description: success
+                                            ? 'Data Node Kandang Diexport Ke Excel.'
+                                            : 'Export data node kandang dibatalkan.',
                                       );
                                     },
                                   ),
@@ -572,9 +628,22 @@ class _HalterNodePageState extends State<HalterNodePage> {
                                     fontSize: 18,
                                     icon: Icons.picture_as_pdf,
                                     text: 'Export PDF',
-                                    onPressed: () {
-                                      _controller.exportNodeRoomPDF(
-                                        _controller.nodeRoomList.toList(),
+                                    onPressed: () async {
+                                      final success = await _controller
+                                          .exportNodeRoomPDF(
+                                            _controller.nodeRoomList.toList(),
+                                          );
+                                      showAppToast(
+                                        context: context,
+                                        type: success
+                                            ? ToastificationType.success
+                                            : ToastificationType.error,
+                                        title: success
+                                            ? 'Berhasil Export!'
+                                            : 'Export Dibatalkan!',
+                                        description: success
+                                            ? 'Data Node Kandang Diexport Ke PDF.'
+                                            : 'Export data node kandang dibatalkan.',
                                       );
                                     },
                                   ),
@@ -1150,8 +1219,21 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                     fontSize: 18,
                     icon: Icons.table_view_rounded,
                     text: 'Export Excel',
-                    onPressed: () {
-                      _controller.exportNodeRoomDetailExcel(filteredData, team);
+                    onPressed: () async {
+                      final success = await _controller
+                          .exportNodeRoomDetailExcel(filteredData, team);
+                      showAppToast(
+                        context: context,
+                        type: success
+                            ? ToastificationType.success
+                            : ToastificationType.error,
+                        title: success
+                            ? 'Berhasil Export!'
+                            : 'Export Dibatalkan!',
+                        description: success
+                            ? 'Data Detail Node Diexport Ke Excel.'
+                            : 'Export data detail node dibatalkan.',
+                      );
                     },
                   ),
                   const SizedBox(width: 12),
@@ -1162,8 +1244,22 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                     fontSize: 18,
                     icon: Icons.picture_as_pdf,
                     text: 'Export PDF',
-                    onPressed: () {
-                      _controller.exportNodeRoomDetailPDF(filteredData);
+                    onPressed: () async {
+                      final success = await _controller.exportNodeRoomDetailPDF(
+                        filteredData,
+                      );
+                      showAppToast(
+                        context: context,
+                        type: success
+                            ? ToastificationType.success
+                            : ToastificationType.error,
+                        title: success
+                            ? 'Berhasil Export!'
+                            : 'Export Dibatalkan!',
+                        description: success
+                            ? 'Data Detail Node Diexport Ke PDF.'
+                            : 'Export data detail node dibatalkan.',
+                      );
                     },
                   ),
                 ],

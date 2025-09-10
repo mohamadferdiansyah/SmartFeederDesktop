@@ -12,7 +12,11 @@ class ApiService {
   }
 
   // POST request
-  Future<dynamic> post(String endpoint, {Map<String, String>? headers, dynamic body}) async {
+  Future<dynamic> post(
+    String endpoint, {
+    Map<String, String>? headers,
+    dynamic body,
+  }) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final response = await http.post(
       url,
@@ -23,7 +27,11 @@ class ApiService {
   }
 
   // PUT request
-  Future<dynamic> put(String endpoint, {Map<String, String>? headers, dynamic body}) async {
+  Future<dynamic> put(
+    String endpoint, {
+    Map<String, String>? headers,
+    dynamic body,
+  }) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final response = await http.put(
       url,
@@ -34,20 +42,37 @@ class ApiService {
   }
 
   // DELETE request
-  Future<dynamic> delete(String endpoint, {Map<String, String>? headers}) async {
+  Future<dynamic> delete(
+    String endpoint, {
+    Map<String, String>? headers,
+  }) async {
     final url = Uri.parse('$baseUrl$endpoint');
     final response = await http.delete(url, headers: headers);
     return _processResponse(response);
   }
 
   dynamic _processResponse(http.Response response) {
-    final data = json.decode(response.body);
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return data;
-    } else {
-      throw Exception(data is Map<String, dynamic> && data['message'] != null
-        ? data['message']
-        : 'Error: ${response.statusCode}');
+    try {
+      final data = json.decode(response.body);
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return data;
+      } else {
+        // Meski error, tetap return body JSON (biar bisa ambil 'Error')
+        return data;
+      }
+    } catch (e) {
+      return {"Error": "Terjadi kesalahan parsing response"};
     }
   }
+
+  // dynamic _processResponse(http.Response response) {
+  //   final data = json.decode(response.body);
+  //   if (response.statusCode >= 200 && response.statusCode < 300) {
+  //     return data;
+  //   } else {
+  //     throw Exception(data is Map<String, dynamic> && data['message'] != null
+  //       ? data['message']
+  //       : 'Error: ${response.statusCode}');
+  //   }
+  // }
 }

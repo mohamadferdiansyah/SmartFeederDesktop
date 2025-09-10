@@ -94,7 +94,7 @@ class HalterRoomController extends GetxController {
     await dataController.loadHorsesFromDb();
   }
 
-  Future<void> exportRoomExcel(
+  Future<bool> exportRoomExcel(
     List<RoomModel> data,
     String Function(List<String>) getCctvNames,
   ) async {
@@ -125,11 +125,13 @@ class HalterRoomController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(fileBytes!);
+      return true;
     }
+    return false;
   }
 
   /// Export tabel utama (Daftar Ruangan) ke PDF
-  Future<void> exportRoomPDF(
+  Future<bool> exportRoomPDF(
     List<RoomModel> data,
     String Function(List<String>) getCctvNames,
   ) async {
@@ -160,7 +162,9 @@ class HalterRoomController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(await pdf.save());
+      return true;
     }
+    return false;
   }
 
   String getCctvNames(List<String> cctvIds) {

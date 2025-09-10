@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_alert_rule_engine_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/alert/halter_alert_rule_engine_controller.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_halter_log_card.dart';
@@ -179,6 +181,15 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   suhuMinCtrl,
                   suhuMaxCtrl,
                   () {
+                    if (suhuMaxCtrl.text.isEmpty || suhuMinCtrl.text.isEmpty) {
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.error,
+                        title: 'Data Tidak Lengkap!',
+                        description: 'Lengkapi Data Suhu.',
+                      );
+                      return;
+                    }
                     controller.updateSetting(
                       HalterAlertRuleEngineModel(
                         ruleId: controller.setting.value.ruleId,
@@ -201,14 +212,12 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             controller.setting.value.lightIntensityMax,
                       ),
                     );
-                    toastification.show(
+                    showAppToast(
                       context: context,
-                      title: const Text(
-                        'Berhasil Menyimpan Pengaturan Suhu Kuda',
-                      ),
                       type: ToastificationType.success,
-                      alignment: Alignment.topCenter,
-                      autoCloseDuration: const Duration(seconds: 2),
+                      title: 'Berhasil Disimpan!',
+                      description:
+                          'Suhu Min: ${suhuMinCtrl.text} | Suhu Max: ${suhuMaxCtrl.text}.',
                     );
                   },
                   Icons.thermostat_outlined,
@@ -220,6 +229,15 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   spoMinCtrl,
                   spoMaxCtrl,
                   () {
+                    if (spoMaxCtrl.text.isEmpty || spoMinCtrl.text.isEmpty) {
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.error,
+                        title: 'Data Tidak Lengkap!',
+                        description: 'Lengkapi Data SpO₂.',
+                      );
+                      return;
+                    }
                     controller.updateSetting(
                       HalterAlertRuleEngineModel(
                         ruleId: controller.setting.value.ruleId,
@@ -242,14 +260,12 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             controller.setting.value.lightIntensityMax,
                       ),
                     );
-                    toastification.show(
+                    showAppToast(
                       context: context,
-                      title: const Text(
-                        'Berhasil Menyimpan Pengaturan Kadar Oksigen Kuda',
-                      ),
                       type: ToastificationType.success,
-                      alignment: Alignment.topCenter,
-                      autoCloseDuration: const Duration(seconds: 2),
+                      title: 'Berhasil Disimpan!',
+                      description:
+                          'SpO₂ Min: ${spoMinCtrl.text} | SpO₂ Max: ${spoMaxCtrl.text}.',
                     );
                   },
                   Icons.monitor_heart_outlined,
@@ -261,6 +277,15 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   bpmMinCtrl,
                   bpmMaxCtrl,
                   () {
+                    if (bpmMaxCtrl.text.isEmpty || bpmMinCtrl.text.isEmpty) {
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.error,
+                        title: 'Data Tidak Lengkap!',
+                        description: 'Lengkapi Data Detak Jantung.',
+                      );
+                      return;
+                    }
                     controller.updateSetting(
                       HalterAlertRuleEngineModel(
                         ruleId: controller.setting.value.ruleId,
@@ -283,14 +308,12 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             controller.setting.value.lightIntensityMax,
                       ),
                     );
-                    toastification.show(
+                    showAppToast(
                       context: context,
-                      title: const Text(
-                        'Berhasil Menyimpan Pengaturan BPM Kuda',
-                      ),
                       type: ToastificationType.success,
-                      alignment: Alignment.topCenter,
-                      autoCloseDuration: const Duration(seconds: 2),
+                      title: 'Berhasil Disimpan!',
+                      description:
+                          'Detak Jantung Min: ${bpmMinCtrl.text} | Detak Jantung Max: ${bpmMaxCtrl.text}.',
                     );
                   },
                   Icons.monitor_weight_outlined,
@@ -302,6 +325,15 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   respMaxCtrl,
                   null,
                   () {
+                    if (respMaxCtrl.text.isEmpty) {
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.error,
+                        title: 'Data Tidak Lengkap!',
+                        description: 'Lengkapi Data Respirasi.',
+                      );
+                      return;
+                    }
                     controller.updateSetting(
                       HalterAlertRuleEngineModel(
                         ruleId: controller.setting.value.ruleId,
@@ -324,14 +356,11 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             controller.setting.value.lightIntensityMax,
                       ),
                     );
-                    toastification.show(
+                    showAppToast(
                       context: context,
-                      title: const Text(
-                        'Berhasil Menyimpan Pengaturan Respirasi Kuda',
-                      ),
                       type: ToastificationType.success,
-                      alignment: Alignment.topCenter,
-                      autoCloseDuration: const Duration(seconds: 2),
+                      title: 'Berhasil Disimpan!',
+                      description: 'Respirasi Max: ${respMaxCtrl.text}.',
                     );
                   },
                   Icons.air_outlined,
@@ -367,6 +396,15 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   batteryMinCtrl,
                   null,
                   () {
+                    if (batteryMinCtrl.text.isEmpty) {
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.error,
+                        title: 'Data Tidak Lengkap!',
+                        description: 'Lengkapi Data Baterai.',
+                      );
+                      return;
+                    }
                     controller.updateSetting(
                       HalterAlertRuleEngineModel(
                         ruleId: controller.setting.value.ruleId,
@@ -388,17 +426,11 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             controller.setting.value.lightIntensityMax,
                       ),
                     );
-                    toastification.show(
+                    showAppToast(
                       context: context,
-                      title: const Text(
-                        'Berhasil Menyimpan Pengaturan Minimal Baterai',
-                      ),
                       type: ToastificationType.success,
-                      description: Text(
-                        'Minimal Baterai: ${batteryMinCtrl.text}%',
-                      ),
-                      alignment: Alignment.topCenter,
-                      autoCloseDuration: const Duration(seconds: 2),
+                      title: 'Berhasil Disimpan!',
+                      description: 'Baterai Min: ${batteryMinCtrl.text}.',
                     );
                   },
                   Icons.battery_3_bar,
@@ -434,6 +466,16 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   roomTempMinCtrl,
                   roomTempMaxCtrl,
                   () {
+                    if (roomTempMaxCtrl.text.isEmpty ||
+                        roomTempMinCtrl.text.isEmpty) {
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.error,
+                        title: 'Data Tidak Lengkap!',
+                        description: 'Lengkapi Data Suhu Ruangan.',
+                      );
+                      return;
+                    }
                     controller.updateSetting(
                       HalterAlertRuleEngineModel(
                         ruleId: controller.setting.value.ruleId,
@@ -457,21 +499,12 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             controller.setting.value.lightIntensityMax,
                       ),
                     );
-                    toastification.show(
+                    showAppToast(
                       context: context,
-                      title: const Text(
-                        'Berhasil Menyimpan Pengaturan Suhu Ruangan',
-                      ),
                       type: ToastificationType.success,
-                      description: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Suhu Min: ${roomTempMinCtrl.text}'),
-                          Text('Suhu Max: ${roomTempMaxCtrl.text}'),
-                        ],
-                      ),
-                      alignment: Alignment.topCenter,
-                      autoCloseDuration: const Duration(seconds: 2),
+                      title: 'Berhasil Disimpan!',
+                      description:
+                          'Suhu Min: ${roomTempMinCtrl.text} | Suhu Max: ${roomTempMaxCtrl.text}.',
                     );
                   },
                   Icons.thermostat_outlined,
@@ -483,6 +516,16 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   roomHumMinCtrl,
                   roomHumMaxCtrl,
                   () {
+                    if (roomHumMaxCtrl.text.isEmpty ||
+                        roomHumMinCtrl.text.isEmpty) {
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.error,
+                        title: 'Data Tidak Lengkap!',
+                        description: 'Lengkapi Data Kelembapan.',
+                      );
+                      return;
+                    }
                     controller.updateSetting(
                       HalterAlertRuleEngineModel(
                         ruleId: controller.setting.value.ruleId,
@@ -506,21 +549,12 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             controller.setting.value.lightIntensityMax,
                       ),
                     );
-                    toastification.show(
+                    showAppToast(
                       context: context,
-                      title: const Text(
-                        'Berhasil Menyimpan Pengaturan Kelembapan Ruangan',
-                      ),
                       type: ToastificationType.success,
-                      description: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Kelembapan Min: ${roomHumMinCtrl.text}'),
-                          Text('Kelembapan Max: ${roomHumMaxCtrl.text}'),
-                        ],
-                      ),
-                      alignment: Alignment.topCenter,
-                      autoCloseDuration: const Duration(seconds: 2),
+                      title: 'Berhasil Disimpan!',
+                      description:
+                          'Kelembapan Min: ${roomHumMinCtrl.text} | Kelembapan Max: ${roomHumMaxCtrl.text}.',
                     );
                   },
                   Icons.water_drop_outlined,
@@ -532,6 +566,16 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                   roomLuxMinCtrl,
                   roomLuxMaxCtrl,
                   () {
+                    if (roomLuxMaxCtrl.text.isEmpty ||
+                        roomLuxMinCtrl.text.isEmpty) {
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.error,
+                        title: 'Data Tidak Lengkap!',
+                        description: 'Lengkapi Data Cahaya.',
+                      );
+                      return;
+                    }
                     controller.updateSetting(
                       HalterAlertRuleEngineModel(
                         ruleId: controller.setting.value.ruleId,
@@ -553,21 +597,12 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             double.tryParse(roomLuxMaxCtrl.text) ?? 100.0,
                       ),
                     );
-                    toastification.show(
+                    showAppToast(
                       context: context,
-                      title: const Text(
-                        'Berhasil Menyimpan Pengaturan Cahaya Ruangan',
-                      ),
                       type: ToastificationType.success,
-                      description: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Cahaya Min: ${roomLuxMinCtrl.text}'),
-                          Text('Cahaya Max: ${roomLuxMaxCtrl.text}'),
-                        ],
-                      ),
-                      alignment: Alignment.topCenter,
-                      autoCloseDuration: const Duration(seconds: 2),
+                      title: 'Berhasil Disimpan!',
+                      description:
+                          'Cahaya Min: ${roomLuxMinCtrl.text} | Cahaya Max: ${roomLuxMaxCtrl.text}.',
                     );
                   },
                   Icons.light_mode_outlined,
@@ -716,10 +751,22 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          CustomInput(label: labelOne, controller: ctrlOne),
+          CustomInput(
+            label: labelOne,
+            controller: ctrlOne,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+            ],
+          ),
           if (labelTwo != null && ctrlTwo != null) ...[
             const SizedBox(height: 12),
-            CustomInput(label: labelTwo, controller: ctrlTwo),
+            CustomInput(
+              label: labelTwo,
+              controller: ctrlTwo,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+              ],
+            ),
           ],
           const Spacer(),
           CustomButton(

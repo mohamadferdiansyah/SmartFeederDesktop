@@ -6,6 +6,7 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dar
 import 'package:smart_feeder_desktop/app/modules/smart_halter/raw_data/halter_raw_data_controller.dart';
 import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 import 'package:toastification/toastification.dart';
@@ -200,6 +201,12 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                             _controller.setSearchText('');
                             _searchController.clear();
                             _dataSource.updateFilter(_controller.filteredList);
+                            showAppToast(
+                              context: context,
+                              type: ToastificationType.success,
+                              title: 'Berhasil Reset!',
+                              description: 'Filter Tanggal Direset.',
+                            );
                           },
                         ),
                         CustomButton(
@@ -256,9 +263,21 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                           fontSize: 18,
                           icon: Icons.table_view_rounded,
                           text: 'Export Excel',
-                          onPressed: () {
-                            _controller.exportRawExcel(
+                          onPressed: () async {
+                            final success = await _controller.exportRawExcel(
                               _controller.filteredList,
+                            );
+                            showAppToast(
+                              context: context,
+                              type: success
+                                  ? ToastificationType.success
+                                  : ToastificationType.error,
+                              title: success
+                                  ? 'Berhasil Export!'
+                                  : 'Export Dibatalkan!',
+                              description: success
+                                  ? 'Data Kandang Diexport Ke Excel.'
+                                  : 'Export data raw dibatalkan.',
                             );
                           },
                         ),
@@ -270,8 +289,22 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                           fontSize: 18,
                           icon: Icons.picture_as_pdf,
                           text: 'Export PDF',
-                          onPressed: () {
-                            _controller.exportRawPDF(_controller.filteredList);
+                          onPressed: () async {
+                            final success = await _controller.exportRawPDF(
+                              _controller.filteredList,
+                            );
+                            showAppToast(
+                              context: context,
+                              type: success
+                                  ? ToastificationType.success
+                                  : ToastificationType.error,
+                              title: success
+                                  ? 'Berhasil Export!'
+                                  : 'Export Dibatalkan!',
+                              description: success
+                                  ? 'Data Kandang Diexport Ke PDF.'
+                                  : 'Export data raw dibatalkan.',
+                            );
                           },
                         ),
                       ],
@@ -476,25 +509,11 @@ class HalterRawDataTableSource extends DataTableSource {
                     message: 'Apakah Anda yakin ingin menghapus data ini?',
                     onConfirm: () {
                       controller.deleteRawDataById(item.rawId);
-                      toastification.show(
+                      showAppToast(
                         context: context,
-                        title: const Text(
-                          'Berhasil Menghapus Data',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
                         type: ToastificationType.success,
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                        alignment: Alignment.topCenter,
-                        autoCloseDuration: const Duration(seconds: 2),
+                        title: 'Berhasil Dihapus!',
+                        description: 'Data Raw Dihapus.',
                       );
                     },
                   );

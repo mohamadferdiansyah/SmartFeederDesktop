@@ -4,8 +4,10 @@ import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/stable_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/stable/halter_stable_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
+import 'package:toastification/toastification.dart';
 
 class HalterStablePage extends StatefulWidget {
   const HalterStablePage({super.key});
@@ -103,12 +105,11 @@ class _HalterStablePageState extends State<HalterStablePage> {
       ),
       onConfirm: () {
         if (nameCtrl.text.trim().isEmpty || addrCtrl.text.trim().isEmpty) {
-          Get.snackbar(
-            "Input Tidak Lengkap",
-            "Nama Kandang dan Alamat wajib diisi.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Data Tidak Lengkap!',
+            description: 'Lengkapi Data Node Kandang.',
           );
           return;
         }
@@ -119,6 +120,21 @@ class _HalterStablePageState extends State<HalterStablePage> {
           address: addrCtrl.text.trim(),
         );
         onSubmit(newStable);
+        if (isEdit) {
+          showAppToast(
+            context: context,
+            type: ToastificationType.success,
+            title: 'Berhasil Diubah!',
+            description: 'Data Kandang "${stable?.name}" Diubah.',
+          );
+        } else {
+          showAppToast(
+            context: context,
+            type: ToastificationType.success,
+            title: 'Berhasil Ditambahkan!',
+            description: 'Data Kandang Ditambahkan.',
+          );
+        }
       },
     );
   }
@@ -170,6 +186,12 @@ class _HalterStablePageState extends State<HalterStablePage> {
       cancelText: "Batal",
       onConfirm: () async {
         await _controller.deleteStable(stable.stableId);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Dihapus!',
+          description: 'Data Kandang "${stable.name}" Dihapus.',
+        );
       },
     );
   }
@@ -338,9 +360,20 @@ class _HalterStablePageState extends State<HalterStablePage> {
                                     fontSize: 18,
                                     icon: Icons.table_view_rounded,
                                     text: 'Export Excel',
-                                    onPressed: () {
-                                      _controller.exportStableExcel(
-                                        filteredStables,
+                                    onPressed: () async {
+                                      final success = await _controller
+                                          .exportStableExcel(filteredStables);
+                                      showAppToast(
+                                        context: context,
+                                        type: success
+                                            ? ToastificationType.success
+                                            : ToastificationType.error,
+                                        title: success
+                                            ? 'Berhasil Export!'
+                                            : 'Export Dibatalkan!',
+                                        description: success
+                                            ? 'Data Kandang Diexport Ke Excel.'
+                                            : 'Export data kandang dibatalkan.',
                                       );
                                     },
                                   ),
@@ -353,9 +386,20 @@ class _HalterStablePageState extends State<HalterStablePage> {
                                     fontSize: 18,
                                     icon: Icons.picture_as_pdf,
                                     text: 'Export PDF',
-                                    onPressed: () {
-                                      _controller.exportStablePDF(
-                                        filteredStables,
+                                    onPressed: () async {
+                                      final success = await _controller
+                                          .exportStablePDF(filteredStables);
+                                      showAppToast(
+                                        context: context,
+                                        type: success
+                                            ? ToastificationType.success
+                                            : ToastificationType.error,
+                                        title: success
+                                            ? 'Berhasil Export!'
+                                            : 'Export Dibatalkan!',
+                                        description: success
+                                            ? 'Data Kandang Diexport Ke PDF.'
+                                            : 'Export data kandang dibatalkan.',
                                       );
                                     },
                                   ),

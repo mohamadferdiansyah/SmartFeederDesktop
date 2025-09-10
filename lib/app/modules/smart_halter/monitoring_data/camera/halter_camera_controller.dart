@@ -42,7 +42,7 @@ class HalterCameraController extends GetxController {
     return "CCTV${lastNum + 1}";
   }
 
-  Future<void> exportCctvExcel(List<CctvModel> data) async {
+  Future<bool> exportCctvExcel(List<CctvModel> data) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
@@ -70,11 +70,13 @@ class HalterCameraController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(fileBytes!);
+      return true;
     }
+    return false;
   }
 
   /// Export tabel utama (Daftar CCTV) ke PDF
-  Future<void> exportCctvPDF(List<CctvModel> data) async {
+  Future<bool> exportCctvPDF(List<CctvModel> data) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
@@ -102,6 +104,8 @@ class HalterCameraController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(await pdf.save());
+      return true;
     }
+    return false;
   }
 }

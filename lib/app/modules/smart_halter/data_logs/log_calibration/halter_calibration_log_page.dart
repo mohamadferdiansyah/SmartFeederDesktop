@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_calibration_log_model.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
+import 'package:toastification/toastification.dart';
 import 'halter_calibration_log_controller.dart';
 
 class HalterCalibrationLogPage extends StatefulWidget {
@@ -197,8 +199,22 @@ class _HalterCalibrationLogPageState extends State<HalterCalibrationLogPage> {
                             fontSize: 18,
                             icon: Icons.table_view_rounded,
                             text: 'Export Excel',
-                            onPressed: () {
-                              controller.exportLogExcel(filteredLogs);
+                            onPressed: () async {
+                              final success = await controller.exportLogExcel(
+                                filteredLogs,
+                              );
+                              showAppToast(
+                                context: context,
+                                type: success
+                                    ? ToastificationType.success
+                                    : ToastificationType.error,
+                                title: success
+                                    ? 'Berhasil Export!'
+                                    : 'Export Dibatalkan!',
+                                description: success
+                                    ? 'Log Kalibrasi Diexport Ke Excel.'
+                                    : 'Export log kalibrasi dibatalkan.',
+                              );
                             },
                           ),
                           const SizedBox(width: 12),
@@ -209,8 +225,22 @@ class _HalterCalibrationLogPageState extends State<HalterCalibrationLogPage> {
                             fontSize: 18,
                             icon: Icons.picture_as_pdf,
                             text: 'Export PDF',
-                            onPressed: () {
-                              controller.exportLogPDF(filteredLogs);
+                            onPressed: () async {
+                              final success = await controller.exportLogPDF(
+                                filteredLogs,
+                              );
+                              showAppToast(
+                                context: context,
+                                type: success
+                                    ? ToastificationType.success
+                                    : ToastificationType.error,
+                                title: success
+                                    ? 'Berhasil Export!'
+                                    : 'Export Dibatalkan!',
+                                description: success
+                                    ? 'Log Kalibrasi Diexport Ke PDF.'
+                                    : 'Export log kalibrasi dibatalkan.',
+                              );
                             },
                           ),
                         ],

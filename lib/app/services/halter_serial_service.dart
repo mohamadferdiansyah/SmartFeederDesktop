@@ -995,8 +995,8 @@ class HalterSerialService extends GetxService {
       });
       for (final did in deviceIds) {
         final dummyLine = makeDummyData(did);
-        _processBlockRoom("SRIPB,2,19.40,29.90,0.00,*");
-        // _processBlock(dummyLine);
+        // _processBlockRoom("SRIPB,2,19.40,29.90,0.00,*");
+        _processBlock(dummyLine);
       }
     });
   }

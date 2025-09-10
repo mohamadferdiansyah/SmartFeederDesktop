@@ -4,9 +4,11 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_sensor_threshold_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/threshold/halter_threshold_controller.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_dropdown.dart';
+import 'package:toastification/toastification.dart';
 
 class HalterSensorThresholdPage extends StatefulWidget {
   const HalterSensorThresholdPage({super.key});
@@ -96,6 +98,15 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
                         });
                       },
                       onSave: () {
+                        if (minCtrl.text.isEmpty || maxCtrl.text.isEmpty) {
+                          showAppToast(
+                            context: context,
+                            type: ToastificationType.error,
+                            title: 'Data Tidak Lengkap!',
+                            description: 'Lengkapi Data Threshold.',
+                          );
+                          return;
+                        }
                         final min = double.tryParse(minCtrl.text) ?? 0;
                         final max = double.tryParse(maxCtrl.text) ?? 0;
                         controller.saveHalterThreshold(
@@ -104,14 +115,11 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
                           max,
                         );
                         _updateFields();
-                        Get.snackbar(
-                          "Berhasil",
-                          "Threshold sensor tersimpan $min - $max",
-                          backgroundColor: Colors.green,
-                          colorText: Colors.white,
-                        );
-                        print(
-                          '==INI MIN:${controller.halterThresholds[selectedNodeSensor]?.minValue} INI MAX:${controller.halterThresholds[selectedNodeSensor]?.maxValue}',
+                        showAppToast(
+                          context: context,
+                          type: ToastificationType.success,
+                          title: 'Berhasil Disimpan!',
+                          description: 'Data Threshold Min: $min Max: $max.',
                         );
                       },
                       thresholds: controller.halterThresholds,
@@ -128,6 +136,16 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
                         });
                       },
                       onSave: () {
+                        if (minNodeCtrl.text.isEmpty ||
+                            maxNodeCtrl.text.isEmpty) {
+                          showAppToast(
+                            context: context,
+                            type: ToastificationType.error,
+                            title: 'Data Tidak Lengkap!',
+                            description: 'Lengkapi Data Threshold.',
+                          );
+                          return;
+                        }
                         final min = double.tryParse(minNodeCtrl.text) ?? 0;
                         final max = double.tryParse(maxNodeCtrl.text) ?? 0;
                         controller.saveNodeRoomThreshold(
@@ -136,11 +154,11 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
                           max,
                         );
                         _updateFields();
-                        Get.snackbar(
-                          "Berhasil",
-                          "Threshold node room tersimpan",
-                          backgroundColor: Colors.green,
-                          colorText: Colors.white,
+                        showAppToast(
+                          context: context,
+                          type: ToastificationType.success,
+                          title: 'Berhasil Disimpan!',
+                          description: 'Data Threshold Min: $min Max: $max.',
                         );
                       },
                       thresholds: controller.nodeRoomThresholds,

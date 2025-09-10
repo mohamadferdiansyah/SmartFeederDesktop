@@ -81,74 +81,78 @@ class HalterHorseController extends GetxController {
     return "H${nextNum.toString().padLeft(3, '0')}";
   }
 
-  Future<void> exportToExcel(List<HorseModel> data) async {
-    var excel = Excel.createExcel();
-    Sheet sheet = excel['Sheet1'];
+  Future<bool> exportToExcel(List<HorseModel> data) async {
+  var excel = Excel.createExcel();
+  Sheet sheet = excel['Sheet1'];
+  sheet.appendRow([
+    TextCellValue('ID'),
+    TextCellValue('Nama'),
+    TextCellValue('Jenis'),
+    TextCellValue('Gender'),
+    TextCellValue('Umur'),
+    TextCellValue('Ruangan'),
+  ]);
+  for (var horse in data) {
     sheet.appendRow([
-      TextCellValue('ID'),
-      TextCellValue('Nama'),
-      TextCellValue('Jenis'),
-      TextCellValue('Gender'),
-      TextCellValue('Umur'),
-      TextCellValue('Ruangan'),
+      TextCellValue(horse.horseId),
+      TextCellValue(horse.name),
+      TextCellValue(horse.type),
+      TextCellValue(horse.gender),
+      TextCellValue(horse.age.toString()),
+      TextCellValue(horse.roomId ?? 'Tidak Digunakan'),
     ]);
-    for (var horse in data) {
-      sheet.appendRow([
-        TextCellValue(horse.horseId),
-        TextCellValue(horse.name),
-        TextCellValue(horse.type),
-        TextCellValue(horse.gender),
-        TextCellValue(horse.age.toString()),
-        TextCellValue(horse.roomId ?? 'Tidak Digunakan'),
-      ]);
-    }
-
-    final fileBytes = excel.encode();
-
-    String? savePath = await FilePicker.platform.saveFile(
-      dialogTitle: 'Simpan file Excel',
-      fileName: 'Smart_Halter_Daftar_Kuda.xlsx',
-      type: FileType.custom,
-      allowedExtensions: ['xlsx'],
-    );
-
-    if (savePath != null) {
-      File(savePath).writeAsBytes(fileBytes!);
-    }
   }
 
-  Future<void> exportToPDF(List<HorseModel> data) async {
-    final pdf = pw.Document();
-    pdf.addPage(
-      pw.Page(
-        build: (context) => pw.Table.fromTextArray(
-          headers: ['ID', 'Nama', 'Jenis', 'Gender', 'Umur', 'Ruangan'],
-          data: data
-              .map(
-                (horse) => [
-                  horse.horseId,
-                  horse.name,
-                  horse.type,
-                  horse.gender,
-                  horse.age,
-                  horse.roomId ?? 'Tidak Digunakan',
-                ],
-              )
-              .toList(),
-        ),
+  final fileBytes = excel.encode();
+
+  String? savePath = await FilePicker.platform.saveFile(
+    dialogTitle: 'Simpan file Excel',
+    fileName: 'Smart_Halter_Daftar_Kuda.xlsx',
+    type: FileType.custom,
+    allowedExtensions: ['xlsx'],
+  );
+
+  if (savePath != null) {
+    await File(savePath).writeAsBytes(fileBytes!);
+    return true;
+  }
+  return false;
+}
+
+  Future<bool> exportToPDF(List<HorseModel> data) async {
+  final pdf = pw.Document();
+  pdf.addPage(
+    pw.Page(
+      build: (context) => pw.Table.fromTextArray(
+        headers: ['ID', 'Nama', 'Jenis', 'Gender', 'Umur', 'Ruangan'],
+        data: data
+            .map(
+              (horse) => [
+                horse.horseId,
+                horse.name,
+                horse.type,
+                horse.gender,
+                horse.age,
+                horse.roomId ?? 'Tidak Digunakan',
+              ],
+            )
+            .toList(),
       ),
-    );
+    ),
+  );
 
-    String? savePath = await FilePicker.platform.saveFile(
-      dialogTitle: 'Simpan file PDF',
-      fileName: 'Smart_Halter_Daftar_Kuda.pdf',
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-    );
+  String? savePath = await FilePicker.platform.saveFile(
+    dialogTitle: 'Simpan file PDF',
+    fileName: 'Smart_Halter_Daftar_Kuda.pdf',
+    type: FileType.custom,
+    allowedExtensions: ['pdf'],
+  );
 
-    if (savePath != null) {
-      final file = File(savePath);
-      await file.writeAsBytes(await pdf.save());
-    }
+  if (savePath != null) {
+    final file = File(savePath);
+    await file.writeAsBytes(await pdf.save());
+    return true;
   }
+  return false;
+}
 }

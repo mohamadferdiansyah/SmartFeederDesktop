@@ -58,7 +58,7 @@ class HalterStableController extends GetxController {
   }
 
   /// Export tabel utama (Daftar Stable) ke Excel
-  Future<void> exportStableExcel(List<StableModel> data) async {
+  Future<bool> exportStableExcel(List<StableModel> data) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
@@ -82,11 +82,13 @@ class HalterStableController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(fileBytes!);
+      return true;
     }
+    return false;
   }
 
   /// Export tabel utama (Daftar Stable) ke PDF
-  Future<void> exportStablePDF(List<StableModel> data) async {
+  Future<bool> exportStablePDF(List<StableModel> data) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
@@ -104,6 +106,8 @@ class HalterStableController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(await pdf.save());
+      return true;
     }
+    return false;
   }
 }

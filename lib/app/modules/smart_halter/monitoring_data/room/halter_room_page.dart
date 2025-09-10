@@ -5,8 +5,10 @@ import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/room/halter_room_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
+import 'package:toastification/toastification.dart';
 
 class HalterRoomPage extends StatefulWidget {
   const HalterRoomPage({super.key});
@@ -129,52 +131,6 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
             );
           }),
           const SizedBox(height: 16),
-          // Obx(() {
-          //   final nodeRoomList = _controller.nodeRoomList;
-          //   return DropdownButtonFormField<String>(
-          //     value: selectedDeviceSerial,
-          //     isExpanded: true,
-          //     decoration: const InputDecoration(labelText: "Device Id"),
-          //     items: nodeRoomList
-          //         .map(
-          //           (n) => DropdownMenuItem(
-          //             value: n.deviceId,
-          //             child: Text(n.deviceId),
-          //           ),
-          //         )
-          //         .toList(),
-          //     onChanged: (v) {
-          //       setState(() {
-          //         selectedDeviceSerial = v;
-          //       });
-          //     },
-          //   );
-          // }),
-          // const SizedBox(height: 16),
-          // Obx(() {
-          //   final horseList = _controller.horseList;
-          //   return DropdownButtonFormField<String>(
-          //     value: selectedHorseId,
-          //     isExpanded: true,
-          //     decoration: const InputDecoration(labelText: "Kuda"),
-          //     items: [
-          //       ...horseList
-          //           .map(
-          //             (h) => DropdownMenuItem(
-          //               value: h.horseId,
-          //               child: Text("${h.horseId} - ${h.name}"),
-          //             ),
-          //           )
-          //           .toList(),
-          //     ],
-          //     onChanged: (v) {
-          //       setState(() {
-          //         selectedHorseId = v;
-          //       });
-          //     },
-          //   );
-          // }),
-          // SizedBox(height: 16),
           Row(
             children: [
               SizedBox(
@@ -244,12 +200,11 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
         if (nameCtrl.text.trim().isEmpty ||
             selectedStableId == null ||
             selectedStableId!.isEmpty) {
-          Get.snackbar(
-            "Input Tidak Lengkap",
-            "Nama Ruangan dan Kandang wajib diisi.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Data Tidak Lengkap!',
+            description: 'Lengkapi Data Node Kandang.',
           );
           return;
         }
@@ -276,6 +231,12 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
           feedScheduleType: "",
         );
         onSubmit(newRoom);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Ditambahkan!',
+          description: 'Data Ruangan Ditambahkan.',
+        );
       },
     );
   }
@@ -382,73 +343,6 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
             );
           }),
           const SizedBox(height: 16),
-          // Obx(() {
-          //   final nodeRoomList = _controller.nodeRoomList;
-          //   return DropdownButtonFormField<String>(
-          //     value: selectedDeviceSerial,
-          //     isExpanded: true,
-          //     decoration: const InputDecoration(labelText: "Device Id"),
-          //     items: nodeRoomList
-          //         .map(
-          //           (n) => DropdownMenuItem(
-          //             value: n.deviceId,
-          //             child: Text(n.deviceId),
-          //           ),
-          //         )
-          //         .toList(),
-          //     onChanged: (v) {
-          //       setState(() {
-          //         selectedDeviceSerial = v;
-          //       });
-          //     },
-          //   );
-          // }),
-          // const SizedBox(height: 16),
-          // Obx(() {
-          //   final horseList = _controller.horseList;
-          //   return DropdownButtonFormField<String>(
-          //     value: selectedHorseId,
-          //     isExpanded: true,
-          //     decoration: const InputDecoration(labelText: "Kuda"),
-          //     items: [
-          //       ...horseList
-          //           .map(
-          //             (h) => DropdownMenuItem(
-          //               value: h.horseId,
-          //               child: Text("${h.horseId} - ${h.name}"),
-          //             ),
-          //           )
-          //           .toList(),
-          //     ],
-          //     onChanged: (v) {
-          //       setState(() {
-          //         selectedHorseId = v;
-          //       });
-          //     },
-          //   );
-          // }),
-          // const SizedBox(height: 16),
-          // Obx(() {
-          //   final cctvList = _controller.cctvList;
-          //   return DropdownButtonFormField<String>(
-          //     value: selectedCctv,
-          //     isExpanded: true,
-          //     decoration: const InputDecoration(labelText: "CCTV"),
-          //     items: [
-          //       ...cctvList.map(
-          //         (h) => DropdownMenuItem(
-          //           value: h.cctvId,
-          //           child: Text("${h.cctvId} - ${h.ipAddress}"),
-          //         ),
-          //       ),
-          //     ],
-          //     onChanged: (v) {
-          //       setState(() {
-          //         selectedCctv = v;
-          //       });
-          //     },
-          //   );
-          // }),
           Row(
             children: [
               SizedBox(
@@ -520,12 +414,11 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
         if (nameCtrl.text.trim().isEmpty ||
             selectedStableId == null ||
             selectedStableId!.isEmpty) {
-          Get.snackbar(
-            "Input Tidak Lengkap",
-            "Nama Ruangan dan Kandang wajib diisi.",
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Data Tidak Lengkap!',
+            description: 'Lengkapi Data Node Kandang.',
           );
           return;
         }
@@ -552,6 +445,12 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
           feedScheduleType: room.feedScheduleType,
         );
         onSubmit(editedRoom);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Diubah!',
+          description: 'Data Ruangan "${room.name}" Diubah.',
+        );
       },
     );
   }
@@ -569,6 +468,12 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
       onConfirm: () async {
         // Set horse_id di room dan room_id di horse jadi null
         await _controller.lepasKudaDariRuangan(room.roomId, room.horseId);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Dilepas!',
+          description: 'Kuda Dikeluarkan Dari Kandang.',
+        );
       },
     );
   }
@@ -617,7 +522,22 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
         );
       }),
       onConfirm: () {
+        if (selectedHorseId == null) {
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Gagal Disimpan!',
+            description: 'Pilih Kuda Untuk Disimpan.',
+          );
+          return;
+        }
         onSubmit(selectedHorseId);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Dimasukan!',
+          description: 'Kuda Dimasukan Ke Kandang.',
+        );
       },
     );
   }
@@ -647,6 +567,12 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
       cancelText: "Batal",
       onConfirm: () async {
         await _controller.deleteRoom(room.roomId);
+        showAppToast(
+          context: context,
+          type: ToastificationType.success,
+          title: 'Berhasil Dihapus!',
+          description: 'Data Ruangan "${room.name}" Dihapus.',
+        );
       },
     );
   }
@@ -854,10 +780,23 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                                     fontSize: 18,
                                     icon: Icons.table_view_rounded,
                                     text: 'Export Excel',
-                                    onPressed: () {
-                                      _controller.exportRoomExcel(
-                                        rooms,
-                                        _controller.getCctvNames,
+                                    onPressed: () async {
+                                      final success = await _controller
+                                          .exportRoomExcel(
+                                            rooms,
+                                            _controller.getCctvNames,
+                                          );
+                                      showAppToast(
+                                        context: context,
+                                        type: success
+                                            ? ToastificationType.success
+                                            : ToastificationType.error,
+                                        title: success
+                                            ? 'Berhasil Export!'
+                                            : 'Export Dibatalkan!',
+                                        description: success
+                                            ? 'Data Kandang Diexport Ke Excel.'
+                                            : 'Export data kandang dibatalkan.',
                                       );
                                     },
                                   ),
@@ -870,10 +809,23 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                                     fontSize: 18,
                                     icon: Icons.picture_as_pdf,
                                     text: 'Export PDF',
-                                    onPressed: () {
-                                      _controller.exportRoomPDF(
-                                        rooms,
-                                        _controller.getCctvNames,
+                                    onPressed: () async {
+                                      final success = await _controller
+                                          .exportRoomPDF(
+                                            rooms,
+                                            _controller.getCctvNames,
+                                          );
+                                      showAppToast(
+                                        context: context,
+                                        type: success
+                                            ? ToastificationType.success
+                                            : ToastificationType.error,
+                                        title: success
+                                            ? 'Berhasil Export!'
+                                            : 'Export Dibatalkan!',
+                                        description: success
+                                            ? 'Data Kandang Diexport Ke PDF.'
+                                            : 'Export data kandang dibatalkan.',
                                       );
                                     },
                                   ),

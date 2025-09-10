@@ -343,6 +343,15 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
         );
       }),
       onConfirm: () async {
+        if (selectedHorseId == null) {
+          showAppToast(
+            context: context,
+            type: ToastificationType.error,
+            title: 'Gagal Dipasang!',
+            description: 'Pilih Kuda Untuk Dipasang.',
+          );
+          return;
+        }
         final updated = HalterDeviceModel(
           deviceId: device.deviceId,
           status: device.status,
@@ -407,7 +416,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
           context: context,
           type: ToastificationType.success,
           title: 'Berhasil Dihapus!',
-          description: 'Data "${device.deviceId}" Dihapus.',
+          description: 'Data Halter "${device.deviceId}" Dihapus.',
         );
       },
     );
@@ -628,16 +637,22 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                     icon: Icons.table_view_rounded,
                                     text: 'Export Excel',
                                     onPressed: () async {
-                                      await _controller.exportDeviceExcel(
-                                        devices,
-                                        _controller.getHorseNameById,
-                                      );
+                                      final success = await _controller
+                                          .exportDeviceExcel(
+                                            devices,
+                                            _controller.getHorseNameById,
+                                          );
                                       showAppToast(
                                         context: context,
-                                        type: ToastificationType.success,
-                                        title: 'Berhasil Export!',
-                                        description:
-                                            'Data Halter Diexport Ke Excel.',
+                                        type: success
+                                            ? ToastificationType.success
+                                            : ToastificationType.error,
+                                        title: success
+                                            ? 'Berhasil Export!'
+                                            : 'Export Dibatalkan!',
+                                        description: success
+                                            ? 'Data Halter Diexport Ke Excel.'
+                                            : 'Export data halter dibatalkan.',
                                       );
                                     },
                                   ),
@@ -651,16 +666,22 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                                     icon: Icons.picture_as_pdf,
                                     text: 'Export PDF',
                                     onPressed: () async {
-                                      await _controller.exportDevicePDF(
-                                        devices,
-                                        _controller.getHorseNameById,
-                                      );
+                                      final success = await _controller
+                                          .exportDevicePDF(
+                                            devices,
+                                            _controller.getHorseNameById,
+                                          );
                                       showAppToast(
                                         context: context,
-                                        type: ToastificationType.success,
-                                        title: 'Berhasil Export!',
-                                        description:
-                                            'Data Halter Diexport Ke PDF.',
+                                        type: success
+                                            ? ToastificationType.success
+                                            : ToastificationType.error,
+                                        title: success
+                                            ? 'Berhasil Export!'
+                                            : 'Export Dibatalkan!',
+                                        description: success
+                                            ? 'Data Halter Diexport Ke PDF.'
+                                            : 'Export data halter dibatalkan.',
                                       );
                                     },
                                   ),
@@ -1218,6 +1239,12 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                         tanggalAwal = null;
                         tanggalAkhir = null;
                       });
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.success,
+                        title: 'Berhasil Reset!',
+                        description: 'Filter Tanggal Direset.',
+                      );
                     },
                     text: "Reset Tanggal",
                     width: 150,
@@ -1234,11 +1261,23 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                     fontSize: 18,
                     icon: Icons.table_view_rounded,
                     text: 'Export Excel',
-                    onPressed: () {
+                    onPressed: () async {
                       final team = DataTeamHalter.getTeam();
-                      _controller.exportDetailExcel(
+                      final success = await _controller.exportDetailExcel(
                         _filteredData(_controller.detailHistoryList),
                         team,
+                      );
+                      showAppToast(
+                        context: context,
+                        type: success
+                            ? ToastificationType.success
+                            : ToastificationType.error,
+                        title: success
+                            ? 'Berhasil Export!'
+                            : 'Export Dibatalkan!',
+                        description: success
+                            ? 'Data Detail Device Diexport Ke Excel.'
+                            : 'Export data detail device dibatalkan.',
                       );
                     },
                   ),
@@ -1250,9 +1289,21 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                     fontSize: 18,
                     icon: Icons.picture_as_pdf,
                     text: 'Export PDF',
-                    onPressed: () {
-                      _controller.exportDetailPDF(
+                    onPressed: () async {
+                      final success = await _controller.exportDetailPDF(
                         _filteredData(_controller.detailHistoryList),
+                      );
+                      showAppToast(
+                        context: context,
+                        type: success
+                            ? ToastificationType.success
+                            : ToastificationType.error,
+                        title: success
+                            ? 'Berhasil Export!'
+                            : 'Export Dibatalkan!',
+                        description: success
+                            ? 'Data Detail Device Diexport Ke PDF.'
+                            : 'Export data detail device dibatalkan.',
                       );
                     },
                   ),

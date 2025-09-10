@@ -8,8 +8,10 @@ import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/data/data_team_halter.dart';
 import 'package:smart_feeder_desktop/app/modules/login/login_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
+import 'package:toastification/toastification.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -180,12 +182,12 @@ class _LoginPageState extends State<LoginPage> {
                                     onPressed: () async {
                                       if (emailController.text.isEmpty ||
                                           passwordController.text.isEmpty) {
-                                        Get.snackbar(
-                                          'Error',
-                                          'Username dan Password tidak boleh kosong',
-                                          backgroundColor: Colors.red
-                                              .withOpacity(0.8),
-                                          colorText: Colors.white,
+                                        showAppToast(
+                                          context: context,
+                                          type: ToastificationType.error,
+                                          title: 'Gagal Login!',
+                                          description:
+                                              'Username Dan Password Tidak Boleh Kosong.',
                                         );
                                         return;
                                       }
@@ -196,13 +198,19 @@ class _LoginPageState extends State<LoginPage> {
                                           );
                                       if (sukses) {
                                         Get.offAndToNamed('/main-menu');
+                                        showAppToast(
+                                          context: context,
+                                          type: ToastificationType.success,
+                                          title: 'Berhasil Login!',
+                                          description: 'Anda Telah Login.',
+                                        );
                                       } else {
-                                        Get.snackbar(
-                                          'Login Gagal',
-                                          loginController.error.value,
-                                          backgroundColor: Colors.red
-                                              .withOpacity(0.8),
-                                          colorText: Colors.white,
+                                        showAppToast(
+                                          context: context,
+                                          type: ToastificationType.error,
+                                          title: 'Gagal Login!',
+                                          description:
+                                              loginController.error.value,
                                         );
                                       }
                                     },

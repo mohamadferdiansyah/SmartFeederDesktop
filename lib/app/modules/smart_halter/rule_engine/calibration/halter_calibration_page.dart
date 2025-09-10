@@ -15,8 +15,10 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_device_calibration
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/data_logs/log_calibration/halter_calibration_log_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/table/halter_table_rule_engine_controller.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
+import 'package:toastification/toastification.dart';
 import 'halter_calibration_controller.dart';
 
 class HalterCalibrationPage extends StatefulWidget {
@@ -183,55 +185,55 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
     controller.logRows.addAll(newRows);
   }
 
-  Future<void> _kalibrasiDevice(
-    String deviceId,
-    HalterDeviceCalibrationModel referensi,
-  ) async {
-    print('[Kalibrasi] Mulai kalibrasi deviceId: $deviceId');
-    final latest = await _waitForLatestRawDeviceData(deviceId);
+  // Future<void> _kalibrasiDevice(
+  //   String deviceId,
+  //   HalterDeviceCalibrationModel referensi,
+  // ) async {
+  //   print('[Kalibrasi] Mulai kalibrasi deviceId: $deviceId');
+  //   final latest = await _waitForLatestRawDeviceData(deviceId);
 
-    if (latest == null) {
-      print(
-        '[Kalibrasi] Data sensor tidak ditemukan untuk deviceId: $deviceId',
-      );
-      Get.snackbar(
-        "Data Tidak Ditemukan",
-        "Belum ada data sensor dari device $deviceId (timeout).",
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-      );
-      return;
-    }
+  //   if (latest == null) {
+  //     print(
+  //       '[Kalibrasi] Data sensor tidak ditemukan untuk deviceId: $deviceId',
+  //     );
+  //     Get.snackbar(
+  //       "Data Tidak Ditemukan",
+  //       "Belum ada data sensor dari device $deviceId (timeout).",
+  //       snackPosition: SnackPosition.TOP,
+  //       backgroundColor: Colors.redAccent,
+  //       colorText: Colors.white,
+  //     );
+  //     return;
+  //   }
 
-    print('[Kalibrasi] Data sensor ditemukan, proses hitung offset...');
-    final offset = HalterDeviceCalibrationOffsetModel(
-      deviceId: deviceId,
-      temperatureOffset: referensi.temperature - (latest.temperature ?? 0),
-      heartRateOffset: referensi.heartRate - (latest.heartRate ?? 0),
-      spoOffset: referensi.spo - (latest.spo ?? 0),
-      respirationOffset: referensi.respiration - (latest.respiratoryRate ?? 0),
-      updatedAt: DateTime.now(),
-    );
-    DataHalterDeviceCalibrationOffset.save(offset);
+  //   print('[Kalibrasi] Data sensor ditemukan, proses hitung offset...');
+  //   final offset = HalterDeviceCalibrationOffsetModel(
+  //     deviceId: deviceId,
+  //     temperatureOffset: referensi.temperature - (latest.temperature ?? 0),
+  //     heartRateOffset: referensi.heartRate - (latest.heartRate ?? 0),
+  //     spoOffset: referensi.spo - (latest.spo ?? 0),
+  //     respirationOffset: referensi.respiration - (latest.respiratoryRate ?? 0),
+  //     updatedAt: DateTime.now(),
+  //   );
+  //   DataHalterDeviceCalibrationOffset.save(offset);
 
-    print('[Kalibrasi] Offset tersimpan untuk deviceId: $deviceId');
-    print(
-      '[Kalibrasi] Suhu: ${offset.temperatureOffset}, BPM: ${offset.heartRateOffset}, SPO: ${offset.spoOffset}, Respirasi: ${offset.respirationOffset}',
-    );
+  //   print('[Kalibrasi] Offset tersimpan untuk deviceId: $deviceId');
+  //   print(
+  //     '[Kalibrasi] Suhu: ${offset.temperatureOffset}, BPM: ${offset.heartRateOffset}, SPO: ${offset.spoOffset}, Respirasi: ${offset.respirationOffset}',
+  //   );
 
-    Get.snackbar(
-      "Kalibrasi Tersimpan",
-      "Offset device $deviceId:\n"
-          "Suhu: ${offset.temperatureOffset.toStringAsFixed(2)}, "
-          "BPM: ${offset.heartRateOffset.toStringAsFixed(2)}, "
-          "SPO: ${offset.spoOffset.toStringAsFixed(2)}, "
-          "Respirasi: ${offset.respirationOffset.toStringAsFixed(2)}",
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
-  }
+  //   Get.snackbar(
+  //     "Kalibrasi Tersimpan",
+  //     "Offset device $deviceId:\n"
+  //         "Suhu: ${offset.temperatureOffset.toStringAsFixed(2)}, "
+  //         "BPM: ${offset.heartRateOffset.toStringAsFixed(2)}, "
+  //         "SPO: ${offset.spoOffset.toStringAsFixed(2)}, "
+  //         "Respirasi: ${offset.respirationOffset.toStringAsFixed(2)}",
+  //     snackPosition: SnackPosition.TOP,
+  //     backgroundColor: Colors.green,
+  //     colorText: Colors.white,
+  //   );
+  // }
 
   late TextEditingController suhuCtrl;
   late TextEditingController heartRateCtrl;
@@ -770,12 +772,11 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                 onPressed: () async {
                   final rule = rxSelectedRule?.value;
                   if (rule == null) {
-                    Get.snackbar(
-                      "Pilih Rule",
-                      "Silakan pilih rule kalibrasi terlebih dahulu.",
-                      snackPosition: SnackPosition.TOP,
-                      backgroundColor: Colors.redAccent,
-                      colorText: Colors.white,
+                    showAppToast(
+                      context: context,
+                      type: ToastificationType.error,
+                      title: 'Data Tidak Valid!',
+                      description: 'Pilih Rule Terlebih Dahulu.',
                     );
                     return;
                   }
@@ -804,12 +805,11 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                   );
 
                   if (latestRaw == null) {
-                    Get.snackbar(
-                      "Kalibrasi Gagal",
-                      "Tidak ada data sensor baru dalam 1 menit.",
-                      snackPosition: SnackPosition.TOP,
-                      backgroundColor: Colors.redAccent,
-                      colorText: Colors.white,
+                    showAppToast(
+                      context: context,
+                      type: ToastificationType.error,
+                      title: 'Kalibrasi Gagal!',
+                      description: 'Tidak Ada Data Sensor Dalam 1 Menit.',
                     );
                     _isLoadingDevice[device.deviceId] = false;
                     return;
@@ -897,7 +897,12 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                               .toStringAsFixed(2),
                     ),
                   );
-                  // ...tambahkan log untuk sensor lain jika perlu...
+                  showAppToast(
+                    context: context,
+                    type: ToastificationType.success,
+                    title: 'Berhasil Kalibrasi!',
+                    description: 'Halter Berhasil Terkalibrasi.',
+                  );
                 },
               ),
             const SizedBox(height: 8),

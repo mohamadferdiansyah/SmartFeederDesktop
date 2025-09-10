@@ -75,7 +75,7 @@ class HalterRawDataController extends GetxController {
     selectedDate.value = date;
   }
 
-  Future<void> exportRawExcel(List<HalterRawDataModel> data) async {
+  Future<bool> exportRawExcel(List<HalterRawDataModel> data) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
@@ -108,11 +108,13 @@ class HalterRawDataController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(fileBytes!);
+      return true;
     }
+    return false;
   }
 
   /// Export data raw ke PDF
-  Future<void> exportRawPDF(List<HalterRawDataModel> data) async {
+  Future<bool> exportRawPDF(List<HalterRawDataModel> data) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
@@ -130,7 +132,9 @@ class HalterRawDataController extends GetxController {
     );
     if (path != null) {
       await File(path).writeAsBytes(await pdf.save());
+      return true;
     }
+    return false;
   }
 
   void deleteRawDataById(int rawId) {
