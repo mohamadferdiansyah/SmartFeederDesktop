@@ -14,6 +14,7 @@ import 'package:smart_feeder_desktop/app/data/dao/node_room_detail_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/room_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/stable_dao.dart';
 import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/cctv_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_calibration_log_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
@@ -22,7 +23,7 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_log_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_position_rule_engine_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feed_model.dart';
-import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/history_entry_model.dart';
@@ -57,139 +58,54 @@ class DataController extends GetxController {
   // Data Feeder Room Device
   final RxList<FeederRoomDeviceModel> feederRoomDeviceList =
       <FeederRoomDeviceModel>[
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223005',
-        //   roomId: 'R1',
-        //   status: 'on',
-        //   type: 'actuator',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223006',
-        //   roomId: 'R2',
-        //   status: 'off',
-        //   type: 'sensor',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223007',
-        //   roomId: 'R3',
-        //   status: 'on',
-        //   type: 'gateway',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223008',
-        //   roomId: 'R4',
-        //   status: 'off',
-        //   type: 'actuator',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223009',
-        //   roomId: 'R5',
-        //   status: 'on',
-        //   type: 'sensor',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223010',
-        //   roomId: 'R6',
-        //   status: 'off',
-        //   type: 'gateway',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223011',
-        //   roomId: 'R7',
-        //   status: 'on',
-        //   type: 'actuator',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223012',
-        //   roomId: 'R8',
-        //   status: 'off',
-        //   type: 'sensor',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223013',
-        //   roomId: 'R9',
-        //   status: 'on',
-        //   type: 'gateway',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223014',
-        //   roomId: 'R10',
-        //   status: 'off',
-        //   type: 'actuator',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223015',
-        //   roomId: 'R11',
-        //   status: 'on',
-        //   type: 'sensor',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223016',
-        //   roomId: 'R12',
-        //   status: 'off',
-        //   type: 'gateway',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223017',
-        //   roomId: 'R13',
-        //   status: 'on',
-        //   type: 'actuator',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223018',
-        //   roomId: 'R14',
-        //   status: 'off',
-        //   type: 'sensor',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223019',
-        //   roomId: 'R15',
-        //   status: 'on',
-        //   type: 'gateway',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223020',
-        //   roomId: 'R16',
-        //   status: 'off',
-        //   type: 'actuator',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223021',
-        //   roomId: 'R17',
-        //   status: 'on',
-        //   type: 'sensor',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223022',
-        //   roomId: 'R18',
-        //   status: 'off',
-        //   type: 'gateway',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223023',
-        //   roomId: 'R19',
-        //   status: 'on',
-        //   type: 'actuator',
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFIPB1223024',
-        //   roomId: 'R20',
-        //   status: 'off',
-        //   type: 'sensor',
+        FeederRoomDeviceModel(
+          deviceId: 'SFRIPB01',
+          status: 'ready',
+          batteryPercent: 67,
+          feedRemaining: 0,
+          waterRemaining: 0,
+        ),
+        FeederRoomDeviceModel(
+          deviceId: 'SFRIPB02',
+          status: 'ready',
+          roomId: 'R001',
+          batteryPercent: 67,
+          feedRemaining: 0,
+          waterRemaining: 0,
+        ),
+      ].obs;
+
+  // Data Feeder Device
+  final RxList<FeederDeviceDetailModel> feederCarDeviceList =
+      <FeederDeviceDetailModel>[
+        // FeederDeviceDetailModel(
+        //   deviceId: 'feeder1',
+        //   current: 1.5,
+        //   voltage: 220.0,
+        //   power: 330.0,
+        //   status: 'ready',
+        //   batteryPercent: 87,
         // ),
       ].obs;
 
   // Data Feeder Device
   final RxList<FeederDeviceModel> feederDeviceList = <FeederDeviceModel>[
-    // FeederDeviceModel(
-    //   deviceId: 'feeder1',
-    //   current: 1.5,
-    //   voltage: 220.0,
-    //   power: 330.0,
-    //   status: 'ready',
-    //   batteryPercent: 87,
-    // ),
+    FeederDeviceModel(deviceId: 'SFIPB001', stableId: 'K001', version: '2.0'),
+    FeederDeviceModel(deviceId: 'SFIPB002', version: '1.5'),
   ].obs;
+
+  final RxList<FeederDeviceDetailModel> feederDeviceDetailList =
+      <FeederDeviceDetailModel>[
+        FeederDeviceDetailModel(
+          deviceId: 'SFIPB001',
+          status: 'ready',
+          batteryPercent: 67,
+          voltage: 0,
+          current: 0,
+          power: 0,
+          lastUpdate: DateTime.now(),
+        ),
+      ].obs;
 
   // Data History Entry
   final RxList<HistoryEntryModel> historyEntryList = <HistoryEntryModel>[
@@ -470,7 +386,7 @@ class DataController extends GetxController {
       loadHalterAlertLogsFromDb(),
       loadBiometricRulesFromDb(),
       loadPositionRulesFromDb(),
-      loadCalibrationLogsFromDb()
+      loadCalibrationLogsFromDb(),
       // dst...
     ]);
   }

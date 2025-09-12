@@ -241,28 +241,28 @@ class DBHelper {
         // );
 
         // halter_rule_engine
-        await db.execute('''
-          CREATE TABLE halter_rule_engine (
-            rule_id BIGINT PRIMARY KEY,
-            temp_max DOUBLE,
-            temp_min DOUBLE,
-            spo_max DOUBLE,
-            spo_min DOUBLE,
-            heart_rate_max BIGINT,
-            heart_rate_min BIGINT,
-            respiratory_max DOUBLE
-          )
-        ''');
+        // await db.execute('''
+        //   CREATE TABLE halter_rule_engine (
+        //     rule_id BIGINT PRIMARY KEY,
+        //     temp_max DOUBLE,
+        //     temp_min DOUBLE,
+        //     spo_max DOUBLE,
+        //     spo_min DOUBLE,
+        //     heart_rate_max BIGINT,
+        //     heart_rate_min BIGINT,
+        //     respiratory_max DOUBLE
+        //   )
+        // ''');
 
         // halter_settings
-        await db.execute('''
-          CREATE TABLE halter_settings (
-            setting_id BIGINT PRIMARY KEY,
-            cloud_url TEXT,
-            lora_port TEXT,
-            type TEXT
-          )
-        ''');
+        // await db.execute('''
+        //   CREATE TABLE halter_settings (
+        //     setting_id BIGINT PRIMARY KEY,
+        //     cloud_url TEXT,
+        //     lora_port TEXT,
+        //     type TEXT
+        //   )
+        // ''');
 
         // halter_raw_data
         await db.execute('''
@@ -273,9 +273,9 @@ class DBHelper {
           )
         ''');
 
-        // halter_horse_logs
+        // halter_alert_logs
         await db.execute('''
-          CREATE TABLE halter_horse_logs (
+          CREATE TABLE halter_alert_logs (
             log_id INTEGER PRIMARY KEY AUTOINCREMENT,
             message TEXT,
             type TEXT,

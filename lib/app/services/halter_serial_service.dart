@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:math' as Math;
 import 'dart:typed_data';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
@@ -350,7 +349,7 @@ class HalterSerialService extends GetxService {
         // );
 
         await addRawData(
-          HalterRawDataModel(rawId: 0, data: dataLine, time: DateTime.now()),
+          HalterRawDataModel(data: dataLine, time: DateTime.now()),
         );
       } catch (e) {
         print('NodeRoom parsing error: $e');
@@ -781,11 +780,7 @@ class HalterSerialService extends GetxService {
         // );
 
         await addRawData(
-          HalterRawDataModel(
-            rawId: rawData.length + 1,
-            data: validatedLine,
-            time: DateTime.now(),
-          ),
+          HalterRawDataModel(data: validatedLine, time: DateTime.now()),
         );
 
         await logDeviceStatus(
@@ -981,7 +976,7 @@ class HalterSerialService extends GetxService {
         );
 
         // Format langsung SHIPB...
-        return "SHIPB,001,"
+        return "SHIPB,011,"
             "$latitude,$longitude,$altitude,$sog,$cog,"
             "$pitch,$yaw,$roll,"
             "$voltase,"
@@ -995,7 +990,7 @@ class HalterSerialService extends GetxService {
       });
       for (final did in deviceIds) {
         final dummyLine = makeDummyData(did);
-        // _processBlockRoom("SRIPB,2,19.40,29.90,0.00,*");
+        _processBlockRoom("SRIPB,2,19.40,29.90,0.00,*");
         _processBlock(dummyLine);
       }
     });

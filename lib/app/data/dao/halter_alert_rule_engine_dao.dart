@@ -7,29 +7,26 @@ class HalterAlertRuleEngineDao {
 
   Future<int> insert(HalterLogModel model) async {
     return await db.insert(
-      'halter_horse_logs',
+      'halter_alert_logs',
       model.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
   Future<List<HalterLogModel>> getAll() async {
-    final result = await db.query(
-      'halter_horse_logs',
-      orderBy: 'time DESC',
-    );
+    final result = await db.query('halter_alert_logs', orderBy: 'time DESC');
     return result.map((e) => HalterLogModel.fromMap(e)).toList();
   }
 
   Future<void> deleteById(int logId) async {
     await db.delete(
-      'halter_horse_logs',
+      'halter_alert_logs',
       where: 'log_id = ?',
       whereArgs: [logId],
     );
   }
 
   Future<void> clearAll() async {
-    await db.delete('halter_horse_logs');
+    await db.delete('halter_alert_logs');
   }
 }

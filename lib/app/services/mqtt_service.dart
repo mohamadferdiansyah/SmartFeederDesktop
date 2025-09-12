@@ -11,18 +11,18 @@
 
 //   final DataController dataController = Get.find<DataController>();
 
-// RxList<FeederDeviceModel> get feederDeviceList =>
-//     dataController.feederDeviceList;
+// RxList<FeederDeviceDetailModel> get feederCarDeviceList =>
+//     dataController.feederCarDeviceList;
 
 //   final Map<String, Timer> _deviceTimeoutTimers = {};
 
 //   void _resetDeviceTimeout(String deviceId) {
 //     _deviceTimeoutTimers[deviceId]?.cancel();
 //     _deviceTimeoutTimers[deviceId] = Timer(const Duration(minutes: 5), () {
-//       final index = feederDeviceList.indexWhere((d) => d.deviceId == deviceId);
+//       final index = feederCarDeviceList.indexWhere((d) => d.deviceId == deviceId);
 //       if (index != -1) {
-//         final old = feederDeviceList[index];
-//         feederDeviceList[index] = FeederDeviceModel(
+//         final old = feederCarDeviceList[index];
+//         feederCarDeviceList[index] = FeederDeviceDetailModel(
 //           deviceId: old.deviceId,
 //           status: 'off',
 //           batteryPercent: old.batteryPercent,
@@ -85,18 +85,18 @@
 //   // void _handleStatusPayload(String payload) {
 //   //   _resetDeviceTimeout('feeder1');
 //   //       // Update status ke 'on'
-//   //       final index = feederDeviceList.indexWhere((d) => d.deviceId == 'feeder1');
+//   //       final index = feederCarDeviceList.indexWhere((d) => d.deviceId == 'feeder1');
 //   //       if (index == -1) {
-//   //         feederDeviceList.add(
-//   //           FeederDeviceModel(
+//   //         feederCarDeviceList.add(
+//   //           FeederDeviceDetailModel(
 //   //             deviceId: 'feeder1',
 //   //             status: 'on',
 //   //             batteryPercent: 0,
 //   //           ),
 //   //         );
 //   //       } else {
-//   //         final old = feederDeviceList[index];
-//   //         feederDeviceList[index] = FeederDeviceModel(
+//   //         final old = feederCarDeviceList[index];
+//   //         feederCarDeviceList[index] = FeederDeviceDetailModel(
 //   //           deviceId: old.deviceId,
 //   //           status: 'on',
 //   //           batteryPercent: old.batteryPercent,
@@ -120,11 +120,11 @@
 //       final percent = double.tryParse(match.group(4) ?? '0.0') ?? 0.0;
 
 //       final deviceId = 'feeder1'; // Ubah jika ada multi-device
-//       final index = feederDeviceList.indexWhere((d) => d.deviceId == deviceId);
+//       final index = feederCarDeviceList.indexWhere((d) => d.deviceId == deviceId);
 
 //       if (index == -1) {
-//         feederDeviceList.add(
-//           FeederDeviceModel(
+//         feederCarDeviceList.add(
+//           FeederDeviceDetailModel(
 //             deviceId: deviceId,
 //             status: 'ready',
 //             batteryPercent: percent.round(),
@@ -134,8 +134,8 @@
 //           ),
 //         );
 //       } else {
-//         final old = feederDeviceList[index];
-//         feederDeviceList[index] = FeederDeviceModel(
+//         final old = feederCarDeviceList[index];
+//         feederCarDeviceList[index] = FeederDeviceDetailModel(
 //           deviceId: deviceId,
 //           status: old.status,
 //           batteryPercent: percent.round(),
@@ -163,10 +163,10 @@
 //       final batteryPercent = _voltToPercent(volt, minVolt: 3.0, maxVolt: 12.0);
 
 //       final deviceId = 'feeder1'; // kamu bisa ganti jika ada multiple device
-//       final index = feederDeviceList.indexWhere((d) => d.deviceId == deviceId);
+//       final index = feederCarDeviceList.indexWhere((d) => d.deviceId == deviceId);
 //       if (index == -1) {
-//         feederDeviceList.add(
-//           FeederDeviceModel(
+//         feederCarDeviceList.add(
+//           FeederDeviceDetailModel(
 //             deviceId: deviceId,
 //             status: 'ready',
 //             batteryPercent: batteryPercent,
@@ -176,8 +176,8 @@
 //           ),
 //         );
 //       } else {
-//         final old = feederDeviceList[index];
-//         feederDeviceList[index] = FeederDeviceModel(
+//         final old = feederCarDeviceList[index];
+//         feederCarDeviceList[index] = FeederDeviceDetailModel(
 //           deviceId: old.deviceId,
 //           status: old.status,
 //           batteryPercent: batteryPercent,
@@ -204,10 +204,10 @@
 //     publish('feeder/control', 'ISI $roomId');
 //     print('MQTT: Published "ISI $roomId" to feeder/control');
 
-//     final index = feederDeviceList.indexWhere((d) => d.deviceId == 'feeder1');
+//     final index = feederCarDeviceList.indexWhere((d) => d.deviceId == 'feeder1');
 //     if (index != -1) {
-//       final old = feederDeviceList[index];
-//       feederDeviceList[index] = FeederDeviceModel(
+//       final old = feederCarDeviceList[index];
+//       feederCarDeviceList[index] = FeederDeviceDetailModel(
 //         deviceId: old.deviceId,
 //         status: 'process',
 //         batteryPercent: old.batteryPercent,
@@ -237,15 +237,15 @@ import 'package:get/get.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import '../models/feeder/feeder_device_model.dart';
+import '../models/feeder/feeder_device_detail_model.dart';
 
 class MqttService extends GetxService {
   late MqttServerClient client;
 
   final DataController dataController = Get.find<DataController>();
 
-  RxList<FeederDeviceModel> get feederDeviceList =>
-      dataController.feederDeviceList;
+  RxList<FeederDeviceDetailModel> get feederCarDeviceList =>
+      dataController.feederCarDeviceList;
   // Untuk heartbeat timeout
   final Map<String, Timer> _deviceTimeoutTimers = {};
 
@@ -299,13 +299,13 @@ class MqttService extends GetxService {
     final timestamp = json['timestamp'] ?? DateTime.now().toIso8601String();
 
     // Cari device di list, update status/destination/amount
-    final index = feederDeviceList.indexWhere((d) => d.deviceId == deviceId);
-    final model = FeederDeviceModel.fromStatusJson(json);
+    final index = feederCarDeviceList.indexWhere((d) => d.deviceId == deviceId);
+    final model = FeederDeviceDetailModel.fromStatusJson(json);
 
     if (index == -1) {
-      feederDeviceList.add(model);
+      feederCarDeviceList.add(model);
     } else {
-      feederDeviceList[index] = feederDeviceList[index].copyWith(
+      feederCarDeviceList[index] = feederCarDeviceList[index].copyWith(
         status: model.status,
         destination: model.destination,
         amount: model.amount,
@@ -319,15 +319,21 @@ class MqttService extends GetxService {
 
   void _handleBateraiPayload(Map<String, dynamic> json) {
     final deviceId = json['device_id'] ?? 'Unknown';
-    final index = feederDeviceList.indexWhere((d) => d.deviceId == deviceId);
+    final index = feederCarDeviceList.indexWhere((d) => d.deviceId == deviceId);
     if (index == -1) {
       // Tambahkan baru, status langsung 'ready'
-      feederDeviceList.add(
-        FeederDeviceModel.fromBateraiJson(json, null).copyWith(status: 'ready'),
+      feederCarDeviceList.add(
+        FeederDeviceDetailModel.fromBateraiJson(
+          json,
+          null,
+        ).copyWith(status: 'ready'),
       );
     } else {
-      final old = feederDeviceList[index];
-      feederDeviceList[index] = FeederDeviceModel.fromBateraiJson(json, old);
+      final old = feederCarDeviceList[index];
+      feederCarDeviceList[index] = FeederDeviceDetailModel.fromBateraiJson(
+        json,
+        old,
+      );
     }
     _resetDeviceTimeout(deviceId);
   }
@@ -335,10 +341,12 @@ class MqttService extends GetxService {
   void _resetDeviceTimeout(String deviceId) {
     _deviceTimeoutTimers[deviceId]?.cancel();
     _deviceTimeoutTimers[deviceId] = Timer(const Duration(minutes: 1), () {
-      final index = feederDeviceList.indexWhere((d) => d.deviceId == deviceId);
+      final index = feederCarDeviceList.indexWhere(
+        (d) => d.deviceId == deviceId,
+      );
       if (index != -1) {
-        final old = feederDeviceList[index];
-        feederDeviceList[index] = old.copyWith(
+        final old = feederCarDeviceList[index];
+        feederCarDeviceList[index] = old.copyWith(
           status: 'off',
           lastUpdate: DateTime.now(),
         );

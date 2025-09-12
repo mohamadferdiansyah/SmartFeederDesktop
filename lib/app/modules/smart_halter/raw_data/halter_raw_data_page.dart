@@ -74,8 +74,8 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -209,24 +209,24 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                             );
                           },
                         ),
-                        CustomButton(
-                          text: 'Stop dummy',
-                          width: 195,
-                          fontSize: 18,
-                          height: 48,
-                          onPressed: () {
-                            serialService.stopDummySerial();
-                          },
-                        ),
-                        CustomButton(
-                          text: 'Start dummy',
-                          width: 195,
-                          fontSize: 18,
-                          height: 48,
-                          onPressed: () {
-                            serialService.startDummySerial();
-                          },
-                        ),
+                        // CustomButton(
+                        //   text: 'Stop dummy',
+                        //   width: 195,
+                        //   fontSize: 18,
+                        //   height: 48,
+                        //   onPressed: () {
+                        //     serialService.stopDummySerial();
+                        //   },
+                        // ),
+                        // CustomButton(
+                        //   text: 'Start dummy',
+                        //   width: 195,
+                        //   fontSize: 18,
+                        //   height: 48,
+                        //   onPressed: () {
+                        //     serialService.startDummySerial();
+                        //   },
+                        // ),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -508,7 +508,7 @@ class HalterRawDataTableSource extends DataTableSource {
                     confirmText: 'Hapus',
                     message: 'Apakah Anda yakin ingin menghapus data ini?',
                     onConfirm: () {
-                      controller.deleteRawDataById(item.rawId);
+                      controller.deleteRawDataById(item.rawId!);
                       showAppToast(
                         context: context,
                         type: ToastificationType.success,

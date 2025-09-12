@@ -1,6 +1,6 @@
-import 'package:flutter/gestures.dart';
+// ignore_for_file: unnecessary_null_comparison
+
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -9,7 +9,6 @@ import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/data/data_team_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
-import 'package:smart_feeder_desktop/app/models/halter/halter_device_power_log_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/data_logs/log_device/halter_device_power_log_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/device/halter_device_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
@@ -20,7 +19,7 @@ import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 import 'package:toastification/toastification.dart';
 
 class HalterDevicePage extends StatefulWidget {
-  const HalterDevicePage({Key? key}) : super(key: key);
+  const HalterDevicePage({super.key});
 
   @override
   State<HalterDevicePage> createState() => _HalterDevicePageState();
@@ -478,8 +477,8 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -948,7 +947,7 @@ class HalterDeviceDataTableSource extends DataTableSource {
                       height: 38,
                       backgroundColor: AppColors.primary,
                       text: 'Pilih Kuda',
-                      icon: Icons.pets_rounded,
+                      icon: Icons.house_siding_rounded,
                       borderRadius: 6,
                       fontSize: 14,
                       onPressed: () => onPilihKuda(device),
@@ -1032,25 +1031,23 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
     var filtered = data.where((d) => d.deviceId == widget.deviceId).toList();
     if (tanggalAwal != null) {
       filtered = filtered.where((d) {
-        if (d.time == null) return false;
         final tAwal = DateTime(
           tanggalAwal!.year,
           tanggalAwal!.month,
           tanggalAwal!.day,
         );
-        final tData = DateTime(d.time!.year, d.time!.month, d.time!.day);
+        final tData = DateTime(d.time.year, d.time.month, d.time.day);
         return tData.isAtSameMomentAs(tAwal) || tData.isAfter(tAwal);
       }).toList();
     }
     if (tanggalAkhir != null) {
       filtered = filtered.where((d) {
-        if (d.time == null) return false;
         final tAkhir = DateTime(
           tanggalAkhir!.year,
           tanggalAkhir!.month,
           tanggalAkhir!.day,
         );
-        final tData = DateTime(d.time!.year, d.time!.month, d.time!.day);
+        final tData = DateTime(d.time.year, d.time.month, d.time.day);
         return tData.isAtSameMomentAs(tAkhir) || tData.isBefore(tAkhir);
       }).toList();
     }
@@ -1348,7 +1345,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                 if (lastPowerOn != null) {
                   final filteredSinceOn = filtered
                       .where(
-                        (d) => d.time != null && d.time!.isAfter(lastPowerOn),
+                        (d) => d.time != null && d.time.isAfter(lastPowerOn),
                       )
                       .toList();
                   totalSinceOn = filteredSinceOn.length;
@@ -1438,7 +1435,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                         case 1:
                           _sort<DateTime>(
                             filtered,
-                            (d) => d.time ?? DateTime(2000),
+                            (d) => d.time,
                             _sortAscending,
                           );
                           break;
@@ -1628,7 +1625,7 @@ class HalterDeviceDetailDataTableSource extends DataTableSource {
           Center(
             child: Text(
               d.time != null
-                  ? DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time!)
+                  ? DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time)
                   : "-",
             ),
           ),

@@ -5,36 +5,52 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_detail_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
+import 'package:smart_feeder_desktop/app/models/stable_model.dart';
 
 class FeederDeviceController extends GetxController {
   final DataController dataController = Get.find<DataController>();
 
-  List<RoomModel> get roomList => dataController.roomList;
+  RxList<RoomModel> get roomList => dataController.roomList;
+  RxList<StableModel> get stableList => dataController.stableList;
 
-  List<FeederRoomDeviceModel> get feederRoomDeviceList =>
-      dataController.feederRoomDeviceList;
+  RxList<FeederDeviceModel> get feederDeviceList =>
+      dataController.feederDeviceList;
 
-  String getRoomName(String roomId) {
-    return roomList.firstWhere((room) => room.roomId == roomId).name;
+  RxList<FeederDeviceDetailModel> get feederDeviceDetailList =>
+      dataController.feederDeviceDetailList;
+
+  String getRoomName(String? stableId) {
+    if (stableId == null || stableId.isEmpty) return "-";
+    final stable = stableList.firstWhereOrNull((s) => s.stableId == stableId);
+    return stable?.name ?? "-";
   }
-
-  Future<void> exportDeviceExcel(List<FeederRoomDeviceModel> data) async {
+/// Export data device ke Excel
+  Future<void> exportDeviceExcel(List<FeederDeviceModel> data) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
       TextCellValue('ID'),
-      TextCellValue('Di Ruangan'),
-      TextCellValue('Tipe'),
+      TextCellValue('Kandang'),
       TextCellValue('Status'),
+      TextCellValue('Versi'),
+      TextCellValue('Baterai'),
     ]);
     for (var d in data) {
+      // Ambil detail dari deviceId
+      final detail = feederDeviceDetailList.firstWhereOrNull(
+        (det) => det.deviceId == d.deviceId,
+      );
       sheet.appendRow([
         TextCellValue(d.deviceId),
-        TextCellValue(d.roomId != null ? getRoomName(d.roomId!) : 'Tidak ada'),
-        TextCellValue(d.type),
-        TextCellValue(d.status),
+        TextCellValue(
+          d.stableId != null ? getRoomName(d.stableId!) : 'Tidak ada',
+        ),
+        TextCellValue(detail?.status ?? '-'),
+        TextCellValue(d.version),
+        TextCellValue(detail?.batteryPercent.toString() ?? '-'),
       ]);
     }
     final fileBytes = excel.encode();
@@ -50,18 +66,28 @@ class FeederDeviceController extends GetxController {
   }
 
   /// Export data device ke PDF
-  Future<void> exportDevicePDF(List<FeederRoomDeviceModel> data) async {
+  Future<void> exportDevicePDF(List<FeederDeviceModel> data) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Table.fromTextArray(
-          headers: ['ID', 'Di Ruangan', 'Tipe', 'Status'],
-          data: data.map((d) => [
-            d.deviceId,
-            d.roomId != null ? getRoomName(d.roomId!) : 'Tidak ada',
-            d.type,
-            d.status,
-          ]).toList(),
+          headers: ['ID', 'Kandang', 'Status', 'Versi', 'Baterai'],
+          data: data
+              .map(
+                (d) {
+                  final detail = feederDeviceDetailList.firstWhereOrNull(
+                    (det) => det.deviceId == d.deviceId,
+                  );
+                  return [
+                    d.deviceId,
+                    d.stableId != null ? getRoomName(d.stableId!) : 'Tidak ada',
+                    detail?.status ?? '-',
+                    d.version,
+                    detail?.batteryPercent ?? '-',
+                  ];
+                },
+              )
+              .toList(),
         ),
       ),
     );

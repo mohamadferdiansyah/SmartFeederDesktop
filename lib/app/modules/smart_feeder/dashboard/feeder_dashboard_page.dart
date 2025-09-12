@@ -1036,187 +1036,277 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                   height: 289,
                   child: CustomCard(
                     title: 'Status Feeder Device',
-                    // trailing: Container(
-                    //   padding: const EdgeInsets.symmetric(
-                    //     horizontal: 8,
-                    //     vertical: 4,
-                    //   ),
-                    //   decoration: BoxDecoration(
-                    //     color: controller.getFeederDeviceStatus() == 'ready'
-                    //         ? Colors.green.withOpacity(0.2)
-                    //         : Colors.red.withOpacity(0.2),
-                    //     borderRadius: BorderRadius.circular(12),
-                    //     border: Border.all(
-                    //       color: controller.getFeederDeviceStatus() == 'ready'
-                    //           ? Colors.green
-                    //           : Colors.red,
-                    //       width: 1,
-                    //     ),
-                    //   ),
-                    //   child: Text(
-                    //     controller.getFeederDeviceStatus() == 'ready'
-                    //         ? 'Aktif'
-                    //         : 'Non Aktif',
-                    //     style: TextStyle(
-                    //       fontSize: 20,
-                    //       fontWeight: FontWeight.bold,
-                    //       color: controller.getFeederDeviceStatus() == 'ready'
-                    //           ? Colors.green
-                    //           : Colors.red,
-                    //     ),
-                    //   ),
-                    // ),
+                    trailing: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white, width: 1),
+                      ),
+                      child: Obx(() {
+                        final selectedRoom = controller.selectedRoom;
+                        // Cari device yang stableId-nya sama dengan stableId ruangan yang dipilih
+                        final device = controller.feederDeviceList
+                            .firstWhereOrNull(
+                              (d) => d.stableId == selectedRoom.stableId,
+                            );
+                        return Text(
+                          device?.deviceId ?? 'Tidak Ada Feeder',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        );
+                      }),
+                    ),
                     headerHeight: 50,
                     withExpanded: false,
                     titleFontSize: 20,
                     scrollable: false,
-                    content: Obx(
-                      () => Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Flexible(
-                                flex: 2,
-                                child: Tooltip(
-                                  message: 'Baterai Device',
-                                  child: Container(
-                                    padding: const EdgeInsets.all(16),
-                                    height: 80,
-                                    decoration: BoxDecoration(
-                                      color:
-                                          controller
-                                                  .getFeederDeviceBatteryPercent(
-                                                    'SmartFeeder',
-                                                  ) <
-                                              20
-                                          ? Colors.red.withOpacity(0.2)
-                                          : Colors.teal.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color:
-                                            controller
-                                                    .getFeederDeviceBatteryPercent(
-                                                      'SmartFeeder',
-                                                    ) <
-                                                20
+                    content: Obx(() {
+                      final selectedRoom = controller.selectedRoom;
+                      final device = controller.feederDeviceList
+                          .firstWhereOrNull(
+                            (d) => d.stableId == selectedRoom.stableId,
+                          );
+
+                      // Ambil detail dari deviceId
+                      final detail = controller.feederDeviceDetailList
+                          .firstWhereOrNull(
+                            (det) => det.deviceId == device?.deviceId,
+                          );
+
+                      final batteryPercent = detail?.batteryPercent ?? 0;
+                      final status = detail?.status ?? 'off';
+                      final location = detail?.status ?? 'Tidak Diketahui';
+
+                      String textStatus = '';
+                      if (detail != null) {
+                        switch (detail.status) {
+                          case 'delivery':
+                            textStatus =
+                                'Sedang mengantar ke ${detail.destination?.toUpperCase() ?? "-"}'
+                                '${(detail.amount != null && detail.amount! > 0) ? " (${detail.amount} kg)" : ""}';
+                            break;
+                          case 'process':
+                            textStatus =
+                                'Proses pengisian di ${detail.destination?.toUpperCase() ?? "-"}';
+                            break;
+                          case 'done':
+                            textStatus =
+                                'Selesai mengisi di ${detail.destination?.toUpperCase() ?? "-"}';
+                            break;
+                          case 'return':
+                            textStatus = detail.destination == 'home'
+                                ? 'Kembali ke Home'
+                                : 'Kembali ke ${detail.destination?.toUpperCase() ?? "-"}';
+                            break;
+                          case 'ready':
+                            textStatus = 'Idle, siap menerima permintaan';
+                            break;
+                          case 'off':
+                            textStatus = 'Tidak Aktif';
+                            break;
+                          default:
+                            textStatus = 'Status Tidak Diketahui';
+                        }
+                      } else {
+                        textStatus = 'Status Tidak Diketahui';
+                      }
+
+                      String statusDevice(String status) {
+                        switch (status) {
+                          case 'ready':
+                            return 'Siap Digunakan';
+                          case 'delivery':
+                            return 'Sedang Perjalanan';
+                          case 'process':
+                            return 'Proses Pengisian';
+                          case 'done':
+                            return 'Selesai Mengisi';
+                          case 'return':
+                            return 'Kembali ke Home';
+                          case 'on':
+                            return 'Aktif';
+                          case 'off':
+                            return 'Tidak Aktif';
+                          case 'idle':
+                            return 'Idle';
+                          default:
+                            return 'Status Tidak Diketahui';
+                        }
+                      }
+                      // final destination = controller.getFeederDeviceById(device?.deviceId ?? '')?.destination ?? '';
+                      // final amount = controller.getFeederDeviceById(device?.deviceId ?? '')?.amount;
+
+                      Color statusColor = status != 'off'
+                          ? Colors.green
+                          : Colors.red;
+                      String statusLabel = status != 'off' ? 'Aktif' : 'Mati';
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                          horizontal: 8,
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                // Baterai
+                                Expanded(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Icon(
+                                        batteryPercent < 20
+                                            ? Icons.battery_alert
+                                            : Icons.battery_full,
+                                        color: batteryPercent < 20
                                             ? Colors.red
-                                            : Colors.teal,
-                                        width: 1,
+                                            : Colors.green,
+                                        size: 50,
                                       ),
-                                    ),
-                                    child: Center(
-                                      child: CustomBatteryIndicator(
-                                        percent: controller
-                                            .getFeederDeviceBatteryPercent(
-                                              'SmartFeeder',
-                                            ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              Flexible(
-                                flex: 2,
-                                child: Tooltip(
-                                  message: 'Koneksi Device',
-                                  child: Container(
-                                    padding: const EdgeInsets.all(16),
-                                    height: 80,
-                                    decoration: BoxDecoration(
-                                      color:
-                                          controller.getFeederDeviceStatus(
-                                                'SmartFeeder',
-                                              ) !=
-                                              'off'
-                                          ? Colors.blue.withOpacity(0.2)
-                                          : Colors.grey.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color:
-                                            controller.getFeederDeviceStatus(
-                                                  'SmartFeeder',
-                                                ) !=
-                                                'off'
-                                            ? Colors.blue
-                                            : Colors.grey,
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        controller.getFeederDeviceStatus(
-                                                  'SmartFeeder',
-                                                ) !=
-                                                'off'
-                                            ? 'Aktif'
-                                            : 'Mati',
+                                      Text(
+                                        '$batteryPercent%',
                                         style: TextStyle(
-                                          fontSize: 35,
+                                          fontSize: 32,
                                           fontWeight: FontWeight.bold,
-                                          color:
-                                              controller.getFeederDeviceStatus(
-                                                    'SmartFeeder',
-                                                  ) !=
-                                                  'off'
-                                              ? Colors.blue
-                                              : Colors.grey,
+                                          color: batteryPercent < 20
+                                              ? Colors.red
+                                              : Colors.green,
                                         ),
                                       ),
+                                    ],
+                                  ),
+                                ),
+                                // Status Aktif
+                                Expanded(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: statusColor.withOpacity(0.15),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              status != 'off'
+                                                  ? Icons.check_circle
+                                                  : Icons.cancel,
+                                              color: statusColor,
+                                              size: 30,
+                                            ),
+                                            SizedBox(width: 6),
+                                            Text(
+                                              statusLabel,
+                                              style: TextStyle(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                                color: statusColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 14),
+                            // Lokasi Device Bar
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.teal.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_on,
+                                    color: Colors.teal,
+                                    size: 22,
+                                  ),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      statusDevice(location),
+                                      style: TextStyle(
+                                        fontSize: 19,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.teal[800],
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Lokasi Device:',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Tooltip(
-                            message: 'Lokasi Device',
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              height: 80,
-                              decoration: BoxDecoration(
-                                color: Colors.green.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.green,
-                                  width: 1,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  controller
-                                          .getFeederDeviceById('SmartFeeder')
-                                          ?.status ??
-                                      'Tidak Diketahui',
-                                  style: TextStyle(
-                                    fontSize: 35,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green,
+                                  Icon(
+                                    Icons.device_hub,
+                                    color: Colors.teal[700],
+                                    size: 22,
                                   ),
-                                ),
+                                ],
                               ),
                             ),
-                          ),
-                          // Lottie.asset(
-                          //   'assets/lottie/delivery.json',
-                          //   width: 100,
-                          //   height: 100,
-                          //   fit: BoxFit.cover,
-                          // ),
-                        ],
-                      ),
-                    ),
+                            // Delivery info bawah
+                            // if (status == 'delivery' && destination != null && destination != '')
+                            SizedBox(height: 8),
+                            // if (status == 'delivery' && destination != null && destination != '')
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.withOpacity(0.10),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.local_shipping,
+                                    color: Colors.orange,
+                                    size: 22,
+                                  ),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      textStatus,
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.orange[800],
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
                   ),
                 ),
                 SizedBox(height: 16),
@@ -1287,5 +1377,26 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
         ],
       ),
     );
+  }
+
+  String _statusLabel(String status) {
+    switch (status) {
+      case 'delivery':
+        return 'Sedang Perjalanan';
+      case 'process':
+        return 'Sedang Mengisi';
+      case 'return':
+        return 'Kembali ke Home';
+      case 'ready':
+        return 'Siap Digunakan';
+      case 'on':
+        return 'Idle';
+      case 'done':
+        return 'Selesai Mengisi';
+      case 'off':
+        return 'Tidak Aktif';
+      default:
+        return 'Status Tidak Diketahui';
+    }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/history_entry_model.dart';
@@ -18,7 +19,7 @@ class FeederDashboardController extends GetxController {
   var phCurrent = 7.2.obs; // RxDouble
   var feedTankCurrent = 150.5.obs; // RxDouble
 
-  RxString selectedStableId = 'S1'.obs;
+  RxString selectedStableId = ''.obs;
   RxInt selectedRoomIndex = 0.obs;
 
   RoomModel get selectedRoom => filteredRoomList.isNotEmpty
@@ -41,6 +42,8 @@ class FeederDashboardController extends GetxController {
   RxList<StableModel> get stableList => dataController.stableList;
   RxList<FeederDeviceModel> get feederDeviceList =>
       dataController.feederDeviceList;
+  RxList<FeederDeviceDetailModel> get feederDeviceDetailList =>
+      dataController.feederDeviceDetailList;
   List<FeederRoomDeviceModel> get feederRoomDeviceList =>
       dataController.feederRoomDeviceList;
   List<HistoryEntryModel> get historyEntryList =>
@@ -213,23 +216,21 @@ class FeederDashboardController extends GetxController {
     return DateFormat('dd-MM-yyyy HH:mm').format(lastFeed);
   }
 
-  int getFeederDeviceBatteryPercent(String deviceId) {
-    final device = feederDeviceList.firstWhereOrNull(
-      (d) => d.deviceId == deviceId,
-    );
-    return device?.batteryPercent ?? 0;
-  }
+  // int getFeederDeviceBatteryPercent(String deviceId) {
+  //   final device = feederDeviceList.firstWhereOrNull(
+  //     (d) => d.deviceId == deviceId,
+  //   );
+  //   return device?.batteryPercent ?? 0;
+  // }
 
-  String getFeederDeviceStatus(String deviceId) {
-    final device = feederDeviceList.firstWhereOrNull(
-      (d) => d.deviceId == deviceId,
-    );
-    return device?.status ?? 'unknown';
-  }
+  // String getFeederDeviceStatus(String deviceId) {
+  //   final device = feederDeviceList.firstWhereOrNull(
+  //     (d) => d.deviceId == deviceId,
+  //   );
+  //   return device?.status ?? 'unknown';
+  // }
 
-  FeederDeviceModel? getFeederDeviceById(String deviceId){
-    return feederDeviceList.firstWhereOrNull(
-      (d) => d.deviceId == deviceId,
-    );
+  FeederDeviceModel? getFeederDeviceById(String deviceId) {
+    return feederDeviceList.firstWhereOrNull((d) => d.deviceId == deviceId);
   }
 }

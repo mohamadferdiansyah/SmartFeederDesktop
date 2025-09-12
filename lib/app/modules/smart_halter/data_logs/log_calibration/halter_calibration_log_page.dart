@@ -92,8 +92,8 @@ class _HalterCalibrationLogPageState extends State<HalterCalibrationLogPage> {
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
                 ),
                 boxShadow: [
                   BoxShadow(

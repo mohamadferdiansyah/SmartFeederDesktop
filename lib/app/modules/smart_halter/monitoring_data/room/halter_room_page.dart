@@ -277,9 +277,9 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
     String? selectedStableId = room.stableId;
     String? selectedDeviceSerial = room.deviceSerial;
     String? selectedHorseId = room.horseId;
-    String? selectedCctv = room.cctvId?.isNotEmpty == true
-        ? room.cctvId!.first
-        : null;
+    // String? selectedCctv = room.cctvId?.isNotEmpty == true
+    //     ? room.cctvId!.first
+    //     : null;
     String? selectedCctv1 = room.cctvId != null && room.cctvId!.length > 0
         ? room.cctvId![0]
         : null;
@@ -621,8 +621,8 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
                 ),
                 boxShadow: [
                   BoxShadow(

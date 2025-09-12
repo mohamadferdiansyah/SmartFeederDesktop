@@ -150,18 +150,18 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
   }
 
   // Helper untuk bungkus konten tab dengan scroll view yang proper
-  Widget _scrollableTab(Widget child) => LayoutBuilder(
-    builder: (context, constraints) => SingleChildScrollView(
-      // Agar lebar tab tetap penuh viewport
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          minHeight: constraints.maxHeight,
-          minWidth: constraints.maxWidth,
-        ),
-        child: IntrinsicHeight(child: child),
-      ),
-    ),
-  );
+  // Widget _scrollableTab(Widget child) => LayoutBuilder(
+  //   builder: (context, constraints) => SingleChildScrollView(
+  //     // Agar lebar tab tetap penuh viewport
+  //     child: ConstrainedBox(
+  //       constraints: BoxConstraints(
+  //         minHeight: constraints.maxHeight,
+  //         minWidth: constraints.maxWidth,
+  //       ),
+  //       child: IntrinsicHeight(child: child),
+  //     ),
+  //   ),
+  // );
 
   // ----- KONTEN TAB Kuda -----
   Widget _buildKudaTab(BuildContext context) {

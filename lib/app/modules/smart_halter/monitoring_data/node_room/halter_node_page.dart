@@ -1,4 +1,5 @@
-import 'package:flutter/gestures.dart';
+// ignore_for_file: unnecessary_null_comparison
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -18,7 +19,7 @@ import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 import 'package:toastification/toastification.dart';
 
 class HalterNodePage extends StatefulWidget {
-  const HalterNodePage({Key? key}) : super(key: key);
+  const HalterNodePage({super.key});
 
   @override
   State<HalterNodePage> createState() => _HalterNodePageState();
@@ -288,12 +289,12 @@ class _HalterNodePageState extends State<HalterNodePage> {
       content: Obx(() {
         final roomList = _controller.roomList;
         // Semua deviceSerial yang sudah dipakai room lain (kecuali node ini)
-        final allUsedDeviceSerials = roomList
-            .where(
-              (r) => r.deviceSerial != null && r.deviceSerial != node.deviceId,
-            )
-            .map((r) => r.deviceSerial)
-            .toSet();
+        // final allUsedDeviceSerials = roomList
+        //     .where(
+        //       (r) => r.deviceSerial != null && r.deviceSerial != node.deviceId,
+        //     )
+        //     .map((r) => r.deviceSerial)
+        //     .toSet();
 
         // Hanya ruangan yang belum dipakai atau memang sedang dipakai node ini
         final availableRooms = roomList
@@ -445,8 +446,8 @@ class _HalterNodePageState extends State<HalterNodePage> {
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -992,25 +993,23 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
         .toList();
     if (tanggalAwal != null) {
       data = data.where((d) {
-        if (d.time == null) return false;
         final tAwal = DateTime(
           tanggalAwal!.year,
           tanggalAwal!.month,
           tanggalAwal!.day,
         );
-        final tData = DateTime(d.time!.year, d.time!.month, d.time!.day);
+        final tData = DateTime(d.time.year, d.time.month, d.time.day);
         return tData.isAtSameMomentAs(tAwal) || tData.isAfter(tAwal);
       }).toList();
     }
     if (tanggalAkhir != null) {
       data = data.where((d) {
-        if (d.time == null) return false;
         final tAkhir = DateTime(
           tanggalAkhir!.year,
           tanggalAkhir!.month,
           tanggalAkhir!.day,
         );
-        final tData = DateTime(d.time!.year, d.time!.month, d.time!.day);
+        final tData = DateTime(d.time.year, d.time.month, d.time.day);
         return tData.isAtSameMomentAs(tAkhir) || tData.isBefore(tAkhir);
       }).toList();
     }
@@ -1269,13 +1268,16 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  'Total Data: ${filteredData.length}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: Obx(() {
+                  final totalData = filteredData.length;
+                  return Text(
+                    'Total Data: $totalData ',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }),
               ),
             ),
             const SizedBox(height: 12),
@@ -1312,7 +1314,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                         case 1:
                           _sort<DateTime>(
                             sortedData,
-                            (d) => d.time ?? DateTime(2000),
+                            (d) => d.time,
                             _sortAscending,
                           );
                           break;
@@ -1512,7 +1514,7 @@ class NodeRoomDetailDataTableSource extends DataTableSource {
             child: Center(
               child: Text(
                 d.time != null
-                    ? DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time!)
+                    ? DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time)
                     : "-",
               ),
             ),

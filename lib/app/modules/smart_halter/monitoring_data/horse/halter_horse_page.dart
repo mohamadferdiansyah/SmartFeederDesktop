@@ -106,7 +106,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
     );
     final skinColorCtrl = TextEditingController(text: horse?.skinColor ?? '');
     final markDescCtrl = TextEditingController(text: horse?.markDesc ?? '');
-    List<String> photos = horse?.photos ?? [];
+    // List<String> photos = horse?.photos ?? [];
 
     showCustomDialog(
       context: parentContext ?? context,
@@ -867,12 +867,10 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                         final ImagePicker picker = ImagePicker();
                         final List<XFile> images = await picker
                             .pickMultiImage();
-                        if (images != null) {
-                          modalSetState(() {
-                            _selectedImages.addAll(images);
-                          });
-                        }
-                      },
+                        modalSetState(() {
+                          _selectedImages.addAll(images);
+                        });
+                                            },
                       height: 40,
                       text: 'Pilih Foto Kuda',
                       iconTrailing: Icons.photo_rounded,
@@ -1142,8 +1140,8 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -1586,18 +1584,18 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
     );
   }
 
-  Widget _detailRow(String label, String value) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 2),
-    child: Row(
-      children: [
-        Text(
-          "$label: ",
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        Flexible(child: Text(value, style: const TextStyle(fontSize: 16))),
-      ],
-    ),
-  );
+  // Widget _detailRow(String label, String value) => Padding(
+  //   padding: const EdgeInsets.symmetric(vertical: 2),
+  //   child: Row(
+  //     children: [
+  //       Text(
+  //         "$label: ",
+  //         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+  //       ),
+  //       Flexible(child: Text(value, style: const TextStyle(fontSize: 16))),
+  //     ],
+  //   ),
+  // );
 }
 
 // DataTableSource untuk PaginatedDataTable

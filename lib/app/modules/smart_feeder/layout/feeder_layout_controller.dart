@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_page.dart';
 import 'package:intl/intl.dart';
 
@@ -13,6 +14,8 @@ class FeederLayoutController extends GetxController {
   var currentDate = ''.obs;
   Timer? _timer;
   final DataController dataController = Get.find<DataController>();
+  final FeederDashboardController dashboardController =
+      Get.find<FeederDashboardController>();
 
   @override
   void onInit() {
@@ -20,6 +23,12 @@ class FeederLayoutController extends GetxController {
     dataController.initAllDaosAndLoadAll().then((_) {
       // Setelah semua data di-load, bisa melakukan inisialisasi lain jika perlu
       print('Semua data telah dimuat dan DAO diinisialisasi.');
+      // Setelah data stable di-load, pilih stable otomatis jika belum ada
+      if (dashboardController.stableList.isNotEmpty) {
+        dashboardController.selectedStableId.value =
+            dashboardController.stableList.first.stableId;
+        dashboardController.selectedRoomIndex.value = 0;
+      }
     });
     _startRealTimeClock();
   }

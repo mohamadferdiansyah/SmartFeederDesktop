@@ -42,10 +42,9 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
     if (_searchText.isEmpty) return logs;
     return logs.where((log) {
       return log.deviceId.toLowerCase().contains(_searchText) ||
-          (log.powerOnTime != null &&
-              DateFormat(
-                'dd-MM-yyyy HH:mm:ss',
-              ).format(log.powerOnTime).toLowerCase().contains(_searchText)) ||
+          (DateFormat(
+            'dd-MM-yyyy HH:mm:ss',
+          ).format(log.powerOnTime).toLowerCase().contains(_searchText)) ||
           (log.powerOffTime != null &&
               DateFormat(
                 'dd-MM-yyyy HH:mm:ss',
@@ -96,8 +95,8 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
                 ),
                 boxShadow: [
                   BoxShadow(

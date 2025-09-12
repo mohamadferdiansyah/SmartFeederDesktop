@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/data/data_table_rule_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_biometric_rule_engine_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_position_rule_engine_model.dart';
 
@@ -15,10 +14,10 @@ class HalterTableRuleEngineController extends GetxController {
 
   @override
   void onInit() {
-    biometricClassificationList.assignAll(
-      DataTableRuleHalter.getBiometricList(),
-    );
-    positionClassificationList.assignAll(DataTableRuleHalter.getPositionList());
+    // biometricClassificationList.assignAll(
+    //   DataTableRuleHalter.getBiometricList(),
+    // );
+    // positionClassificationList.assignAll(DataTableRuleHalter.getPositionList());
     loadDefaultIfEmpty();
     super.onInit();
   }

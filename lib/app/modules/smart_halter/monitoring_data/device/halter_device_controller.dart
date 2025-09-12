@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'dart:io';
 
 import 'package:excel/excel.dart';
@@ -210,7 +212,7 @@ class HalterDeviceController extends GetxController {
         TextCellValue('${i + 1}'),
         TextCellValue(
           d.time != null
-              ? DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time!)
+              ? DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time)
               : "-",
         ),
         TextCellValue(d.deviceId),

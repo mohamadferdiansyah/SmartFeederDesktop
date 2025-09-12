@@ -1,10 +1,10 @@
 class HalterRawDataModel {
-  final int rawId;
+  final int? rawId;
   final String data;
   final DateTime? time;
 
   HalterRawDataModel({
-    required this.rawId,
+    this.rawId,
     required this.data,
     this.time,
   });

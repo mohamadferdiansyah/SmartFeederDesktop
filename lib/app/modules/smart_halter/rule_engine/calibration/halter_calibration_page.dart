@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:input_quantity/input_quantity.dart';
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
@@ -38,16 +37,16 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
       <String, HalterDeviceDetailModel>{}.obs;
 
   // Tambahkan list log khusus
-  List<DataRow> _logRows = [];
+  // List<DataRow> _logRows = [];
   final RxMap<String, bool> _isLoadingDevice = <String, bool>{}.obs;
 
-  bool _isLatestLogExist(String? timestamp) {
-    return _logRows.any(
-      (row) =>
-          row.cells.length > 1 &&
-          (row.cells[1].child as Text).data == timestamp,
-    );
-  }
+  // bool _isLatestLogExist(String? timestamp) {
+  //   return _logRows.any(
+  //     (row) =>
+  //         row.cells.length > 1 &&
+  //         (row.cells[1].child as Text).data == timestamp,
+  //   );
+  // }
 
   Future<HalterDeviceDetailModel?> _waitForLatestRawDeviceData(
     String deviceId, {
@@ -81,109 +80,109 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
   }
 
   // Fungsi untuk generate log dari rawDetailHistoryList
-  void _addLatestLogRow() {
-    final calibration = controller.calibration.value;
-    final rawDetailList = controller.rawDetailHistoryList;
-    if (rawDetailList.isEmpty) return;
+  // void _addLatestLogRow() {
+  //   final calibration = controller.calibration.value;
+  //   final rawDetailList = controller.rawDetailHistoryList;
+  //   if (rawDetailList.isEmpty) return;
 
-    final detail = rawDetailList.last;
-    final timestamp = detail.time?.toString();
-    if (_isLatestLogExist(timestamp)) return; // Prevent duplicate log
+  //   final detail = rawDetailList.last;
+  //   final timestamp = detail.time.toString();
+  //   if (_isLatestLogExist(timestamp)) return; // Prevent duplicate log
 
-    final id = _logRows.length + 1;
+  //   final id = _logRows.length + 1;
 
-    final newRows = [
-      DataRow(
-        cells: [
-          DataCell(Text(id.toString())),
-          DataCell(Text(timestamp.toString())),
-          DataCell(Text('Suhu Badan')),
-          DataCell(Text('${detail.temperature?.toStringAsFixed(2) ?? "-"} ')),
-          DataCell(Text('${detail.temperature?.toStringAsFixed(2) ?? "-"} ')),
-          DataCell(Text('${calibration.temperature.toStringAsFixed(2)} ')),
-        ],
-      ),
-      DataRow(
-        cells: [
-          DataCell(Text(id.toString())),
-          DataCell(Text(timestamp.toString())),
-          DataCell(Text('Detak Jantung')),
-          DataCell(Text('${detail.heartRate?.toStringAsFixed(2) ?? "-"}')),
-          DataCell(Text('${detail.heartRate?.toStringAsFixed(2) ?? "-"}')),
-          DataCell(Text('${calibration.heartRate.toStringAsFixed(2)}')),
-        ],
-      ),
-      DataRow(
-        cells: [
-          DataCell(Text(id.toString())),
-          DataCell(Text(timestamp.toString())),
-          DataCell(Text('SPO')),
-          DataCell(Text('${detail.spo?.toStringAsFixed(2) ?? "-"}')),
-          DataCell(Text('${detail.spo?.toStringAsFixed(2) ?? "-"}')),
-          DataCell(Text('${calibration.spo.toStringAsFixed(2)}')),
-        ],
-      ),
-      DataRow(
-        cells: [
-          DataCell(Text(id.toString())),
-          DataCell(Text(timestamp.toString())),
-          DataCell(Text('Respirasi')),
-          DataCell(
-            Text('${detail.respiratoryRate?.toStringAsFixed(2) ?? "-"}'),
-          ),
-          DataCell(
-            Text('${detail.respiratoryRate?.toStringAsFixed(2) ?? "-"}'),
-          ),
-          DataCell(Text('${calibration.respiration.toStringAsFixed(2)}')),
-        ],
-      ),
-      // Node Room
-      DataRow(
-        cells: [
-          DataCell(Text(id.toString())),
-          DataCell(Text(timestamp.toString())),
-          DataCell(Text('Suhu Ruangan')),
-          DataCell(Text('Node Room')),
-          DataCell(Text('${calibration.roomTemperature.toStringAsFixed(2)} ')),
-          DataCell(Text('${calibration.roomTemperature.toStringAsFixed(2)} ')),
-          DataCell(Text('${calibration.roomTemperature.toStringAsFixed(2)} ')),
-        ],
-      ),
-      DataRow(
-        cells: [
-          DataCell(Text(id.toString())),
-          DataCell(Text(timestamp.toString())),
-          DataCell(Text('Kelembapan')),
-          DataCell(Text('Node Room')),
-          DataCell(Text('${calibration.humidity.toStringAsFixed(2)}')),
-          DataCell(Text('${calibration.humidity.toStringAsFixed(2)}')),
-          DataCell(Text('${calibration.humidity.toStringAsFixed(2)}')),
-        ],
-      ),
-      DataRow(
-        cells: [
-          DataCell(Text(id.toString())),
-          DataCell(Text(timestamp.toString())),
-          DataCell(Text('Indeks Cahaya')),
-          DataCell(Text('Node Room')),
-          DataCell(
-            Text('${calibration.lightIntensity.toStringAsFixed(2)} lux'),
-          ),
-          DataCell(
-            Text('${calibration.lightIntensity.toStringAsFixed(2)} lux'),
-          ),
-          DataCell(
-            Text('${calibration.lightIntensity.toStringAsFixed(2)} lux'),
-          ),
-        ],
-      ),
-    ];
+  //   final newRows = [
+  //     DataRow(
+  //       cells: [
+  //         DataCell(Text(id.toString())),
+  //         DataCell(Text(timestamp.toString())),
+  //         DataCell(Text('Suhu Badan')),
+  //         DataCell(Text('${detail.temperature?.toStringAsFixed(2) ?? "-"} ')),
+  //         DataCell(Text('${detail.temperature?.toStringAsFixed(2) ?? "-"} ')),
+  //         DataCell(Text('${calibration.temperature.toStringAsFixed(2)} ')),
+  //       ],
+  //     ),
+  //     DataRow(
+  //       cells: [
+  //         DataCell(Text(id.toString())),
+  //         DataCell(Text(timestamp.toString())),
+  //         DataCell(Text('Detak Jantung')),
+  //         DataCell(Text('${detail.heartRate?.toStringAsFixed(2) ?? "-"}')),
+  //         DataCell(Text('${detail.heartRate?.toStringAsFixed(2) ?? "-"}')),
+  //         DataCell(Text('${calibration.heartRate.toStringAsFixed(2)}')),
+  //       ],
+  //     ),
+  //     DataRow(
+  //       cells: [
+  //         DataCell(Text(id.toString())),
+  //         DataCell(Text(timestamp.toString())),
+  //         DataCell(Text('SPO')),
+  //         DataCell(Text('${detail.spo?.toStringAsFixed(2) ?? "-"}')),
+  //         DataCell(Text('${detail.spo?.toStringAsFixed(2) ?? "-"}')),
+  //         DataCell(Text('${calibration.spo.toStringAsFixed(2)}')),
+  //       ],
+  //     ),
+  //     DataRow(
+  //       cells: [
+  //         DataCell(Text(id.toString())),
+  //         DataCell(Text(timestamp.toString())),
+  //         DataCell(Text('Respirasi')),
+  //         DataCell(
+  //           Text('${detail.respiratoryRate?.toStringAsFixed(2) ?? "-"}'),
+  //         ),
+  //         DataCell(
+  //           Text('${detail.respiratoryRate?.toStringAsFixed(2) ?? "-"}'),
+  //         ),
+  //         DataCell(Text('${calibration.respiration.toStringAsFixed(2)}')),
+  //       ],
+  //     ),
+  //     // Node Room
+  //     DataRow(
+  //       cells: [
+  //         DataCell(Text(id.toString())),
+  //         DataCell(Text(timestamp.toString())),
+  //         DataCell(Text('Suhu Ruangan')),
+  //         DataCell(Text('Node Room')),
+  //         DataCell(Text('${calibration.roomTemperature.toStringAsFixed(2)} ')),
+  //         DataCell(Text('${calibration.roomTemperature.toStringAsFixed(2)} ')),
+  //         DataCell(Text('${calibration.roomTemperature.toStringAsFixed(2)} ')),
+  //       ],
+  //     ),
+  //     DataRow(
+  //       cells: [
+  //         DataCell(Text(id.toString())),
+  //         DataCell(Text(timestamp.toString())),
+  //         DataCell(Text('Kelembapan')),
+  //         DataCell(Text('Node Room')),
+  //         DataCell(Text('${calibration.humidity.toStringAsFixed(2)}')),
+  //         DataCell(Text('${calibration.humidity.toStringAsFixed(2)}')),
+  //         DataCell(Text('${calibration.humidity.toStringAsFixed(2)}')),
+  //       ],
+  //     ),
+  //     DataRow(
+  //       cells: [
+  //         DataCell(Text(id.toString())),
+  //         DataCell(Text(timestamp.toString())),
+  //         DataCell(Text('Indeks Cahaya')),
+  //         DataCell(Text('Node Room')),
+  //         DataCell(
+  //           Text('${calibration.lightIntensity.toStringAsFixed(2)} lux'),
+  //         ),
+  //         DataCell(
+  //           Text('${calibration.lightIntensity.toStringAsFixed(2)} lux'),
+  //         ),
+  //         DataCell(
+  //           Text('${calibration.lightIntensity.toStringAsFixed(2)} lux'),
+  //         ),
+  //       ],
+  //     ),
+  //   ];
 
-    setState(() {
-      _logRows.addAll(newRows);
-    });
-    controller.logRows.addAll(newRows);
-  }
+  //   setState(() {
+  //     _logRows.addAll(newRows);
+  //   });
+  //   controller.logRows.addAll(newRows);
+  // }
 
   // Future<void> _kalibrasiDevice(
   //   String deviceId,
@@ -708,11 +707,11 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
       final rxSelectedRule = device != null
           ? selectedRuleMap[device.deviceId]!
           : null;
-      final lastCalibration = device != null
-          ? deviceCalibrations.firstWhereOrNull(
-              (c) => c.deviceId == device.deviceId,
-            )
-          : null;
+      // final lastCalibration = device != null
+      //     ? deviceCalibrations.firstWhereOrNull(
+      //         (c) => c.deviceId == device.deviceId,
+      //       )
+      //     : null;
       final isLoading =
           device != null && _isLoadingDevice[device.deviceId] == true;
 
@@ -1090,61 +1089,62 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
     });
   }
 
-  Widget _buildLogTableSection(BuildContext context) {
-    return CustomCard(
-      title: 'Log Kalibrasi',
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CustomButton(
-                width: 200,
-                height: 50,
-                backgroundColor: Colors.green,
-                fontSize: 18,
-                icon: Icons.table_view_rounded,
-                text: 'Tampilkan Log',
-                onPressed: _addLatestLogRow,
-              ),
-              const SizedBox(width: 12),
-              CustomButton(
-                width: 200,
-                height: 50,
-                backgroundColor: Colors.red,
-                fontSize: 18,
-                icon: Icons.clear,
-                text: 'Clear Log',
-                onPressed: () {
-                  setState(() {
-                    _logRows.clear();
-                  });
-                  controller.logRows.clear();
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Obx(
-              () => DataTable(
-                columns: const [
-                  DataColumn(label: Text('ID')),
-                  DataColumn(label: Text('Timestamp')),
-                  DataColumn(label: Text('Nama Sensor')),
-                  DataColumn(label: Text('Data lookup (Referensi)')),
-                  DataColumn(label: Text('Data Sensor')),
-                  DataColumn(label: Text('Nilai Kalibrasi')),
-                ],
-                rows: controller.logRows,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildLogTableSection(BuildContext context) {
+  //   return CustomCard(
+  //     title: 'Log Kalibrasi',
+  //     content: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           children: [
+  //             CustomButton(
+  //               width: 200,
+  //               height: 50,
+  //               backgroundColor: Colors.green,
+  //               fontSize: 18,
+  //               icon: Icons.table_view_rounded,
+  //               text: 'Tampilkan Log',
+  //               onPressed: _addLatestLogRow,
+  //             ),
+  //             const SizedBox(width: 12),
+  //             CustomButton(
+  //               width: 200,
+  //               height: 50,
+  //               backgroundColor: Colors.red,
+  //               fontSize: 18,
+  //               icon: Icons.clear,
+  //               text: 'Clear Log',
+  //               onPressed: () {
+  //                 setState(() {
+  //                   _logRows.clear();
+  //                 });
+  //                 controller.logRows.clear();
+  //               },
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(height: 12),
+  //         SingleChildScrollView(
+  //           scrollDirection: Axis.horizontal,
+  //           child: Obx(
+  //             () => DataTable(
+  //               columns: const [
+  //                 DataColumn(label: Text('ID')),
+  //                 DataColumn(label: Text('Timestamp')),
+  //                 DataColumn(label: Text('Nama Sensor')),
+  //                 DataColumn(label: Text('Data lookup (Referensi)')),
+  //                 DataColumn(label: Text('Data Sensor')),
+  //                 DataColumn(label: Text('Nilai Kalibrasi')),
+  //               ],
+  //               rows: controller.logRows,
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
 }
 
 
