@@ -63,25 +63,15 @@ class HalterNodeController extends GetxController {
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
       TextCellValue('No'),
-      TextCellValue('Time'),
       TextCellValue('Device Id'),
-      TextCellValue('Suhu (°C)'),
-      TextCellValue('Kelembapan (%)'),
-      TextCellValue('Cahaya (lux)'),
+      TextCellValue('Versi'),
     ]);
     for (int i = 0; i < data.length; i++) {
       final d = data[i];
       sheet.appendRow([
         TextCellValue('${i + 1}'),
-        TextCellValue(
-          d.time != null
-              ? DateFormat('dd-MM-yyyy HH:mm:ss').format(d.time!)
-              : '-',
-        ),
         TextCellValue(d.deviceId),
-        TextCellValue(d.temperature.toStringAsFixed(2)),
-        TextCellValue(d.humidity.toStringAsFixed(2)),
-        TextCellValue(d.lightIntensity.toStringAsFixed(2)),
+        TextCellValue(d.version),
       ]);
     }
     final fileBytes = excel.encode();
@@ -106,23 +96,15 @@ class HalterNodeController extends GetxController {
         build: (context) => pw.Table.fromTextArray(
           headers: [
             'No',
-            'Time',
             'Device Id',
-            'Suhu (°C)',
-            'Kelembapan (%)',
-            'Cahaya (lux)',
+            'Versi',
           ],
           data: List.generate(data.length, (i) {
             final d = data[i];
             return [
               '${i + 1}',
               d.deviceId,
-              d.time != null
-                  ? d.time!.toIso8601String().split('T')[1].split('.')[0]
-                  : '-',
-              d.temperature.toStringAsFixed(2),
-              d.humidity.toStringAsFixed(2),
-              d.lightIntensity.toStringAsFixed(2),
+              d.version,
             ];
           }),
         ),
@@ -157,6 +139,9 @@ class HalterNodeController extends GetxController {
       'Suhu (°C)',
       'Kelembapan (%)',
       'Cahaya (lux)',
+      'CO (ppm)',
+      'CO2 (ppm)',
+      'Amonia (ppm)',
     ];
 
     // Baris 1: Judul (merge center)
@@ -209,6 +194,9 @@ class HalterNodeController extends GetxController {
         TextCellValue(d.temperature.toStringAsFixed(2)),
         TextCellValue(d.humidity.toStringAsFixed(2)),
         TextCellValue(d.lightIntensity.toStringAsFixed(2)),
+        TextCellValue(d.co.toStringAsFixed(2)),
+        TextCellValue(d.co2.toStringAsFixed(2)),
+        TextCellValue(d.ammonia.toStringAsFixed(2)),
       ]);
     }
 
@@ -259,6 +247,9 @@ class HalterNodeController extends GetxController {
             'Suhu (°C)',
             'Kelembapan (%)',
             'Cahaya (lux)',
+            'CO (ppm)',
+            'CO2 (ppm)',
+            'Amonia (ppm)',
           ],
           data: List.generate(data.length, (i) {
             final d = data[i];
@@ -269,6 +260,9 @@ class HalterNodeController extends GetxController {
               d.temperature.toStringAsFixed(2),
               d.humidity.toStringAsFixed(2),
               d.lightIntensity.toStringAsFixed(2),
+              d.co.toStringAsFixed(2),
+              d.co2.toStringAsFixed(2),
+              d.ammonia.toStringAsFixed(2),
             ];
           }),
         ),

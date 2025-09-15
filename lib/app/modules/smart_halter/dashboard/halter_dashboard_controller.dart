@@ -92,20 +92,6 @@ class HalterDashboardController extends GetxController {
   }
 
   @override
-  void onInit() {
-    super.onInit();
-    // serialService.initSerial(settingController.setting.value.loraPort, 115200);
-    // ever<HalterDeviceDetailModel?>(serialService.latestDetail, (detail) {
-    //   if (detail != null) {
-    //     // Tambahkan data baru, batasi max 100
-    //     halterDeviceDetailList.add(detail);
-    //     if (halterDeviceDetailList.length > 100)
-    //       halterDeviceDetailList.removeAt(0);
-    //   }
-    // });
-  }
-
-  @override
   void onClose() {
     super.onClose();
     serialService.closeSerial();
@@ -150,14 +136,12 @@ class HalterDashboardController extends GetxController {
         .firstOrNull;
   }
 
-  NodeRoomModel? getSelectedNodeRoom(String serialId) {
-    return nodeRoomList
-        .where((node) => node.deviceId == serialId)
-        .toList()
-        .sorted(
-          (a, b) => (a.time ?? DateTime(0)).compareTo(b.time ?? DateTime(0)),
-        )
-        .lastOrNull;
+  NodeRoomDetailModel? getSelectedNodeRoomDetail(String serialId) {
+    // Ambil detail terbaru dari nodeRoomDetailList berdasarkan deviceSerial
+    return nodeRoomDetailList
+        .where((detail) => detail.deviceId == serialId)
+        .sorted((a, b) => b.time.compareTo(a.time))
+        .firstOrNull;
   }
 
   StableModel? getStableByRoomId(String roomId) {

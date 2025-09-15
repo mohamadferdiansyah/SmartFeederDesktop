@@ -209,24 +209,24 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                             );
                           },
                         ),
-                        CustomButton(
-                          text: 'Stop dummy',
-                          width: 195,
-                          fontSize: 18,
-                          height: 48,
-                          onPressed: () {
-                            serialService.stopDummySerial();
-                          },
-                        ),
-                        CustomButton(
-                          text: 'Start dummy',
-                          width: 195,
-                          fontSize: 18,
-                          height: 48,
-                          onPressed: () {
-                            serialService.startDummySerial();
-                          },
-                        ),
+                        // CustomButton(
+                        //   text: 'Stop dummy',
+                        //   width: 195,
+                        //   fontSize: 18,
+                        //   height: 48,
+                        //   onPressed: () {
+                        //     serialService.stopDummySerial();
+                        //   },
+                        // ),
+                        // CustomButton(
+                        //   text: 'Start dummy',
+                        //   width: 195,
+                        //   fontSize: 18,
+                        //   height: 48,
+                        //   onPressed: () {
+                        //     serialService.startDummySerial();
+                        //   },
+                        // ),
                       ],
                     ),
                     const SizedBox(height: 16),

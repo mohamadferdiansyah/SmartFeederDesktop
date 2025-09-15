@@ -1,23 +1,23 @@
 class NodeRoomModel {
   final String deviceId;
-  final double temperature;
-  final double humidity;
-  final double lightIntensity;
-  final double co;
-  final double co2;
-  final double ammonia;
-  final DateTime? time;
+  // final double temperature;
+  // final double humidity;
+  // final double lightIntensity;
+  // final double co;
+  // final double co2;
+  // final double ammonia;
+  // final DateTime? time;
   final String version;
 
   NodeRoomModel({
     required this.deviceId,
-    required this.temperature,
-    required this.humidity,
-    required this.lightIntensity,
-    required this.co,
-    required this.co2,
-    required this.ammonia,
-    this.time,
+    // required this.temperature,
+    // required this.humidity,
+    // required this.lightIntensity,
+    // required this.co,
+    // required this.co2,
+    // required this.ammonia,
+    // this.time,
     required this.version,
   });
 
@@ -37,13 +37,13 @@ class NodeRoomModel {
     }
     return NodeRoomModel(
       deviceId: deviceId,
-      temperature: double.tryParse(parts[2]) ?? 0.0,
-      humidity: double.tryParse(parts[3]) ?? 0.0,
-      lightIntensity: double.tryParse(parts[4]) ?? 0.0,
-      co: double.tryParse(parts[5]) ?? 0.0,
-      co2: double.tryParse(parts[6]) ?? 0.0,
-      ammonia: double.tryParse(parts[7]) ?? 0.0,
-      time: DateTime.now(),
+      // temperature: double.tryParse(parts[2]) ?? 0.0,
+      // humidity: double.tryParse(parts[3]) ?? 0.0,
+      // lightIntensity: double.tryParse(parts[4]) ?? 0.0,
+      // co: double.tryParse(parts[5]) ?? 0.0,
+      // co2: double.tryParse(parts[6]) ?? 0.0,
+      // ammonia: double.tryParse(parts[7]) ?? 0.0,
+      // time: DateTime.now(),
       version: version,
     );
   }
@@ -51,15 +51,15 @@ class NodeRoomModel {
   factory NodeRoomModel.fromMap(Map<String, dynamic> map) {
     return NodeRoomModel(
       deviceId: map['device_id'],
-      temperature: (map['temperature'] ?? 0.0).toDouble(),
-      humidity: (map['humidity'] ?? 0.0).toDouble(),
-      lightIntensity: (map['light_intensity'] ?? 0.0).toDouble(),
-      co: (map['co'] ?? 0.0).toDouble(),
-      co2: (map['co2'] ?? 0.0).toDouble(),
-      ammonia: (map['ammonia'] ?? 0.0).toDouble(),
-      time: map['time'] != null
-          ? DateTime.tryParse(map['time'].toString())
-          : null,
+      // temperature: (map['temperature'] ?? 0.0).toDouble(),
+      // humidity: (map['humidity'] ?? 0.0).toDouble(),
+      // lightIntensity: (map['light_intensity'] ?? 0.0).toDouble(),
+      // co: (map['co'] ?? 0.0).toDouble(),
+      // co2: (map['co2'] ?? 0.0).toDouble(),
+      // ammonia: (map['ammonia'] ?? 0.0).toDouble(),
+      // time: map['time'] != null
+      //     ? DateTime.tryParse(map['time'].toString())
+      //     : null,
       version: map['version'] ?? '2.0',
     );
   }
@@ -67,13 +67,13 @@ class NodeRoomModel {
   Map<String, dynamic> toMap() {
     return {
       'device_id': deviceId,
-      'temperature': temperature,
-      'humidity': humidity,
-      'light_intensity': lightIntensity,
-      'co': co,
-      'co2': co2,
-      'ammonia': ammonia,
-      'time': time?.toIso8601String(),
+      // 'temperature': temperature,
+      // 'humidity': humidity,
+      // 'light_intensity': lightIntensity,
+      // 'co': co,
+      // 'co2': co2,
+      // 'ammonia': ammonia,
+      // 'time': time?.toIso8601String(),
       'version': version,
     };
   }

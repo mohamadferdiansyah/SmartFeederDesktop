@@ -1897,7 +1897,7 @@ class _DetailRuanganView extends StatelessWidget {
                   const maxData = 5;
 
                   final displayData = data.length > maxData
-                      ? data.sublist(data.length - maxData)
+                      ? data.sublist(0, maxData)
                       : data;
 
                   final reversedData = displayData.reversed.toList();
@@ -1949,7 +1949,7 @@ class _DetailRuanganView extends StatelessWidget {
                   );
                 }
 
-                final nodeRoom = controller.getSelectedNodeRoom(
+                final nodeRoom = controller.getSelectedNodeRoomDetail(
                   controller.selectedRoom.deviceSerial ?? '',
                 );
                 return CustomLingkunganLegend(
@@ -1981,7 +1981,7 @@ class _DetailRuanganView extends StatelessWidget {
                     ),
                     LingkunganLegendItem(
                       color: Color(0xFF7E57C2),
-                      label: "Amonia (NH₃)",
+                      label: "Amonia (ppm)",
                       value: nodeRoom?.ammonia.toStringAsFixed(1) ?? "-",
                     ),
                   ],
@@ -2138,7 +2138,7 @@ class _LingkunganChartTabSectionState extends State<LingkunganChartTabSection> {
       (
         "Amonia",
         widget.amoSpots,
-        "Amonia (NH₃)",
+        "Amonia (ppm)",
         "Waktu",
         const Color(0xFF7E57C2),
       ),

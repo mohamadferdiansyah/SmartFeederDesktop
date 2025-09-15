@@ -322,16 +322,9 @@ class HalterSerialService extends GetxService {
           // Jika sudah ada, ambil versi lama
           version = nodeRoomList[index].version;
         }
-        // Buat nodeRoom baru dengan versi yang benar
+        // Buat nodeRoom baru dengan versi yang benar (hanya deviceId & version)
         final nodeRoom = NodeRoomModel(
           deviceId: tempNode.deviceId,
-          temperature: tempNode.temperature,
-          humidity: tempNode.humidity,
-          lightIntensity: tempNode.lightIntensity,
-          co: tempNode.co,
-          co2: tempNode.co2,
-          ammonia: tempNode.ammonia,
-          time: tempNode.time,
           version: version,
         );
 
@@ -339,30 +332,26 @@ class HalterSerialService extends GetxService {
 
         // Update RxList dan DB
         if (index == -1) {
-          addNodeRoomDevice(nodeRoom);
+          await addNodeRoomDevice(nodeRoom);
         } else {
-          updateNodeRoomDevice(nodeRoom);
+          await updateNodeRoomDevice(nodeRoom);
         }
 
-        // Simpan ke detail/history
-        final detailModel = NodeRoomDetailModel.fromNodeRoom(nodeRoom);
+        // Simpan ke detail/history (data sensor diambil dari serial string)
+        final detailModel = NodeRoomDetailModel.fromSerial(
+          dataLine,
+          header: headerNodeRoom,
+        );
         await addNodeRoomDetail(detailModel);
 
+        // Logging, threshold, dsb bisa gunakan detailModel
         controller.checkAndLogNode(
-          nodeRoom.deviceId,
-          temperature: nodeRoom.temperature,
-          humidity: nodeRoom.humidity,
-          lightIntensity: nodeRoom.lightIntensity,
-          time: nodeRoom.time,
+          detailModel.deviceId,
+          temperature: detailModel.temperature,
+          humidity: detailModel.humidity,
+          lightIntensity: detailModel.lightIntensity,
+          time: detailModel.time,
         );
-
-        // rawData.add(
-        //   HalterRawDataModel(
-        //     rawId: rawData.length + 1,
-        //     data: dataLine,
-        //     time: DateTime.now(),
-        //   ),
-        // );
 
         await addRawData(
           HalterRawDataModel(data: dataLine, time: DateTime.now()),
@@ -1012,14 +1001,27 @@ class HalterSerialService extends GetxService {
         // return "SRIPB1223003,29.20,62.40,22.50,0.00,0.00,0.00,0.00,0.00,0.00,*";
       }
 
+      String makeDummyNodeRoomData(String deviceNum) {
+        // Format: SRIPB,1,30.30,63.70,2.50,1.1,1.1,1.1,*
+        final header = "SRIPB";
+        final id = 2;
+        final suhu = randDouble(25, 35); // Suhu
+        final kelembapan = randDouble(40, 80); // Kelembapan
+        final cahaya = randDouble(10, 100); // Cahaya
+        final co = randDouble(0, 50); // CO
+        final co2 = randDouble(400, 2000); // CO2
+        final ammonia = randDouble(0, 25); // Amonia
+        return "$header,${id},$suhu,$kelembapan,$cahaya,$co,$co2,$ammonia,*";
+      }
+
       final deviceIds = List.generate(2, (i) {
         final num = Random().nextInt(10) + 1; // 1..10
-        return '0${num.toString().padLeft(2, '0')}';
+        return num.toString();
       });
       for (final did in deviceIds) {
-        final dummyLine = makeDummyData(did);
-        _processBlockRoom("SRIPB,1,30.30,63.70,2.50,1.1,1.1,1.1,*");
-        _processBlock(dummyLine);
+        final dummyLine = makeDummyNodeRoomData(did);
+        _processBlockRoom(dummyLine);
+        // _processBlock(dummyLine); // Untuk SHIPB
       }
     });
   }

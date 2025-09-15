@@ -1,5 +1,3 @@
-import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
-
 class NodeRoomDetailModel {
   final String detailId;
   final String deviceId;
@@ -23,17 +21,31 @@ class NodeRoomDetailModel {
     required this.time,
   });
 
-  factory NodeRoomDetailModel.fromNodeRoom(NodeRoomModel node) {
+  // Buat dari serial string langsung, tidak dari NodeRoomModel
+  factory NodeRoomDetailModel.fromSerial(String line, {String? header}) {
+    String raw = line;
+    if (raw.endsWith('*')) {
+      raw = raw.substring(0, raw.length - 1);
+    }
+    final parts = raw.split(',');
+    if (parts.length < 8) throw FormatException('Not enough data for NodeRoomDetail');
+    final usedHeader = header ?? 'SRIPB';
+    String deviceId;
+    if (parts[0] == usedHeader && parts.length > 1) {
+      deviceId = '${parts[0]}${parts[1]}';
+    } else {
+      deviceId = parts[0];
+    }
     return NodeRoomDetailModel(
-      detailId: '${node.deviceId}_${node.time?.millisecondsSinceEpoch ?? DateTime.now().millisecondsSinceEpoch}',
-      deviceId: node.deviceId,
-      temperature: node.temperature,
-      humidity: node.humidity,
-      lightIntensity: node.lightIntensity,
-      co: node.co,
-      co2: node.co2,
-      ammonia: node.ammonia,
-      time: node.time ?? DateTime.now(),
+      detailId: '${deviceId}_${DateTime.now().millisecondsSinceEpoch}',
+      deviceId: deviceId,
+      temperature: double.tryParse(parts[2]) ?? 0.0,
+      humidity: double.tryParse(parts[3]) ?? 0.0,
+      lightIntensity: double.tryParse(parts[4]) ?? 0.0,
+      co: double.tryParse(parts[5]) ?? 0.0,
+      co2: double.tryParse(parts[6]) ?? 0.0,
+      ammonia: double.tryParse(parts[7]) ?? 0.0,
+      time: DateTime.now(),
     );
   }
 
