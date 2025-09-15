@@ -5,6 +5,7 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart'
 import 'package:collection/collection.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_log_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/horse_health_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/node_room_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/horse_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
@@ -52,6 +53,9 @@ class HalterDashboardController extends GetxController {
   RxList<HalterDeviceDetailModel> get halterDeviceDetailList =>
       dataController.detailHistory;
 
+  RxList<NodeRoomDetailModel> get nodeRoomDetailList =>
+      dataController.nodeRoomDetailHistory;
+
   RxList<NodeRoomModel> get nodeRoomList => serialService.nodeRoomList;
 
   RxList<HalterLogModel> get halterHorseLogList => dataController.halterLogList;
@@ -79,10 +83,10 @@ class HalterDashboardController extends GetxController {
         .toList();
   }
 
-  List<NodeRoomModel> getSelectedNodeRoomHistory() {
+  List<NodeRoomDetailModel> getSelectedNodeRoomHistory() {
     final selectedSerialId = selectedRoom.deviceSerial;
     // Filter history sesuai deviceId
-    return nodeRoomList
+    return nodeRoomDetailList
         .where((node) => node.deviceId == selectedSerialId)
         .toList();
   }

@@ -722,7 +722,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Device Halter',
+              'IoT Node Halter',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 8),
@@ -730,7 +730,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
               value: selectedDeviceId.value,
               isExpanded: true,
               decoration: const InputDecoration(
-                labelText: "Pilih Device Halter",
+                labelText: "Pilih IoT Node Halter",
               ),
               items: halterDeviceList
                   .map(
@@ -1144,7 +1144,6 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
   //     ),
   //   );
   // }
-
 }
 
 

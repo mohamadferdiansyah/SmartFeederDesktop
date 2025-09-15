@@ -6,6 +6,9 @@ class NodeRoomDetailModel {
   final double temperature;
   final double humidity;
   final double lightIntensity;
+  final double co;
+  final double co2;
+  final double ammonia;
   final DateTime time;
 
   NodeRoomDetailModel({
@@ -14,6 +17,9 @@ class NodeRoomDetailModel {
     required this.temperature,
     required this.humidity,
     required this.lightIntensity,
+    required this.co,
+    required this.co2,
+    required this.ammonia,
     required this.time,
   });
 
@@ -24,6 +30,9 @@ class NodeRoomDetailModel {
       temperature: node.temperature,
       humidity: node.humidity,
       lightIntensity: node.lightIntensity,
+      co: node.co,
+      co2: node.co2,
+      ammonia: node.ammonia,
       time: node.time ?? DateTime.now(),
     );
   }
@@ -35,6 +44,9 @@ class NodeRoomDetailModel {
       temperature: (map['temperature'] ?? 0.0).toDouble(),
       humidity: (map['humidity'] ?? 0.0).toDouble(),
       lightIntensity: (map['light_intensity'] ?? 0.0).toDouble(),
+      co: (map['co'] ?? 0.0).toDouble(),
+      co2: (map['co2'] ?? 0.0).toDouble(),
+      ammonia: (map['ammonia'] ?? 0.0).toDouble(),
       time: DateTime.tryParse(map['time'].toString()) ?? DateTime.now(),
     );
   }
@@ -46,6 +58,9 @@ class NodeRoomDetailModel {
       'temperature': temperature,
       'humidity': humidity,
       'light_intensity': lightIntensity,
+      'co': co,
+      'co2': co2,
+      'ammonia': ammonia,
       'time': time.toIso8601String(),
     };
   }

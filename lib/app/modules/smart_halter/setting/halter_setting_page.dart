@@ -47,8 +47,8 @@ class HalterSettingPageState extends State<HalterSettingPage> {
   final TextEditingController _nodeRoomHeaderController =
       TextEditingController();
 
-  String? _selectedLoraPort;
-  bool _loraConnected = false;
+  // String? settingController.selectedLoraPort.value;
+  // bool settingController.loraConnected.value = false;
   String _selectedHeaderType = 'halter'; // 'halter' atau 'kandang'
   String? _selectedJenisPengiriman;
   bool _modeReal = true; // true = mode real aktif, false = testing
@@ -56,10 +56,12 @@ class HalterSettingPageState extends State<HalterSettingPage> {
   @override
   void initState() {
     super.initState();
-    _selectedLoraPort = settingController.setting.value.loraPort.isEmpty
+    settingController.selectedLoraPort.value =
+        settingController.setting.value.loraPort.isEmpty
         ? null
         : settingController.setting.value.loraPort;
-    _loraConnected = settingController.setting.value.loraPort.isNotEmpty;
+    settingController.loraConnected.value =
+        settingController.setting.value.loraPort.isNotEmpty;
     _selectedJenisPengiriman = settingController.setting.value.type.isEmpty
         ? null
         : settingController.setting.value.type;
@@ -298,115 +300,94 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                             headerHeight: 50,
                             titleFontSize: 18,
                             width: MediaQuery.of(context).size.width * 0.24,
-                            height: MediaQuery.of(context).size.height * 0.24,
+                            height:
+                                MediaQuery.of(context).size.height *
+                                0.28, // tambah tinggi sedikit
                             borderRadius: 16,
                             scrollable: false,
-                            content: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                const Text('Port'),
-                                const SizedBox(height: 4),
-                                DropdownButtonFormField<String>(
-                                  value:
-                                      _selectedLoraPort != null &&
-                                          settingController.availablePorts
-                                              .toSet()
-                                              .contains(_selectedLoraPort)
-                                      ? _selectedLoraPort
-                                      : null,
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    isDense: true,
+                            content: Obx(() {
+                              final loraConnected =
+                                  settingController.loraConnected.value;
+                              final selectedPort =
+                                  settingController.selectedLoraPort.value;
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  const Text('Port'),
+                                  const SizedBox(height: 4),
+                                  DropdownButtonFormField<String>(
+                                    value: selectedPort,
+                                    decoration: const InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      isDense: true,
+                                    ),
+                                    items: settingController.availablePorts
+                                        .toSet()
+                                        .map(
+                                          (port) => DropdownMenuItem(
+                                            value: port,
+                                            child: Text(port),
+                                          ),
+                                        )
+                                        .toList(),
+                                    onChanged: loraConnected
+                                        ? null // Disable dropdown jika sedang terhubung
+                                        : (val) {
+                                            settingController
+                                                    .selectedLoraPort
+                                                    .value =
+                                                val;
+                                            settingController
+                                                    .loraConnected
+                                                    .value =
+                                                false;
+                                          },
+                                    hint: const Text('Pilih Port'),
+                                    disabledHint: Text(
+                                      selectedPort ?? 'Pilih Port',
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
                                   ),
-                                  items: settingController.availablePorts
-                                      .toSet()
-                                      .map(
-                                        (port) => DropdownMenuItem(
-                                          value: port,
-                                          child: Text(port),
-                                        ),
-                                      )
-                                      .toList(),
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _selectedLoraPort = val;
-                                      _loraConnected = false;
-                                      settingController.updateLora(
-                                        port: _selectedLoraPort!,
-                                      );
-                                    });
-                                  },
-                                  hint: const Text('Pilih Port'),
-                                ),
-                                const SizedBox(height: 12),
-                                Row(
-                                  children: [
-                                    // Tombol Connect/Disconnect
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              _selectedLoraPort == null
-                                              ? Colors.grey.shade400
-                                              : _loraConnected
-                                              ? Colors.red
-                                              : Colors.green,
-                                          foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                settingController
+                                                        .selectedLoraPort
+                                                        .value ==
+                                                    null
+                                                ? Colors.grey.shade400
+                                                : settingController
+                                                      .loraConnected
+                                                      .value
+                                                ? Colors.red
+                                                : Colors.green,
+                                            foregroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
                                           ),
-                                        ),
-                                        onPressed: _loraConnected
-                                            ? () {
-                                                setState(() {
-                                                  _loraConnected = false;
-                                                  settingController
-                                                      .disconnectSerial();
-                                                  toastification.show(
-                                                    context: context,
-                                                    title: const Text(
-                                                      'Koneksi Lora Terputus',
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    type: ToastificationType
-                                                        .error,
-                                                    description: const Text(
-                                                      'Lora telah terputus.',
-                                                    ),
-                                                    boxShadow: const [
-                                                      BoxShadow(
-                                                        color: Colors.black26,
-                                                        blurRadius: 8,
-                                                        offset: Offset(0, 2),
-                                                      ),
-                                                    ],
-                                                    alignment:
-                                                        Alignment.topCenter,
-                                                    autoCloseDuration:
-                                                        const Duration(
-                                                          seconds: 2,
-                                                        ),
-                                                  );
-                                                });
-                                              }
-                                            : () {
-                                                setState(() {
-                                                  _loraConnected =
-                                                      !_loraConnected;
-                                                  settingController.updateLora(
-                                                    port: _selectedLoraPort!,
-                                                  );
-                                                  if (_loraConnected) {
+                                          onPressed: loraConnected
+                                              ? () {
+                                                  setState(() {
+                                                    settingController
+                                                            .loraConnected
+                                                            .value =
+                                                        false;
+                                                    settingController
+                                                            .selectedLoraPort
+                                                            .value =
+                                                        null;
+                                                    settingController
+                                                        .disconnectSerial();
                                                     toastification.show(
                                                       context: context,
                                                       title: const Text(
-                                                        'Koneksi Lora Berhasil',
+                                                        'Koneksi Lora Terputus',
                                                         style: TextStyle(
                                                           fontSize: 16,
                                                           fontWeight:
@@ -414,9 +395,9 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                                         ),
                                                       ),
                                                       type: ToastificationType
-                                                          .success,
-                                                      description: Text(
-                                                        'Port: $_selectedLoraPort',
+                                                          .error,
+                                                      description: const Text(
+                                                        'Lora telah terputus.',
                                                       ),
                                                       boxShadow: const [
                                                         BoxShadow(
@@ -432,43 +413,137 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                                             seconds: 2,
                                                           ),
                                                     );
-                                                  }
-                                                });
-                                              },
-                                        child: Text(
-                                          _loraConnected
-                                              ? 'Putuskan'
-                                              : 'Hubungkan',
+                                                  });
+                                                }
+                                              : () {
+                                                  setState(() {
+                                                    settingController
+                                                            .loraConnected
+                                                            .value =
+                                                        true;
+                                                    settingController.updateLora(
+                                                      port: settingController
+                                                          .selectedLoraPort
+                                                          .value!,
+                                                      context:
+                                                          context, // Pass context for toast
+                                                    );
+                                                    if (loraConnected) {
+                                                      toastification.show(
+                                                        context: context,
+                                                        title: const Text(
+                                                          'Koneksi Lora Berhasil',
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                        type: ToastificationType
+                                                            .success,
+                                                        description: Text(
+                                                          'Port: $settingController.selectedLoraPort.value',
+                                                        ),
+                                                        boxShadow: const [
+                                                          BoxShadow(
+                                                            color:
+                                                                Colors.black26,
+                                                            blurRadius: 8,
+                                                            offset: Offset(
+                                                              0,
+                                                              2,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                        alignment:
+                                                            Alignment.topCenter,
+                                                        autoCloseDuration:
+                                                            const Duration(
+                                                              seconds: 2,
+                                                            ),
+                                                      );
+                                                    }
+                                                  });
+                                                },
+                                          child: Text(
+                                            loraConnected
+                                                ? 'Putuskan'
+                                                : 'Hubungkan',
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                // Status Bar
-                                LinearProgressIndicator(
-                                  value: 1,
-                                  minHeight: 8,
-                                  color: _loraConnected
-                                      ? Colors.green
-                                      : Colors.red,
-                                  backgroundColor: Colors.grey[300],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  _loraConnected
-                                      ? 'Terhubung'
-                                      : 'Tidak Terhubung',
-                                  style: TextStyle(
-                                    color: _loraConnected
+                                      SizedBox(width: 8),
+                                      // Tombol cek port
+                                      SizedBox(
+                                        height: 38,
+                                        child: ElevatedButton.icon(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                Colors.blue.shade700,
+                                            foregroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                            ),
+                                          ),
+                                          icon: Icon(Icons.refresh, size: 18),
+                                          label: Text(
+                                            'Cek Port',
+                                            style: TextStyle(fontSize: 13),
+                                          ),
+                                          onPressed: () async {
+                                            await settingController
+                                                .refreshAvailablePorts();
+                                            setState(() {});
+                                            toastification.show(
+                                              context: context,
+                                              title: const Text(
+                                                'Port Diperbarui!',
+                                              ),
+                                              type: ToastificationType.info,
+                                              description: const Text(
+                                                'Daftar port sudah di-refresh.',
+                                              ),
+                                              alignment: Alignment.topCenter,
+                                              autoCloseDuration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  // Status Bar
+                                  LinearProgressIndicator(
+                                    value: 1,
+                                    minHeight: 8,
+                                    color: settingController.loraConnected.value
                                         ? Colors.green
                                         : Colors.red,
-                                    fontWeight: FontWeight.bold,
+                                    backgroundColor: Colors.grey[300],
                                   ),
-                                  textAlign: TextAlign.right,
-                                ),
-                              ],
-                            ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    settingController.loraConnected.value
+                                        ? 'Terhubung'
+                                        : 'Tidak Terhubung',
+                                    style: TextStyle(
+                                      color:
+                                          settingController.loraConnected.value
+                                          ? Colors.green
+                                          : Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.right,
+                                  ),
+                                ],
+                              );
+                            }),
                           ),
                           CustomCard(
                             title: 'Pengiriman Data Halter',

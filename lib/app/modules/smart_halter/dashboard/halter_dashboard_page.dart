@@ -1900,16 +1900,24 @@ class _DetailRuanganView extends StatelessWidget {
                       ? data.sublist(data.length - maxData)
                       : data;
 
+                  final reversedData = displayData.reversed.toList();
+
                   List<FlSpot> suhuSpots = [];
                   List<FlSpot> kelembapanSpots = [];
                   List<FlSpot> cahayaSpots = [];
+                  List<FlSpot> coSpots = [];
+                  List<FlSpot> co2Spots = [];
+                  List<FlSpot> amoSpots = [];
                   List<String> timeLabels = [];
 
-                  for (int i = 0; i < displayData.length; i++) {
-                    final d = displayData[i];
+                  for (int i = 0; i < reversedData.length; i++) {
+                    final d = reversedData[i];
                     suhuSpots.add(FlSpot(i.toDouble(), d.temperature));
                     kelembapanSpots.add(FlSpot(i.toDouble(), d.humidity));
                     cahayaSpots.add(FlSpot(i.toDouble(), d.lightIntensity));
+                    coSpots.add(FlSpot(i.toDouble(), d.co));
+                    co2Spots.add(FlSpot(i.toDouble(), d.co2));
+                    amoSpots.add(FlSpot(i.toDouble(), d.ammonia));
                     final timeStr = d.time != null
                         ? d.time!.toIso8601String().split('T')[1].split('.')[0]
                         : '-';
@@ -1920,6 +1928,9 @@ class _DetailRuanganView extends StatelessWidget {
                     suhuSpots: suhuSpots,
                     kelembapanSpots: kelembapanSpots,
                     cahayaSpots: cahayaSpots,
+                    coSpots: coSpots,
+                    co2Spots: co2Spots,
+                    amoSpots: amoSpots,
                     timeLabels: timeLabels,
                   );
                 }),
@@ -1957,6 +1968,21 @@ class _DetailRuanganView extends StatelessWidget {
                       color: Color(0xFF2F3E53),
                       label: "Indeks Cahaya (Lux)",
                       value: nodeRoom?.lightIntensity.toStringAsFixed(1) ?? "-",
+                    ),
+                    LingkunganLegendItem(
+                      color: Color(0xFFFFA726),
+                      label: "CO (ppm)",
+                      value: nodeRoom?.co.toStringAsFixed(1) ?? "-",
+                    ),
+                    LingkunganLegendItem(
+                      color: Color(0xFF26A69A),
+                      label: "CO₂ (ppm)",
+                      value: nodeRoom?.co2.toStringAsFixed(1) ?? "-",
+                    ),
+                    LingkunganLegendItem(
+                      color: Color(0xFF7E57C2),
+                      label: "Amonia (NH₃)",
+                      value: nodeRoom?.ammonia.toStringAsFixed(1) ?? "-",
                     ),
                   ],
                 );
@@ -2065,6 +2091,9 @@ class LingkunganChartTabSection extends StatefulWidget {
   final List<FlSpot> suhuSpots;
   final List<FlSpot> kelembapanSpots;
   final List<FlSpot> cahayaSpots;
+  final List<FlSpot> coSpots;
+  final List<FlSpot> co2Spots;
+  final List<FlSpot> amoSpots;
   final List<String> timeLabels;
 
   const LingkunganChartTabSection({
@@ -2072,6 +2101,9 @@ class LingkunganChartTabSection extends StatefulWidget {
     required this.suhuSpots,
     required this.kelembapanSpots,
     required this.cahayaSpots,
+    required this.coSpots,
+    required this.co2Spots,
+    required this.amoSpots,
     required this.timeLabels,
   });
 
@@ -2100,6 +2132,15 @@ class _LingkunganChartTabSectionState extends State<LingkunganChartTabSection> {
         "Indeks Cahaya (Lux)",
         "Waktu",
         const Color(0xFF2F3E53),
+      ),
+      ("CO", widget.coSpots, "CO (ppm)", "Waktu", const Color(0xFFFFA726)),
+      ("CO₂", widget.co2Spots, "CO₂ (ppm)", "Waktu", const Color(0xFF26A69A)),
+      (
+        "Amonia",
+        widget.amoSpots,
+        "Amonia (NH₃)",
+        "Waktu",
+        const Color(0xFF7E57C2),
       ),
     ];
 

@@ -87,18 +87,24 @@ class DBHelper {
             temperature DOUBLE,
             humidity DOUBLE,
             light_intensity DOUBLE,
+            co DOUBLE,
+            co2 DOUBLE,
+            ammonia DOUBLE,
             time TEXT,
             version TEXT
           )
         ''');
 
-        await db.execute('''
+                await db.execute('''
           CREATE TABLE node_room_detail (
             detail_id TEXT PRIMARY KEY,
             device_id TEXT,
             temperature DOUBLE,
             humidity DOUBLE,
             light_intensity DOUBLE,
+            co DOUBLE,
+            co2 DOUBLE,
+            ammonia DOUBLE,
             time TEXT
           )
         ''');

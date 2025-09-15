@@ -24,6 +24,12 @@ class DataRuleHalter {
       humidityMax: map['humidityMax'],
       lightIntensityMin: map['lightIntensityMin'],
       lightIntensityMax: map['lightIntensityMax'],
+      coMin: map['coMin'],
+      coMax: map['coMax'],
+      co2Min: map['co2Min'],
+      co2Max: map['co2Max'],
+      ammoniaMin: map['ammoniaMin'],
+      ammoniaMax: map['ammoniaMax'],
       ruleId: 1,
     );
   }
@@ -44,6 +50,12 @@ class DataRuleHalter {
       'humidityMax': setting.humidityMax,
       'lightIntensityMin': setting.lightIntensityMin,
       'lightIntensityMax': setting.lightIntensityMax,
+      'coMin': setting.coMin,
+      'coMax': setting.coMax,
+      'co2Min': setting.co2Min,
+      'co2Max': setting.co2Max,
+      'ammoniaMin': setting.ammoniaMin,
+      'ammoniaMax': setting.ammoniaMax,
     });
   }
 }

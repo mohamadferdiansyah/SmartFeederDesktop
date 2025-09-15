@@ -48,10 +48,7 @@ class _HalterNodePageState extends State<HalterNodePage> {
     if (_searchText.isEmpty) return nodes;
     return nodes.where((d) {
       return d.deviceId.toLowerCase().contains(_searchText) ||
-          d.temperature.toString().contains(_searchText) ||
-          d.humidity.toString().contains(_searchText) ||
-          d.humidity.toString().contains(_searchText) ||
-          d.lightIntensity.toString().contains(_searchText);
+          d.version.contains(_searchText);
     }).toList();
   }
 
@@ -161,6 +158,9 @@ class _HalterNodePageState extends State<HalterNodePage> {
           temperature: node?.temperature ?? 0,
           humidity: node?.humidity ?? 0,
           lightIntensity: node?.lightIntensity ?? 0,
+          co: node?.co ?? 0,
+          co2: node?.co2 ?? 0,
+          ammonia: node?.ammonia ?? 0,
           time: node?.time,
           version: versionCtrl.text,
         );
@@ -261,6 +261,9 @@ class _HalterNodePageState extends State<HalterNodePage> {
           temperature: node.temperature,
           humidity: node.humidity,
           lightIntensity: node.lightIntensity,
+          co: node.co,
+          co2: node.co2,
+          ammonia: node.ammonia,
           time: node.time,
           version: versionCtrl.text,
         );
@@ -538,12 +541,15 @@ class _HalterNodePageState extends State<HalterNodePage> {
 
                         final tableWidth =
                             MediaQuery.of(context).size.width - 72.0;
-                        final idW = tableWidth * 0.10;
+                        final idW = tableWidth * 0.2;
                         final tempW = tableWidth * 0.08;
                         final humW = tableWidth * 0.08;
                         final lightW = tableWidth * 0.08;
-                        final actionW = tableWidth * 0.32;
-                        final versionW = tableWidth * 0.09;
+                        final actionW = tableWidth * 0.38;
+                        final versionW = tableWidth * 0.2;
+                        final coW = tableWidth * 0.08;
+                        final co2W = tableWidth * 0.08;
+                        final amoW = tableWidth * 0.08;
 
                         final dataSource = NodeRoomDataTableSource(
                           context: context,
@@ -712,63 +718,120 @@ class _HalterNodePageState extends State<HalterNodePage> {
                                         ),
                                       ),
                                     ),
-                                    DataColumn(
-                                      label: SizedBox(
-                                        width: tempW,
-                                        child: const Center(
-                                          child: Text(
-                                            'Suhu (°C)',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      onSort: (columnIndex, ascending) {
-                                        setState(() {
-                                          _sortColumnIndex = columnIndex;
-                                          _sortAscending = ascending;
-                                        });
-                                      },
-                                    ),
-                                    DataColumn(
-                                      label: SizedBox(
-                                        width: humW,
-                                        child: const Center(
-                                          child: Text(
-                                            'Kelembaban (%)',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      onSort: (columnIndex, ascending) {
-                                        setState(() {
-                                          _sortColumnIndex = columnIndex;
-                                          _sortAscending = ascending;
-                                        });
-                                      },
-                                    ),
-                                    DataColumn(
-                                      label: SizedBox(
-                                        width: lightW,
-                                        child: const Center(
-                                          child: Text(
-                                            'Cahaya (Lux)',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      onSort: (columnIndex, ascending) {
-                                        setState(() {
-                                          _sortColumnIndex = columnIndex;
-                                          _sortAscending = ascending;
-                                        });
-                                      },
-                                    ),
+                                    // DataColumn(
+                                    //   label: SizedBox(
+                                    //     width: tempW,
+                                    //     child: const Center(
+                                    //       child: Text(
+                                    //         'Suhu (°C)',
+                                    //         style: TextStyle(
+                                    //           fontWeight: FontWeight.bold,
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    //   onSort: (columnIndex, ascending) {
+                                    //     setState(() {
+                                    //       _sortColumnIndex = columnIndex;
+                                    //       _sortAscending = ascending;
+                                    //     });
+                                    //   },
+                                    // ),
+                                    // DataColumn(
+                                    //   label: SizedBox(
+                                    //     width: humW,
+                                    //     child: const Center(
+                                    //       child: Text(
+                                    //         'Kelembaban (%)',
+                                    //         style: TextStyle(
+                                    //           fontWeight: FontWeight.bold,
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    //   onSort: (columnIndex, ascending) {
+                                    //     setState(() {
+                                    //       _sortColumnIndex = columnIndex;
+                                    //       _sortAscending = ascending;
+                                    //     });
+                                    //   },
+                                    // ),
+                                    // DataColumn(
+                                    //   label: SizedBox(
+                                    //     width: lightW,
+                                    //     child: const Center(
+                                    //       child: Text(
+                                    //         'Cahaya (Lux)',
+                                    //         style: TextStyle(
+                                    //           fontWeight: FontWeight.bold,
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    //   onSort: (columnIndex, ascending) {
+                                    //     setState(() {
+                                    //       _sortColumnIndex = columnIndex;
+                                    //       _sortAscending = ascending;
+                                    //     });
+                                    //   },
+                                    // ),
+                                    // DataColumn(
+                                    //   label: SizedBox(
+                                    //     width: coW,
+                                    //     child: const Center(
+                                    //       child: Text(
+                                    //         'CO (ppm)',
+                                    //         style: TextStyle(
+                                    //           fontWeight: FontWeight.bold,
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    //   onSort: (columnIndex, ascending) {
+                                    //     setState(() {
+                                    //       _sortColumnIndex = columnIndex;
+                                    //       _sortAscending = ascending;
+                                    //     });
+                                    //   },
+                                    // ),
+                                    // DataColumn(
+                                    //   label: SizedBox(
+                                    //     width: co2W,
+                                    //     child: const Center(
+                                    //       child: Text(
+                                    //         'CO₂ (ppm)',
+                                    //         style: TextStyle(
+                                    //           fontWeight: FontWeight.bold,
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    //   onSort: (columnIndex, ascending) {
+                                    //     setState(() {
+                                    //       _sortColumnIndex = columnIndex;
+                                    //       _sortAscending = ascending;
+                                    //     });
+                                    //   },
+                                    // ),
+                                    // DataColumn(
+                                    //   label: SizedBox(
+                                    //     width: amoW,
+                                    //     child: const Center(
+                                    //       child: Text(
+                                    //         'Amonia (NH₃)',
+                                    //         style: TextStyle(
+                                    //           fontWeight: FontWeight.bold,
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    //   onSort: (columnIndex, ascending) {
+                                    //     setState(() {
+                                    //       _sortColumnIndex = columnIndex;
+                                    //       _sortAscending = ascending;
+                                    //     });
+                                    //   },
+                                    // ),
                                     DataColumn(
                                       label: SizedBox(
                                         width: actionW,
@@ -838,9 +901,12 @@ class NodeRoomDataTableSource extends DataTableSource {
       cells: [
         DataCell(Center(child: Text(node.deviceId))),
         DataCell(SizedBox(child: Center(child: Text(node.version)))),
-        DataCell(Center(child: Text(node.temperature.toStringAsFixed(2)))),
-        DataCell(Center(child: Text(node.humidity.toStringAsFixed(2)))),
-        DataCell(Center(child: Text(node.lightIntensity.toStringAsFixed(2)))),
+        // DataCell(Center(child: Text(node.temperature.toStringAsFixed(2)))),
+        // DataCell(Center(child: Text(node.humidity.toStringAsFixed(2)))),
+        // DataCell(Center(child: Text(node.lightIntensity.toStringAsFixed(2)))),
+        // DataCell(Center(child: Text(node.co.toStringAsFixed(2)))),
+        // DataCell(Center(child: Text(node.co2.toStringAsFixed(2)))),
+        // DataCell(Center(child: Text(node.ammonia.toStringAsFixed(2)))),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -1292,12 +1358,15 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                 return LayoutBuilder(
                   builder: (context, constraints) {
                     final tableWidth = constraints.maxWidth;
-                    final noW = tableWidth * 0.05;
-                    final timeW = tableWidth * 0.17;
-                    final devIdW = tableWidth * 0.17;
-                    final tempW = tableWidth * 0.18;
-                    final humidityW = tableWidth * 0.18;
-                    final lightW = tableWidth * 0.18;
+                    final noW = tableWidth * 0.06;
+                    final timeW = tableWidth * 0.12;
+                    final devIdW = tableWidth * 0.12;
+                    final tempW = tableWidth * 0.1;
+                    final humidityW = tableWidth * 0.1;
+                    final lightW = tableWidth * 0.1;
+                    final coW = tableWidth * 0.1;
+                    final co2W = tableWidth * 0.1;
+                    final amoW = tableWidth * 0.1;
 
                     List<NodeRoomDetailModel> sortedData = List.from(
                       filteredData,
@@ -1336,6 +1405,27 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                           _sort<double>(
                             sortedData,
                             (d) => d.lightIntensity,
+                            _sortAscending,
+                          );
+                          break;
+                        case 5:
+                          _sort<double>(
+                            sortedData,
+                            (d) => d.co,
+                            _sortAscending,
+                          );
+                          break;
+                        case 6:
+                          _sort<double>(
+                            sortedData,
+                            (d) => d.co2,
+                            _sortAscending,
+                          );
+                          break;
+                        case 7:
+                          _sort<double>(
+                            sortedData,
+                            (d) => d.ammonia,
                             _sortAscending,
                           );
                           break;
@@ -1434,6 +1524,42 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                               });
                             },
                           ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: lightW,
+                              child: const Center(child: Text("CO (ppm)")),
+                            ),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _sortColumnIndex = columnIndex;
+                                _sortAscending = ascending;
+                              });
+                            },
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: lightW,
+                              child: const Center(child: Text("CO₂ (ppm)")),
+                            ),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _sortColumnIndex = columnIndex;
+                                _sortAscending = ascending;
+                              });
+                            },
+                          ),
+                          DataColumn(
+                            label: SizedBox(
+                              width: lightW,
+                              child: const Center(child: Text("Amonia (NH₃)")),
+                            ),
+                            onSort: (columnIndex, ascending) {
+                              setState(() {
+                                _sortColumnIndex = columnIndex;
+                                _sortAscending = ascending;
+                              });
+                            },
+                          ),
                         ],
                         source: NodeRoomDetailDataTableSource(
                           sortedData,
@@ -1443,6 +1569,9 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                           tempW,
                           humidityW,
                           lightW,
+                          coW,
+                          co2W,
+                          amoW,
                         ),
                         rowsPerPage: _rowsPerPage,
                         availableRowsPerPage: const [5, 10, 20, 50, 100],
@@ -1484,7 +1613,7 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
 
 class NodeRoomDetailDataTableSource extends DataTableSource {
   final List<NodeRoomDetailModel> data;
-  final double noW, timeW, devIdW, tempW, humidityW, lightW;
+  final double noW, timeW, devIdW, tempW, humidityW, lightW, coW, co2W, amoW;
 
   NodeRoomDetailDataTableSource(
     this.data,
@@ -1494,6 +1623,9 @@ class NodeRoomDetailDataTableSource extends DataTableSource {
     this.tempW,
     this.humidityW,
     this.lightW,
+    this.coW,
+    this.co2W,
+    this.amoW,
   );
 
   @override
@@ -1542,6 +1674,24 @@ class NodeRoomDetailDataTableSource extends DataTableSource {
           SizedBox(
             width: lightW,
             child: Center(child: Text(d.lightIntensity.toStringAsFixed(2))),
+          ),
+        ),
+        DataCell(
+          SizedBox(
+            width: lightW,
+            child: Center(child: Text(d.co.toStringAsFixed(2))),
+          ),
+        ),
+        DataCell(
+          SizedBox(
+            width: lightW,
+            child: Center(child: Text(d.co2.toStringAsFixed(2))),
+          ),
+        ),
+        DataCell(
+          SizedBox(
+            width: lightW,
+            child: Center(child: Text(d.ammonia.toStringAsFixed(2))),
           ),
         ),
       ],

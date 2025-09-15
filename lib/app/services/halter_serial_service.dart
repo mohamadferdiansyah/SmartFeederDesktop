@@ -268,9 +268,21 @@ class HalterSerialService extends GetxService {
           // Jika ada RSSI/SNR, bisa tambahkan parsing di sini jika perlu
         }
       },
-      onError: (err) => print('Serial error: $err'),
+      onError: (err) {
+        someSerialErrorHandlerMethod(err);
+      },
       onDone: () => print('Serial done!'),
     );
+  }
+
+  void someSerialErrorHandlerMethod(dynamic err) {
+    print('Serial error: $err');
+    closeSerial();
+    print('LORA TERCABUT');
+    // Update ke controller biar UI ikut berubah
+    final settingController = Get.find<HalterSettingController>();
+    settingController.loraConnected.value = false;
+    settingController.selectedLoraPort.value = null;
   }
 
   void setTestingMode(bool value) {
@@ -316,9 +328,13 @@ class HalterSerialService extends GetxService {
           temperature: tempNode.temperature,
           humidity: tempNode.humidity,
           lightIntensity: tempNode.lightIntensity,
+          co: tempNode.co,
+          co2: tempNode.co2,
+          ammonia: tempNode.ammonia,
           time: tempNode.time,
           version: version,
         );
+
         latestNodeRoomData.value = nodeRoom;
 
         // Update RxList dan DB
@@ -815,10 +831,16 @@ class HalterSerialService extends GetxService {
 
   void closeSerial() {
     print('Closing serial...');
-    reader?.close();
-    port?.close();
-    reader = null;
-    port = null;
+    try {
+      reader?.close();
+      reader = null;
+      if (port != null && port!.isOpen) {
+        port!.close();
+      }
+      port = null;
+    } catch (e) {
+      print('Error while closing serial: $e');
+    }
     _blockBuffer = "";
     _inBlock = false;
     _serialBuffer = "";
@@ -826,6 +848,12 @@ class HalterSerialService extends GetxService {
       timer.cancel();
     }
     _deviceTimeoutTimers.clear();
+  }
+
+  Future<void> reconnectSerial(String portName, int baudRate) async {
+    closeSerial();
+    await Future.delayed(Duration(milliseconds: 800)); // delay before reconnect
+    initSerial(portName, baudRate);
   }
 
   void sendToSerial(String message) {
@@ -990,7 +1018,7 @@ class HalterSerialService extends GetxService {
       });
       for (final did in deviceIds) {
         final dummyLine = makeDummyData(did);
-        _processBlockRoom("SRIPB,2,19.40,29.90,0.00,*");
+        _processBlockRoom("SRIPB,1,30.30,63.70,2.50,1.1,1.1,1.1,*");
         _processBlock(dummyLine);
       }
     });

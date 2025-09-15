@@ -49,6 +49,21 @@ class DataSensorThreshold {
             minValue: 15,
             maxValue: 100,
           ),
+          HalterSensorThresholdModel(
+            sensorName: 'co',
+            minValue: 0,
+            maxValue: 50,
+          ),
+          HalterSensorThresholdModel(
+            sensorName: 'co2',
+            minValue: 0,
+            maxValue: 2000,
+          ),
+          HalterSensorThresholdModel(
+            sensorName: 'ammonia',
+            minValue: 0,
+            maxValue: 25,
+          ),
         ];
       }
       return [];
@@ -73,6 +88,16 @@ class DataSensorThreshold {
         return 92;
       case 'respiratoryRate':
         return 10;
+      case 'humidity':
+        return 35;
+      case 'lightIntensity':
+        return 15;
+      case 'co':
+        return 0;
+      case 'co2':
+        return 0;
+      case 'ammonia':
+        return 0;
       default:
         return 0;
     }
@@ -88,6 +113,16 @@ class DataSensorThreshold {
         return 100;
       case 'respiratoryRate':
         return 35;
+      case 'humidity':
+        return 90;
+      case 'lightIntensity':
+        return 100;
+      case 'co':
+        return 50;
+      case 'co2':
+        return 2000;
+      case 'ammonia':
+        return 25;
       default:
         return 999;
     }

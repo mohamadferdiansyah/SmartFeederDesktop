@@ -129,37 +129,40 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
   }
 
   void _showDetailModal(FeederDeviceModel device) {
-  final detail = _controller.feederDeviceDetailList.firstWhereOrNull(
-    (d) => d.deviceId == device.deviceId,
-  );
-  showCustomDialog(
-    context: context,
-    title: "Detail Device",
-    icon: Icons.info_outline,
-    iconColor: Colors.blueGrey,
-    showConfirmButton: false,
-    content: Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _detailRow("Device ID", device.deviceId),
-        const SizedBox(height: 8),
-        _detailRow("Status", detail?.status == 'on' ? 'Aktif' : 'Tidak Aktif'),
-        const SizedBox(height: 8),
-        _detailRow("Battery", "${detail?.batteryPercent ?? '-'}%"),
-        const SizedBox(height: 8),
-        _detailRow(
-          "Kandang",
-          (device.stableId != null && device.stableId!.isNotEmpty)
-              ? _controller.getRoomName(device.stableId!)
-              : "-",
-        ),
-        const SizedBox(height: 8),
-        _detailRow("Versi", device.version),
-      ],
-    ),
-  );
-}
+    final detail = _controller.feederDeviceDetailList.firstWhereOrNull(
+      (d) => d.deviceId == device.deviceId,
+    );
+    showCustomDialog(
+      context: context,
+      title: "Detail Device",
+      icon: Icons.info_outline,
+      iconColor: Colors.blueGrey,
+      showConfirmButton: false,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _detailRow("Device ID", device.deviceId),
+          const SizedBox(height: 8),
+          _detailRow(
+            "Status",
+            detail?.status == 'on' ? 'Aktif' : 'Tidak Aktif',
+          ),
+          const SizedBox(height: 8),
+          _detailRow("Battery", "${detail?.batteryPercent ?? '-'}%"),
+          const SizedBox(height: 8),
+          _detailRow(
+            "Kandang",
+            (device.stableId != null && device.stableId!.isNotEmpty)
+                ? _controller.getRoomName(device.stableId!)
+                : "-",
+          ),
+          const SizedBox(height: 8),
+          _detailRow("Versi", device.version),
+        ],
+      ),
+    );
+  }
 
   void _showEditModal(FeederDeviceModel device) {
     final idCtrl = TextEditingController(text: device.deviceId);
@@ -288,7 +291,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
   void _showLepasKandangModal(FeederDeviceModel device) {
     showCustomDialog(
       context: context,
-      title: "Konfirmasi Lepas Kandang",
+      title: "Konfirmasi Lepas Device",
       icon: Icons.link_off,
       iconColor: Colors.orange,
       message: (device.stableId != null && device.stableId!.isNotEmpty)
@@ -791,7 +794,7 @@ class FeederDeviceDataTableSource extends DataTableSource {
                       width: 170,
                       height: 38,
                       backgroundColor: Colors.orange,
-                      text: 'Lepas Kandang',
+                      text: 'Lepas Device',
                       icon: Icons.link_off,
                       borderRadius: 6,
                       fontSize: 14,

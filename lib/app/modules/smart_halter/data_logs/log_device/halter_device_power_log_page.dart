@@ -113,7 +113,7 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
                   child: Row(
                     children: [
                       Text(
-                        'Log Nyala/Mati Halter Device',
+                        'Log Device Power',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -173,7 +173,7 @@ class _HalterDevicePowerLogPageState extends State<HalterDevicePowerLogPage> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: CustomInput(
-                          label: "Cari Log Device",
+                          label: "Cari Log Device Power",
                           controller: _searchController,
                           icon: Icons.search,
                           hint: 'Masukkan Device ID atau Waktu',

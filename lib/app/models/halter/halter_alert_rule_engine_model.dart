@@ -14,6 +14,12 @@ class HalterAlertRuleEngineModel {
   final double humidityMax;
   final double lightIntensityMin;
   final double lightIntensityMax;
+  final double coMin;
+  final double coMax;
+  final double co2Min;
+  final double co2Max;
+  final double ammoniaMin;
+  final double ammoniaMax;
 
   HalterAlertRuleEngineModel({
     required this.ruleId,
@@ -31,6 +37,12 @@ class HalterAlertRuleEngineModel {
     required this.humidityMax,
     required this.lightIntensityMin,
     required this.lightIntensityMax,
+    required this.coMin,
+    required this.coMax,
+    required this.co2Min,
+    required this.co2Max,
+    required this.ammoniaMin,
+    required this.ammoniaMax,
   });
 
   factory HalterAlertRuleEngineModel.fromMap(Map<String, dynamic> map) =>
@@ -50,6 +62,12 @@ class HalterAlertRuleEngineModel {
         humidityMax: (map['humidity_max'] ?? 0).toDouble(),
         lightIntensityMin: (map['light_intensity_min'] ?? 0).toDouble(),
         lightIntensityMax: (map['light_intensity_max'] ?? 0).toDouble(),
+        coMin: (map['co_min'] ?? 0).toDouble(),
+        coMax: (map['co_max'] ?? 0).toDouble(),
+        co2Min: (map['co2_min'] ?? 0).toDouble(),
+        co2Max: (map['co2_max'] ?? 0).toDouble(),
+        ammoniaMin: (map['ammonia_min'] ?? 0).toDouble(),
+        ammoniaMax: (map['ammonia_max'] ?? 0).toDouble(),
       );
 
   Map<String, dynamic> toMap() => {
@@ -61,6 +79,19 @@ class HalterAlertRuleEngineModel {
     'heart_rate_max': heartRateMax,
     'heart_rate_min': heartRateMin,
     'respiratory_max': respiratoryMax,
+    'battery_min': batteryMin,
+    'temp_room_min': tempRoomMin,
+    'temp_room_max': tempRoomMax,
+    'humidity_min': humidityMin,
+    'humidity_max': humidityMax,
+    'light_intensity_min': lightIntensityMin,
+    'light_intensity_max': lightIntensityMax,
+    'co_min': coMin,
+    'co_max': coMax,
+    'co2_min': co2Min,
+    'co2_max': co2Max,
+    'ammonia_min': ammoniaMin,
+    'ammonia_max': ammoniaMax,
   };
 
   static HalterAlertRuleEngineModel defaultValue() {
@@ -80,6 +111,12 @@ class HalterAlertRuleEngineModel {
       humidityMax: 70.0,
       lightIntensityMin: 100.0,
       lightIntensityMax: 1000.0,
+      coMin: 0.0,
+      coMax: 50.0,
+      co2Min: 0.0,
+      co2Max: 2000.0,
+      ammoniaMin: 0.0,
+      ammoniaMax: 25.0,
     );
   }
 }

@@ -104,7 +104,10 @@ class HalterLayoutPage extends StatelessWidget {
       title: "Data Logs",
       icon: Icons.table_view_rounded,
       children: [
-        SidebarMenuItem(title: "Log Device", page: HalterDevicePowerLogPage()),
+        SidebarMenuItem(
+          title: "Log Device Power",
+          page: HalterDevicePowerLogPage(),
+        ),
         SidebarMenuItem(
           title: "Log Kalibrasi",
           page: HalterCalibrationLogPage(),

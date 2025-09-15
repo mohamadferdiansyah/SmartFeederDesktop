@@ -36,7 +36,13 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
       roomHumMinCtrl,
       roomHumMaxCtrl,
       roomLuxMinCtrl,
-      roomLuxMaxCtrl;
+      roomLuxMaxCtrl,
+      coMinCtrl,
+      coMaxCtrl,
+      co2MinCtrl,
+      co2MaxCtrl,
+      ammoniaMinCtrl,
+      ammoniaMaxCtrl;
 
   @override
   void initState() {
@@ -59,6 +65,16 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
     );
     roomLuxMaxCtrl = TextEditingController(
       text: s.lightIntensityMax.toString(),
+    );
+    coMinCtrl = TextEditingController(text: s.coMin?.toString() ?? "0");
+    coMaxCtrl = TextEditingController(text: s.coMax?.toString() ?? "50");
+    co2MinCtrl = TextEditingController(text: s.co2Min?.toString() ?? "0");
+    co2MaxCtrl = TextEditingController(text: s.co2Max?.toString() ?? "2000");
+    ammoniaMinCtrl = TextEditingController(
+      text: s.ammoniaMin?.toString() ?? "0",
+    );
+    ammoniaMaxCtrl = TextEditingController(
+      text: s.ammoniaMax?.toString() ?? "25",
     );
   }
 
@@ -210,6 +226,12 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             controller.setting.value.lightIntensityMin,
                         lightIntensityMax:
                             controller.setting.value.lightIntensityMax,
+                        coMin: controller.setting.value.coMin,
+                        coMax: controller.setting.value.coMax,
+                        co2Min: controller.setting.value.co2Min,
+                        co2Max: controller.setting.value.co2Max,
+                        ammoniaMin: controller.setting.value.ammoniaMin,
+                        ammoniaMax: controller.setting.value.ammoniaMax,
                       ),
                     );
                     showAppToast(
@@ -258,6 +280,12 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             controller.setting.value.lightIntensityMin,
                         lightIntensityMax:
                             controller.setting.value.lightIntensityMax,
+                        coMin: controller.setting.value.coMin,
+                        coMax: controller.setting.value.coMax,
+                        co2Min: controller.setting.value.co2Min,
+                        co2Max: controller.setting.value.co2Max,
+                        ammoniaMin: controller.setting.value.ammoniaMin,
+                        ammoniaMax: controller.setting.value.ammoniaMax,
                       ),
                     );
                     showAppToast(
@@ -306,6 +334,12 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             controller.setting.value.lightIntensityMin,
                         lightIntensityMax:
                             controller.setting.value.lightIntensityMax,
+                        coMin: controller.setting.value.coMin,
+                        coMax: controller.setting.value.coMax,
+                        co2Min: controller.setting.value.co2Min,
+                        co2Max: controller.setting.value.co2Max,
+                        ammoniaMin: controller.setting.value.ammoniaMin,
+                        ammoniaMax: controller.setting.value.ammoniaMax,
                       ),
                     );
                     showAppToast(
@@ -354,6 +388,12 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             controller.setting.value.lightIntensityMin,
                         lightIntensityMax:
                             controller.setting.value.lightIntensityMax,
+                        coMin: controller.setting.value.coMin,
+                        coMax: controller.setting.value.coMax,
+                        co2Min: controller.setting.value.co2Min,
+                        co2Max: controller.setting.value.co2Max,
+                        ammoniaMin: controller.setting.value.ammoniaMin,
+                        ammoniaMax: controller.setting.value.ammoniaMax,
                       ),
                     );
                     showAppToast(
@@ -424,6 +464,12 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             controller.setting.value.lightIntensityMin,
                         lightIntensityMax:
                             controller.setting.value.lightIntensityMax,
+                        coMin: controller.setting.value.coMin,
+                        coMax: controller.setting.value.coMax,
+                        co2Min: controller.setting.value.co2Min,
+                        co2Max: controller.setting.value.co2Max,
+                        ammoniaMin: controller.setting.value.ammoniaMin,
+                        ammoniaMax: controller.setting.value.ammoniaMax,
                       ),
                     );
                     showAppToast(
@@ -497,6 +543,12 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             controller.setting.value.lightIntensityMin,
                         lightIntensityMax:
                             controller.setting.value.lightIntensityMax,
+                        coMin: controller.setting.value.coMin,
+                        coMax: controller.setting.value.coMax,
+                        co2Min: controller.setting.value.co2Min,
+                        co2Max: controller.setting.value.co2Max,
+                        ammoniaMin: controller.setting.value.ammoniaMin,
+                        ammoniaMax: controller.setting.value.ammoniaMax,
                       ),
                     );
                     showAppToast(
@@ -547,6 +599,12 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             controller.setting.value.lightIntensityMin,
                         lightIntensityMax:
                             controller.setting.value.lightIntensityMax,
+                        coMin: controller.setting.value.coMin,
+                        coMax: controller.setting.value.coMax,
+                        co2Min: controller.setting.value.co2Min,
+                        co2Max: controller.setting.value.co2Max,
+                        ammoniaMin: controller.setting.value.ammoniaMin,
+                        ammoniaMax: controller.setting.value.ammoniaMax,
                       ),
                     );
                     showAppToast(
@@ -595,6 +653,12 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                             double.tryParse(roomLuxMinCtrl.text) ?? 0.0,
                         lightIntensityMax:
                             double.tryParse(roomLuxMaxCtrl.text) ?? 100.0,
+                        coMin: controller.setting.value.coMin,
+                        coMax: controller.setting.value.coMax,
+                        co2Min: controller.setting.value.co2Min,
+                        co2Max: controller.setting.value.co2Max,
+                        ammoniaMin: controller.setting.value.ammoniaMin,
+                        ammoniaMax: controller.setting.value.ammoniaMax,
                       ),
                     );
                     showAppToast(
@@ -606,6 +670,167 @@ class _HalterAlertRuleEnginePageState extends State<HalterAlertRuleEnginePage> {
                     );
                   },
                   Icons.light_mode_outlined,
+                ),
+                _buildSettingWithCard(
+                  'Pengaturan CO Ruangan (ppm)',
+                  'CO Minimal',
+                  'CO Maksimal',
+                  coMinCtrl,
+                  coMaxCtrl,
+                  () {
+                    if (coMaxCtrl.text.isEmpty || coMinCtrl.text.isEmpty) {
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.error,
+                        title: 'Data Tidak Lengkap!',
+                        description: 'Lengkapi Data CO.',
+                      );
+                      return;
+                    }
+                    controller.updateSetting(
+                      HalterAlertRuleEngineModel(
+                        ruleId: controller.setting.value.ruleId,
+                        tempMin: controller.setting.value.tempMin,
+                        tempMax: controller.setting.value.tempMax,
+                        spoMin: controller.setting.value.spoMin,
+                        spoMax: controller.setting.value.spoMax,
+                        heartRateMin: controller.setting.value.heartRateMin,
+                        heartRateMax: controller.setting.value.heartRateMax,
+                        respiratoryMax: controller.setting.value.respiratoryMax,
+                        batteryMin: controller.setting.value.batteryMin,
+                        tempRoomMin: controller.setting.value.tempRoomMin,
+                        tempRoomMax: controller.setting.value.tempRoomMax,
+                        humidityMin: controller.setting.value.humidityMin,
+                        humidityMax: controller.setting.value.humidityMax,
+                        lightIntensityMin:
+                            controller.setting.value.lightIntensityMin,
+                        lightIntensityMax:
+                            controller.setting.value.lightIntensityMax,
+                        coMin: double.tryParse(coMinCtrl.text) ?? 0.0,
+                        coMax: double.tryParse(coMaxCtrl.text) ?? 50.0,
+                        co2Min: controller.setting.value.co2Min,
+                        co2Max: controller.setting.value.co2Max,
+                        ammoniaMin: controller.setting.value.ammoniaMin,
+                        ammoniaMax: controller.setting.value.ammoniaMax,
+                      ),
+                    );
+                    showAppToast(
+                      context: context,
+                      type: ToastificationType.success,
+                      title: 'Berhasil Disimpan!',
+                      description:
+                          'CO Min: ${coMinCtrl.text} | CO Max: ${coMaxCtrl.text}.',
+                    );
+                  },
+                  Icons.cloud_outlined,
+                ),
+                _buildSettingWithCard(
+                  'Pengaturan CO₂ Ruangan (ppm)',
+                  'CO₂ Minimal',
+                  'CO₂ Maksimal',
+                  co2MinCtrl,
+                  co2MaxCtrl,
+                  () {
+                    if (co2MaxCtrl.text.isEmpty || co2MinCtrl.text.isEmpty) {
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.error,
+                        title: 'Data Tidak Lengkap!',
+                        description: 'Lengkapi Data CO₂.',
+                      );
+                      return;
+                    }
+                    controller.updateSetting(
+                      HalterAlertRuleEngineModel(
+                        ruleId: controller.setting.value.ruleId,
+                        tempMin: controller.setting.value.tempMin,
+                        tempMax: controller.setting.value.tempMax,
+                        spoMin: controller.setting.value.spoMin,
+                        spoMax: controller.setting.value.spoMax,
+                        heartRateMin: controller.setting.value.heartRateMin,
+                        heartRateMax: controller.setting.value.heartRateMax,
+                        respiratoryMax: controller.setting.value.respiratoryMax,
+                        batteryMin: controller.setting.value.batteryMin,
+                        tempRoomMin: controller.setting.value.tempRoomMin,
+                        tempRoomMax: controller.setting.value.tempRoomMax,
+                        humidityMin: controller.setting.value.humidityMin,
+                        humidityMax: controller.setting.value.humidityMax,
+                        lightIntensityMin:
+                            controller.setting.value.lightIntensityMin,
+                        lightIntensityMax:
+                            controller.setting.value.lightIntensityMax,
+                        coMin: controller.setting.value.coMin,
+                        coMax: controller.setting.value.coMax,
+                        co2Min: double.tryParse(co2MinCtrl.text) ?? 0.0,
+                        co2Max: double.tryParse(co2MaxCtrl.text) ?? 2000.0,
+                        ammoniaMin: controller.setting.value.ammoniaMin,
+                        ammoniaMax: controller.setting.value.ammoniaMax,
+                      ),
+                    );
+                    showAppToast(
+                      context: context,
+                      type: ToastificationType.success,
+                      title: 'Berhasil Disimpan!',
+                      description:
+                          'CO₂ Min: ${co2MinCtrl.text} | CO₂ Max: ${co2MaxCtrl.text}.',
+                    );
+                  },
+                  Icons.cloud_queue_outlined,
+                ),
+                _buildSettingWithCard(
+                  'Pengaturan Amonia Ruangan (ppm)',
+                  'Amonia Minimal',
+                  'Amonia Maksimal',
+                  ammoniaMinCtrl,
+                  ammoniaMaxCtrl,
+                  () {
+                    if (ammoniaMaxCtrl.text.isEmpty ||
+                        ammoniaMinCtrl.text.isEmpty) {
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.error,
+                        title: 'Data Tidak Lengkap!',
+                        description: 'Lengkapi Data Amonia.',
+                      );
+                      return;
+                    }
+                    controller.updateSetting(
+                      HalterAlertRuleEngineModel(
+                        ruleId: controller.setting.value.ruleId,
+                        tempMin: controller.setting.value.tempMin,
+                        tempMax: controller.setting.value.tempMax,
+                        spoMin: controller.setting.value.spoMin,
+                        spoMax: controller.setting.value.spoMax,
+                        heartRateMin: controller.setting.value.heartRateMin,
+                        heartRateMax: controller.setting.value.heartRateMax,
+                        respiratoryMax: controller.setting.value.respiratoryMax,
+                        batteryMin: controller.setting.value.batteryMin,
+                        tempRoomMin: controller.setting.value.tempRoomMin,
+                        tempRoomMax: controller.setting.value.tempRoomMax,
+                        humidityMin: controller.setting.value.humidityMin,
+                        humidityMax: controller.setting.value.humidityMax,
+                        lightIntensityMin:
+                            controller.setting.value.lightIntensityMin,
+                        lightIntensityMax:
+                            controller.setting.value.lightIntensityMax,
+                        coMin: controller.setting.value.coMin,
+                        coMax: controller.setting.value.coMax,
+                        co2Min: controller.setting.value.co2Min,
+                        co2Max: controller.setting.value.co2Max,
+                        ammoniaMin: double.tryParse(ammoniaMinCtrl.text) ?? 0.0,
+                        ammoniaMax:
+                            double.tryParse(ammoniaMaxCtrl.text) ?? 25.0,
+                      ),
+                    );
+                    showAppToast(
+                      context: context,
+                      type: ToastificationType.success,
+                      title: 'Berhasil Disimpan!',
+                      description:
+                          'Amonia Min: ${ammoniaMinCtrl.text} | Amonia Max: ${ammoniaMaxCtrl.text}.',
+                    );
+                  },
+                  Icons.science_outlined,
                 ),
                 // CARD LOG UNTUK NODE ROOM
                 _buildLogCard(

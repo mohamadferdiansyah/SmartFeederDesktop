@@ -31,6 +31,9 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
     "temperature",
     "humidity",
     "lightIntensity",
+    "co",
+    "co2",
+    "ammonia",
   ];
 
   String selectedSensor = "temperature";
@@ -383,12 +386,17 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
         return "Kelembapan";
       case "lightIntensity":
         return "Cahaya";
+      case "co":
+        return "CO";
+      case "co2":
+        return "CO₂";
+      case "ammonia":
+        return "Amonia";
       default:
         return sensor.capitalizeFirst ?? sensor;
     }
   }
 
-  // Helper icon
   IconData _getSensorIcon(String sensor) {
     switch (sensor) {
       case "temperature":
@@ -403,6 +411,12 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
         return Icons.water_drop_outlined;
       case "lightIntensity":
         return Icons.light_mode_outlined;
+      case "co":
+        return Icons.cloud_outlined;
+      case "co2":
+        return Icons.cloud_queue_outlined;
+      case "ammonia":
+        return Icons.science_outlined;
       default:
         return Icons.device_hub_rounded;
     }
@@ -422,6 +436,12 @@ class _HalterSensorThresholdPageState extends State<HalterSensorThresholdPage> {
         return "(%)";
       case "lightIntensity":
         return "(lux)";
+      case "co":
+        return "(ppm)";
+      case "co2":
+        return "(ppm)";
+      case "ammonia":
+        return "(ppm)";
       default:
         return "";
     }
