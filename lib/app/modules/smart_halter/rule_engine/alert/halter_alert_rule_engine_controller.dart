@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/data/data_rule_halter.dart';
+import 'package:smart_feeder_desktop/app/data/halter_storage/data_rule_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_log_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_alert_rule_engine_model.dart';
 

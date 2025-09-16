@@ -35,12 +35,12 @@ class HalterDeviceDao {
   }
 
   // UPDATE
-  Future<int> update(HalterDeviceModel model) async {
+  Future<int> update(HalterDeviceModel model, String oldDeviceId) async {
     return await db.update(
       'halter_devices',
       model.toMap(),
       where: 'device_id = ?',
-      whereArgs: [model.deviceId],  
+      whereArgs: [oldDeviceId],  
     );
   }
 

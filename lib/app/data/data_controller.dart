@@ -1,16 +1,17 @@
 import 'package:get/get.dart';
-import 'package:smart_feeder_desktop/app/data/dao/cctv_dao.dart';
-import 'package:smart_feeder_desktop/app/data/dao/halter_alert_rule_engine_dao.dart';
-import 'package:smart_feeder_desktop/app/data/dao/halter_biometric_rule_engine_dao.dart';
-import 'package:smart_feeder_desktop/app/data/dao/halter_calibration_log_dao.dart';
-import 'package:smart_feeder_desktop/app/data/dao/halter_device_dao.dart';
-import 'package:smart_feeder_desktop/app/data/dao/halter_device_detail_dao.dart';
-import 'package:smart_feeder_desktop/app/data/dao/halter_device_power_log_dao.dart';
-import 'package:smart_feeder_desktop/app/data/dao/halter_position_rule_engine_dao.dart';
-import 'package:smart_feeder_desktop/app/data/dao/halter_raw_data_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_device_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter/cctv_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter/halter_alert_rule_engine_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter/halter_biometric_rule_engine_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter/halter_calibration_log_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter/halter_device_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter/halter_device_detail_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter/halter_device_power_log_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter/halter_position_rule_engine_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter/halter_raw_data_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/horse_dao.dart';
-import 'package:smart_feeder_desktop/app/data/dao/node_room_dao.dart';
-import 'package:smart_feeder_desktop/app/data/dao/node_room_detail_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter/node_room_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/halter/node_room_detail_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/room_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/stable_dao.dart';
 import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
@@ -58,21 +59,21 @@ class DataController extends GetxController {
   // Data Feeder Room Device
   final RxList<FeederRoomDeviceModel> feederRoomDeviceList =
       <FeederRoomDeviceModel>[
-        FeederRoomDeviceModel(
-          deviceId: 'SFRIPB01',
-          status: 'ready',
-          batteryPercent: 67,
-          feedRemaining: 0,
-          waterRemaining: 0,
-        ),
-        FeederRoomDeviceModel(
-          deviceId: 'SFRIPB02',
-          status: 'ready',
-          roomId: 'R001',
-          batteryPercent: 67,
-          feedRemaining: 0,
-          waterRemaining: 0,
-        ),
+        // FeederRoomDeviceModel(
+        //   deviceId: 'SFRIPB01',
+        //   status: 'ready',
+        //   batteryPercent: 67,
+        //   feedRemaining: 0,
+        //   waterRemaining: 0,
+        // ),
+        // FeederRoomDeviceModel(
+        //   deviceId: 'SFRIPB02',
+        //   status: 'ready',
+        //   roomId: 'R001',
+        //   batteryPercent: 67,
+        //   feedRemaining: 0,
+        //   waterRemaining: 0,
+        // ),
       ].obs;
 
   // Data Feeder Device
@@ -90,21 +91,21 @@ class DataController extends GetxController {
 
   // Data Feeder Device
   final RxList<FeederDeviceModel> feederDeviceList = <FeederDeviceModel>[
-    FeederDeviceModel(deviceId: 'SFIPB001', stableId: 'K001', version: '2.0'),
-    FeederDeviceModel(deviceId: 'SFIPB002', version: '1.5'),
+    // FeederDeviceModel(deviceId: 'SFIPB001', stableId: 'K001', version: '2.0'),
+    // FeederDeviceModel(deviceId: 'SFIPB002', version: '1.5'),
   ].obs;
 
   final RxList<FeederDeviceDetailModel> feederDeviceDetailList =
       <FeederDeviceDetailModel>[
-        FeederDeviceDetailModel(
-          deviceId: 'SFIPB001',
-          status: 'ready',
-          batteryPercent: 67,
-          voltage: 0,
-          current: 0,
-          power: 0,
-          lastUpdate: DateTime.now(),
-        ),
+        // FeederDeviceDetailModel(
+        //   deviceId: 'SFIPB001',
+        //   status: 'ready',
+        //   batteryPercent: 67,
+        //   voltage: 0,
+        //   current: 0,
+        //   power: 0,
+        //   lastUpdate: DateTime.now(),
+        // ),
       ].obs;
 
   // Data History Entry
@@ -371,6 +372,7 @@ class DataController extends GetxController {
     inithalterBiometricRuleEngineDao(db);
     initHalterPositionRuleEngineDao(db);
     initHalterCalibrationLogDao(db);
+    initFeederDeviceDao(db);
     // dst...
     await Future.wait([
       loadNodeRoomsFromDb(),
@@ -387,6 +389,7 @@ class DataController extends GetxController {
       loadBiometricRulesFromDb(),
       loadPositionRulesFromDb(),
       loadCalibrationLogsFromDb(),
+      loadFeederDevicesFromDb(),
       // dst...
     ]);
   }
@@ -647,8 +650,8 @@ class DataController extends GetxController {
     halterDeviceList.assignAll(allDevices);
   }
 
-  Future<void> updateHalterDevice(HalterDeviceModel model) async {
-    await halterDeviceDao.update(model);
+  Future<void> updateHalterDevice(HalterDeviceModel model, String oldDeviceId) async {
+    await halterDeviceDao.update(model, oldDeviceId);
     await loadHalterDevicesFromDb();
   }
 
@@ -674,8 +677,8 @@ class DataController extends GetxController {
     await loadNodeRoomsFromDb();
   }
 
-  Future<void> updateNodeRoom(NodeRoomModel model) async {
-    await nodeRoomDao.update(model);
+  Future<void> updateNodeRoom(NodeRoomModel model, String oldDeviceId) async {
+    await nodeRoomDao.update(model, oldDeviceId);
     await loadNodeRoomsFromDb();
   }
 
@@ -946,5 +949,32 @@ class DataController extends GetxController {
   Future<void> clearAllCalibrationLogs() async {
     await halterCalibrationLogDao.clearAll();
     calibrationLogList.clear();
+  }
+
+  // Data Feeder Device
+  late FeederDeviceDao feederDeviceDao;
+
+  void initFeederDeviceDao(Database db) {
+    feederDeviceDao = FeederDeviceDao(db);
+  }
+
+  Future<void> loadFeederDevicesFromDb() async {
+    final list = await feederDeviceDao.getAll();
+    feederDeviceList.assignAll(list);
+  }
+
+  Future<void> addFeederDevice(FeederDeviceModel model) async {
+    await feederDeviceDao.insert(model);
+    await loadFeederDevicesFromDb();
+  }
+
+  Future<void> updateFeederDevice(FeederDeviceModel model, String oldDeviceId) async {
+    await feederDeviceDao.update(model, oldDeviceId);
+    await loadFeederDevicesFromDb();
+  }
+
+  Future<void> deleteFeederDevice(String deviceId) async {
+    await feederDeviceDao.delete(deviceId);
+    await loadFeederDevicesFromDb();
   }
 }

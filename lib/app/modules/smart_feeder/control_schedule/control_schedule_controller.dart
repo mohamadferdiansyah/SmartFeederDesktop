@@ -6,8 +6,14 @@ import 'package:smart_feeder_desktop/app/models/horse_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_controller.dart';
 
+// ...existing imports...
+
 class ControlScheduleController extends GetxController {
   RxInt selectedRoomIndex = 0.obs;
+  RxInt selectedTab = 0.obs;
+  RxString selectedMode = "Penjadwalan".obs;
+  RxInt intervalJam = 2.obs;
+
   int maxWater = 5;
   int maxFeed = 50;
 
@@ -17,21 +23,38 @@ class ControlScheduleController extends GetxController {
       .where((room) => room.stableId == feederController.selectedStableId.value)
       .toList();
 
-  RoomModel get selectedRoom => filteredRoomList.isNotEmpty
-      ? filteredRoomList[selectedRoomIndex.value.clamp(
-          0,
-          filteredRoomList.length - 1,
-        )]
-      : roomList[0];
+  RoomModel? get selectedRoom =>
+      (filteredRoomList.isNotEmpty &&
+          selectedRoomIndex.value >= 0 &&
+          selectedRoomIndex.value < filteredRoomList.length)
+      ? filteredRoomList[selectedRoomIndex.value]
+      : null;
 
   final DataController dataController = Get.find<DataController>();
 
   RxList<RoomModel> get roomList => dataController.roomList;
-
   RxList<HorseModel> get horseList => dataController.horseList;
-
   RxList<HorseHealthModel> get horseHealthList =>
       dataController.horseHealthList;
+
+  void setSelectedRoom(RoomModel? room) {
+    if (room != null) {
+      final idx = filteredRoomList.indexOf(room);
+      selectedRoomIndex.value = idx >= 0 ? idx : 0;
+    }
+  }
+
+  void setSelectedTab(int tab) {
+    selectedTab.value = tab;
+  }
+
+  void setSelectedMode(String? mode) {
+    selectedMode.value = mode ?? "Penjadwalan";
+  }
+
+  void setIntervalJam(int? jam) {
+    intervalJam.value = jam ?? 2;
+  }
 
   Future<void> updateRoomScheduleFlexible(
     RoomModel room, {
@@ -63,8 +86,6 @@ class ControlScheduleController extends GetxController {
       (h) => h.horseId == horseId,
     );
     if (health == null) return "Tidak Ada Data";
-
-    // Threshold dummy: kalau suhu > 39 atau heartRate > 44, status = Sakit
     if (health.bodyTemp > 39.0 || health.heartRate > 44) {
       return "Sakit";
     }
@@ -76,46 +97,4 @@ class ControlScheduleController extends GetxController {
     if (lastFeed == null) return 'Belum ada pengisian';
     return DateFormat('dd-MM-yyyy HH:mm').format(lastFeed);
   }
-
-  /// FIX: Update field final hanya dengan membuat objek baru, lalu replace di list!
-  // void updateRoomSchedule({
-  //   required RoomModel room,
-  //   required bool isWater,
-  //   required String scheduleType,
-  //   required int? intervalJam,
-  // }) {
-  //   final index = roomList.indexWhere((r) => r.roomId == room.roomId);
-  //   if (index == -1) return;
-
-  //   final newRoom = RoomModel(
-  //     roomId: room.roomId,
-  //     name: room.name,
-  //     deviceSerial: room.deviceSerial,
-  //     status: room.status,
-  //     cctvId: room.cctvId,
-  //     stableId: room.stableId,
-  //     horseId: room.horseId,
-  //     remainingWater: room.remainingWater,
-  //     remainingFeed: room.remainingFeed,
-  //     waterScheduleType: isWater ? scheduleType.toLowerCase() : room.waterScheduleType,
-  //     feedScheduleType: !isWater ? scheduleType.toLowerCase() : room.feedScheduleType,
-  //     lastFeedText: room.lastFeedText.value,
-  //     waterScheduleIntervalHour: isWater
-  //         ? (scheduleType == "Penjadwalan" && intervalJam != null)
-  //             ? intervalJam
-  //             : (scheduleType == "Manual"
-  //                 ? 0
-  //                 : (scheduleType == "Otomatis" && intervalJam != null ? intervalJam : room.waterScheduleIntervalHour.value))
-  //         : room.waterScheduleIntervalHour.value,
-  //     feedScheduleIntervalHour: !isWater
-  //         ? (scheduleType == "Penjadwalan" && intervalJam != null)
-  //             ? intervalJam
-  //             : (scheduleType == "Manual"
-  //                 ? 0
-  //                 : (scheduleType == "Otomatis" && intervalJam != null ? intervalJam : room.feedScheduleIntervalHour.value))
-  //         : room.feedScheduleIntervalHour.value,
-  //   );
-
-  //   roomList[index] = newRoom;
-  // }
 }

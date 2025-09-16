@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:smart_feeder_desktop/app/data/data_team_halter.dart';
+import 'package:smart_feeder_desktop/app/data/halter_storage/data_team_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/test_team_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';

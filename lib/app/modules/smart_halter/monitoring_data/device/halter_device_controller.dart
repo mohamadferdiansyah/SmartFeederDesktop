@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/data/data_halter_device_calibration_offset.dart';
+import 'package:smart_feeder_desktop/app/data/halter_storage/data_halter_device_calibration_offset.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/test_team_model.dart';
@@ -38,23 +38,15 @@ class HalterDeviceController extends GetxController {
     await dataController.addHalterDevice(model);
   }
 
+  Future<void> updateDevice(HalterDeviceModel model, String oldDeviceId) async {
+      await dataController.updateHalterDevice(model, oldDeviceId);
+    await refreshDevices();
+  }
+
   Future<void> refreshDevices() async {
     await dataController.loadHalterDevicesFromDb();
   }
 
-  Future<void> updateDevice(
-    HalterDeviceModel newDevice, {
-    String? oldDeviceId,
-  }) async {
-    if (oldDeviceId != null && oldDeviceId != newDevice.deviceId) {
-      // Jika deviceId berubah, hapus device lama lalu tambah device baru
-      await deleteDevice(oldDeviceId);
-      await addDevice(newDevice);
-    } else {
-      await dataController.updateHalterDevice(newDevice);
-    }
-    await refreshDevices();
-  }
 
   Future<void> deleteDevice(String deviceId) async {
     await dataController.deleteHalterDevice(deviceId);
@@ -149,7 +141,7 @@ class HalterDeviceController extends GetxController {
       'Roll (°)',
       'Pitch (°)',
       'Yaw (°)',
-      'Tegangan (mV)',
+      'Tegangan (V)',
       'Detak Jantung (beat/m)',
       'SpO₂ (%)',
       'Suhu (°C)',
@@ -295,7 +287,7 @@ class HalterDeviceController extends GetxController {
             'Pitch (°)',
             'Yaw (°)',
             // 'Arus (A)',
-            'Tegangan (mV)',
+            'Tegangan (V)',
             'Detak Jantung (beat/m)',
             'SpO₂ (%)',
             'Suhu (°C)',

@@ -27,7 +27,28 @@ class FeederDeviceController extends GetxController {
     final stable = stableList.firstWhereOrNull((s) => s.stableId == stableId);
     return stable?.name ?? "-";
   }
-/// Export data device ke Excel
+
+  Future<void> loadDevices() async {
+    await dataController.loadFeederDevicesFromDb();
+  }
+
+  Future<void> addDevice(FeederDeviceModel model) async {
+    await dataController.addFeederDevice(model);
+    await loadDevices();
+  }
+
+  Future<void> updateDevice(FeederDeviceModel model, String oldDeviceId) async {
+    await dataController.updateFeederDevice(model, oldDeviceId);
+    await loadDevices();
+    print(model.stableId);
+  }
+
+  Future<void> deleteDevice(String deviceId) async {
+    await dataController.deleteFeederDevice(deviceId);
+    await loadDevices();
+  }
+
+  /// Export data device ke Excel
   Future<void> exportDeviceExcel(List<FeederDeviceModel> data) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
@@ -72,22 +93,18 @@ class FeederDeviceController extends GetxController {
       pw.Page(
         build: (context) => pw.Table.fromTextArray(
           headers: ['ID', 'Kandang', 'Status', 'Versi', 'Baterai'],
-          data: data
-              .map(
-                (d) {
-                  final detail = feederDeviceDetailList.firstWhereOrNull(
-                    (det) => det.deviceId == d.deviceId,
-                  );
-                  return [
-                    d.deviceId,
-                    d.stableId != null ? getRoomName(d.stableId!) : 'Tidak ada',
-                    detail?.status ?? '-',
-                    d.version,
-                    detail?.batteryPercent ?? '-',
-                  ];
-                },
-              )
-              .toList(),
+          data: data.map((d) {
+            final detail = feederDeviceDetailList.firstWhereOrNull(
+              (det) => det.deviceId == d.deviceId,
+            );
+            return [
+              d.deviceId,
+              d.stableId != null ? getRoomName(d.stableId!) : 'Tidak ada',
+              detail?.status ?? '-',
+              d.version,
+              detail?.batteryPercent ?? '-',
+            ];
+          }).toList(),
         ),
       ),
     );

@@ -33,11 +33,8 @@ class DBHelper {
         await db.execute('''
           CREATE TABLE feeder_devices (
             device_id TEXT PRIMARY KEY,
-            status TEXT,
-            battery_percent BIGINT,
-            voltage DOUBLE,
-            current DOUBLE,
-            power DOUBLE
+            stable_id TEXT,
+            version TEXT
           )
         ''');
 

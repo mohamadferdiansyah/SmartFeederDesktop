@@ -210,9 +210,12 @@ class HalterDashboardController extends GetxController {
   }
 
   int getBatteryPercentByRoomId(String roomId) {
+    final room = roomList.firstWhereOrNull((r) => r.roomId == roomId);
+    if (room == null || room.horseId == null || room.horseId!.isEmpty) {
+      return 0;
+    }
     final device = halterDeviceList.firstWhereOrNull(
-      (d) =>
-          d.horseId == roomList.firstWhere((r) => r.roomId == roomId).horseId,
+      (d) => d.horseId == room.horseId,
     );
     return device?.batteryPercent ?? 0;
   }

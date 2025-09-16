@@ -9,15 +9,16 @@ class FeederDeviceModel {
     required this.version,
   });
 
-  factory FeederDeviceModel.fromMap(Map<String, dynamic> map) => FeederDeviceModel(
+  factory FeederDeviceModel.fromMap(Map<String, dynamic> map) =>
+      FeederDeviceModel(
         deviceId: map['device_id'],
-        stableId: map['room_id'],
+        stableId: map['stable_id'],
         version: map['version'],
       );
 
   Map<String, dynamic> toMap() => {
-        'device_id': deviceId,
-        'stable_id': stableId,
-        'version': stableId,
-      };
+    'device_id': deviceId,
+    'stable_id': stableId,
+    'version': version,
+  };
 }

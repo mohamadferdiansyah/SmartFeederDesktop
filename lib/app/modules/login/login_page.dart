@@ -5,7 +5,7 @@ import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
-import 'package:smart_feeder_desktop/app/data/data_team_halter.dart';
+import 'package:smart_feeder_desktop/app/data/halter_storage/data_team_halter.dart';
 import 'package:smart_feeder_desktop/app/modules/login/login_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';

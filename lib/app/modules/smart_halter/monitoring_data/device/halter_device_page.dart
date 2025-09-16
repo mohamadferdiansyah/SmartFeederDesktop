@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 // Ganti dengan import model dan widget sesuai project-mu
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
-import 'package:smart_feeder_desktop/app/data/data_team_halter.dart';
+import 'package:smart_feeder_desktop/app/data/halter_storage/data_team_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/data_logs/log_device/halter_device_power_log_controller.dart';
@@ -358,7 +358,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
           horseId: selectedHorseId,
           version: device.version,
         );
-        await _controller.updateDevice(updated);
+        await _controller.updateDevice(updated, device.deviceId);
         showAppToast(
           context: context,
           type: ToastificationType.success,
@@ -388,7 +388,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
           horseId: null,
           version: device.version,
         );
-        await _controller.updateDevice(updated);
+        await _controller.updateDevice(updated, device.deviceId);
         showAppToast(
           context: context,
           type: ToastificationType.success,
@@ -590,7 +590,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                           ) async {
                             await _controller.updateDevice(
                               editedDevice,
-                              oldDeviceId: device.deviceId,
+                              device.deviceId,
                             );
                             _controller.refreshDevices();
                           }),
@@ -1538,7 +1538,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                           DataColumn(
                             label: SizedBox(
                               width: voltW,
-                              child: const Center(child: Text("Tegangan (mV)")),
+                              child: const Center(child: Text("Tegangan (V)")),
                             ),
                           ),
                           DataColumn(

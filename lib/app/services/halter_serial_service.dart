@@ -4,9 +4,9 @@ import 'dart:typed_data';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/data/data_halter_device_calibration_offset.dart';
-import 'package:smart_feeder_desktop/app/data/data_setting_halter.dart';
-import 'package:smart_feeder_desktop/app/data/data_threshold_halter.dart';
+import 'package:smart_feeder_desktop/app/data/halter_storage/data_halter_device_calibration_offset.dart';
+import 'package:smart_feeder_desktop/app/data/halter_storage/data_setting_halter.dart';
+import 'package:smart_feeder_desktop/app/data/halter_storage/data_threshold_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_power_log_model.dart';
@@ -71,8 +71,11 @@ class HalterSerialService extends GetxService {
     await dataController.addHalterDevice(model);
   }
 
-  Future<void> updateHalterDevice(HalterDeviceModel model) async {
-    await dataController.updateHalterDevice(model);
+  Future<void> updateHalterDevice(
+    HalterDeviceModel model,
+    String oldDeviceId,
+  ) async {
+    await dataController.updateHalterDevice(model, oldDeviceId);
   }
 
   Future<void> addHalterDeviceDetail(HalterDeviceDetailModel model) async {
@@ -83,8 +86,11 @@ class HalterSerialService extends GetxService {
     await dataController.addNodeRoom(model);
   }
 
-  Future<void> updateNodeRoomDevice(NodeRoomModel model) async {
-    await dataController.updateNodeRoom(model);
+  Future<void> updateNodeRoomDevice(
+    NodeRoomModel model,
+    String oldDeviceId,
+  ) async {
+    await dataController.updateNodeRoom(model, oldDeviceId);
   }
 
   Future<void> addNodeRoomDetail(NodeRoomDetailModel model) async {
@@ -163,6 +169,7 @@ class HalterSerialService extends GetxService {
           horseId: old.horseId,
           version: old.version,
         ),
+        old.deviceId,
       );
       _pairingDevices.add(deviceId);
       // Cancel timer lama jika ada
@@ -185,6 +192,7 @@ class HalterSerialService extends GetxService {
                 horseId: old2.horseId,
                 version: old2.version,
               ),
+              old2.deviceId,
             );
             _pairingDevices.remove(deviceId);
           }
@@ -213,6 +221,7 @@ class HalterSerialService extends GetxService {
               horseId: old.horseId,
               version: old.version,
             ),
+            old.deviceId,
           );
           await logDeviceStatus(deviceId, false); // <-- Tambahkan di sini
         }
@@ -334,7 +343,7 @@ class HalterSerialService extends GetxService {
         if (index == -1) {
           await addNodeRoomDevice(nodeRoom);
         } else {
-          await updateNodeRoomDevice(nodeRoom);
+          await updateNodeRoomDevice(nodeRoom, nodeRoom.deviceId);
         }
 
         // Simpan ke detail/history (data sensor diambil dari serial string)
@@ -673,18 +682,35 @@ class HalterSerialService extends GetxService {
           (d) => d.deviceId == fixedDetail.deviceId,
         );
 
-        double _voltageToPercent(double? voltageMv) {
-          if (voltageMv == null) return 0;
+        // double voltageToPercent(double? voltageMv) {
+        //   if (voltageMv == null) return 0;
 
-          // Batas bawah (mV) – sesuaikan dengan jenis baterai
-          const double minVoltageMv = 3000.0;
-          // Batas atas (mV) – sesuaikan dengan jenis baterai
-          const double maxVoltageMv = 4200.0;
+        //   // Batas bawah (V) – sesuaikan dengan jenis baterai
+        //   const double minVoltageMv = 3000.0;
+        //   // Batas atas (V) – sesuaikan dengan jenis baterai
+        //   const double maxVoltageMv = 4200.0;
+
+        //   // Rumus linear
+        //   double percent =
+        //       ((voltageMv - minVoltageMv) / (maxVoltageMv - minVoltageMv)) *
+        //       100.0;
+
+        //   // Batasi di antara 0–100%
+        //   return percent.clamp(0, 100);
+        // }
+
+        double voltageToPercent(double? voltage) {
+          if (voltage == null) return 0;
+
+          // Batas bawah (V) – sesuaikan dengan jenis baterai
+          const double minVoltage = 5.8;
+          // Batas atas (V) – sesuaikan dengan jenis baterai
+
+          const double maxVoltage = 7.4;
 
           // Rumus linear
           double percent =
-              ((voltageMv - minVoltageMv) / (maxVoltageMv - minVoltageMv)) *
-              100.0;
+              ((voltage - minVoltage) / (maxVoltage - minVoltage)) * 100.0;
 
           // Batasi di antara 0–100%
           return percent.clamp(0, 100);
@@ -704,6 +730,7 @@ class HalterSerialService extends GetxService {
                 horseId: old.horseId,
                 version: old.version,
               ),
+              old.deviceId,
             );
             _pairingDevices.remove(fixedDetail.deviceId);
             _devicePairingTimers[fixedDetail.deviceId]?.cancel();
@@ -717,14 +744,14 @@ class HalterSerialService extends GetxService {
           //   HalterDeviceModel(
           //     deviceId: fixedDetail.deviceId,
           //     status: 'on',
-          //     batteryPercent: _voltageToPercent(fixedDetail.voltage).round(),
+          //     batteryPercent: voltageToPercent(fixedDetail.voltage).round(),
           //   ),
           // );
           addHalterDevice(
             HalterDeviceModel(
               deviceId: fixedDetail.deviceId,
               status: 'on',
-              batteryPercent: _voltageToPercent(fixedDetail.voltage).round(),
+              batteryPercent: voltageToPercent(fixedDetail.voltage).round(),
               version: '2.0',
             ),
           );
@@ -732,17 +759,18 @@ class HalterSerialService extends GetxService {
           // halterDeviceList[indexDevice] = HalterDeviceModel(
           //   deviceId: fixedDetail.deviceId,
           //   status: 'on',
-          //   batteryPercent: _voltageToPercent(fixedDetail.voltage).round(),
+          //   batteryPercent: voltageToPercent(fixedDetail.voltage).round(),
           //   horseId: halterDeviceList[indexDevice].horseId,
           // );
           updateHalterDevice(
             HalterDeviceModel(
               deviceId: fixedDetail.deviceId,
               status: 'on',
-              batteryPercent: _voltageToPercent(fixedDetail.voltage).round(),
+              batteryPercent: voltageToPercent(fixedDetail.voltage).round(),
               horseId: halterDeviceList[indexDevice].horseId,
               version: halterDeviceList[indexDevice].version,
             ),
+            fixedDetail.deviceId,
           );
         }
 
@@ -766,7 +794,7 @@ class HalterSerialService extends GetxService {
             bpm: fixedDetail.heartRate,
             respirasi: fixedDetail.respiratoryRate,
             time: fixedDetail.time,
-            battery: _voltageToPercent(fixedDetail.voltage).round(),
+            battery: voltageToPercent(fixedDetail.voltage).round(),
           );
         }
 
@@ -950,7 +978,7 @@ class HalterSerialService extends GetxService {
         int pitch = randInt(-45, 90);
         int yaw = randInt(-180, 180);
         // double voltase = double.parse(randDouble(3200, 4200));
-        double voltase = 3200;
+        double voltase = 7;
         // int bpm = 30;
         // double spo = 96;
         // double suhu = 38;
@@ -1004,7 +1032,7 @@ class HalterSerialService extends GetxService {
       String makeDummyNodeRoomData(String deviceNum) {
         // Format: SRIPB,1,30.30,63.70,2.50,1.1,1.1,1.1,*
         final header = "SRIPB";
-        final id = 2;
+        final id = 099;
         final suhu = randDouble(25, 35); // Suhu
         final kelembapan = randDouble(40, 80); // Kelembapan
         final cahaya = randDouble(10, 100); // Cahaya

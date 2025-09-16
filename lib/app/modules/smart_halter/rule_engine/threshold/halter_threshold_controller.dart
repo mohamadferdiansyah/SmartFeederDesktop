@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-import 'package:smart_feeder_desktop/app/data/data_threshold_halter.dart';
+import 'package:smart_feeder_desktop/app/data/halter_storage/data_threshold_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_sensor_threshold_model.dart';
 
 class HalterThresholdController extends GetxController {

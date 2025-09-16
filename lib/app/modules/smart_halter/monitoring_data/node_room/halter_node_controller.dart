@@ -35,8 +35,8 @@ class HalterNodeController extends GetxController {
     await dataController.addNodeRoom(model);
   }
 
-  Future<void> updateNode(NodeRoomModel model) async {
-    await dataController.updateNodeRoom(model);
+  Future<void> updateNode(NodeRoomModel model, String oldDeviceId) async {
+    await dataController.updateNodeRoom(model, oldDeviceId);
   }
 
   Future<void> deleteNode(String deviceId) async {

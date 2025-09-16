@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 // Ganti dengan import model dan widget sesuai project-mu
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/data/data_team_halter.dart';
+import 'package:smart_feeder_desktop/app/data/halter_storage/data_team_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/node_room/halter_node_controller.dart';
@@ -524,8 +524,10 @@ class _HalterNodePageState extends State<HalterNodePage> {
                           onDelete: _confirmDelete,
                           onEdit: (node) =>
                               _showNodeFormModalEdit(node, (editedNode) async {
-                                await _controller.deleteNode(node.deviceId);
-                                await _controller.addNode(editedNode);
+                                await _controller.updateNode(
+                                  editedNode,
+                                  node.deviceId,
+                                );
                                 await _controller.loadNode();
                               }),
                           onLepasRuangan: _showLepasRuanganModal,

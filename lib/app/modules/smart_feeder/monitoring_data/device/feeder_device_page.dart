@@ -108,7 +108,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
           ),
         ],
       ),
-      onConfirm: () {
+      onConfirm: () async {
         if (idCtrl.text.trim().isEmpty) {
           showAppToast(
             context: context,
@@ -118,6 +118,12 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
           );
           return;
         }
+        final newDevice = FeederDeviceModel(
+          deviceId: idCtrl.text.trim(),
+
+          version: versionCtrl.text,
+        );
+        await _controller.addDevice(newDevice);
         showAppToast(
           context: context,
           type: ToastificationType.success,
@@ -223,7 +229,15 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
           ),
         ],
       ),
-      onConfirm: () {
+      onConfirm: () async {
+        await _controller.updateDevice(
+          FeederDeviceModel(
+            deviceId: idCtrl.text.trim(),
+            stableId: device.stableId,
+            version: versionCtrl.text,
+          ),
+          device.deviceId,
+        );
         showAppToast(
           context: context,
           type: ToastificationType.success,
@@ -268,7 +282,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
           onChanged: (v) => setState(() => selectedStableId = v),
         );
       }),
-      onConfirm: () {
+      onConfirm: () async {
         if (selectedStableId == null) {
           showAppToast(
             context: context,
@@ -278,6 +292,14 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
           );
           return;
         }
+        await _controller.updateDevice(
+          FeederDeviceModel(
+            deviceId: device.deviceId,
+            stableId: selectedStableId,
+            version: device.version,
+          ),
+          device.deviceId,
+        );
         showAppToast(
           context: context,
           type: ToastificationType.success,
@@ -300,7 +322,15 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
       showConfirmButton: true,
       confirmText: "Lepas",
       cancelText: "Batal",
-      onConfirm: () {
+      onConfirm: () async {
+        await _controller.updateDevice(
+          FeederDeviceModel(
+            deviceId: device.deviceId,
+            stableId: null,
+            version: device.version,
+          ),
+          device.deviceId,
+        );
         showAppToast(
           context: context,
           type: ToastificationType.success,
@@ -335,7 +365,8 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
       showConfirmButton: true,
       confirmText: "Hapus",
       cancelText: "Batal",
-      onConfirm: () {
+      onConfirm: () async {
+        await _controller.deleteDevice(device.deviceId);
         showAppToast(
           context: context,
           type: ToastificationType.success,
@@ -375,7 +406,6 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
 
   @override
   Widget build(BuildContext context) {
-    final devices = _filteredDevices(_controller.feederDeviceList);
     final detailDevices = _controller.feederDeviceDetailList;
     final tableWidth = MediaQuery.of(context).size.width - 72.0;
     final idW = tableWidth * 0.1;
@@ -449,249 +479,270 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                   horizontal: 36.0,
                   vertical: 12.0,
                 ),
-                child: Column(
-                  children: [
-                    // Search Box
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: CustomInput(
-                        label: "Cari perangkat",
-                        controller: _searchController,
-                        icon: Icons.search,
-                        hint: 'Masukkan ID, kandang, status, baterai',
-                        fontSize: 24,
-                      ),
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        CustomButton(
-                          width: MediaQuery.of(context).size.width * 0.1,
-                          height: 50,
-                          backgroundColor: Colors.green,
-                          fontSize: 18,
-                          icon: Icons.add_circle_rounded,
-                          text: 'Tambah Data',
-                          onPressed: _showTambahModal,
-                        ),
-                        Spacer(),
-                        Text(
-                          'Export Data :',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(width: 12),
-                        CustomButton(
-                          width: MediaQuery.of(context).size.width * 0.1,
-                          height: 50,
-                          backgroundColor: Colors.green,
-                          fontSize: 18,
-                          icon: Icons.table_view_rounded,
-                          text: 'Export Excel',
-                          onPressed: () {
-                            _controller.exportDeviceExcel(devices);
-                          },
-                        ),
-                        const SizedBox(width: 12),
-                        CustomButton(
-                          width: MediaQuery.of(context).size.width * 0.1,
-                          height: 50,
-                          backgroundColor: Colors.redAccent,
-                          fontSize: 18,
-                          icon: Icons.picture_as_pdf,
-                          text: 'Export PDF',
-                          onPressed: () {
-                            _controller.exportDevicePDF(devices);
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Total Data: ${devices.length}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                child: Obx(() {
+                  final devices = _filteredDevices(
+                    _controller.feederDeviceList,
+                  );
+                  return Column(
+                    children: [
+                      // Search Box
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: CustomInput(
+                          label: "Cari perangkat",
+                          controller: _searchController,
+                          icon: Icons.search,
+                          hint: 'Masukkan ID, kandang, status, baterai',
+                          fontSize: 24,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Theme(
-                      data: Theme.of(context).copyWith(
-                        cardColor: Colors.white,
-                        dataTableTheme: DataTableThemeData(
-                          headingRowColor: MaterialStateProperty.all(
-                            Colors.grey[200]!,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          CustomButton(
+                            width: MediaQuery.of(context).size.width * 0.1,
+                            height: 50,
+                            backgroundColor: Colors.green,
+                            fontSize: 18,
+                            icon: Icons.add_circle_rounded,
+                            text: 'Tambah Data',
+                            onPressed: _showTambahModal,
                           ),
-                          dataRowColor: MaterialStateProperty.all(Colors.white),
-                        ),
-                      ),
-                      child: PaginatedDataTable(
-                        columnSpacing: 0,
-                        horizontalMargin: 0,
-                        sortColumnIndex: _sortColumnIndex,
-                        sortAscending: _sortAscending,
-                        columns: [
-                          DataColumn(
-                            label: SizedBox(
-                              width: idW,
-                              child: const Center(
-                                child: Text(
-                                  'ID',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                            onSort: (columnIndex, ascending) {
-                              setState(() {
-                                _sortColumnIndex = columnIndex;
-                                _sortAscending = ascending;
-                                _sort<String>(
-                                  devices,
-                                  (d) => d.deviceId,
-                                  ascending,
-                                );
-                              });
+                          Spacer(),
+                          Text(
+                            'Export Data :',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(width: 12),
+                          CustomButton(
+                            width: MediaQuery.of(context).size.width * 0.1,
+                            height: 50,
+                            backgroundColor: Colors.green,
+                            fontSize: 18,
+                            icon: Icons.table_view_rounded,
+                            text: 'Export Excel',
+                            onPressed: () {
+                              _controller.exportDeviceExcel(devices);
                             },
                           ),
-                          DataColumn(
-                            label: SizedBox(
-                              width: kandangW,
-                              child: const Center(
-                                child: Text(
-                                  'Kandang',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                            onSort: (columnIndex, ascending) {
-                              setState(() {
-                                _sortColumnIndex = columnIndex;
-                                _sortAscending = ascending;
-                                _sort<String>(
-                                  devices,
-                                  (d) => d.stableId ?? '',
-                                  ascending,
-                                );
-                              });
+                          const SizedBox(width: 12),
+                          CustomButton(
+                            width: MediaQuery.of(context).size.width * 0.1,
+                            height: 50,
+                            backgroundColor: Colors.redAccent,
+                            fontSize: 18,
+                            icon: Icons.picture_as_pdf,
+                            text: 'Export PDF',
+                            onPressed: () {
+                              _controller.exportDevicePDF(devices);
                             },
-                          ),
-                          DataColumn(
-                            label: SizedBox(
-                              width: statusW,
-                              child: const Center(
-                                child: Text(
-                                  'Status',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                            onSort: (columnIndex, ascending) {
-                              setState(() {
-                                _sortColumnIndex = columnIndex;
-                                _sortAscending = ascending;
-                                _sort<String>(
-                                  devices,
-                                  (d) =>
-                                      _controller.feederDeviceDetailList
-                                          .firstWhereOrNull(
-                                            (det) => det.deviceId == d.deviceId,
-                                          )
-                                          ?.status ??
-                                      '',
-                                  ascending,
-                                );
-                              });
-                            },
-                          ),
-                          DataColumn(
-                            label: SizedBox(
-                              width: versionW,
-                              child: const Center(
-                                child: Text(
-                                  'Versi',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                            onSort: (columnIndex, ascending) {
-                              setState(() {
-                                _sortColumnIndex = columnIndex;
-                                _sortAscending = ascending;
-                                _sort<String>(
-                                  devices,
-                                  (d) => d.version,
-                                  ascending,
-                                );
-                              });
-                            },
-                          ),
-                          DataColumn(
-                            label: SizedBox(
-                              width: batteryW,
-                              child: const Center(
-                                child: Text(
-                                  'Baterai (%)',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                            onSort: (columnIndex, ascending) {
-                              setState(() {
-                                _sortColumnIndex = columnIndex;
-                                _sortAscending = ascending;
-                                _sort<num>(
-                                  devices,
-                                  (d) =>
-                                      _controller.feederDeviceDetailList
-                                          .firstWhereOrNull(
-                                            (det) => det.deviceId == d.deviceId,
-                                          )
-                                          ?.batteryPercent ??
-                                      0,
-                                  ascending,
-                                );
-                              });
-                            },
-                          ),
-                          DataColumn(
-                            label: SizedBox(
-                              width: actionW,
-                              child: const Center(
-                                child: Text(
-                                  'Aksi',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
                           ),
                         ],
-                        source: FeederDeviceDataTableSource(
-                          context: context,
-                          devices: devices,
-                          deviceDetails: detailDevices,
-                          getRoomName: _controller.getRoomName,
-                          onDetail: _showDetailModal,
-                          onEdit: _showEditModal,
-                          onDelete: _confirmDelete,
-                          onRiwayat: _showRiwayatModal,
-                          onPilihKandang: _showPilihKandangModal,
-                          onLepasKandang: _showLepasKandangModal,
-                        ),
-                        rowsPerPage: _rowsPerPage,
-                        availableRowsPerPage: const [5, 10, 20],
-                        onRowsPerPageChanged: (value) {
-                          setState(() {
-                            _rowsPerPage = value ?? 5;
-                          });
-                        },
-                        showCheckboxColumn: false,
                       ),
-                    ),
-                  ],
-                ),
+                      const SizedBox(height: 15),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Total Data: ${devices.length}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Theme(
+                        data: Theme.of(context).copyWith(
+                          cardColor: Colors.white,
+                          dataTableTheme: DataTableThemeData(
+                            headingRowColor: MaterialStateProperty.all(
+                              Colors.grey[200]!,
+                            ),
+                            dataRowColor: MaterialStateProperty.all(
+                              Colors.white,
+                            ),
+                          ),
+                        ),
+                        child: PaginatedDataTable(
+                          columnSpacing: 0,
+                          horizontalMargin: 0,
+                          sortColumnIndex: _sortColumnIndex,
+                          sortAscending: _sortAscending,
+                          columns: [
+                            DataColumn(
+                              label: SizedBox(
+                                width: idW,
+                                child: const Center(
+                                  child: Text(
+                                    'ID',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              onSort: (columnIndex, ascending) {
+                                setState(() {
+                                  _sortColumnIndex = columnIndex;
+                                  _sortAscending = ascending;
+                                  _sort<String>(
+                                    devices,
+                                    (d) => d.deviceId,
+                                    ascending,
+                                  );
+                                });
+                              },
+                            ),
+                            DataColumn(
+                              label: SizedBox(
+                                width: kandangW,
+                                child: const Center(
+                                  child: Text(
+                                    'Kandang',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              onSort: (columnIndex, ascending) {
+                                setState(() {
+                                  _sortColumnIndex = columnIndex;
+                                  _sortAscending = ascending;
+                                  _sort<String>(
+                                    devices,
+                                    (d) => d.stableId ?? '',
+                                    ascending,
+                                  );
+                                });
+                              },
+                            ),
+                            DataColumn(
+                              label: SizedBox(
+                                width: statusW,
+                                child: const Center(
+                                  child: Text(
+                                    'Status',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              onSort: (columnIndex, ascending) {
+                                setState(() {
+                                  _sortColumnIndex = columnIndex;
+                                  _sortAscending = ascending;
+                                  _sort<String>(
+                                    devices,
+                                    (d) =>
+                                        _controller.feederDeviceDetailList
+                                            .firstWhereOrNull(
+                                              (det) =>
+                                                  det.deviceId == d.deviceId,
+                                            )
+                                            ?.status ??
+                                        '',
+                                    ascending,
+                                  );
+                                });
+                              },
+                            ),
+                            DataColumn(
+                              label: SizedBox(
+                                width: versionW,
+                                child: const Center(
+                                  child: Text(
+                                    'Versi',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              onSort: (columnIndex, ascending) {
+                                setState(() {
+                                  _sortColumnIndex = columnIndex;
+                                  _sortAscending = ascending;
+                                  _sort<String>(
+                                    devices,
+                                    (d) => d.version,
+                                    ascending,
+                                  );
+                                });
+                              },
+                            ),
+                            DataColumn(
+                              label: SizedBox(
+                                width: batteryW,
+                                child: const Center(
+                                  child: Text(
+                                    'Baterai (%)',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              onSort: (columnIndex, ascending) {
+                                setState(() {
+                                  _sortColumnIndex = columnIndex;
+                                  _sortAscending = ascending;
+                                  _sort<num>(
+                                    devices,
+                                    (d) =>
+                                        _controller.feederDeviceDetailList
+                                            .firstWhereOrNull(
+                                              (det) =>
+                                                  det.deviceId == d.deviceId,
+                                            )
+                                            ?.batteryPercent ??
+                                        0,
+                                    ascending,
+                                  );
+                                });
+                              },
+                            ),
+                            DataColumn(
+                              label: SizedBox(
+                                width: actionW,
+                                child: const Center(
+                                  child: Text(
+                                    'Aksi',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                          source: FeederDeviceDataTableSource(
+                            context: context,
+                            devices: devices,
+                            deviceDetails: detailDevices,
+                            getRoomName: _controller.getRoomName,
+                            onDetail: _showDetailModal,
+                            onEdit: _showEditModal,
+                            onDelete: _confirmDelete,
+                            onRiwayat: _showRiwayatModal,
+                            onPilihKandang: _showPilihKandangModal,
+                            onLepasKandang: _showLepasKandangModal,
+                          ),
+                          rowsPerPage: _rowsPerPage,
+                          availableRowsPerPage: const [5, 10, 20],
+                          onRowsPerPageChanged: (value) {
+                            setState(() {
+                              _rowsPerPage = value ?? 5;
+                            });
+                          },
+                          showCheckboxColumn: false,
+                        ),
+                      ),
+                    ],
+                  );
+                }),
               ),
             ),
           ],

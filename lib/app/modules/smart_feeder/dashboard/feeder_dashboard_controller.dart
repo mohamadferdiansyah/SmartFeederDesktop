@@ -165,7 +165,7 @@ class FeederDashboardController extends GetxController {
 
   String getStableNameById(String stableId) {
     final stable = stableList.firstWhereOrNull((s) => s.stableId == stableId);
-    return stable?.name ?? "Tidak diketahui";
+    return stable?.name ?? "-";
   }
 
   int getWaterSecondsUntilNextAutoFeed(RoomModel room) {

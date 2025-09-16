@@ -620,7 +620,10 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                   titleFontSize: 20,
                   headerHeight: 70,
                   content: Obx(() {
-                    if (controller.filteredRoomList.isEmpty) {
+                    if (controller.filteredRoomList.isEmpty ||
+                        controller.selectedRoomIndex.value < 0 ||
+                        controller.selectedRoomIndex.value >=
+                            controller.filteredRoomList.length) {
                       return Center(
                         child: Text(
                           'Tidak ada data ruangan',
@@ -1036,38 +1039,73 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                   height: 289,
                   child: CustomCard(
                     title: 'Status Feeder Device',
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.white, width: 1),
-                      ),
-                      child: Obx(() {
-                        final selectedRoom = controller.selectedRoom;
-                        // Cari device yang stableId-nya sama dengan stableId ruangan yang dipilih
-                        final device = controller.feederDeviceList
-                            .firstWhereOrNull(
-                              (d) => d.stableId == selectedRoom.stableId,
-                            );
-                        return Text(
-                          device?.deviceId ?? 'Tidak Ada Feeder',
+                    trailing: Obx(() {
+                      if (controller.filteredRoomList.isEmpty ||
+                          controller.selectedRoomIndex.value < 0 ||
+                          controller.selectedRoomIndex.value >=
+                              controller.filteredRoomList.length) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.white, width: 1),
+                          ),
+                          child: Text(
+                            '-',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        );
+                      }
+                      final selectedRoom = controller.selectedRoom;
+                      // Cari device yang stableId-nya sama dengan stableId ruangan yang dipilih
+                      final device = controller.feederDeviceList
+                          .firstWhereOrNull(
+                            (d) => d.stableId == selectedRoom.stableId,
+                          );
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.white, width: 1),
+                        ),
+                        child: Text(
+                          device?.deviceId ?? '-',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
-                        );
-                      }),
-                    ),
+                        ),
+                      );
+                    }),
                     headerHeight: 50,
                     withExpanded: false,
                     titleFontSize: 20,
                     scrollable: false,
                     content: Obx(() {
+                      if (controller.filteredRoomList.isEmpty ||
+                          controller.selectedRoomIndex.value < 0 ||
+                          controller.selectedRoomIndex.value >=
+                              controller.filteredRoomList.length) {
+                        return Center(
+                          child: Text(
+                            'Tidak ada data ruangan',
+                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                          ),
+                        );
+                      }
                       final selectedRoom = controller.selectedRoom;
                       final device = controller.feederDeviceList
                           .firstWhereOrNull(
@@ -1082,34 +1120,33 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
 
                       final batteryPercent = detail?.batteryPercent ?? 0;
                       final status = detail?.status ?? 'off';
-                      final location = detail?.status ?? 'Tidak Diketahui';
 
                       String textStatus = '';
                       if (detail != null) {
                         switch (detail.status) {
                           case 'delivery':
                             textStatus =
-                                'Sedang mengantar ke ${detail.destination?.toUpperCase() ?? "-"}'
+                                'Feeder Mengantar Ke ${detail.destination?.toUpperCase() ?? "-"}'
                                 '${(detail.amount != null && detail.amount! > 0) ? " (${detail.amount} kg)" : ""}';
                             break;
                           case 'process':
                             textStatus =
-                                'Proses pengisian di ${detail.destination?.toUpperCase() ?? "-"}';
+                                'Feeder Mengisi ${detail.destination?.toUpperCase() ?? "-"}';
                             break;
                           case 'done':
                             textStatus =
-                                'Selesai mengisi di ${detail.destination?.toUpperCase() ?? "-"}';
+                                'Feeder Selesai mengisi ${detail.destination?.toUpperCase() ?? "-"}';
                             break;
                           case 'return':
                             textStatus = detail.destination == 'home'
-                                ? 'Kembali ke Home'
-                                : 'Kembali ke ${detail.destination?.toUpperCase() ?? "-"}';
+                                ? 'Feeder Kembali ke Home'
+                                : 'Feeder Kembali ke ${detail.destination?.toUpperCase() ?? "-"}';
                             break;
                           case 'ready':
-                            textStatus = 'Idle, siap menerima permintaan';
+                            textStatus = 'Feeder Di Home';
                             break;
                           case 'off':
-                            textStatus = 'Tidak Aktif';
+                            textStatus = 'Feeder Tidak Aktif';
                             break;
                           default:
                             textStatus = 'Status Tidak Diketahui';
@@ -1118,49 +1155,42 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                         textStatus = 'Status Tidak Diketahui';
                       }
 
-                      String statusDevice(String status) {
-                        switch (status) {
-                          case 'ready':
-                            return 'Siap Digunakan';
-                          case 'delivery':
-                            return 'Sedang Perjalanan';
-                          case 'process':
-                            return 'Proses Pengisian';
-                          case 'done':
-                            return 'Selesai Mengisi';
-                          case 'return':
-                            return 'Kembali ke Home';
-                          case 'on':
-                            return 'Aktif';
-                          case 'off':
-                            return 'Tidak Aktif';
-                          case 'idle':
-                            return 'Idle';
-                          default:
-                            return 'Status Tidak Diketahui';
-                        }
-                      }
-                      // final destination = controller.getFeederDeviceById(device?.deviceId ?? '')?.destination ?? '';
-                      // final amount = controller.getFeederDeviceById(device?.deviceId ?? '')?.amount;
-
                       Color statusColor = status != 'off'
                           ? Colors.green
                           : Colors.red;
+
+                      Color statusColorWithOpacity = status != 'off'
+                          ? Colors.green.withOpacity(0.3)
+                          : Colors.red.withOpacity(0.3);
+
                       String statusLabel = status != 'off' ? 'Aktif' : 'Mati';
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 14,
-                          horizontal: 8,
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                // Baterai
-                                Expanded(
+                      return Column(
+                        children: [
+                          Row(
+                            children: [
+                              // Baterai
+                              Expanded(
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: batteryPercent < 20
+                                        ? Colors.red.withOpacity(0.3)
+                                        : Colors.green.withOpacity(0.3),
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(
+                                      color: batteryPercent < 20
+                                          ? Colors.red
+                                          : Colors.green,
+                                      width: 1,
+                                    ),
+                                  ),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
                                         batteryPercent < 20
@@ -1184,127 +1214,105 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                     ],
                                   ),
                                 ),
-                                // Status Aktif
-                                Expanded(
+                              ),
+                              SizedBox(width: 10),
+                              // Status Aktif
+                              Expanded(
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: statusColorWithOpacity,
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(
+                                      color: statusColor,
+                                      width: 1,
+                                    ),
+                                  ),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 14,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: statusColor.withOpacity(0.15),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.power_settings_new_rounded,
+                                            color: statusColor,
+                                            size: 50,
                                           ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              status != 'off'
-                                                  ? Icons.check_circle
-                                                  : Icons.cancel,
+                                          SizedBox(width: 6),
+                                          Text(
+                                            statusLabel,
+                                            style: TextStyle(
+                                              fontSize: 32,
+                                              fontWeight: FontWeight.bold,
                                               color: statusColor,
-                                              size: 30,
                                             ),
-                                            SizedBox(width: 6),
-                                            Text(
-                                              statusLabel,
-                                              style: TextStyle(
-                                                fontSize: 24,
-                                                fontWeight: FontWeight.bold,
-                                                color: statusColor,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
                                 ),
-                              ],
-                            ),
-                            SizedBox(height: 14),
-                            // Lokasi Device Bar
-                            Container(
+                              ),
+                            ],
+                          ),
+                          // if (status == 'delivery' && destination != null && destination != '')
+                          SizedBox(height: 8),
+                          // if (status == 'delivery' && destination != null && destination != '')
+                          Expanded(
+                            child: Container(
                               width: double.infinity,
                               padding: EdgeInsets.symmetric(
                                 horizontal: 14,
                                 vertical: 12,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.teal.withOpacity(0.12),
+                                color: Colors.orange.withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: Colors.orange,
+                                  width: 1,
+                                ),
                               ),
-                              child: Row(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
-                                    Icons.location_on,
-                                    color: Colors.teal,
-                                    size: 22,
-                                  ),
-                                  SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      statusDevice(location),
-                                      style: TextStyle(
-                                        fontSize: 19,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.teal[800],
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.device_hub,
-                                    color: Colors.teal[700],
-                                    size: 22,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // Delivery info bawah
-                            // if (status == 'delivery' && destination != null && destination != '')
-                            SizedBox(height: 8),
-                            // if (status == 'delivery' && destination != null && destination != '')
-                            Container(
-                              width: double.infinity,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.orange.withOpacity(0.10),
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.local_shipping,
+                                    status == 'delivery'
+                                        ? Icons.local_shipping
+                                        : status == 'process'
+                                        ? Icons.settings
+                                        : status == 'done'
+                                        ? Icons.check_circle_outline
+                                        : status == 'return'
+                                        ? Icons.undo
+                                        : status == 'ready'
+                                        ? Icons.house_siding_rounded
+                                        : status == 'off'
+                                        ? Icons.power_settings_new_rounded
+                                        : Icons.help_outline,
                                     color: Colors.orange,
-                                    size: 22,
+                                    size: 60,
                                   ),
                                   SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      textStatus,
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.orange[800],
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                  Text(
+                                    textStatus,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange[800],
                                     ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       );
                     }),
                   ),
@@ -1339,34 +1347,34 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                     height: MediaQuery.of(context).size.height * 0.58,
                     child: Scrollbar(
                       thumbVisibility: true,
-                      child: ListView.builder(
-                        itemCount: controller.filteredRoomList.length,
-                        itemBuilder: (context, index) {
-                          final room = controller.filteredRoomList[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16.0),
-                            child: CustomStableCard(
-                              stableName: room.name,
-                              imageAsset: 'assets/images/stable.jpg',
-                              feedScheduleText: room.feedScheduleType,
-                              waterScheduleText: room.waterScheduleType,
-                              isActive:
-                                  controller.getDeviceStatusByRoom(
-                                        room.roomId,
-                                      ) ==
-                                      "Aktif"
-                                  ? true
-                                  : false,
-                              remainingWater: room.remainingWater.obs,
-                              remainingFeed: room.remainingFeed.obs,
-                              lastFeedText: controller.getLastFeedText(room),
-                              onSelect: () {
-                                controller.selectedRoomIndex.value = index;
-                              },
-                              primaryColor: AppColors.primary,
-                            ),
-                          );
-                        },
+                      child: Obx(
+                        () => ListView.builder(
+                          itemCount: controller.filteredRoomList.length,
+                          itemBuilder: (context, index) {
+                            final room = controller.filteredRoomList[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 16.0),
+                              child: CustomStableCard(
+                                stableName: room.name,
+                                imageAsset: 'assets/images/stable.jpg',
+                                feedScheduleText: room.feedScheduleType,
+                                waterScheduleText: room.waterScheduleType,
+                                isActive:
+                                    controller.getDeviceStatusByRoom(
+                                      room.roomId,
+                                    ) ==
+                                    "Aktif",
+                                remainingWater: room.remainingWater.obs,
+                                remainingFeed: room.remainingFeed.obs,
+                                lastFeedText: controller.getLastFeedText(room),
+                                onSelect: () {
+                                  controller.selectedRoomIndex.value = index;
+                                },
+                                primaryColor: AppColors.primary,
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),

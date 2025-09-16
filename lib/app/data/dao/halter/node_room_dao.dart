@@ -45,12 +45,12 @@ class NodeRoomDao {
   }
 
   // UPDATE (optional)
-  Future<int> update(NodeRoomModel model) async {
+  Future<int> update(NodeRoomModel model, String oldDeviceId) async {
     return await db.update(
       'node_room_devices',
       model.toMap(),
       where: 'device_id = ?',
-      whereArgs: [model.deviceId],
+      whereArgs: [oldDeviceId],
     );
   }
 }
