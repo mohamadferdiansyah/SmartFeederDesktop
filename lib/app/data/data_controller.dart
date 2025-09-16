@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_device_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_room_device_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/halter/cctv_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/halter/halter_alert_rule_engine_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/halter/halter_biometric_rule_engine_dao.dart';
@@ -358,6 +359,7 @@ class DataController extends GetxController {
 
   Future<void> initAllDaosAndLoadAll() async {
     final db = await DBHelper.database;
+    // halter
     initNodeRoomDao(db);
     initRoomDao(db);
     initStableDao(db);
@@ -372,9 +374,12 @@ class DataController extends GetxController {
     inithalterBiometricRuleEngineDao(db);
     initHalterPositionRuleEngineDao(db);
     initHalterCalibrationLogDao(db);
+    // feeder
     initFeederDeviceDao(db);
+    initFeederRoomDeviceDao(db);
     // dst...
     await Future.wait([
+      // halter
       loadNodeRoomsFromDb(),
       loadRoomsFromDb(),
       loadStablesFromDb(),
@@ -389,7 +394,9 @@ class DataController extends GetxController {
       loadBiometricRulesFromDb(),
       loadPositionRulesFromDb(),
       loadCalibrationLogsFromDb(),
+      // feeder
       loadFeederDevicesFromDb(),
+      loadFeederRoomDevicesFromDb(),
       // dst...
     ]);
   }
@@ -650,7 +657,10 @@ class DataController extends GetxController {
     halterDeviceList.assignAll(allDevices);
   }
 
-  Future<void> updateHalterDevice(HalterDeviceModel model, String oldDeviceId) async {
+  Future<void> updateHalterDevice(
+    HalterDeviceModel model,
+    String oldDeviceId,
+  ) async {
     await halterDeviceDao.update(model, oldDeviceId);
     await loadHalterDevicesFromDb();
   }
@@ -968,7 +978,10 @@ class DataController extends GetxController {
     await loadFeederDevicesFromDb();
   }
 
-  Future<void> updateFeederDevice(FeederDeviceModel model, String oldDeviceId) async {
+  Future<void> updateFeederDevice(
+    FeederDeviceModel model,
+    String oldDeviceId,
+  ) async {
     await feederDeviceDao.update(model, oldDeviceId);
     await loadFeederDevicesFromDb();
   }
@@ -976,5 +989,35 @@ class DataController extends GetxController {
   Future<void> deleteFeederDevice(String deviceId) async {
     await feederDeviceDao.delete(deviceId);
     await loadFeederDevicesFromDb();
+  }
+
+  // Data Feeder Room Device
+  late FeederRoomDeviceDao feederRoomDeviceDao;
+
+  void initFeederRoomDeviceDao(Database db) {
+    feederRoomDeviceDao = FeederRoomDeviceDao(db);
+  }
+
+  Future<void> loadFeederRoomDevicesFromDb() async {
+    final list = await feederRoomDeviceDao.getAll();
+    feederRoomDeviceList.assignAll(list);
+  }
+
+  Future<void> addFeederRoomDevice(FeederRoomDeviceModel model) async {
+    await feederRoomDeviceDao.insert(model);
+    await loadFeederRoomDevicesFromDb();
+  }
+
+  Future<void> updateFeederRoomDevice(
+    FeederRoomDeviceModel model,
+    String? oldDeviceId,
+  ) async {
+    await feederRoomDeviceDao.update(model, oldDeviceId);
+    await loadFeederRoomDevicesFromDb();
+  }
+
+  Future<void> deleteFeederRoomDevice(String deviceId) async {
+    await feederRoomDeviceDao.delete(deviceId);
+    await loadFeederRoomDevicesFromDb();
   }
 }

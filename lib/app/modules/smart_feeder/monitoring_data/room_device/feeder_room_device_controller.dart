@@ -20,6 +20,25 @@ class FeederRoomDeviceController extends GetxController {
     return roomList.firstWhere((room) => room.roomId == roomId).name;
   }
 
+  Future<void> loadDevices() async {
+  await dataController.loadFeederRoomDevicesFromDb();
+}
+
+Future<void> addDevice(FeederRoomDeviceModel model) async {
+  await dataController.addFeederRoomDevice(model);
+  await loadDevices();
+}
+
+Future<void> updateDevice(FeederRoomDeviceModel model, String? oldDeviceId) async {
+  await dataController.updateFeederRoomDevice(model, oldDeviceId);
+  await loadDevices();
+}
+
+Future<void> deleteDevice(String deviceId) async {
+  await dataController.deleteFeederRoomDevice(deviceId);
+  await loadDevices();
+}
+
   Future<void> exportDeviceExcel(List<FeederRoomDeviceModel> data) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];

@@ -23,9 +23,11 @@ class DBHelper {
         await db.execute('''
           CREATE TABLE feeder_room_devices (
             device_id TEXT PRIMARY KEY,
+            room_id TEXT,
             status TEXT,
-            type TEXT,
-            room_id TEXT
+            battery_percent INTEGER,
+            feed_remaining DOUBLE,
+            water_remaining DOUBLE
           )
         ''');
 
