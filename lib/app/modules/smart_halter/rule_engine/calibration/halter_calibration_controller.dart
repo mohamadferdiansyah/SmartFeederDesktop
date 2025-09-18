@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:smart_feeder_desktop/app/data/halter_storage/data_calibration_halter.dart';
+import 'package:smart_feeder_desktop/app/data/storage/halter/data_calibration_halter.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/data/halter_storage/data_halter_device_calibration.dart';
+import 'package:smart_feeder_desktop/app/data/storage/halter/data_halter_device_calibration.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_calibration_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_calibration_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';

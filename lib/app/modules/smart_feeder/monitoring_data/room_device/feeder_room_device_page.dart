@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_device_model.dart';
@@ -51,6 +52,7 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
 
   void _showTambahModal() {
     final idCtrl = TextEditingController();
+    final header = "SFRIPB";
 
     showCustomDialog(
       context: context,
@@ -77,7 +79,7 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  "ID",
+                  header,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
@@ -90,7 +92,10 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
                 child: CustomInput(
                   label: "Device ID *",
                   controller: idCtrl,
-                  hint: "Masukkan ID",
+                  hint: "Masukkan ID (misal: 001)",
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                  ],
                 ),
               ),
             ],
@@ -108,7 +113,7 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
           return;
         }
         final newDevice = FeederRoomDeviceModel(
-          deviceId: idCtrl.text.trim(),
+          deviceId: '$header${idCtrl.text.trim()}',
           status: 'on',
           batteryPercent: 100,
           feedRemaining: 0,
@@ -159,7 +164,11 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
   }
 
   void _showEditModal(FeederRoomDeviceModel device) {
-    final idCtrl = TextEditingController(text: device.deviceId);
+    final header = "SFRIPB";
+    final idWithoutHeader = device.deviceId.startsWith(header)
+        ? device.deviceId.substring(header.length)
+        : device.deviceId;
+    final idCtrl = TextEditingController(text: idWithoutHeader);
 
     showCustomDialog(
       context: context,
@@ -186,7 +195,7 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  "ID",
+                  header,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
@@ -199,7 +208,10 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
                 child: CustomInput(
                   label: "Device ID *",
                   controller: idCtrl,
-                  hint: "Masukkan ID",
+                  hint: "Masukkan ID (misal: 001)",
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                  ],
                 ),
               ),
             ],
@@ -207,7 +219,7 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
         ],
       ),
       onConfirm: () async {
-        final newId = idCtrl.text.trim();
+        final newId = '$header${idCtrl.text.trim()}';
         if (newId.isEmpty) {
           showAppToast(
             context: context,

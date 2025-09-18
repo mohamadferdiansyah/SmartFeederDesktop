@@ -11,6 +11,7 @@ class CustomInput extends StatefulWidget {
   final IconData? icon;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
+  final bool enabled;
 
   const CustomInput({
     super.key,
@@ -22,6 +23,7 @@ class CustomInput extends StatefulWidget {
     this.fontSize = 16,
     this.keyboardType,
     this.inputFormatters,
+    this.enabled = true,
   });
 
   @override
@@ -74,6 +76,7 @@ class _CustomInputState extends State<CustomInput> {
           controller: widget.controller,
           inputFormatters: widget.inputFormatters,
           obscureText: widget.isPassword ? _obscure : false,
+          enabled: widget.enabled,
           keyboardType: widget.keyboardType ?? TextInputType.text,
           decoration: InputDecoration(
             hintText: widget.hint,

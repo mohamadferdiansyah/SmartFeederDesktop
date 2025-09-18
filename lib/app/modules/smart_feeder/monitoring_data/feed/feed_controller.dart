@@ -10,23 +10,43 @@ import 'package:smart_feeder_desktop/app/models/feeder/feed_model.dart';
 class FeedController extends GetxController {
   final DataController dataController = Get.find<DataController>();
 
-  List<FeedModel> get feedList => dataController.feedList;
+  RxList<FeedModel> get feedList => dataController.feedList;
+
+  // FeedController
+  Future<void> loadFeeds() async {
+    await dataController.loadFeedsFromDb();
+  }
+
+  Future<void> addFeed(FeedModel model) async {
+    await dataController.addFeed(model);
+    await loadFeeds();
+  }
+
+  Future<void> updateFeed(FeedModel model, String oldCode) async {
+    await dataController.updateFeed(model, oldCode);
+    await loadFeeds();
+  }
+
+  Future<void> deleteFeed(String code) async {
+    await dataController.deleteFeed(code);
+    await loadFeeds();
+  }
 
   Future<void> exportFeedExcel(List<FeedModel> data) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
       TextCellValue('ID'),
-      TextCellValue('Nama Pakan'),
-      TextCellValue('Jumlah (Kg)'),
+      TextCellValue('Nama Merek'),
+      TextCellValue('Kapasitas'),
       TextCellValue('Tipe'),
     ]);
     for (var d in data) {
       sheet.appendRow([
-        TextCellValue(d.feedId),
-        TextCellValue(d.name),
-        TextCellValue(d.stock.toString()),
-        TextCellValue(d.type.toString()),
+        TextCellValue(d.code),
+        TextCellValue(d.brand),
+        TextCellValue(d.capacity.toString()),
+        TextCellValue(d.type),
       ]);
     }
     final fileBytes = excel.encode();
@@ -47,13 +67,10 @@ class FeedController extends GetxController {
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Table.fromTextArray(
-          headers: ['ID', 'Nama Pakan', 'Jumlah (Kg)', 'Tipe'],
-          data: data.map((d) => [
-            d.feedId,
-            d.name,
-            d.stock.toString(),
-            d.type.toString(),
-          ]).toList(),
+          headers: ['ID', 'Nama Merek', 'Kapasitas', 'Tipe'],
+          data: data
+              .map((d) => [d.code, d.brand, d.capacity.toString(), d.type])
+              .toList(),
         ),
       ),
     );
@@ -68,4 +85,3 @@ class FeedController extends GetxController {
     }
   }
 }
-

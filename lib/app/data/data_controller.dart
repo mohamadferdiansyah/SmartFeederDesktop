@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_device_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_feed_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_room_device_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/halter/cctv_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/halter/halter_alert_rule_engine_dao.dart';
@@ -74,19 +75,6 @@ class DataController extends GetxController {
         //   batteryPercent: 67,
         //   feedRemaining: 0,
         //   waterRemaining: 0,
-        // ),
-      ].obs;
-
-  // Data Feeder Device
-  final RxList<FeederDeviceDetailModel> feederCarDeviceList =
-      <FeederDeviceDetailModel>[
-        // FeederDeviceDetailModel(
-        //   deviceId: 'feeder1',
-        //   current: 1.5,
-        //   voltage: 220.0,
-        //   power: 330.0,
-        //   status: 'ready',
-        //   batteryPercent: 87,
         // ),
       ].obs;
 
@@ -284,28 +272,7 @@ class DataController extends GetxController {
   final RxList<HorseHealthModel> horseHealthList = <HorseHealthModel>[].obs;
 
   // Data Feed
-  final RxList<FeedModel> feedList = <FeedModel>[
-    // FeedModel(feedId: 'F1', name: 'Pakan A', type: 'hijauan', stock: 100.0),
-    // FeedModel(feedId: 'F2', name: 'Pakan B', type: 'konsentrat', stock: 50.0),
-    // FeedModel(feedId: 'F3', name: 'Pakan C', type: 'hijauan', stock: 75.0),
-    // FeedModel(feedId: 'F4', name: 'Pakan D', type: 'konsentrat', stock: 62.0),
-    // FeedModel(feedId: 'F5', name: 'Pakan E', type: 'hijauan', stock: 80.0),
-    // FeedModel(feedId: 'F6', name: 'Pakan F', type: 'konsentrat', stock: 55.0),
-    // FeedModel(feedId: 'F7', name: 'Pakan G', type: 'hijauan', stock: 90.0),
-    // FeedModel(feedId: 'F8', name: 'Pakan H', type: 'konsentrat', stock: 70.0),
-    // FeedModel(feedId: 'F9', name: 'Pakan I', type: 'hijauan', stock: 78.0),
-    // FeedModel(feedId: 'F10', name: 'Pakan J', type: 'konsentrat', stock: 80.0),
-    // FeedModel(feedId: 'F11', name: 'Pakan K', type: 'hijauan', stock: 60.0),
-    // FeedModel(feedId: 'F12', name: 'Pakan L', type: 'konsentrat', stock: 71.0),
-    // FeedModel(feedId: 'F13', name: 'Pakan M', type: 'hijauan', stock: 93.0),
-    // FeedModel(feedId: 'F14', name: 'Pakan N', type: 'konsentrat', stock: 86.0),
-    // FeedModel(feedId: 'F15', name: 'Pakan O', type: 'hijauan', stock: 65.0),
-    // FeedModel(feedId: 'F16', name: 'Pakan P', type: 'konsentrat', stock: 59.0),
-    // FeedModel(feedId: 'F17', name: 'Pakan Q', type: 'hijauan', stock: 85.0),
-    // FeedModel(feedId: 'F18', name: 'Pakan R', type: 'konsentrat', stock: 67.0),
-    // FeedModel(feedId: 'F19', name: 'Pakan S', type: 'hijauan', stock: 95.0),
-    // FeedModel(feedId: 'F20', name: 'Pakan T', type: 'konsentrat', stock: 77.0),
-  ].obs;
+  final RxList<FeedModel> feedList = <FeedModel>[].obs;
 
   // Data Water
   final RxList<WaterModel> waterList = <WaterModel>[
@@ -377,6 +344,7 @@ class DataController extends GetxController {
     // feeder
     initFeederDeviceDao(db);
     initFeederRoomDeviceDao(db);
+    initFeederFeedDao(db);
     // dst...
     await Future.wait([
       // halter
@@ -397,6 +365,7 @@ class DataController extends GetxController {
       // feeder
       loadFeederDevicesFromDb(),
       loadFeederRoomDevicesFromDb(),
+      loadFeedsFromDb()
       // dst...
     ]);
   }
@@ -1019,5 +988,32 @@ class DataController extends GetxController {
   Future<void> deleteFeederRoomDevice(String deviceId) async {
     await feederRoomDeviceDao.delete(deviceId);
     await loadFeederRoomDevicesFromDb();
+  }
+
+  // Data Feed
+  late FeederFeedDao feedDao;
+
+  void initFeederFeedDao(Database db) {
+    feedDao = FeederFeedDao(db);
+  }
+
+  Future<void> loadFeedsFromDb() async {
+    final list = await feedDao.getAll();
+    feedList.assignAll(list);
+  }
+
+  Future<void> addFeed(FeedModel model) async {
+    await feedDao.insert(model);
+    await loadFeedsFromDb();
+  }
+
+  Future<void> updateFeed(FeedModel model, String oldCode) async {
+    await feedDao.update(model, oldCode);
+    await loadFeedsFromDb();
+  }
+
+  Future<void> deleteFeed(String code) async {
+    await feedDao.delete(code);
+    await loadFeedsFromDb();
   }
 }

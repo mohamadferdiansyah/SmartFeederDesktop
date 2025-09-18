@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/data/halter_storage/data_halter_calibration_log.dart';
+import 'package:smart_feeder_desktop/app/data/storage/halter/data_halter_calibration_log.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_calibration_log_model.dart';
 
 class HalterCalibrationLogController extends GetxController {

@@ -1127,7 +1127,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                           case 'delivery':
                             textStatus =
                                 'Feeder Mengantar Ke ${detail.destination?.toUpperCase() ?? "-"}'
-                                '${(detail.amount != null && detail.amount! > 0) ? " (${detail.amount} kg)" : ""}';
+                                '${(detail.amount != null && detail.amount! > 0) ? " (${detail.amount} g)" : ""}';
                             break;
                           case 'process':
                             textStatus =

@@ -43,10 +43,10 @@ class DBHelper {
         // feeds
         await db.execute('''
           CREATE TABLE feeds (
-            feed_id TEXT PRIMARY KEY,
-            name TEXT,
-            type TEXT,
-            stock DOUBLE
+            code TEXT PRIMARY KEY,
+            brand TEXT,
+            capacity DOUBLE,
+            type TEXT
           )
         ''');
 

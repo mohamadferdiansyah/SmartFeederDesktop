@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
-import 'package:smart_feeder_desktop/app/data/halter_storage/data_team_halter.dart';
+import 'package:smart_feeder_desktop/app/data/storage/halter/data_team_halter.dart';
 import 'package:smart_feeder_desktop/app/models/sidebar_menu_model.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 

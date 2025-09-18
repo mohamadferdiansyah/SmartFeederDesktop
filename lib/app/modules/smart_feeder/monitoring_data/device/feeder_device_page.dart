@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_detail_model.dart';
@@ -52,6 +53,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
   void _showTambahModal() {
     final idCtrl = TextEditingController();
     final versionCtrl = TextEditingController(text: "1.5");
+    final header = "SFIPB";
 
     showCustomDialog(
       context: context,
@@ -78,7 +80,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  "ID",
+                  header,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
@@ -91,7 +93,10 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                 child: CustomInput(
                   label: "Device ID *",
                   controller: idCtrl,
-                  hint: "Masukkan ID",
+                  hint: "Masukkan ID (misal: 001)",
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                  ],
                 ),
               ),
             ],
@@ -119,8 +124,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
           return;
         }
         final newDevice = FeederDeviceModel(
-          deviceId: idCtrl.text.trim(),
-
+          deviceId: '$header${idCtrl.text.trim()}',
           version: versionCtrl.text,
         );
         await _controller.addDevice(newDevice);
@@ -171,7 +175,11 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
   }
 
   void _showEditModal(FeederDeviceModel device) {
-    final idCtrl = TextEditingController(text: device.deviceId);
+    final header = "SFIPB";
+    final idWithoutHeader = device.deviceId.startsWith(header)
+        ? device.deviceId.substring(header.length)
+        : device.deviceId;
+    final idCtrl = TextEditingController(text: idWithoutHeader);
     final versionCtrl = TextEditingController(text: device.version);
 
     showCustomDialog(
@@ -199,7 +207,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  "ID",
+                  header,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
@@ -212,7 +220,10 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                 child: CustomInput(
                   label: "Device ID *",
                   controller: idCtrl,
-                  hint: "Masukkan ID",
+                  hint: "Masukkan ID (misal: 001)",
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                  ],
                 ),
               ),
             ],
@@ -232,7 +243,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
       onConfirm: () async {
         await _controller.updateDevice(
           FeederDeviceModel(
-            deviceId: idCtrl.text.trim(),
+            deviceId: '$header${idCtrl.text.trim()}',
             stableId: device.stableId,
             version: versionCtrl.text,
           ),
@@ -406,6 +417,14 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
 
   @override
   Widget build(BuildContext context) {
+    print('Device List:');
+    for (final d in _controller.feederDeviceList) {
+      print(d.deviceId);
+    }
+    print('Detail List:');
+    for (final det in _controller.feederDeviceDetailList) {
+      print('${det.deviceId} - ${det.batteryPercent}');
+    }
     final detailDevices = _controller.feederDeviceDetailList;
     final tableWidth = MediaQuery.of(context).size.width - 72.0;
     final idW = tableWidth * 0.1;
@@ -791,7 +810,9 @@ class FeederDeviceDataTableSource extends DataTableSource {
       cells: [
         DataCell(Center(child: Text(device.deviceId))),
         DataCell(Center(child: Text(device.stableId ?? '-'))),
-        DataCell(Center(child: Text(status == 'on' ? 'Aktif' : 'Tidak Aktif'))),
+        DataCell(
+          Center(child: Text(status == 'ready' ? 'Aktif' : 'Tidak Aktif')),
+        ),
         DataCell(Center(child: Text(device.version))),
         DataCell(Center(child: Text('${batteryPercent}%'))),
         DataCell(

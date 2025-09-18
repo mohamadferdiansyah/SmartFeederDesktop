@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 // Ganti dengan import model dan widget sesuai project-mu
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/data/halter_storage/data_team_halter.dart';
+import 'package:smart_feeder_desktop/app/data/storage/halter/data_team_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/node_room_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/monitoring_data/node_room/halter_node_controller.dart';

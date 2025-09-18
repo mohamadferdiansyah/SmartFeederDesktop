@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
-import 'package:smart_feeder_desktop/app/data/halter_storage/data_setting_halter.dart';
+import 'package:smart_feeder_desktop/app/data/storage/halter/data_setting_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_setting_model.dart';
 import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
 import 'package:toastification/toastification.dart';

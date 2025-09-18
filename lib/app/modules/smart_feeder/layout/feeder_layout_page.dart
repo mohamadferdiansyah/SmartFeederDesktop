@@ -10,13 +10,12 @@ import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_d
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/control_schedule/control_schedule_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/feed/feed_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/feeder_device_page.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/water/water_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/setting/feeder_setting_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/help/feeder_help_page.dart';
 
 class FeederLayoutPage extends StatelessWidget {
   FeederLayoutPage({super.key});
-  final controller = Get.put(FeederLayoutController());
+  final FeederLayoutController controller = Get.find<FeederLayoutController>();
 
   final List<SidebarMenuItem> menuItems = [
     SidebarMenuItem(
@@ -48,11 +47,11 @@ class FeederLayoutPage extends StatelessWidget {
           icon: Icons.food_bank,
           page: FeedPage(),
         ),
-        SidebarMenuItem(
-          title: "Data Air",
-          icon: Icons.water,
-          page: WaterPage(),
-        ),
+        // SidebarMenuItem(
+        //   title: "Data Air",
+        //   icon: Icons.water,
+        //   page: WaterPage(),
+        // ),
       ],
     ),
     SidebarMenuItem(

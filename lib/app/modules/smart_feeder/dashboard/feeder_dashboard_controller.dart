@@ -36,7 +36,7 @@ class FeederDashboardController extends GetxController {
       .toList();
 
   final DataController dataController = Get.find<DataController>();
-  final mqttService = Get.find<MqttService>();
+  // final mqttService = Get.find<MqttService>();
 
   RxList<RoomModel> get roomList => dataController.roomList;
   RxList<StableModel> get stableList => dataController.stableList;
@@ -52,7 +52,7 @@ class FeederDashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    mqttService.init();
+    // mqttService.init();
     Timer.periodic(Duration(seconds: 1), (timer) {
       nowTick.value = DateTime.now().millisecondsSinceEpoch;
     });
@@ -95,7 +95,7 @@ class FeederDashboardController extends GetxController {
 
   @override
   void onClose() {
-    mqttService.disconnect();
+    // mqttService.disconnect();
     _timer?.cancel();
     super.onClose();
   }

@@ -1,27 +1,27 @@
 class FeedModel {
-  final String feedId;
-  final String name;
+  final String code;
+  final String brand;
+  final double capacity;
   final String type;
-  final double stock;
 
   FeedModel({
-    required this.feedId,
-    required this.name,
+    required this.code,
+    required this.brand,
+    required this.capacity,
     required this.type,
-    required this.stock,
   });
 
   factory FeedModel.fromMap(Map<String, dynamic> map) => FeedModel(
-        feedId: map['feed_id'],
-        name: map['name'],
+        code: map['code'],
+        brand: map['brand'],
+        capacity: (map['capacity'] ?? 0.0).toDouble(),
         type: map['type'],
-        stock: (map['stock'] ?? 0.0).toDouble(),
       );
 
   Map<String, dynamic> toMap() => {
-        'feed_id': feedId,
-        'name': name,
+        'code': code,
+        'brand': brand,
+        'capacity': capacity,
         'type': type,
-        'stock': stock,
       };
 }
