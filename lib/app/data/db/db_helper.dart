@@ -36,7 +36,20 @@ class DBHelper {
           CREATE TABLE feeder_devices (
             device_id TEXT PRIMARY KEY,
             stable_id TEXT,
+            schedule_type TEXT,
             version TEXT
+          )
+        ''');
+
+        // feeder history
+        await db.execute('''
+          CREATE TABLE feeder_device_histories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT,
+            device_id TEXT,
+            mode TEXT,
+            room_id TEXT,
+            amount DOUBLE
           )
         ''');
 
@@ -127,8 +140,6 @@ class DBHelper {
             status TEXT,
             remaining_water DOUBLE,
             remaining_feed DOUBLE,
-            water_schedule_type TEXT,
-            feed_schedule_type TEXT,
             stable_id TEXT,
             horse_id TEXT,
             cctv_id TEXT

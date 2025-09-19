@@ -6,12 +6,15 @@ import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_detail_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_history_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'package:smart_feeder_desktop/app/models/stable_model.dart';
+import 'package:smart_feeder_desktop/app/services/mqtt_service.dart';
 
 class FeederDeviceController extends GetxController {
   final DataController dataController = Get.find<DataController>();
+  final MqttService mqtt = Get.find<MqttService>();
 
   RxList<RoomModel> get roomList => dataController.roomList;
   RxList<StableModel> get stableList => dataController.stableList;
@@ -21,6 +24,9 @@ class FeederDeviceController extends GetxController {
 
   RxList<FeederDeviceDetailModel> get feederDeviceDetailList =>
       dataController.feederDeviceDetailList;
+
+  RxList<FeederDeviceHistoryModel> get feederDeviceHistoryList =>
+      dataController.feederDeviceHistoryList;
 
   String getRoomName(String? stableId) {
     if (stableId == null || stableId.isEmpty) return "-";
@@ -35,12 +41,13 @@ class FeederDeviceController extends GetxController {
   Future<void> addDevice(FeederDeviceModel model) async {
     await dataController.addFeederDevice(model);
     await loadDevices();
+    mqtt.publishMode(deviceId: model.deviceId, mode: model.scheduleType);
   }
 
   Future<void> updateDevice(FeederDeviceModel model, String oldDeviceId) async {
     await dataController.updateFeederDevice(model, oldDeviceId);
     await loadDevices();
-    print(model.stableId);
+    mqtt.publishMode(deviceId: model.deviceId, mode: model.scheduleType);
   }
 
   Future<void> deleteDevice(String deviceId) async {

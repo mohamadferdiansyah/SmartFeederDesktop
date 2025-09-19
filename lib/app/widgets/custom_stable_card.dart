@@ -6,8 +6,8 @@ import 'custom_button.dart';
 class CustomStableCard extends StatelessWidget {
   final String stableName;
   final String imageAsset;
-  final String waterScheduleText;
-  final String feedScheduleText;
+  // final String waterScheduleText;
+  // final String feedScheduleText;
   final bool isActive;
   final RxDouble remainingWater; // <-- RxDouble
   final RxDouble remainingFeed; // <-- RxDouble
@@ -19,8 +19,8 @@ class CustomStableCard extends StatelessWidget {
     Key? key,
     required this.stableName,
     required this.imageAsset,
-    required this.waterScheduleText,
-    required this.feedScheduleText,
+    // required this.waterScheduleText,
+    // required this.feedScheduleText,
     required this.isActive,
     required this.remainingWater,
     required this.remainingFeed,
@@ -72,52 +72,52 @@ class CustomStableCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Tooltip(
-                message: 'Jenis Penjadwalan Air: $waterScheduleText',
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 6,
-                    horizontal: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: waterScheduleText == 'penjadwalan'
-                        ? Colors.teal
-                        : waterScheduleText == 'otomatis'
-                        ? Colors.blue
-                        : Colors.orange,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.water_drop_rounded,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Tooltip(
-                message: 'Jenis Penjadwalan Pakan: $feedScheduleText',
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 6,
-                    horizontal: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: feedScheduleText == 'penjadwalan'
-                        ? Colors.teal
-                        : feedScheduleText == 'otomatis'
-                        ? Colors.blue
-                        : Colors.orange,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.restaurant_menu_rounded,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
+              // Tooltip(
+              //   message: 'Jenis Penjadwalan Air: $waterScheduleText',
+              //   child: Container(
+              //     padding: const EdgeInsets.symmetric(
+              //       vertical: 6,
+              //       horizontal: 12,
+              //     ),
+              //     decoration: BoxDecoration(
+                    // color: waterScheduleText == 'penjadwalan'
+                    //     ? Colors.teal
+                    //     : waterScheduleText == 'otomatis'
+                    //     ? Colors.blue
+                    //     : Colors.orange,
+              //       borderRadius: BorderRadius.circular(8),
+              //     ),
+              //     child: Icon(
+              //       Icons.water_drop_rounded,
+              //       color: Colors.white,
+              //       size: 20,
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(width: 8),
+              // Tooltip(
+              //   message: 'Jenis Penjadwalan Pakan: $feedScheduleText',
+              //   child: Container(
+              //     padding: const EdgeInsets.symmetric(
+              //       vertical: 6,
+              //       horizontal: 12,
+              //     ),
+              //     decoration: BoxDecoration(
+              //       color: feedScheduleText == 'penjadwalan'
+              //           ? Colors.teal
+              //           : feedScheduleText == 'otomatis'
+              //           ? Colors.blue
+              //           : Colors.orange,
+              //       borderRadius: BorderRadius.circular(8),
+              //     ),
+              //     child: Icon(
+              //       Icons.restaurant_menu_rounded,
+              //       color: Colors.white,
+              //       size: 20,
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(width: 8),
               Tooltip(
                 message: 'Status Device Ruangan: $activeText',
                 child: Container(

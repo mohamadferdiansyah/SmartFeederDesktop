@@ -8,8 +8,7 @@ class HorseModel {
   final String? category; // Tambahkan ini
   final String? birthPlace; // Tempat Lahir
   final DateTime? birthDate; // Tanggal Lahir (format: yyyy-MM-dd atau DateTime)
-  final DateTime?
-  settleDate; // Tanggal Menetap (format: yyyy-MM-dd atau string)
+  final DateTime? settleDate; // Tanggal Menetap (format: yyyy-MM-dd atau string)
   final double? length; // Panjang
   final double? weight; // Berat
   final double? height; // Tinggi

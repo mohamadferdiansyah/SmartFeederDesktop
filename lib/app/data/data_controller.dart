@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_device_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_device_history_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_feed_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_room_device_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/halter/cctv_dao.dart';
@@ -17,6 +18,7 @@ import 'package:smart_feeder_desktop/app/data/dao/halter/node_room_detail_dao.da
 import 'package:smart_feeder_desktop/app/data/dao/room_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/stable_dao.dart';
 import 'package:smart_feeder_desktop/app/data/db/db_helper.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_history_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/cctv_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_calibration_log_model.dart';
@@ -60,213 +62,21 @@ class DataController extends GetxController {
 
   // Data Feeder Room Device
   final RxList<FeederRoomDeviceModel> feederRoomDeviceList =
-      <FeederRoomDeviceModel>[
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFRIPB01',
-        //   status: 'ready',
-        //   batteryPercent: 67,
-        //   feedRemaining: 0,
-        //   waterRemaining: 0,
-        // ),
-        // FeederRoomDeviceModel(
-        //   deviceId: 'SFRIPB02',
-        //   status: 'ready',
-        //   roomId: 'R001',
-        //   batteryPercent: 67,
-        //   feedRemaining: 0,
-        //   waterRemaining: 0,
-        // ),
-      ].obs;
+      <FeederRoomDeviceModel>[].obs;
 
   // Data Feeder Device
-  final RxList<FeederDeviceModel> feederDeviceList = <FeederDeviceModel>[
-    // FeederDeviceModel(deviceId: 'SFIPB001', stableId: 'K001', version: '2.0'),
-    // FeederDeviceModel(deviceId: 'SFIPB002', version: '1.5'),
-  ].obs;
+  final RxList<FeederDeviceModel> feederDeviceList = <FeederDeviceModel>[].obs;
 
+  // Data Feeder Device Detail
   final RxList<FeederDeviceDetailModel> feederDeviceDetailList =
-      <FeederDeviceDetailModel>[
-        // FeederDeviceDetailModel(
-        //   deviceId: 'SFIPB001',
-        //   status: 'ready',
-        //   batteryPercent: 67,
-        //   voltage: 0,
-        //   current: 0,
-        //   power: 0,
-        //   lastUpdate: DateTime.now(),
-        // ),
-      ].obs;
+      <FeederDeviceDetailModel>[].obs;
+
+  // Data Feeder Device
+  final RxList<FeederDeviceHistoryModel> feederDeviceHistoryList =
+      <FeederDeviceHistoryModel>[].obs;
 
   // Data History Entry
-  final RxList<HistoryEntryModel> historyEntryList = <HistoryEntryModel>[
-    // Stable 1, Room R1-R6
-    // HistoryEntryModel(
-    //   historyId: 'HIST1',
-    //   stableId: 'S1',
-    //   roomId: 'R1',
-    //   time: DateTime(2025, 7, 1, 8, 0),
-    //   scheduleType: 'penjadwalan',
-    //   feed: 38.2,
-    //   water: 4.2,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST2',
-    //   stableId: 'S1',
-    //   roomId: 'R2',
-    //   time: DateTime(2025, 7, 2, 8, 0),
-    //   scheduleType: 'otomatis',
-    //   feed: 40.1,
-    //   water: 3.8,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST3',
-    //   stableId: 'S1',
-    //   roomId: 'R3',
-    //   time: DateTime(2025, 7, 3, 8, 0),
-    //   scheduleType: 'manual',
-    //   feed: 25.7,
-    //   water: 2.6,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST4',
-    //   stableId: 'S1',
-    //   roomId: 'R4',
-    //   time: DateTime(2025, 7, 4, 8, 0),
-    //   scheduleType: 'penjadwalan',
-    //   feed: 22.5,
-    //   water: 1.9,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST5',
-    //   stableId: 'S1',
-    //   roomId: 'R5',
-    //   time: DateTime(2025, 7, 5, 8, 0),
-    //   scheduleType: 'otomatis',
-    //   feed: 18.4,
-    //   water: 4.7,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST6',
-    //   stableId: 'S1',
-    //   roomId: 'R6',
-    //   time: DateTime(2025, 7, 6, 8, 0),
-    //   scheduleType: 'manual',
-    //   feed: 41.9,
-    //   water: 5.5,
-    // ),
-
-    // // Stable 2, Room R7-R12
-    // HistoryEntryModel(
-    //   historyId: 'HIST7',
-    //   stableId: 'S2',
-    //   roomId: 'R7',
-    //   time: DateTime(2025, 7, 7, 8, 0),
-    //   scheduleType: 'penjadwalan',
-    //   feed: 37.4,
-    //   water: 4.8,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST8',
-    //   stableId: 'S2',
-    //   roomId: 'R8',
-    //   time: DateTime(2025, 7, 8, 8, 0),
-    //   scheduleType: 'otomatis',
-    //   feed: 29.5,
-    //   water: 5.1,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST9',
-    //   stableId: 'S2',
-    //   roomId: 'R9',
-    //   time: DateTime(2025, 7, 9, 8, 0),
-    //   scheduleType: 'manual',
-    //   feed: 26.0,
-    //   water: 2.9,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST10',
-    //   stableId: 'S2',
-    //   roomId: 'R10',
-    //   time: DateTime(2025, 7, 10, 8, 0),
-    //   scheduleType: 'penjadwalan',
-    //   feed: 21.1,
-    //   water: 2.1,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST11',
-    //   stableId: 'S2',
-    //   roomId: 'R11',
-    //   time: DateTime(2025, 7, 11, 8, 0),
-    //   scheduleType: 'otomatis',
-    //   feed: 39.8,
-    //   water: 4.0,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST12',
-    //   stableId: 'S2',
-    //   roomId: 'R12',
-    //   time: DateTime(2025, 7, 12, 8, 0),
-    //   scheduleType: 'manual',
-    //   feed: 27.7,
-    //   water: 3.3,
-    // ),
-
-    // // Stable 3, Room R13-R18
-    // HistoryEntryModel(
-    //   historyId: 'HIST13',
-    //   stableId: 'S3',
-    //   roomId: 'R13',
-    //   time: DateTime(2025, 7, 13, 8, 0),
-    //   scheduleType: 'penjadwalan',
-    //   feed: 23.4,
-    //   water: 2.4,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST14',
-    //   stableId: 'S3',
-    //   roomId: 'R14',
-    //   time: DateTime(2025, 7, 14, 8, 0),
-    //   scheduleType: 'otomatis',
-    //   feed: 31.5,
-    //   water: 5.8,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST15',
-    //   stableId: 'S3',
-    //   roomId: 'R15',
-    //   time: DateTime(2025, 7, 15, 8, 0),
-    //   scheduleType: 'manual',
-    //   feed: 35.6,
-    //   water: 4.5,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST16',
-    //   stableId: 'S3',
-    //   roomId: 'R16',
-    //   time: DateTime(2025, 7, 16, 8, 0),
-    //   scheduleType: 'penjadwalan',
-    //   feed: 33.9,
-    //   water: 6.2,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST17',
-    //   stableId: 'S3',
-    //   roomId: 'R17',
-    //   time: DateTime(2025, 7, 17, 8, 0),
-    //   scheduleType: 'otomatis',
-    //   feed: 42.2,
-    //   water: 7.0,
-    // ),
-    // HistoryEntryModel(
-    //   historyId: 'HIST18',
-    //   stableId: 'S3',
-    //   roomId: 'R18',
-    //   time: DateTime(2025, 7, 18, 8, 0),
-    //   scheduleType: 'manual',
-    //   feed: 19.8,
-    //   water: 2.0,
-    // ),
-  ].obs;
+  final RxList<HistoryEntryModel> historyEntryList = <HistoryEntryModel>[].obs;
 
   // Data Health Horse
   final RxList<HorseHealthModel> horseHealthList = <HorseHealthModel>[].obs;
@@ -345,6 +155,7 @@ class DataController extends GetxController {
     initFeederDeviceDao(db);
     initFeederRoomDeviceDao(db);
     initFeederFeedDao(db);
+    initFillHistoryDao(db);
     // dst...
     await Future.wait([
       // halter
@@ -365,7 +176,8 @@ class DataController extends GetxController {
       // feeder
       loadFeederDevicesFromDb(),
       loadFeederRoomDevicesFromDb(),
-      loadFeedsFromDb()
+      loadFeedsFromDb(),
+      loadFillHistoryFromDb()
       // dst...
     ]);
   }
@@ -1015,5 +827,27 @@ class DataController extends GetxController {
   Future<void> deleteFeed(String code) async {
     await feedDao.delete(code);
     await loadFeedsFromDb();
+  }
+
+  // Data Feeder Device History
+  late FeederDeviceHistoryDao fillHistoryDao;
+
+  void initFillHistoryDao(Database db) {
+    fillHistoryDao = FeederDeviceHistoryDao(db);
+  }
+
+  Future<void> loadFillHistoryFromDb() async {
+    final list = await fillHistoryDao.getAll();
+    feederDeviceHistoryList.assignAll(list);
+  }
+
+  Future<void> addFillHistory(FeederDeviceHistoryModel model) async {
+    await fillHistoryDao.insert(model);
+    await loadFillHistoryFromDb();
+  }
+
+  Future<void> clearFillHistory() async {
+    await fillHistoryDao.clear();
+    await loadFillHistoryFromDb();
   }
 }

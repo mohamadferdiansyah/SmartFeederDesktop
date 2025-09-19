@@ -23,18 +23,27 @@ class HalterBiometricRuleEngineModel {
     this.respirasiMax,
   });
 
-  factory HalterBiometricRuleEngineModel.fromMap(Map<String, dynamic> map) => HalterBiometricRuleEngineModel(
-    id: map['id'],
-    name: map['name'],
-    suhuMin: map['suhu_min'] != null ? (map['suhu_min'] as num?)?.toDouble() : null,
-    suhuMax: map['suhu_max'] != null ? (map['suhu_max'] as num?)?.toDouble() : null,
-    heartRateMin: map['heart_rate_min'],
-    heartRateMax: map['heart_rate_max'],
-    spoMin: map['spo_min'] != null ? (map['spo_min'] as num?)?.toDouble() : null,
-    spoMax: map['spo_max'] != null ? (map['spo_max'] as num?)?.toDouble() : null,
-    respirasiMin: map['respirasi_min'],
-    respirasiMax: map['respirasi_max'],
-  );
+  factory HalterBiometricRuleEngineModel.fromMap(Map<String, dynamic> map) =>
+      HalterBiometricRuleEngineModel(
+        id: map['id'],
+        name: map['name'],
+        suhuMin: map['suhu_min'] != null
+            ? (map['suhu_min'] as num?)?.toDouble()
+            : null,
+        suhuMax: map['suhu_max'] != null
+            ? (map['suhu_max'] as num?)?.toDouble()
+            : null,
+        heartRateMin: map['heart_rate_min'],
+        heartRateMax: map['heart_rate_max'],
+        spoMin: map['spo_min'] != null
+            ? (map['spo_min'] as num?)?.toDouble()
+            : null,
+        spoMax: map['spo_max'] != null
+            ? (map['spo_max'] as num?)?.toDouble()
+            : null,
+        respirasiMin: map['respirasi_min'],
+        respirasiMax: map['respirasi_max'],
+      );
 
   Map<String, dynamic> toMap() => {
     if (id != null) 'id': id,

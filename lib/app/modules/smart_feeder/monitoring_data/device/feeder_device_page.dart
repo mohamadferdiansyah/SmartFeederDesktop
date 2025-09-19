@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_detail_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_history_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/device/feeder_device_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
@@ -53,6 +55,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
   void _showTambahModal() {
     final idCtrl = TextEditingController();
     final versionCtrl = TextEditingController(text: "1.5");
+    final scheduleCtrl = TextEditingController(text: "auto");
     final header = "SFIPB";
 
     showCustomDialog(
@@ -111,6 +114,16 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
             ],
             onChanged: (v) => versionCtrl.text = v ?? "1.5",
           ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            value: scheduleCtrl.text,
+            decoration: const InputDecoration(labelText: "Mode Penjadwalan"),
+            items: const [
+              DropdownMenuItem(value: "auto", child: Text("Mode Otomatis")),
+              DropdownMenuItem(value: "manual", child: Text("Mode Manual")),
+            ],
+            onChanged: (v) => scheduleCtrl.text = v ?? "otomatis",
+          ),
         ],
       ),
       onConfirm: () async {
@@ -125,6 +138,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
         }
         final newDevice = FeederDeviceModel(
           deviceId: '$header${idCtrl.text.trim()}',
+          scheduleType: scheduleCtrl.text,
           version: versionCtrl.text,
         );
         await _controller.addDevice(newDevice);
@@ -181,6 +195,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
         : device.deviceId;
     final idCtrl = TextEditingController(text: idWithoutHeader);
     final versionCtrl = TextEditingController(text: device.version);
+    final scheduleCtrl = TextEditingController(text: device.scheduleType);
 
     showCustomDialog(
       context: context,
@@ -238,6 +253,16 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
             ],
             onChanged: (v) => versionCtrl.text = v ?? "1.5",
           ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            value: scheduleCtrl.text,
+            decoration: const InputDecoration(labelText: "Mode Penjadwalan"),
+            items: const [
+              DropdownMenuItem(value: "auto", child: Text("Mode Otomatis")),
+              DropdownMenuItem(value: "manual", child: Text("Mode Manual")),
+            ],
+            onChanged: (v) => scheduleCtrl.text = v ?? "otomatis",
+          ),
         ],
       ),
       onConfirm: () async {
@@ -245,6 +270,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
           FeederDeviceModel(
             deviceId: '$header${idCtrl.text.trim()}',
             stableId: device.stableId,
+            scheduleType: scheduleCtrl.text,
             version: versionCtrl.text,
           ),
           device.deviceId,
@@ -307,6 +333,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
           FeederDeviceModel(
             deviceId: device.deviceId,
             stableId: selectedStableId,
+            scheduleType: device.scheduleType,
             version: device.version,
           ),
           device.deviceId,
@@ -338,6 +365,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
           FeederDeviceModel(
             deviceId: device.deviceId,
             stableId: null,
+            scheduleType: device.scheduleType,
             version: device.version,
           ),
           device.deviceId,
@@ -426,12 +454,14 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
       print('${det.deviceId} - ${det.batteryPercent}');
     }
     final detailDevices = _controller.feederDeviceDetailList;
+    final deviceHistory = _controller.feederDeviceHistoryList;
     final tableWidth = MediaQuery.of(context).size.width - 72.0;
     final idW = tableWidth * 0.1;
-    final kandangW = tableWidth * 0.08;
-    final statusW = tableWidth * 0.08;
-    final versionW = tableWidth * 0.08;
-    final batteryW = tableWidth * 0.08;
+    final kandangW = tableWidth * 0.06;
+    final statusW = tableWidth * 0.06;
+    final scheduleW = tableWidth * 0.07;
+    final versionW = tableWidth * 0.06;
+    final batteryW = tableWidth * 0.06;
     final actionW = tableWidth * 0.32;
 
     return Padding(
@@ -670,6 +700,37 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                             ),
                             DataColumn(
                               label: SizedBox(
+                                width: scheduleW,
+                                child: const Center(
+                                  child: Text(
+                                    'Mode Penjadwalan',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              onSort: (columnIndex, ascending) {
+                                setState(() {
+                                  _sortColumnIndex = columnIndex;
+                                  _sortAscending = ascending;
+                                  _sort<String>(
+                                    devices,
+                                    (d) =>
+                                        _controller.feederDeviceDetailList
+                                            .firstWhereOrNull(
+                                              (det) =>
+                                                  det.deviceId == d.deviceId,
+                                            )
+                                            ?.status ??
+                                        '',
+                                    ascending,
+                                  );
+                                });
+                              },
+                            ),
+                            DataColumn(
+                              label: SizedBox(
                                 width: versionW,
                                 child: const Center(
                                   child: Text(
@@ -741,6 +802,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                             context: context,
                             devices: devices,
                             deviceDetails: detailDevices,
+                            history: deviceHistory,
                             getRoomName: _controller.getRoomName,
                             onDetail: _showDetailModal,
                             onEdit: _showEditModal,
@@ -774,6 +836,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
 class FeederDeviceDataTableSource extends DataTableSource {
   final BuildContext context;
   final List<FeederDeviceModel> devices;
+  final List<FeederDeviceHistoryModel> history;
   final List<FeederDeviceDetailModel> deviceDetails;
   final String Function(String) getRoomName;
   final void Function(FeederDeviceModel) onDetail;
@@ -786,6 +849,7 @@ class FeederDeviceDataTableSource extends DataTableSource {
   FeederDeviceDataTableSource({
     required this.context,
     required this.devices,
+    required this.history,
     required this.deviceDetails,
     required this.getRoomName,
     required this.onDetail,
@@ -802,6 +866,9 @@ class FeederDeviceDataTableSource extends DataTableSource {
     final detail = deviceDetails.firstWhereOrNull(
       (d) => d.deviceId == device.deviceId,
     );
+    final deviceHistory = history
+        .where((d) => d.deviceId == device.deviceId)
+        .toList();
     final status = detail?.status ?? '-';
     final batteryPercent = detail?.batteryPercent ?? 0;
 
@@ -812,6 +879,15 @@ class FeederDeviceDataTableSource extends DataTableSource {
         DataCell(Center(child: Text(device.stableId ?? '-'))),
         DataCell(
           Center(child: Text(status == 'ready' ? 'Aktif' : 'Tidak Aktif')),
+        ),
+        DataCell(
+          Center(
+            child: Text(
+              device.scheduleType.isNotEmpty
+                  ? '${device.scheduleType[0].toUpperCase()}${device.scheduleType.substring(1)}'
+                  : '-',
+            ),
+          ),
         ),
         DataCell(Center(child: Text(device.version))),
         DataCell(Center(child: Text('${batteryPercent}%'))),
@@ -827,7 +903,17 @@ class FeederDeviceDataTableSource extends DataTableSource {
                 icon: Icons.history,
                 borderRadius: 6,
                 fontSize: 14,
-                onPressed: () => onRiwayat(device),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return FeederDeviceDetailDialog(
+                        deviceId: device.deviceId,
+                        allData: deviceHistory,
+                      );
+                    },
+                  );
+                },
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -905,6 +991,434 @@ class FeederDeviceDataTableSource extends DataTableSource {
 
   @override
   int get rowCount => devices.length;
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get selectedRowCount => 0;
+}
+
+class FeederDeviceDetailDialog extends StatefulWidget {
+  final String deviceId;
+  final List<FeederDeviceHistoryModel> allData;
+
+  const FeederDeviceDetailDialog({
+    super.key,
+    required this.deviceId,
+    required this.allData,
+  });
+
+  @override
+  State<FeederDeviceDetailDialog> createState() =>
+      _FeederDeviceDetailDialogState();
+}
+
+class _FeederDeviceDetailDialogState extends State<FeederDeviceDetailDialog> {
+  DateTime? tanggalAwal;
+  DateTime? tanggalAkhir;
+  int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
+  int? _sortColumnIndex;
+  bool _sortAscending = true;
+
+  List<FeederDeviceHistoryModel> _filteredData(
+    List<FeederDeviceHistoryModel> data,
+  ) {
+    var filtered = data.where((d) => d.deviceId == widget.deviceId).toList();
+    if (tanggalAwal != null) {
+      filtered = filtered.where((d) {
+        final tAwal = DateTime(
+          tanggalAwal!.year,
+          tanggalAwal!.month,
+          tanggalAwal!.day,
+        );
+        final tData = DateTime(
+          d.timestamp.year,
+          d.timestamp.month,
+          d.timestamp.day,
+        );
+        return tData.isAtSameMomentAs(tAwal) || tData.isAfter(tAwal);
+      }).toList();
+    }
+    if (tanggalAkhir != null) {
+      filtered = filtered.where((d) {
+        final tAkhir = DateTime(
+          tanggalAkhir!.year,
+          tanggalAkhir!.month,
+          tanggalAkhir!.day,
+        );
+        final tData = DateTime(
+          d.timestamp.year,
+          d.timestamp.month,
+          d.timestamp.day,
+        );
+        return tData.isAtSameMomentAs(tAkhir) || tData.isBefore(tAkhir);
+      }).toList();
+    }
+    return filtered;
+  }
+
+  void _sort<T>(
+    List<FeederDeviceHistoryModel> data,
+    Comparable<T> Function(FeederDeviceHistoryModel d) getField,
+    bool ascending,
+  ) {
+    data.sort((a, b) {
+      final aValue = getField(a);
+      final bValue = getField(b);
+      return ascending
+          ? Comparable.compare(aValue, bValue)
+          : Comparable.compare(bValue, aValue);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: const EdgeInsets.all(32),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.9,
+        height: MediaQuery.of(context).size.height * 0.82,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Container(
+              height: 80,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  topRight: Radius.circular(8),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Detail Data Device ${widget.deviceId}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Filter tanggal
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  Flexible(
+                    child: TextField(
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: "Tanggal Awal",
+                        hintText: "Pilih tanggal awal",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.primary.withOpacity(0.5),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: AppColors.primary,
+                            width: 1.5,
+                          ),
+                        ),
+                        prefixIcon: const Icon(Icons.calendar_today),
+                      ),
+                      controller: TextEditingController(
+                        text: tanggalAwal != null
+                            ? DateFormat('dd-MM-yyyy').format(tanggalAwal!)
+                            : "",
+                      ),
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: tanggalAwal ?? DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            tanggalAwal = picked;
+                            if (tanggalAkhir != null &&
+                                tanggalAwal!.isAfter(tanggalAkhir!)) {
+                              final temp = tanggalAwal;
+                              tanggalAwal = tanggalAkhir;
+                              tanggalAkhir = temp;
+                            }
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: TextField(
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: "Tanggal Akhir",
+                        hintText: "Pilih tanggal akhir",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.primary.withOpacity(0.5),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: AppColors.primary,
+                            width: 1.5,
+                          ),
+                        ),
+                        prefixIcon: const Icon(Icons.calendar_today),
+                      ),
+                      controller: TextEditingController(
+                        text: tanggalAkhir != null
+                            ? DateFormat('dd-MM-yyyy').format(tanggalAkhir!)
+                            : "",
+                      ),
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: tanggalAkhir ?? DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            tanggalAkhir = picked;
+                            if (tanggalAwal != null &&
+                                tanggalAwal!.isAfter(tanggalAkhir!)) {
+                              final temp = tanggalAwal;
+                              tanggalAwal = tanggalAkhir;
+                              tanggalAkhir = temp;
+                            }
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  CustomButton(
+                    onPressed: () {
+                      setState(() {
+                        tanggalAwal = null;
+                        tanggalAkhir = null;
+                      });
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.success,
+                        title: 'Berhasil Reset!',
+                        description: 'Filter Tanggal Direset.',
+                      );
+                    },
+                    text: "Reset Tanggal",
+                    width: 150,
+                    height: 50,
+                    backgroundColor: Colors.grey,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Tabel data
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final tableWidth = constraints.maxWidth;
+                  final noW = tableWidth * 0.05;
+                  final timeW = tableWidth * 0.18;
+                  final statusW = tableWidth * 0.10;
+                  final destW = tableWidth * 0.13;
+                  final amountW = tableWidth * 0.10;
+                  final batteryW = tableWidth * 0.10;
+
+                  final filtered = _filteredData(widget.allData);
+                  if (_sortColumnIndex != null) {
+                    switch (_sortColumnIndex!) {
+                      case 0:
+                        _sort<String>(
+                          filtered,
+                          (d) => d.deviceId,
+                          _sortAscending,
+                        );
+                        break;
+                      case 1:
+                        _sort<DateTime>(
+                          filtered,
+                          (d) => d.timestamp,
+                          _sortAscending,
+                        );
+                        break;
+                    }
+                  }
+                  return Theme(
+                    data: Theme.of(context).copyWith(
+                      cardColor: Colors.white,
+                      dataTableTheme: DataTableThemeData(
+                        headingRowColor: MaterialStateProperty.all(
+                          Colors.grey[200]!,
+                        ),
+                        dataRowColor: MaterialStateProperty.all(Colors.white),
+                      ),
+                    ),
+                    child: PaginatedDataTable(
+                      columnSpacing: 0,
+                      horizontalMargin: 0,
+                      sortColumnIndex: _sortColumnIndex,
+                      sortAscending: _sortAscending,
+                      columns: [
+                        DataColumn(
+                          label: SizedBox(
+                            width: noW,
+                            child: const Center(child: Text("No")),
+                          ),
+                          onSort: (columnIndex, ascending) {
+                            setState(() {
+                              _sortColumnIndex = columnIndex;
+                              _sortAscending = ascending;
+                            });
+                          },
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: timeW,
+                            child: const Center(child: Text("Timestamp")),
+                          ),
+                          onSort: (columnIndex, ascending) {
+                            setState(() {
+                              _sortColumnIndex = columnIndex;
+                              _sortAscending = ascending;
+                            });
+                          },
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: statusW,
+                            child: const Center(child: Text("Device ID")),
+                          ),
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: destW,
+                            child: const Center(child: Text("Mode")),
+                          ),
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: amountW,
+                            child: const Center(child: Text("Ruang")),
+                          ),
+                        ),
+                        DataColumn(
+                          label: SizedBox(
+                            width: batteryW,
+                            child: const Center(child: Text("Jumlah")),
+                          ),
+                        ),
+                      ],
+                      source: _FeederDeviceDetailDataTableSource(filtered),
+                      rowsPerPage: _rowsPerPage,
+                      availableRowsPerPage: const [5, 10],
+                      onRowsPerPageChanged: (value) {
+                        setState(() {
+                          _rowsPerPage = value ?? 5;
+                        });
+                      },
+                      showCheckboxColumn: false,
+                    ),
+                  );
+                },
+              ),
+            ),
+            // Tombol Tutup
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CustomButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  text: "Tutup",
+                  width: 150,
+                  height: 50,
+                  backgroundColor: AppColors.primary,
+                  fontSize: 20,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FeederDeviceDetailDataTableSource extends DataTableSource {
+  final List<FeederDeviceHistoryModel> data;
+
+  _FeederDeviceDetailDataTableSource(this.data);
+
+  @override
+  DataRow getRow(int index) {
+    final d = data[index];
+    return DataRow.byIndex(
+      index: index,
+      cells: [
+        DataCell(Center(child: Text('${index + 1}'))),
+        DataCell(
+          Center(
+            child: Text(
+              d.timestamp != null
+                  ? DateFormat('dd-MM-yyyy HH:mm:ss').format(d.timestamp)
+                  : "-",
+            ),
+          ),
+        ),
+        DataCell(Center(child: Text(d.deviceId))),
+        DataCell(Center(child: Text(d.mode))),
+        DataCell(Center(child: Text(d.roomId))),
+        DataCell(Center(child: Text(d.amount.toString()))),
+      ],
+    );
+  }
+
+  @override
+  int get rowCount => data.length;
 
   @override
   bool get isRowCountApproximate => false;

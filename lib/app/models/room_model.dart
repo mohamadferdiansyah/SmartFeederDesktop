@@ -10,8 +10,6 @@ class RoomModel {
   final String? horseId;
   final double remainingWater;
   final double remainingFeed;
-  final String waterScheduleType;
-  final String feedScheduleType;
   final Rxn<DateTime> lastFeedText;
   final RxnInt waterScheduleIntervalHour;
   final RxnInt feedScheduleIntervalHour;
@@ -26,8 +24,6 @@ class RoomModel {
     this.horseId,
     required this.remainingWater,
     required this.remainingFeed,
-    required this.waterScheduleType,
-    required this.feedScheduleType,
     DateTime? lastFeedText,
     int? waterScheduleIntervalHour,
     int? feedScheduleIntervalHour,
@@ -46,8 +42,6 @@ class RoomModel {
         horseId: map['horse_id'],
         remainingWater: (map['remaining_water'] ?? 0).toDouble(),
         remainingFeed: (map['remaining_feed'] ?? 0).toDouble(),
-        waterScheduleType: map['water_schedule_type'] ?? '',
-        feedScheduleType: map['feed_schedule_type'] ?? '',
       );
 
   Map<String, dynamic> toMap() => {
@@ -60,7 +54,5 @@ class RoomModel {
         'horse_id': horseId,
         'remaining_water': remainingWater,
         'remaining_feed': remainingFeed,
-        'water_schedule_type': waterScheduleType,
-        'feed_schedule_type': feedScheduleType,
       };
 }

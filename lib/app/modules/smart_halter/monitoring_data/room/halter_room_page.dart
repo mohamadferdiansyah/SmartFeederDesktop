@@ -227,8 +227,8 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
           horseId: selectedHorseId,
           remainingWater: 0,
           remainingFeed: 0,
-          waterScheduleType: "",
-          feedScheduleType: "",
+          // waterScheduleType: "",
+          // feedScheduleType: "",
         );
         onSubmit(newRoom);
         showAppToast(
@@ -441,8 +441,8 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
           horseId: selectedHorseId,
           remainingWater: room.remainingWater,
           remainingFeed: room.remainingFeed,
-          waterScheduleType: room.waterScheduleType,
-          feedScheduleType: room.feedScheduleType,
+          // waterScheduleType: room.waterScheduleType,
+          // feedScheduleType: room.feedScheduleType,
         );
         onSubmit(editedRoom);
         showAppToast(

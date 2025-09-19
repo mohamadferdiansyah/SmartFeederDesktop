@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_history_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/setting/feeder_setting_controller.dart';
 import '../models/feeder/feeder_device_detail_model.dart';
 
@@ -17,6 +18,8 @@ class MqttService extends GetxService {
 
   // Untuk heartbeat timeout
   final Map<String, Timer> _deviceTimeoutTimers = {};
+
+  _PendingFill? _pendingFill;
 
   // Safe method untuk update status ke FeederSettingController
   void _updateSettingControllerStatus(bool connected) {
@@ -115,7 +118,10 @@ class MqttService extends GetxService {
 
   void _handleStatusPayload(Map<String, dynamic> json) {
     final deviceId = json['device_id'] ?? 'Unknown';
-    final timestamp = json['timestamp'] ?? DateTime.now().toIso8601String();
+    final status = json['status'];
+    final destination = json['destination'];
+    final amount = json['amount'];
+    final timestamp = DateTime.now();
 
     // Cari device di list, update status/destination/amount
     final index = feederDeviceDetailList.indexWhere(
@@ -130,8 +136,43 @@ class MqttService extends GetxService {
         status: model.status,
         destination: model.destination,
         amount: model.amount,
-        lastUpdate: DateTime.parse(timestamp),
+        lastUpdate: timestamp,
       );
+    }
+
+    // Logic pengisian
+    if (status == 'delivery' && destination != null && amount != null) {
+      // Simpan pending fill
+      final device = dataController.feederDeviceList.firstWhereOrNull(
+        (d) => d.deviceId == deviceId,
+      );
+      final mode = device?.scheduleType ?? 'manual';
+      _pendingFill = _PendingFill(
+        deviceId: deviceId,
+        mode: mode,
+        roomId: destination,
+        amount: (amount is num)
+            ? amount.toDouble()
+            : double.tryParse(amount.toString()) ?? 0.0,
+        timestamp: timestamp,
+      );
+    } else if (status == 'done' &&
+        destination != null &&
+        _pendingFill != null) {
+      // Jika status done dan destination sama dengan pending, tambahkan ke history
+      if (_pendingFill!.deviceId == deviceId &&
+          _pendingFill!.roomId == destination) {
+        dataController.addFillHistory(
+          FeederDeviceHistoryModel(
+            timestamp: _pendingFill!.timestamp,
+            deviceId: _pendingFill!.deviceId,
+            mode: _pendingFill!.mode,
+            roomId: _pendingFill!.roomId,
+            amount: _pendingFill!.amount,
+          ),
+        );
+        _pendingFill = null;
+      }
     }
 
     // Reset timeout setiap ada status baru
@@ -196,7 +237,8 @@ class MqttService extends GetxService {
     });
   }
 
-  void sendDeliveryRequest({
+  void publishDeliveryRequest({
+    required String deviceId,
     required String destination,
     required double amount,
   }) {
@@ -206,11 +248,22 @@ class MqttService extends GetxService {
     }
 
     final jsonPayload = json.encode({
+      "device_id": deviceId,
       "destination": destination,
       "amount": amount,
     });
-    publish('feeder/control', jsonPayload);
+    publish('feeder/manual', jsonPayload);
     print('MQTT: Published delivery request: $jsonPayload');
+  }
+
+  void publishMode({required String deviceId, required String mode}) {
+    if (!isConnected) {
+      print('MQTT: Not connected, cannot publish mode');
+      return;
+    }
+    final payload = json.encode({"device_id": deviceId, "mode": mode});
+    publish('feeder/mode', payload);
+    print('MQTT: Published mode "$mode" for $deviceId');
   }
 
   void publish(String topic, String payload) {
@@ -245,4 +298,20 @@ class MqttService extends GetxService {
     disconnect();
     super.onClose();
   }
+}
+
+class _PendingFill {
+  final String deviceId;
+  final String mode;
+  final String roomId;
+  final double amount;
+  final DateTime timestamp;
+
+  _PendingFill({
+    required this.deviceId,
+    required this.mode,
+    required this.roomId,
+    required this.amount,
+    required this.timestamp,
+  });
 }

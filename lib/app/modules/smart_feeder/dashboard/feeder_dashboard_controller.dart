@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_detail_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_history_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/history_entry_model.dart';
@@ -46,8 +47,8 @@ class FeederDashboardController extends GetxController {
       dataController.feederDeviceDetailList;
   List<FeederRoomDeviceModel> get feederRoomDeviceList =>
       dataController.feederRoomDeviceList;
-  List<HistoryEntryModel> get historyEntryList =>
-      dataController.historyEntryList;
+  List<FeederDeviceHistoryModel> get feederDeviceHistoryList =>
+      dataController.feederDeviceHistoryList;
 
   @override
   void onInit() {
@@ -77,8 +78,6 @@ class FeederDashboardController extends GetxController {
           horseId: room.horseId,
           remainingWater: (room.remainingWater - 0.1).clamp(0, 5),
           remainingFeed: (room.remainingFeed - 0.5).clamp(0, 50),
-          waterScheduleType: room.waterScheduleType,
-          feedScheduleType: room.feedScheduleType,
           lastFeedText: room.lastFeedText.value,
           waterScheduleIntervalHour: room.waterScheduleIntervalHour.value,
           feedScheduleIntervalHour: room.feedScheduleIntervalHour.value,
@@ -169,10 +168,10 @@ class FeederDashboardController extends GetxController {
   }
 
   int getWaterSecondsUntilNextAutoFeed(RoomModel room) {
-    if (!(room.waterScheduleType == "penjadwalan" ||
-        room.waterScheduleType == "otomatis")) {
-      return 0;
-    }
+    // if (!(room.waterScheduleType == "penjadwalan" ||
+    //     room.waterScheduleType == "otomatis")) {
+    //   return 0;
+    // }
     final lastFeed = room.lastFeedText.value;
     if (lastFeed == null)
       return (room.waterScheduleIntervalHour.value ?? 0) * 3600;
@@ -185,10 +184,10 @@ class FeederDashboardController extends GetxController {
   }
 
   int getFeedSecondsUntilNextAutoFeed(RoomModel room) {
-    if (!(room.feedScheduleType == "penjadwalan" ||
-        room.feedScheduleType == "otomatis")) {
-      return 0;
-    }
+    // if (!(room.feedScheduleType == "penjadwalan" ||
+    //     room.feedScheduleType == "otomatis")) {
+    //   return 0;
+    // }
     final lastFeed = room.lastFeedText.value;
     if (lastFeed == null)
       return (room.feedScheduleIntervalHour.value ?? 0) * 3600;
@@ -232,5 +231,11 @@ class FeederDashboardController extends GetxController {
 
   FeederDeviceModel? getFeederDeviceById(String deviceId) {
     return feederDeviceList.firstWhereOrNull((d) => d.deviceId == deviceId);
+  }
+
+  FeederDeviceModel? getFeederDevice() {
+    return feederDeviceList.firstWhereOrNull(
+      (d) => d.stableId == selectedRoom.stableId,
+    );
   }
 }

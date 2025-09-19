@@ -55,23 +55,25 @@ class RoomDao {
   }
 
   Future<int> updateRoomScheduleFlexible(
-  String roomId, {
-  String? waterScheduleType,
-  int? waterScheduleIntervalHour,
-  String? feedScheduleType,
-  int? feedScheduleIntervalHour,
-}) async {
-  final updateMap = <String, dynamic>{};
-  if (waterScheduleType != null) updateMap['water_schedule_type'] = waterScheduleType;
-  if (feedScheduleType != null) updateMap['feed_schedule_type'] = feedScheduleType;
-  if (updateMap.isEmpty) return 0;
-  return await db.update(
-    'rooms',
-    updateMap,
-    where: 'room_id = ?',
-    whereArgs: [roomId],
-  );
-}
+    String roomId, {
+    String? waterScheduleType,
+    int? waterScheduleIntervalHour,
+    String? feedScheduleType,
+    int? feedScheduleIntervalHour,
+  }) async {
+    final updateMap = <String, dynamic>{};
+    if (waterScheduleType != null)
+      updateMap['water_schedule_type'] = waterScheduleType;
+    if (feedScheduleType != null)
+      updateMap['feed_schedule_type'] = feedScheduleType;
+    if (updateMap.isEmpty) return 0;
+    return await db.update(
+      'rooms',
+      updateMap,
+      where: 'room_id = ?',
+      whereArgs: [roomId],
+    );
+  }
 
   Future<int> clearHorseIdInRooms(String horseId) async {
     return await db.update(
@@ -140,8 +142,8 @@ class RoomDao {
       horseId: map['horse_id'],
       remainingWater: (map['remaining_water'] ?? 0).toDouble(),
       remainingFeed: (map['remaining_feed'] ?? 0).toDouble(),
-      waterScheduleType: map['water_schedule_type'] ?? '',
-      feedScheduleType: map['feed_schedule_type'] ?? '',
+      // waterScheduleType: map['water_schedule_type'] ?? '',
+      // feedScheduleType: map['feed_schedule_type'] ?? '',
       // Optional field below
       lastFeedText: map['last_feed_text'] != null
           ? DateTime.tryParse(map['last_feed_text'])

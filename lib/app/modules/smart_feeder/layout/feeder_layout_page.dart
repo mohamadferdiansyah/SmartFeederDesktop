@@ -23,11 +23,11 @@ class FeederLayoutPage extends StatelessWidget {
       icon: Icons.space_dashboard_rounded,
       page: FeederDashboardPage(),
     ),
-    SidebarMenuItem(
-      title: "Kontrol Penjadwalan",
-      icon: Icons.calendar_month_rounded,
-      page: ControlSchedulePage(),
-    ),
+    // SidebarMenuItem(
+    //   title: "Kontrol Penjadwalan",
+    //   icon: Icons.calendar_month_rounded,
+    //   page: ControlSchedulePage(),
+    // ),
     SidebarMenuItem(
       title: "Data Master",
       icon: Icons.storage_rounded,
