@@ -18,7 +18,7 @@ class FeederDashboardController extends GetxController {
 
   var airTankCurrent = 512.3.obs; // RxDouble
   var phCurrent = 7.2.obs; // RxDouble
-  var feedTankCurrent = 150.5.obs; // RxDouble
+  var feedTankCurrent = 412.5.obs; // RxDouble
 
   RxString selectedStableId = ''.obs;
   RxInt selectedRoomIndex = 0.obs;
@@ -54,15 +54,15 @@ class FeederDashboardController extends GetxController {
   void onInit() {
     super.onInit();
     // mqttService.init();
-    Timer.periodic(Duration(seconds: 1), (timer) {
-      nowTick.value = DateTime.now().millisecondsSinceEpoch;
-    });
-    // Simulasi update isi tanki tiap detik untuk demo realtime
-    Timer.periodic(Duration(seconds: 10), (timer) {
-      phCurrent.value = (phCurrent.value + 0.01).clamp(6.5, 8.5);
-      airTankCurrent.value = (airTankCurrent.value - 5).clamp(0, tankMax);
-      feedTankCurrent.value = (feedTankCurrent.value + 5).clamp(0, tankMax);
-    });
+    // Timer.periodic(Duration(seconds: 1), (timer) {
+    //   nowTick.value = DateTime.now().millisecondsSinceEpoch;
+    // });
+    // // Simulasi update isi tanki tiap detik untuk demo realtime
+    // Timer.periodic(Duration(seconds: 10), (timer) {
+    //   phCurrent.value = (phCurrent.value + 0.01).clamp(6.5, 8.5);
+    //   airTankCurrent.value = (airTankCurrent.value - 5).clamp(0, tankMax);
+    //   feedTankCurrent.value = (feedTankCurrent.value + 5).clamp(0, tankMax);
+    // });
 
     // FIX: update remainingWater dan remainingFeed dengan cara replace objek RoomModel
     Timer.periodic(Duration(seconds: 10), (timer) {
@@ -209,10 +209,19 @@ class FeederDashboardController extends GetxController {
     return formatDuration(seconds);
   }
 
-  String getLastFeedText(RoomModel room) {
-    final lastFeed = room.lastFeedText.value;
-    if (lastFeed == null) return 'Belum ada pengisian';
-    return DateFormat('dd-MM-yyyy HH:mm').format(lastFeed);
+  String getLastFeedFromHistory(RoomModel room) {
+    // Cari device yang sedang dipakai di stable ruangan ini
+    final device = feederDeviceList.firstWhereOrNull(
+      (d) => d.stableId == room.stableId,
+    );
+    if (device == null) return 'Belum Ada Pengisian';
+    // Cari history paling baru untuk device ini dan room ini
+    final history = feederDeviceHistoryList
+        .where((h) => h.deviceId == device.deviceId && h.roomId == room.roomId)
+        .toList();
+    if (history.isEmpty) return 'Belum Ada Pengisian';
+    history.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    return DateFormat('dd-MM-yyyy HH:mm').format(history.first.timestamp);
   }
 
   // int getFeederDeviceBatteryPercent(String deviceId) {

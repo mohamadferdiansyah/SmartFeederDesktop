@@ -21,6 +21,23 @@ class MqttService extends GetxService {
 
   _PendingFill? _pendingFill;
 
+  Future<void> checkDeviceTimeoutOnStartup({
+    Duration timeout = const Duration(seconds: 20),
+  }) async {
+    final now = DateTime.now();
+    for (int i = 0; i < feederDeviceDetailList.length; i++) {
+      final detail = feederDeviceDetailList[i];
+      if (detail.status != 'off' &&
+          now.difference(detail.lastUpdate) > timeout) {
+        feederDeviceDetailList[i] = detail.copyWith(
+          status: 'off',
+          lastUpdate: now,
+        );
+        print('Tidak Ada Data Masuk');
+      }
+    }
+  }
+
   // Safe method untuk update status ke FeederSettingController
   void _updateSettingControllerStatus(bool connected) {
     try {
@@ -141,38 +158,62 @@ class MqttService extends GetxService {
     }
 
     // Logic pengisian
-    if (status == 'delivery' && destination != null && amount != null) {
-      // Simpan pending fill
+    // if (status == 'delivery' && destination != null && amount != null) {
+    //   // Simpan pending fill
+    //   final device = dataController.feederDeviceList.firstWhereOrNull(
+    //     (d) => d.deviceId == deviceId,
+    //   );
+    //   final mode = device?.scheduleType ?? 'manual';
+    //   _pendingFill = _PendingFill(
+    //     deviceId: deviceId,
+    //     mode: mode,
+    //     roomId: destination,
+    //     amount: (amount is num)
+    //         ? amount.toDouble()
+    //         : double.tryParse(amount.toString()) ?? 0.0,
+    //     timestamp: timestamp,
+    //   );
+    // } else if (status == 'done' &&
+    //     destination != null &&
+    //     _pendingFill != null) {
+    //   // Jika status done dan destination sama dengan pending, tambahkan ke history
+    //   if (_pendingFill!.deviceId == deviceId &&
+    //       _pendingFill!.roomId == destination) {
+    //     dataController.addFillHistory(
+    //       FeederDeviceHistoryModel(
+    //         timestamp: _pendingFill!.timestamp,
+    //         deviceId: _pendingFill!.deviceId,
+    //         mode: _pendingFill!.mode,
+    //         roomId: _pendingFill!.roomId,
+    //         amount: _pendingFill!.amount,
+    //       ),
+    //     );
+    //     _pendingFill = null;
+    //   }
+    // }
+
+    if (status == 'done') {
       final device = dataController.feederDeviceList.firstWhereOrNull(
         (d) => d.deviceId == deviceId,
       );
       final mode = device?.scheduleType ?? 'manual';
-      _pendingFill = _PendingFill(
-        deviceId: deviceId,
-        mode: mode,
-        roomId: destination,
-        amount: (amount is num)
+      dataController.addFillHistory(
+        FeederDeviceHistoryModel(
+          timestamp: timestamp,
+          deviceId: deviceId,
+          mode: mode,
+          roomId: destination,
+          amount: (amount is num)
+              ? amount.toDouble()
+              : double.tryParse(amount.toString()) ?? 0.0,
+        ),
+      );
+      dataController.updateRemainingFeed(
+        destination,
+        (amount is num)
             ? amount.toDouble()
             : double.tryParse(amount.toString()) ?? 0.0,
-        timestamp: timestamp,
       );
-    } else if (status == 'done' &&
-        destination != null &&
-        _pendingFill != null) {
-      // Jika status done dan destination sama dengan pending, tambahkan ke history
-      if (_pendingFill!.deviceId == deviceId &&
-          _pendingFill!.roomId == destination) {
-        dataController.addFillHistory(
-          FeederDeviceHistoryModel(
-            timestamp: _pendingFill!.timestamp,
-            deviceId: _pendingFill!.deviceId,
-            mode: _pendingFill!.mode,
-            roomId: _pendingFill!.roomId,
-            amount: _pendingFill!.amount,
-          ),
-        );
-        _pendingFill = null;
-      }
     }
 
     // Reset timeout setiap ada status baru
@@ -212,6 +253,7 @@ class MqttService extends GetxService {
         voltage: (json['voltage'] ?? old.voltage).toDouble(),
         current: (json['current_mA'] ?? old.current).toDouble(),
         lastUpdate: DateTime.now(),
+        status: old.status == 'off' ? 'ready' : old.status, // <-- tambahkan ini
       );
       print('INI BATRE');
       print(feederDeviceDetailList[index].deviceId);

@@ -883,9 +883,11 @@ class FeederDeviceDataTableSource extends DataTableSource {
         DataCell(
           Center(
             child: Text(
-              device.scheduleType.isNotEmpty
-                  ? '${device.scheduleType[0].toUpperCase()}${device.scheduleType.substring(1)}'
-                  : '-',
+              device.scheduleType == 'penjadwalan'
+                  ? 'Penjadwalan'
+                  : device.scheduleType == 'auto'
+                  ? 'Otomatis'
+                  : 'Manual',
             ),
           ),
         ),
@@ -1259,12 +1261,12 @@ class _FeederDeviceDetailDialogState extends State<FeederDeviceDetailDialog> {
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final tableWidth = constraints.maxWidth;
-                  final noW = tableWidth * 0.05;
-                  final timeW = tableWidth * 0.18;
-                  final statusW = tableWidth * 0.10;
-                  final destW = tableWidth * 0.13;
-                  final amountW = tableWidth * 0.10;
-                  final batteryW = tableWidth * 0.10;
+                  final noW = tableWidth * 0.055 ;
+                  final timeW = tableWidth * 0.2;
+                  final statusW = tableWidth * 0.18;
+                  final destW = tableWidth * 0.18;
+                  final amountW = tableWidth * 0.18;
+                  final batteryW = tableWidth * 0.18;
 
                   final filtered = _filteredData(widget.allData);
                   if (_sortColumnIndex != null) {
@@ -1410,7 +1412,17 @@ class _FeederDeviceDetailDataTableSource extends DataTableSource {
           ),
         ),
         DataCell(Center(child: Text(d.deviceId))),
-        DataCell(Center(child: Text(d.mode))),
+        DataCell(
+          Center(
+            child: Text(
+              d.mode == 'penjadwalan'
+                  ? 'Penjadwalan'
+                  : d.mode == 'auto'
+                  ? 'Otomatis'
+                  : 'Manual',
+            ),
+          ),
+        ),
         DataCell(Center(child: Text(d.roomId))),
         DataCell(Center(child: Text(d.amount.toString()))),
       ],

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/control_schedule/control_schedule_page.dart';
@@ -570,52 +571,52 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                             ),
                           ),
                         ),
-                        SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color:
-                                controller.getDeviceStatusByRoom(
-                                      controller.selectedRoom.roomId,
-                                    ) ==
-                                    "Aktif"
-                                ? Colors.green.withOpacity(0.2)
-                                : Colors.red.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color:
-                                  controller.getDeviceStatusByRoom(
-                                        controller.selectedRoom.roomId,
-                                      ) ==
-                                      "Aktif"
-                                  ? Colors.green
-                                  : Colors.red,
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            controller.getDeviceStatusByRoom(
-                                      controller.selectedRoom.roomId,
-                                    ) ==
-                                    "Aktif"
-                                ? 'Aktif'
-                                : 'Tidak Aktif',
-                            style: TextStyle(
-                              color:
-                                  controller.getDeviceStatusByRoom(
-                                        controller.selectedRoom.roomId,
-                                      ) ==
-                                      "Aktif"
-                                  ? Colors.green
-                                  : Colors.red,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+                        // SizedBox(width: 8),
+                        // Container(
+                        //   padding: const EdgeInsets.symmetric(
+                        //     horizontal: 16,
+                        //     vertical: 8,
+                        //   ),
+                        //   decoration: BoxDecoration(
+                        //     color:
+                        //         controller.getDeviceStatusByRoom(
+                        //               controller.selectedRoom.roomId,
+                        //             ) ==
+                        //             "Aktif"
+                        //         ? Colors.green.withOpacity(0.2)
+                        //         : Colors.red.withOpacity(0.2),
+                        //     borderRadius: BorderRadius.circular(8),
+                        //     border: Border.all(
+                        //       color:
+                        //           controller.getDeviceStatusByRoom(
+                        //                 controller.selectedRoom.roomId,
+                        //               ) ==
+                        //               "Aktif"
+                        //           ? Colors.green
+                        //           : Colors.red,
+                        //       width: 1,
+                        //     ),
+                        //   ),
+                        //   child: Text(
+                        //     controller.getDeviceStatusByRoom(
+                        //               controller.selectedRoom.roomId,
+                        //             ) ==
+                        //             "Aktif"
+                        //         ? 'Aktif'
+                        //         : 'Tidak Aktif',
+                        //     style: TextStyle(
+                        //       color:
+                        //           controller.getDeviceStatusByRoom(
+                        //                 controller.selectedRoom.roomId,
+                        //               ) ==
+                        //               "Aktif"
+                        //           ? Colors.green
+                        //           : Colors.red,
+                        //       fontSize: 20,
+                        //       fontWeight: FontWeight.bold,
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     );
                   }),
@@ -654,9 +655,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                 current: selectedRoom.remainingWater,
                                 max: 5,
                                 phLevel: 7.2,
-                                lastText: controller.getLastFeedText(
-                                  selectedRoom,
-                                ),
+                                lastText: 'Belum Ada Pengisian',
                                 getTankImageAsset:
                                     controller.getStableTankImageAsset,
                               ),
@@ -665,7 +664,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                 isWater: false,
                                 current: selectedRoom.remainingFeed,
                                 max: 50,
-                                lastText: controller.getLastFeedText(
+                                lastText: controller.getLastFeedFromHistory(
                                   selectedRoom,
                                 ),
                                 getTankImageAsset:
@@ -735,8 +734,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                               //     icon: Icons.water_drop_rounded,
                               //   ),
                               // ],
-                              if (device?.scheduleType == 'penjadwalan' ||
-                                  device?.scheduleType == 'auto') ...[
+                              if (device?.scheduleType == 'penjadwalan') ...[
                                 SizedBox(height: 16),
                                 Tooltip(
                                   message: 'Isi auto Pakan Dalam Waktu',
@@ -817,106 +815,351 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                 headerHeight: 50,
                                 titleFontSize: 20,
                                 content: SizedBox(
-                                  height: 500,
-                                  child: Scrollbar(
-                                    thumbVisibility: true,
-                                    child: Obx(() {
-                                      final selectedIndex =
-                                          controller.selectedRoomIndex.value;
-                                      if (controller.filteredRoomList.isEmpty) {
-                                        return Center(
-                                          child: Text('Belum ada ruangan'),
-                                        );
-                                      }
-                                      final selectedRoomId = controller
-                                          .filteredRoomList[selectedIndex]
-                                          .roomId;
-                                      final selectedHistory = controller
-                                          .feederDeviceHistoryList
-                                          .where(
-                                            (item) =>
-                                                item.roomId == selectedRoomId,
-                                          )
-                                          .toList();
-
-                                      if (selectedHistory.isEmpty) {
-                                        return Center(
-                                          child: Text('Belum ada riwayat'),
-                                        );
-                                      }
-
-                                      final showMax = 10;
-                                      final showSelengkapnya =
-                                          selectedHistory.length > showMax;
-                                      final displayHistory = showSelengkapnya
-                                          ? selectedHistory.sublist(0, showMax)
-                                          : selectedHistory;
-
-                                      return Column(
-                                        children: [
-                                          Expanded(
-                                            child: ListView.builder(
-                                              itemCount: displayHistory.length,
-                                              itemBuilder: (context, index) {
-                                                final item =
-                                                    displayHistory[index];
-                                                return Card(
-                                                  margin:
-                                                      const EdgeInsets.symmetric(
-                                                        vertical: 6,
-                                                        horizontal: 8,
-                                                      ),
-                                                  child: ListTile(
-                                                    leading: Text(
-                                                      '${index + 1}',
-                                                    ),
-                                                    title: Text(
-                                                      'Pakan: ${item.amount.toStringAsFixed(2)} g',
-                                                      style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
+                                  height: 540,
+                                  child: DefaultTabController(
+                                    length: 2,
+                                    child: Column(
+                                      children: [
+                                        TabBar(
+                                          labelColor: AppColors.primary,
+                                          unselectedLabelColor: Colors.black54,
+                                          indicatorColor: AppColors.primary,
+                                          tabs: const [
+                                            Tab(
+                                              text: 'Pakan',
+                                              icon: Icon(
+                                                Icons.restaurant_rounded,
+                                              ),
+                                            ),
+                                            Tab(
+                                              text: 'Air',
+                                              icon: Icon(
+                                                Icons.water_drop_rounded,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Expanded(
+                                          child: TabBarView(
+                                            children: [
+                                              // === TAB PAKAN ===
+                                              Obx(() {
+                                                final selectedIndex = controller
+                                                    .selectedRoomIndex
+                                                    .value;
+                                                if (controller
+                                                    .filteredRoomList
+                                                    .isEmpty) {
+                                                  return Center(
+                                                    child: Text(
+                                                      'Tidak Ada Ruangan',
+                                                      style: TextStyle(
+                                                        color: Colors.blueGrey,
+                                                        fontSize: 18,
                                                       ),
                                                     ),
-                                                    subtitle: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          'Mode: ${item.mode}',
-                                                        ),
-                                                        Text(
-                                                          'Waktu: ${item.timestamp}',
-                                                        ),
-                                                      ],
+                                                  );
+                                                }
+                                                final selectedRoomId = controller
+                                                    .filteredRoomList[selectedIndex]
+                                                    .roomId;
+                                                final selectedHistory =
+                                                    controller
+                                                        .feederDeviceHistoryList
+                                                        .where(
+                                                          (item) =>
+                                                              item.roomId ==
+                                                              selectedRoomId,
+                                                        )
+                                                        .toList();
+
+                                                if (selectedHistory.isEmpty) {
+                                                  return Center(
+                                                    child: Text(
+                                                      'Belum Ada Riwayat Pakan',
+                                                      style: TextStyle(
+                                                        color: Colors.blueGrey,
+                                                        fontSize: 18,
+                                                      ),
                                                     ),
-                                                    trailing: Text(
-                                                      'Device: ${item.deviceId}',
+                                                  );
+                                                }
+
+                                                final showMax = 10;
+                                                final showSelengkapnya =
+                                                    selectedHistory.length >
+                                                    showMax;
+                                                final displayHistory =
+                                                    showSelengkapnya
+                                                    ? selectedHistory.sublist(
+                                                        0,
+                                                        showMax,
+                                                      )
+                                                    : selectedHistory;
+
+                                                return Column(
+                                                  children: [
+                                                    Expanded(
+                                                      child: ListView.builder(
+                                                        itemCount:
+                                                            displayHistory
+                                                                .length,
+                                                        itemBuilder: (context, index) {
+                                                          final item =
+                                                              displayHistory[index];
+                                                          return Container(
+                                                            margin:
+                                                                const EdgeInsets.symmetric(
+                                                                  vertical: 8,
+                                                                  horizontal: 8,
+                                                                ),
+                                                            decoration: BoxDecoration(
+                                                              color:
+                                                                  Colors.white,
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    14,
+                                                                  ),
+                                                              boxShadow: [
+                                                                BoxShadow(
+                                                                  color: AppColors
+                                                                      .primary
+                                                                      .withOpacity(
+                                                                        0.07,
+                                                                      ),
+                                                                  blurRadius: 8,
+                                                                  offset:
+                                                                      const Offset(
+                                                                        0,
+                                                                        2,
+                                                                      ),
+                                                                ),
+                                                              ],
+                                                              border: Border.all(
+                                                                color: AppColors
+                                                                    .primary
+                                                                    .withOpacity(
+                                                                      0.18,
+                                                                    ),
+                                                                width: 1,
+                                                              ),
+                                                            ),
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets.symmetric(
+                                                                    vertical:
+                                                                        16,
+                                                                    horizontal:
+                                                                        18,
+                                                                  ),
+                                                              child: Row(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  Container(
+                                                                    width: 38,
+                                                                    height: 38,
+                                                                    decoration: BoxDecoration(
+                                                                      color: AppColors
+                                                                          .primary
+                                                                          .withOpacity(
+                                                                            0.12,
+                                                                          ),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                            10,
+                                                                          ),
+                                                                    ),
+                                                                    child: Center(
+                                                                      child: Icon(
+                                                                        Icons
+                                                                            .restaurant_rounded,
+                                                                        color: AppColors
+                                                                            .primary,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    width: 18,
+                                                                  ),
+                                                                  Expanded(
+                                                                    child: Column(
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .start,
+                                                                      children: [
+                                                                        Text(
+                                                                          'Jumlah Pakan: ${item.amount.toStringAsFixed(2)}g',
+                                                                          style: const TextStyle(
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            fontSize:
+                                                                                18,
+                                                                            color:
+                                                                                Colors.deepOrange,
+                                                                          ),
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          height:
+                                                                              4,
+                                                                        ),
+                                                                        Row(
+                                                                          children: [
+                                                                            Icon(
+                                                                              Icons.access_time_rounded,
+                                                                              size: 18,
+                                                                              color: Colors.blueGrey,
+                                                                            ),
+                                                                            const SizedBox(
+                                                                              width: 4,
+                                                                            ),
+                                                                            Text(
+                                                                              DateFormat(
+                                                                                'dd MMM yyyy, HH:mm',
+                                                                              ).format(
+                                                                                item.timestamp,
+                                                                              ),
+                                                                              style: const TextStyle(
+                                                                                fontSize: 14,
+                                                                                color: Colors.blueGrey,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                  Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .end,
+                                                                    children: [
+                                                                      Row(
+                                                                        children: [
+                                                                          Icon(
+                                                                            item.mode ==
+                                                                                    'auto'
+                                                                                ? Icons.autorenew_rounded
+                                                                                : item.mode ==
+                                                                                      'penjadwalan'
+                                                                                ? Icons.schedule_rounded
+                                                                                : item.mode ==
+                                                                                      'manual'
+                                                                                ? Icons.settings_rounded
+                                                                                : Icons.help_outline,
+                                                                            size:
+                                                                                18,
+                                                                            color:
+                                                                                item.mode ==
+                                                                                    'penjadwalan'
+                                                                                ? Colors.teal
+                                                                                : item.mode ==
+                                                                                      'auto'
+                                                                                ? Colors.blue
+                                                                                : Colors.orange,
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            width:
+                                                                                4,
+                                                                          ),
+                                                                          Text(
+                                                                            item.mode ==
+                                                                                    'penjadwalan'
+                                                                                ? 'Penjadwalan'
+                                                                                : item.mode ==
+                                                                                      'auto'
+                                                                                ? 'Otomatis'
+                                                                                : 'Manual',
+                                                                            style: TextStyle(
+                                                                              fontSize: 14,
+                                                                              color:
+                                                                                  item.mode ==
+                                                                                      'penjadwalan'
+                                                                                  ? Colors.teal
+                                                                                  : item.mode ==
+                                                                                        'auto'
+                                                                                  ? Colors.blue
+                                                                                  : Colors.orange,
+                                                                              fontWeight: FontWeight.bold,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        height:
+                                                                            8,
+                                                                      ),
+                                                                      Row(
+                                                                        children: [
+                                                                          Icon(
+                                                                            Icons.devices_other,
+                                                                            size:
+                                                                                18,
+                                                                            color:
+                                                                                Colors.orange[800],
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            width:
+                                                                                4,
+                                                                          ),
+                                                                          Text(
+                                                                            item.deviceId,
+                                                                            style: TextStyle(
+                                                                              fontSize: 14,
+                                                                              color: Colors.orange[800],
+                                                                              fontWeight: FontWeight.bold,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
                                                     ),
-                                                  ),
+                                                    if (showSelengkapnya)
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.only(
+                                                              top: 8.0,
+                                                            ),
+                                                        child: CustomButton(
+                                                          text: 'Selengkapnya',
+                                                          backgroundColor:
+                                                              AppColors.primary,
+                                                          textColor:
+                                                              Colors.white,
+                                                          icon: Icons.list,
+                                                          onPressed: () {
+                                                            // TODO: tampilkan halaman/modal riwayat lengkap
+                                                          },
+                                                        ),
+                                                      ),
+                                                  ],
                                                 );
-                                              },
-                                            ),
+                                              }),
+                                              // === TAB AIR ===
+                                              Center(
+                                                child: Text(
+                                                  'Belum Ada Riwayat Air',
+                                                  style: TextStyle(
+                                                    color: Colors.blueGrey,
+                                                    fontSize: 18,
+                                                  ),
+                                                ),
+                                              ),
+                                              // Untuk tab air, ganti dengan list history air jika sudah ada model/datanya
+                                            ],
                                           ),
-                                          if (showSelengkapnya)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                top: 8.0,
-                                              ),
-                                              child: CustomButton(
-                                                text: 'Selengkapnya',
-                                                backgroundColor:
-                                                    AppColors.primary,
-                                                textColor: Colors.white,
-                                                icon: Icons.list,
-                                                onPressed: () {
-                                                  // TODO: tampilkan halaman/modal riwayat lengkap
-                                                },
-                                              ),
-                                            ),
-                                        ],
-                                      );
-                                    }),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -1189,7 +1432,11 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                       ),
                                       SizedBox(width: 10),
                                       Text(
-                                        '${scheduleType?[0].toUpperCase()}${scheduleType?.substring(1)}',
+                                        scheduleType == 'penjadwalan'
+                                            ? 'Penjadwalan'
+                                            : scheduleType == 'auto'
+                                            ? 'Otomatis'
+                                            : 'Manual',
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
@@ -1397,6 +1644,7 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                               padding: const EdgeInsets.only(bottom: 16.0),
                               child: CustomStableCard(
                                 stableName: room.name,
+                                stableId: room.roomId,
                                 imageAsset: 'assets/images/stable.jpg',
                                 // feedScheduleText: room.feedScheduleType,
                                 // waterScheduleText: room.waterScheduleType,
@@ -1407,7 +1655,9 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                     "Aktif",
                                 remainingWater: room.remainingWater.obs,
                                 remainingFeed: room.remainingFeed.obs,
-                                lastFeedText: controller.getLastFeedText(room),
+                                lastFeedText: controller.getLastFeedFromHistory(
+                                  room,
+                                ),
                                 onSelect: () {
                                   controller.selectedRoomIndex.value = index;
                                 },

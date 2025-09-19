@@ -5,6 +5,7 @@ import 'custom_button.dart';
 
 class CustomStableCard extends StatelessWidget {
   final String stableName;
+  final String stableId;
   final String imageAsset;
   // final String waterScheduleText;
   // final String feedScheduleText;
@@ -18,6 +19,7 @@ class CustomStableCard extends StatelessWidget {
   const CustomStableCard({
     Key? key,
     required this.stableName,
+    required this.stableId,
     required this.imageAsset,
     // required this.waterScheduleText,
     // required this.feedScheduleText,
@@ -71,6 +73,15 @@ class CustomStableCard extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              Text(' | '),
+              Text(
+                stableId,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.grey[600],
+                ),
+              ),
               const Spacer(),
               // Tooltip(
               //   message: 'Jenis Penjadwalan Air: $waterScheduleText',
@@ -80,11 +91,11 @@ class CustomStableCard extends StatelessWidget {
               //       horizontal: 12,
               //     ),
               //     decoration: BoxDecoration(
-                    // color: waterScheduleText == 'penjadwalan'
-                    //     ? Colors.teal
-                    //     : waterScheduleText == 'otomatis'
-                    //     ? Colors.blue
-                    //     : Colors.orange,
+              // color: waterScheduleText == 'penjadwalan'
+              //     ? Colors.teal
+              //     : waterScheduleText == 'otomatis'
+              //     ? Colors.blue
+              //     : Colors.orange,
               //       borderRadius: BorderRadius.circular(8),
               //     ),
               //     child: Icon(
@@ -118,27 +129,27 @@ class CustomStableCard extends StatelessWidget {
               //   ),
               // ),
               // const SizedBox(width: 8),
-              Tooltip(
-                message: 'Status Device Ruangan: $activeText',
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: activeColor,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    activeText,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+              // Tooltip(
+              //   message: 'Status Device Ruangan: $activeText',
+              //   child: Container(
+              //     padding: const EdgeInsets.symmetric(
+              //       horizontal: 12,
+              //       vertical: 6,
+              //     ),
+              //     decoration: BoxDecoration(
+              //       color: activeColor,
+              //       borderRadius: BorderRadius.circular(8),
+              //     ),
+              //     child: Text(
+              //       activeText,
+              //       style: const TextStyle(
+              //         color: Colors.white,
+              //         fontSize: 16,
+              //         fontWeight: FontWeight.bold,
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
           const SizedBox(height: 4),
@@ -158,7 +169,7 @@ class CustomStableCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 27,
                       fontWeight: FontWeight.bold,
-                      color: primaryColor ?? Colors.blue,
+                      color: Colors.blue,
                     ),
                   ),
                 ],

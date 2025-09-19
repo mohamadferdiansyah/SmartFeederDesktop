@@ -17,7 +17,8 @@ class FeederLayoutController extends GetxController {
   Timer? _timer;
   final DataController dataController = Get.find<DataController>();
   final MqttService mqttService = Get.find<MqttService>();
-  final FeederSettingController feederSettingController = Get.find<FeederSettingController>();
+  final FeederSettingController feederSettingController =
+      Get.find<FeederSettingController>();
   final FeederDashboardController dashboardController =
       Get.find<FeederDashboardController>();
 
@@ -36,8 +37,12 @@ class FeederLayoutController extends GetxController {
     });
     mqttService.init(
       host: feederSettingController.mqttHost.value,
-      port: feederSettingController.mqttPort.value
+      port: feederSettingController.mqttPort.value,
     );
+    mqttService.checkDeviceTimeoutOnStartup(
+      timeout: const Duration(seconds: 20),
+    );
+
     _startRealTimeClock();
   }
 
