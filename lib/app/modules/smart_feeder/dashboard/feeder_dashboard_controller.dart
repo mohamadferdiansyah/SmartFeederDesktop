@@ -4,7 +4,7 @@ import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_history_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_model.dart';
-import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_water_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/history_entry_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'dart:async';
@@ -45,7 +45,7 @@ class FeederDashboardController extends GetxController {
       dataController.feederDeviceList;
   RxList<FeederDeviceDetailModel> get feederDeviceDetailList =>
       dataController.feederDeviceDetailList;
-  List<FeederRoomDeviceModel> get feederRoomDeviceList =>
+  List<FeederRoomWaterDeviceModel> get feederRoomDeviceList =>
       dataController.feederRoomDeviceList;
   List<FeederDeviceHistoryModel> get feederDeviceHistoryList =>
       dataController.feederDeviceHistoryList;

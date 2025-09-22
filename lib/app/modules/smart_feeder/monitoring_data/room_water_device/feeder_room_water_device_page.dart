@@ -2,25 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
-import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_device_model.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/room_device/feeder_room_device_controller.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_water_device_model.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/room_water_device/feeder_room_water_device_controller.dart';
 import 'package:smart_feeder_desktop/app/utils/dialog_utils.dart';
 import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 import 'package:toastification/toastification.dart';
 
-class FeederRoomDevicePage extends StatefulWidget {
-  const FeederRoomDevicePage({super.key});
+class FeederRoomWaterDevicePage extends StatefulWidget {
+  const FeederRoomWaterDevicePage({super.key});
 
   @override
-  State<FeederRoomDevicePage> createState() => _FeederRoomDevicePageState();
+  State<FeederRoomWaterDevicePage> createState() =>
+      _FeederRoomWaterDevicePageState();
 }
 
-class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
+class _FeederRoomWaterDevicePageState extends State<FeederRoomWaterDevicePage> {
   final TextEditingController _searchController = TextEditingController();
-  final FeederRoomDeviceController _controller =
-      Get.find<FeederRoomDeviceController>();
+  final FeederRoomWaterDeviceController _controller =
+      Get.find<FeederRoomWaterDeviceController>();
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   int? _sortColumnIndex;
   bool _sortAscending = true;
@@ -36,8 +37,8 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
     });
   }
 
-  List<FeederRoomDeviceModel> _filteredDevices(
-    List<FeederRoomDeviceModel> devices,
+  List<FeederRoomWaterDeviceModel> _filteredDevices(
+    List<FeederRoomWaterDeviceModel> devices,
   ) {
     if (_searchText.isEmpty) return devices;
     return devices.where((d) {
@@ -45,7 +46,6 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
           (d.roomId ?? '').toLowerCase().contains(_searchText) ||
           d.status.toLowerCase().contains(_searchText) ||
           d.batteryPercent.toString().contains(_searchText) ||
-          d.feedRemaining.toString().contains(_searchText) ||
           d.waterRemaining.toString().contains(_searchText);
     }).toList();
   }
@@ -112,12 +112,11 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
           );
           return;
         }
-        final newDevice = FeederRoomDeviceModel(
+        final newDevice = FeederRoomWaterDeviceModel(
           deviceId: '$header${idCtrl.text.trim()}',
           status: 'on',
-          batteryPercent: 100,
-          feedRemaining: 0,
-          waterRemaining: 0,
+          batteryPercent: 0,
+          waterRemaining: 'kosong',
           roomId: null,
         );
         await _controller.addDevice(newDevice);
@@ -131,7 +130,7 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
     );
   }
 
-  void _showDetailModal(FeederRoomDeviceModel device) {
+  void _showDetailModal(FeederRoomWaterDeviceModel device) {
     showCustomDialog(
       context: context,
       title: "Detail Device",
@@ -155,15 +154,13 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
                 : "-",
           ),
           const SizedBox(height: 8),
-          _detailRow("Sisa Pakan", "${device.feedRemaining}g"),
-          const SizedBox(height: 8),
           _detailRow("Sisa Air", "${device.waterRemaining}L"),
         ],
       ),
     );
   }
 
-  void _showEditModal(FeederRoomDeviceModel device) {
+  void _showEditModal(FeederRoomWaterDeviceModel device) {
     final header = "SFRIPB";
     final idWithoutHeader = device.deviceId.startsWith(header)
         ? device.deviceId.substring(header.length)
@@ -229,11 +226,10 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
           );
           return;
         }
-        final updatedDevice = FeederRoomDeviceModel(
+        final updatedDevice = FeederRoomWaterDeviceModel(
           deviceId: newId,
           status: device.status,
           batteryPercent: device.batteryPercent,
-          feedRemaining: device.feedRemaining,
           waterRemaining: device.waterRemaining,
           roomId: device.roomId,
         );
@@ -248,7 +244,7 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
     );
   }
 
-  void _showPilihRuanganModal(FeederRoomDeviceModel device) {
+  void _showPilihRuanganModal(FeederRoomWaterDeviceModel device) {
     String? selectedRoomId = device.roomId;
     showCustomDialog(
       context: context,
@@ -292,11 +288,10 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
           );
           return;
         }
-        final updatedDevice = FeederRoomDeviceModel(
+        final updatedDevice = FeederRoomWaterDeviceModel(
           deviceId: device.deviceId,
           status: device.status,
           batteryPercent: device.batteryPercent,
-          feedRemaining: device.feedRemaining,
           waterRemaining: device.waterRemaining,
           roomId: selectedRoomId,
         );
@@ -311,7 +306,7 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
     );
   }
 
-  void _showLepasRuanganModal(FeederRoomDeviceModel device) {
+  void _showLepasRuanganModal(FeederRoomWaterDeviceModel device) {
     showCustomDialog(
       context: context,
       title: "Konfirmasi Lepas Ruangan",
@@ -324,11 +319,10 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
       confirmText: "Lepas",
       cancelText: "Batal",
       onConfirm: () async {
-        final updatedDevice = FeederRoomDeviceModel(
+        final updatedDevice = FeederRoomWaterDeviceModel(
           deviceId: device.deviceId,
           status: device.status,
           batteryPercent: device.batteryPercent,
-          feedRemaining: device.feedRemaining,
           waterRemaining: device.waterRemaining,
           roomId: null,
         );
@@ -343,7 +337,7 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
     );
   }
 
-  void _showRiwayatModal(FeederRoomDeviceModel device) {
+  void _showRiwayatModal(FeederRoomWaterDeviceModel device) {
     showCustomDialog(
       context: context,
       title: "Riwayat Device",
@@ -357,7 +351,7 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
     );
   }
 
-  void _confirmDelete(FeederRoomDeviceModel device) {
+  void _confirmDelete(FeederRoomWaterDeviceModel device) {
     showCustomDialog(
       context: context,
       title: "Konfirmasi Hapus",
@@ -393,8 +387,8 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
   );
 
   void _sort<T>(
-    List<FeederRoomDeviceModel> devices,
-    Comparable<T> Function(FeederRoomDeviceModel d) getField,
+    List<FeederRoomWaterDeviceModel> devices,
+    Comparable<T> Function(FeederRoomWaterDeviceModel d) getField,
     bool ascending,
   ) {
     devices.sort((a, b) {
@@ -410,12 +404,9 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
   Widget build(BuildContext context) {
     final tableWidth = MediaQuery.of(context).size.width - 72.0;
     final idW = tableWidth * 0.08;
-    final roomW = tableWidth * 0.07;
-    final statusW = tableWidth * 0.07;
-    final batteryW = tableWidth * 0.07;
-    final feedW = tableWidth * 0.07;
-    final waterW = tableWidth * 0.07;
-    final actionW = tableWidth * 0.3;
+    final roomW = tableWidth * 0.15;
+    final waterW = tableWidth * 0.15;
+    final actionW = tableWidth * 0.38;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -623,78 +614,6 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
                             ),
                             DataColumn(
                               label: SizedBox(
-                                width: statusW,
-                                child: const Center(
-                                  child: Text(
-                                    'Status',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              onSort: (columnIndex, ascending) {
-                                setState(() {
-                                  _sortColumnIndex = columnIndex;
-                                  _sortAscending = ascending;
-                                  _sort<String>(
-                                    devices,
-                                    (d) => d.status,
-                                    ascending,
-                                  );
-                                });
-                              },
-                            ),
-                            DataColumn(
-                              label: SizedBox(
-                                width: batteryW,
-                                child: const Center(
-                                  child: Text(
-                                    'Baterai (%)',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              onSort: (columnIndex, ascending) {
-                                setState(() {
-                                  _sortColumnIndex = columnIndex;
-                                  _sortAscending = ascending;
-                                  _sort<String>(
-                                    devices,
-                                    (d) => d.batteryPercent.toString(),
-                                    ascending,
-                                  );
-                                });
-                              },
-                            ),
-                            DataColumn(
-                              label: SizedBox(
-                                width: feedW,
-                                child: const Center(
-                                  child: Text(
-                                    'Sisa Pakan',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              onSort: (columnIndex, ascending) {
-                                setState(() {
-                                  _sortColumnIndex = columnIndex;
-                                  _sortAscending = ascending;
-                                  _sort<String>(
-                                    devices,
-                                    (d) => d.feedRemaining.toString(),
-                                    ascending,
-                                  );
-                                });
-                              },
-                            ),
-                            DataColumn(
-                              label: SizedBox(
                                 width: waterW,
                                 child: const Center(
                                   child: Text(
@@ -766,14 +685,14 @@ class _FeederRoomDevicePageState extends State<FeederRoomDevicePage> {
 
 class FeederRoomDeviceDataTableSource extends DataTableSource {
   final BuildContext context;
-  final List<FeederRoomDeviceModel> devices;
+  final List<FeederRoomWaterDeviceModel> devices;
   final String Function(String) getRoomName;
-  final void Function(FeederRoomDeviceModel) onDetail;
-  final void Function(FeederRoomDeviceModel) onEdit;
-  final void Function(FeederRoomDeviceModel) onDelete;
-  final void Function(FeederRoomDeviceModel) onRiwayat;
-  final void Function(FeederRoomDeviceModel) onPilihRuangan;
-  final void Function(FeederRoomDeviceModel) onLepasRuangan;
+  final void Function(FeederRoomWaterDeviceModel) onDetail;
+  final void Function(FeederRoomWaterDeviceModel) onEdit;
+  final void Function(FeederRoomWaterDeviceModel) onDelete;
+  final void Function(FeederRoomWaterDeviceModel) onRiwayat;
+  final void Function(FeederRoomWaterDeviceModel) onPilihRuangan;
+  final void Function(FeederRoomWaterDeviceModel) onLepasRuangan;
 
   FeederRoomDeviceDataTableSource({
     required this.context,
@@ -802,21 +721,9 @@ class FeederRoomDeviceDataTableSource extends DataTableSource {
           ),
         ),
         DataCell(
-          Center(child: Text(device.status == 'on' ? 'Aktif' : 'Tidak Aktif')),
-        ),
-        DataCell(Center(child: Text('${device.batteryPercent}%'))),
-        DataCell(
           Center(
             child: Text(
-              '${device.feedRemaining}g / 500g',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
-        DataCell(
-          Center(
-            child: Text(
-              '${device.waterRemaining}L / 5L',
+              '${device.waterRemaining}',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),

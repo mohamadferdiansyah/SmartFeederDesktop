@@ -129,27 +129,27 @@ class CustomStableCard extends StatelessWidget {
               //   ),
               // ),
               // const SizedBox(width: 8),
-              // Tooltip(
-              //   message: 'Status Device Ruangan: $activeText',
-              //   child: Container(
-              //     padding: const EdgeInsets.symmetric(
-              //       horizontal: 12,
-              //       vertical: 6,
-              //     ),
-              //     decoration: BoxDecoration(
-              //       color: activeColor,
-              //       borderRadius: BorderRadius.circular(8),
-              //     ),
-              //     child: Text(
-              //       activeText,
-              //       style: const TextStyle(
-              //         color: Colors.white,
-              //         fontSize: 16,
-              //         fontWeight: FontWeight.bold,
-              //       ),
-              //     ),
-              //   ),
-              // ),
+              Tooltip(
+                message: 'Status Device Ruangan: $activeText',
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: activeColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    activeText,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 4),

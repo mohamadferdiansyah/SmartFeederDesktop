@@ -5,6 +5,7 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_history_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_water_device_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/setting/feeder_setting_controller.dart';
 import '../models/feeder/feeder_device_detail_model.dart';
 
@@ -89,6 +90,7 @@ class MqttService extends GetxService {
         print('MQTT: Successfully connected to $host:$port');
         client!.subscribe('feeder/status', MqttQos.atMostOnce);
         client!.subscribe('feeder/baterai', MqttQos.atMostOnce);
+        client!.subscribe('feeder/air', MqttQos.atMostOnce);
 
         client!.updates?.listen((events) {
           final topic = events[0].topic;
@@ -105,6 +107,9 @@ class MqttService extends GetxService {
             }
             if (topic == 'feeder/baterai') {
               _handleBateraiPayload(payload);
+            }
+            if (topic == 'feeder/air') {
+              _handleAirPayload(payload);
             }
           } catch (e) {
             print('MQTT: Error parsing JSON: $e');
@@ -261,6 +266,29 @@ class MqttService extends GetxService {
       print(feederDeviceDetailList[index].batteryPercent);
     }
     _resetDeviceTimeout(deviceId);
+  }
+
+  void _handleAirPayload(Map<String, dynamic> json) {
+    final deviceId = json['device_id'];
+    final water = json['water'];
+    if (deviceId == null || water == null) return;
+
+    // Update di feederRoomWaterDeviceList
+    final index = dataController.feederRoomDeviceList.indexWhere(
+      (d) => d.deviceId == deviceId,
+    );
+    if (index != -1) {
+      final old = dataController.feederRoomDeviceList[index];
+      final updated = FeederRoomWaterDeviceModel(
+        deviceId: old.deviceId,
+        status: old.status,
+        batteryPercent: old.batteryPercent,
+        waterRemaining: water, // 'penuh' atau 'kosong'
+        roomId: old.roomId,
+      );
+      // Update di database dan RxList
+      dataController.updateFeederRoomDevice(updated, old.deviceId);
+    }
   }
 
   void _resetDeviceTimeout(String deviceId) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/history/feeder_history_page.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/room_device/feeder_room_device_page.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/room_water_device/feeder_room_water_device_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/rule_engine/feeder_rule_engine_page.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_sidebar.dart';
 import 'package:smart_feeder_desktop/app/models/sidebar_menu_model.dart';
@@ -40,7 +40,7 @@ class FeederLayoutPage extends StatelessWidget {
         SidebarMenuItem(
           title: "Data IoT Room",
           icon: Icons.device_hub,
-          page: FeederRoomDevicePage(),
+          page: FeederRoomWaterDevicePage(),
         ),
         SidebarMenuItem(
           title: "Data Pakan",

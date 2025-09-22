@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -19,15 +21,14 @@ class DBHelper {
       path,
       version: version,
       onCreate: (db, version) async {
-        // feeder_room_devices
+        // feeder_room_water_devices
         await db.execute('''
-          CREATE TABLE feeder_room_devices (
+          CREATE TABLE feeder_room_water_devices (
             device_id TEXT PRIMARY KEY,
             room_id TEXT,
             status TEXT,
             battery_percent INTEGER,
-            feed_remaining DOUBLE,
-            water_remaining DOUBLE
+            water_remaining TEXT
           )
         ''');
 
@@ -100,7 +101,7 @@ class DBHelper {
           )
         ''');
 
-                await db.execute('''
+        await db.execute('''
           CREATE TABLE node_room_detail (
             detail_id TEXT PRIMARY KEY,
             device_id TEXT,
@@ -374,5 +375,64 @@ class DBHelper {
         ''');
       },
     );
+  }
+
+  static Future<void> injectDummyData() async {
+    final db = await DBHelper.database;
+    final batch = db.batch();
+    final now = DateTime.now();
+    final rand = Random();
+
+    // 1. halter_raw_data - 17000 data
+    for (int i = 0; i < 17000; i++) {
+      batch.insert('halter_raw_data', {
+        'data':
+            'SRIPB1223003,29.20,62.40,22.50,0.00,0.00,0.00,0.00,0.00,0.00,*',
+        'time': now.subtract(Duration(seconds: i)).toIso8601String(),
+      });
+    }
+
+    // 2. halter_device_detail - 8500 data
+    for (int i = 0; i < 8500; i++) {
+      batch.insert('halter_device_detail', {
+        'detail_id': i,
+        'latitude': rand.nextDouble() * 100,
+        'longitude': rand.nextDouble() * 100,
+        'altitude': rand.nextDouble() * 100,
+        'sog': rand.nextInt(50),
+        'cog': rand.nextInt(360),
+        'roll': rand.nextDouble() * 180 - 90,
+        'pitch': rand.nextDouble() * 180 - 90,
+        'yaw': rand.nextDouble() * 360 - 180,
+        'voltage': rand.nextDouble() * 5 + 3,
+        'heart_rate': rand.nextInt(100) + 30,
+        'spo': rand.nextDouble() * 100,
+        'temperature': rand.nextDouble() * 10 + 30,
+        'respiratory_rate': rand.nextDouble() * 30,
+        'interval': rand.nextInt(1000),
+        'device_id': 'SHIPB1',
+        'time': now.subtract(Duration(minutes: i)).toIso8601String(),
+        'rssi': -rand.nextInt(50),
+        'snr': rand.nextDouble() * 10,
+      });
+    }
+
+    // 3. node_room_detail - 8500 data
+    for (int i = 0; i < 8500; i++) {
+      batch.insert('node_room_detail', {
+        'detail_id': i,
+        'device_id': 'SRIPB1',
+        'temperature': rand.nextDouble() * 10 + 25,
+        'humidity': rand.nextDouble() * 50 + 30,
+        'light_intensity': rand.nextDouble() * 1000,
+        'co': rand.nextDouble() * 10,
+        'co2': rand.nextDouble() * 1000,
+        'ammonia': rand.nextDouble() * 5,
+        'time': now.subtract(Duration(minutes: i)).toIso8601String(),
+      });
+    }
+
+    await batch.commit(noResult: true);
+    print('Dummy data injected!');
   }
 }

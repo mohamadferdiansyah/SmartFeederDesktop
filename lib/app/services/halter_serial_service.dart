@@ -1047,9 +1047,10 @@ class HalterSerialService extends GetxService {
         return num.toString();
       });
       for (final did in deviceIds) {
-        final dummyLine = makeDummyNodeRoomData(did);
-        _processBlockRoom(dummyLine);
-        // _processBlock(dummyLine); // Untuk SHIPB
+        final dummyLine = makeDummyData(did);
+        final dummyLineRoom = makeDummyNodeRoomData(did);
+        _processBlockRoom(dummyLineRoom);
+        _processBlock(dummyLine); // Untuk SHIPB
       }
     });
   }

@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_device_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_device_history_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_feed_dao.dart';
-import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_room_device_dao.dart';
+import 'package:smart_feeder_desktop/app/data/dao/feeder/feeder_room_water_device_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/halter/cctv_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/halter/halter_alert_rule_engine_dao.dart';
 import 'package:smart_feeder_desktop/app/data/dao/halter/halter_biometric_rule_engine_dao.dart';
@@ -29,7 +29,7 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_position_rule_engi
 import 'package:smart_feeder_desktop/app/models/halter/halter_raw_data_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feed_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_detail_model.dart';
-import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_water_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/history_entry_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_biometric_rule_engine_model.dart';
@@ -61,8 +61,8 @@ class DataController extends GetxController {
   final RxList<HalterLogModel> halterLogList = <HalterLogModel>[].obs;
 
   // Data Feeder Room Device
-  final RxList<FeederRoomDeviceModel> feederRoomDeviceList =
-      <FeederRoomDeviceModel>[].obs;
+  final RxList<FeederRoomWaterDeviceModel> feederRoomDeviceList =
+      <FeederRoomWaterDeviceModel>[].obs;
 
   // Data Feeder Device
   final RxList<FeederDeviceModel> feederDeviceList = <FeederDeviceModel>[].obs;
@@ -153,7 +153,7 @@ class DataController extends GetxController {
     initHalterCalibrationLogDao(db);
     // feeder
     initFeederDeviceDao(db);
-    initFeederRoomDeviceDao(db);
+    initFeederRoomWaterDeviceDao(db);
     initFeederFeedDao(db);
     initFillHistoryDao(db);
     // dst...
@@ -256,34 +256,31 @@ class DataController extends GetxController {
   }
 
   Future<void> updateRemainingFeed(String roomId, double amount) async {
-      // Cari room di RxList
-      final index = roomList.indexWhere((r) => r.roomId == roomId);
-      if (index != -1) {
-        final old = roomList[index];
-        final newFeed = (old.remainingFeed + amount).clamp(
-          0,
-          50,
-        ); // misal max 50
-        final updatedRoom = RoomModel(
-          roomId: old.roomId,
-          name: old.name,
-          deviceSerial: old.deviceSerial,
-          status: old.status,
-          cctvId: old.cctvId,
-          stableId: old.stableId,
-          horseId: old.horseId,
-          remainingWater: old.remainingWater,
-          remainingFeed: newFeed.toDouble(),
-          lastFeedText: old.lastFeedText.value,
-          waterScheduleIntervalHour: old.waterScheduleIntervalHour.value,
-          feedScheduleIntervalHour: old.feedScheduleIntervalHour.value,
-        );
-        // Update di DB
-        await roomDao.update(updatedRoom);
-        // Update di RxList
-        roomList[index] = updatedRoom;
-      }
+    // Cari room di RxList
+    final index = roomList.indexWhere((r) => r.roomId == roomId);
+    if (index != -1) {
+      final old = roomList[index];
+      final newFeed = (old.remainingFeed + amount).clamp(0, 50); // misal max 50
+      final updatedRoom = RoomModel(
+        roomId: old.roomId,
+        name: old.name,
+        deviceSerial: old.deviceSerial,
+        status: old.status,
+        cctvId: old.cctvId,
+        stableId: old.stableId,
+        horseId: old.horseId,
+        remainingWater: old.remainingWater,
+        remainingFeed: newFeed.toDouble(),
+        lastFeedText: old.lastFeedText.value,
+        waterScheduleIntervalHour: old.waterScheduleIntervalHour.value,
+        feedScheduleIntervalHour: old.feedScheduleIntervalHour.value,
+      );
+      // Update di DB
+      await roomDao.update(updatedRoom);
+      // Update di RxList
+      roomList[index] = updatedRoom;
     }
+  }
 
   Future<void> deleteRoom(String roomId) async {
     await roomDao.delete(roomId);
@@ -803,32 +800,32 @@ class DataController extends GetxController {
   }
 
   // Data Feeder Room Device
-  late FeederRoomDeviceDao feederRoomDeviceDao;
+  late FeederRoomWaterDeviceDao feederRoomWaterDeviceDao;
 
-  void initFeederRoomDeviceDao(Database db) {
-    feederRoomDeviceDao = FeederRoomDeviceDao(db);
+  void initFeederRoomWaterDeviceDao(Database db) {
+    feederRoomWaterDeviceDao = FeederRoomWaterDeviceDao(db);
   }
 
   Future<void> loadFeederRoomDevicesFromDb() async {
-    final list = await feederRoomDeviceDao.getAll();
+    final list = await feederRoomWaterDeviceDao.getAll();
     feederRoomDeviceList.assignAll(list);
   }
 
-  Future<void> addFeederRoomDevice(FeederRoomDeviceModel model) async {
-    await feederRoomDeviceDao.insert(model);
+  Future<void> addFeederRoomDevice(FeederRoomWaterDeviceModel model) async {
+    await feederRoomWaterDeviceDao.insert(model);
     await loadFeederRoomDevicesFromDb();
   }
 
   Future<void> updateFeederRoomDevice(
-    FeederRoomDeviceModel model,
+    FeederRoomWaterDeviceModel model,
     String? oldDeviceId,
   ) async {
-    await feederRoomDeviceDao.update(model, oldDeviceId);
+    await feederRoomWaterDeviceDao.update(model, oldDeviceId);
     await loadFeederRoomDevicesFromDb();
   }
 
   Future<void> deleteFeederRoomDevice(String deviceId) async {
-    await feederRoomDeviceDao.delete(deviceId);
+    await feederRoomWaterDeviceDao.delete(deviceId);
     await loadFeederRoomDevicesFromDb();
   }
 

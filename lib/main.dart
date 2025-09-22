@@ -17,6 +17,7 @@ void main() async {
   await initializeDateFormatting('id_ID', null);
 
   await DBHelper.database;
+  // await DBHelper.injectDummyData(); // Panggil seperti ini // <-- panggil di sini, lalu hapus setelah selesai tes
 
   await windowManager.ensureInitialized();
 

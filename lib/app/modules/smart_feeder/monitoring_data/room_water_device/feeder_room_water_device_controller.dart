@@ -5,15 +5,15 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
-import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_water_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 
-class FeederRoomDeviceController extends GetxController {
+class FeederRoomWaterDeviceController extends GetxController {
   final DataController dataController = Get.find<DataController>();
 
   List<RoomModel> get roomList => dataController.roomList;
 
-  List<FeederRoomDeviceModel> get feederRoomDeviceList =>
+  List<FeederRoomWaterDeviceModel> get feederRoomDeviceList =>
       dataController.feederRoomDeviceList;
 
   String getRoomName(String roomId) {
@@ -21,25 +21,28 @@ class FeederRoomDeviceController extends GetxController {
   }
 
   Future<void> loadDevices() async {
-  await dataController.loadFeederRoomDevicesFromDb();
-}
+    await dataController.loadFeederRoomDevicesFromDb();
+  }
 
-Future<void> addDevice(FeederRoomDeviceModel model) async {
-  await dataController.addFeederRoomDevice(model);
-  await loadDevices();
-}
+  Future<void> addDevice(FeederRoomWaterDeviceModel model) async {
+    await dataController.addFeederRoomDevice(model);
+    await loadDevices();
+  }
 
-Future<void> updateDevice(FeederRoomDeviceModel model, String? oldDeviceId) async {
-  await dataController.updateFeederRoomDevice(model, oldDeviceId);
-  await loadDevices();
-}
+  Future<void> updateDevice(
+    FeederRoomWaterDeviceModel model,
+    String? oldDeviceId,
+  ) async {
+    await dataController.updateFeederRoomDevice(model, oldDeviceId);
+    await loadDevices();
+  }
 
-Future<void> deleteDevice(String deviceId) async {
-  await dataController.deleteFeederRoomDevice(deviceId);
-  await loadDevices();
-}
+  Future<void> deleteDevice(String deviceId) async {
+    await dataController.deleteFeederRoomDevice(deviceId);
+    await loadDevices();
+  }
 
-  Future<void> exportDeviceExcel(List<FeederRoomDeviceModel> data) async {
+  Future<void> exportDeviceExcel(List<FeederRoomWaterDeviceModel> data) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
@@ -68,7 +71,7 @@ Future<void> deleteDevice(String deviceId) async {
   }
 
   /// Export data device ke PDF
-  Future<void> exportDevicePDF(List<FeederRoomDeviceModel> data) async {
+  Future<void> exportDevicePDF(List<FeederRoomWaterDeviceModel> data) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(

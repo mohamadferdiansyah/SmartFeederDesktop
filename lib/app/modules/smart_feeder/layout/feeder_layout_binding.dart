@@ -5,7 +5,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/de
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/feed/feed_binding.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/feed/feed_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/history/feeder_history_controller.dart';
-import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/room_device/feeder_room_device_controller.dart';
+import 'package:smart_feeder_desktop/app/modules/smart_feeder/monitoring_data/room_water_device/feeder_room_water_device_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/setting/feeder_setting_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/alert/halter_alert_rule_engine_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/threshold/halter_threshold_controller.dart';
@@ -21,7 +21,9 @@ class FeederLayoutBinding extends Bindings {
     Get.lazyPut<FeedController>(() => FeedController());
     Get.lazyPut<FeederDashboardController>(() => FeederDashboardController());
     Get.lazyPut<FeederDeviceController>(() => FeederDeviceController());
-    Get.lazyPut<FeederRoomDeviceController>(() => FeederRoomDeviceController());
+    Get.lazyPut<FeederRoomWaterDeviceController>(
+      () => FeederRoomWaterDeviceController(),
+    );
     Get.lazyPut<ControlScheduleController>(() => ControlScheduleController());
     Get.lazyPut<FeederHistoryController>(() => FeederHistoryController());
     Get.lazyPut<FeederSettingController>(() => FeederSettingController());
