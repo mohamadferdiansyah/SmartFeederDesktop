@@ -140,7 +140,7 @@ class RoomDao {
       cctvId: cctvList,
       stableId: map['stable_id'],
       horseId: map['horse_id'],
-      remainingWater: (map['remaining_water'] ?? 0).toDouble(),
+      remainingWater: map['remaining_water'],
       remainingFeed: (map['remaining_feed'] ?? 0).toDouble(),
       // waterScheduleType: map['water_schedule_type'] ?? '',
       // feedScheduleType: map['feed_schedule_type'] ?? '',

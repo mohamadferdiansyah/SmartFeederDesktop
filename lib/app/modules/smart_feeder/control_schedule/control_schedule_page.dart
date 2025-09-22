@@ -182,9 +182,9 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
     required dynamic horse,
   }) {
     final colorMain = isAir ? Colors.blue : Colors.deepOrange;
-    final satuan = isAir ? "Liter" : "Gram";
+    final satuan = isAir ? "" : "Gram";
     final maxValue = isAir ? controller.maxWater : controller.maxFeed;
-    final remainingValue = isAir ? room.remainingWater : room.remainingFeed;
+    final remainingValue = room.remainingFeed;
     final kebutuhanIsi = (maxValue - remainingValue).clamp(0, maxValue);
 
     return Padding(
@@ -392,7 +392,7 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        '${remainingValue.toStringAsFixed(1)} $satuan',
+                                        '$remainingValue $satuan',
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           color: colorMain,

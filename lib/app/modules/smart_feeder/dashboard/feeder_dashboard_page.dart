@@ -652,9 +652,12 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                             children: [
                               CustomStableTankCard(
                                 isWater: true,
-                                current: selectedRoom.remainingWater,
+                                current:
+                                    controller
+                                        .getDevicesByRoomId(selectedRoom.roomId)
+                                        ?.waterRemaining ??
+                                    'kosong',
                                 max: 5,
-                                phLevel: 7.2,
                                 lastText: 'Belum Ada Pengisian',
                                 getTankImageAsset:
                                     controller.getStableTankImageAsset,
@@ -1635,8 +1638,8 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                     height: MediaQuery.of(context).size.height * 0.58,
                     child: Scrollbar(
                       thumbVisibility: true,
-                      child: Obx(
-                        () => ListView.builder(
+                      child: Obx(() {
+                        return ListView.builder(
                           itemCount: controller.filteredRoomList.length,
                           itemBuilder: (context, index) {
                             final room = controller.filteredRoomList[index];
@@ -1653,20 +1656,31 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                       room.roomId,
                                     ) ==
                                     "Aktif",
-                                remainingWater: room.remainingWater.obs,
+                                remainingWater:
+                                    (controller
+                                                .getDevicesByRoomId(room.roomId)
+                                                ?.waterRemaining ??
+                                            'kosong')
+                                        .toString()
+                                        .replaceFirstMapped(
+                                          RegExp(r'^[a-zA-Z]'),
+                                          (match) =>
+                                              match.group(0)!.toUpperCase(),
+                                        ),
                                 remainingFeed: room.remainingFeed.obs,
                                 lastFeedText: controller.getLastFeedFromHistory(
                                   room,
                                 ),
                                 onSelect: () {
                                   controller.selectedRoomIndex.value = index;
+                                  print(controller.selectedRoom.remainingWater);
                                 },
                                 primaryColor: AppColors.primary,
                               ),
                             );
                           },
-                        ),
-                      ),
+                        );
+                      }),
                     ),
                   ),
                 ),

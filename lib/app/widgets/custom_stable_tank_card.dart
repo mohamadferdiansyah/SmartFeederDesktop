@@ -2,18 +2,16 @@ import 'package:flutter/material.dart';
 
 class CustomStableTankCard extends StatelessWidget {
   final bool isWater;
-  final double current;
+  final dynamic current; // bisa double (pakan) atau String (air)
   final double max;
-  final double? phLevel;          // hanya untuk air, null jika pakan
   final String lastText;
-  final String Function(double, double, bool) getTankImageAsset;
+  final String Function(dynamic, double, bool) getTankImageAsset;
 
   const CustomStableTankCard({
     super.key,
     required this.isWater,
     required this.current,
     required this.max,
-    this.phLevel,
     required this.lastText,
     required this.getTankImageAsset,
   });
@@ -22,8 +20,8 @@ class CustomStableTankCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final folderColor = isWater ? Colors.blue : Colors.deepOrange;
     final title = isWater ? "Tempat Air" : "Tempat Pakan";
-    final unit = isWater ? "L" : "g";
-    final maxUnit = isWater ? "Liter" : "Gram";
+    final unit = isWater ? "" : "g";
+    final maxUnit = isWater ? "" : "Gram";
     final img = getTankImageAsset(current, max, isWater);
 
     return Container(
@@ -52,7 +50,7 @@ class CustomStableTankCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isWater ? 'Sisa Air:' : 'Sisa Pakan:',
+                          isWater ? 'Status Air:' : 'Sisa Pakan:',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
@@ -63,57 +61,39 @@ class CustomStableTankCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              '${current.toStringAsFixed(1)}$unit',
+                              isWater
+                                  ? (current == "penuh"
+                                      ? "Penuh"
+                                      : "Kosong")
+                                  : '${(current as double).toStringAsFixed(1)}$unit',
                               style: TextStyle(
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold,
                                 color: folderColor,
                               ),
                             ),
-                            Text(
-                              ' /',
-                              style: const TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blueGrey,
+                            if (!isWater) ...[
+                              Text(
+                                ' /',
+                                style: const TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blueGrey,
+                                ),
                               ),
-                            ),
-                            Text(
-                              '${max.toStringAsFixed(1)} $maxUnit',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blueGrey,
+                              Text(
+                                '${max.toStringAsFixed(1)} $maxUnit',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blueGrey,
+                                ),
                               ),
-                            ),
+                            ],
                           ],
                         ),
                       ],
                     ),
-                    if (isWater) ...[
-                      const SizedBox(width: 24),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Ph Level:',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                            ),
-                          ),
-                          Text(
-                            phLevel?.toStringAsFixed(2) ?? '-',
-                            style: const TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -140,4 +120,4 @@ class CustomStableTankCard extends StatelessWidget {
       ),
     );
   }
-}
+} 

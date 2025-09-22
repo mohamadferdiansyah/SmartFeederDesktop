@@ -139,7 +139,7 @@ class DBHelper {
             name TEXT,
             device_serial TEXT,
             status TEXT,
-            remaining_water DOUBLE,
+            remaining_water TEXT,
             remaining_feed DOUBLE,
             stable_id TEXT,
             horse_id TEXT,

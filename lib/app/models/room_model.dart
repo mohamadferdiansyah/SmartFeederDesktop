@@ -8,7 +8,7 @@ class RoomModel {
   final List<String>? cctvId; // Simpan sebagai string. Jika ingin array, simpan JSON string.
   final String stableId;
   final String? horseId;
-  final double remainingWater;
+  final String remainingWater;
   final double remainingFeed;
   final Rxn<DateTime> lastFeedText;
   final RxnInt waterScheduleIntervalHour;
@@ -40,7 +40,7 @@ class RoomModel {
         cctvId: map['cctv_id'] ?? '',
         stableId: map['stable_id'],
         horseId: map['horse_id'],
-        remainingWater: (map['remaining_water'] ?? 0).toDouble(),
+        remainingWater: map['remaining_water'],
         remainingFeed: (map['remaining_feed'] ?? 0).toDouble(),
       );
 

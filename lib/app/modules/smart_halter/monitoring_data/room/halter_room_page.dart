@@ -225,7 +225,7 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
           ].whereType<String>().toList(),
           stableId: selectedStableId ?? "",
           horseId: selectedHorseId,
-          remainingWater: 0,
+          remainingWater: 'kosong',
           remainingFeed: 0,
           // waterScheduleType: "",
           // feedScheduleType: "",

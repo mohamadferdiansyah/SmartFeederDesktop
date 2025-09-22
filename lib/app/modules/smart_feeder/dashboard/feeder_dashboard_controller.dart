@@ -76,7 +76,8 @@ class FeederDashboardController extends GetxController {
           cctvId: room.cctvId,
           stableId: room.stableId,
           horseId: room.horseId,
-          remainingWater: (room.remainingWater - 0.1).clamp(0, 5),
+          remainingWater: room.remainingWater,
+          // remainingWater: (room.remainingWater - 0.1).clamp(0, 5),
           remainingFeed: (room.remainingFeed - 0.5).clamp(0, 50),
           lastFeedText: room.lastFeedText.value,
           waterScheduleIntervalHour: room.waterScheduleIntervalHour.value,
@@ -108,6 +109,10 @@ class FeederDashboardController extends GetxController {
     return '$hours:$minutes:$secs';
   }
 
+  FeederRoomWaterDeviceModel? getDevicesByRoomId(String roomId) {
+    return feederRoomDeviceList.firstWhereOrNull((d) => d.roomId == roomId);
+  }
+
   String getTankImageAsset({
     required double current,
     required double max,
@@ -119,11 +124,21 @@ class FeederDashboardController extends GetxController {
     return "assets/images/$folder/fill_$level.png";
   }
 
-  String getStableTankImageAsset(double current, double max, bool isWater) {
+  String getStableTankImageAsset(dynamic current, double max, bool isWater) {
     final folder = isWater ? "stable_water" : "stable_feed";
     int level = 0;
-    if (max > 0) {
-      level = ((current / max) * 5).clamp(0, 5).round();
+    if (isWater) {
+      // Untuk air, current adalah String: "penuh" atau "kosong"
+      if (current == "penuh") {
+        level = 5;
+      } else {
+        level = 0;
+      }
+    } else {
+      // Untuk pakan, current adalah double
+      if (max > 0 && current is double) {
+        level = ((current / max) * 5).clamp(0, 5).round();
+      }
     }
     return "assets/images/$folder/fill_$level.png";
   }

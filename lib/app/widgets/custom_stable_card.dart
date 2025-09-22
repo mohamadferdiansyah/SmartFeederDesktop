@@ -10,7 +10,7 @@ class CustomStableCard extends StatelessWidget {
   // final String waterScheduleText;
   // final String feedScheduleText;
   final bool isActive;
-  final RxDouble remainingWater; // <-- RxDouble
+  final String remainingWater; // <-- RxDouble
   final RxDouble remainingFeed; // <-- RxDouble
   final String lastFeedText;
   final VoidCallback onSelect;
@@ -129,51 +129,49 @@ class CustomStableCard extends StatelessWidget {
               //   ),
               // ),
               // const SizedBox(width: 8),
-              Tooltip(
-                message: 'Status Device Ruangan: $activeText',
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: activeColor,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    activeText,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+              // Tooltip(
+              //   message: 'Status Device Ruangan: $activeText',
+              //   child: Container(
+              //     padding: const EdgeInsets.symmetric(
+              //       horizontal: 12,
+              //       vertical: 6,
+              //     ),
+              //     decoration: BoxDecoration(
+              //       color: activeColor,
+              //       borderRadius: BorderRadius.circular(8),
+              //     ),
+              //     child: Text(
+              //       activeText,
+              //       style: const TextStyle(
+              //         color: Colors.white,
+              //         fontSize: 16,
+              //         fontWeight: FontWeight.bold,
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
           const SizedBox(height: 4),
           // === Obx untuk Air ===
-          Obx(
-            () => RichText(
-              text: TextSpan(
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
-                children: [
-                  const TextSpan(text: 'Tersedia Air: '),
-                  TextSpan(
-                    text: '${remainingWater.value.toStringAsFixed(1)}L',
-                    style: TextStyle(
-                      fontSize: 27,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
-                  ),
-                ],
+          RichText(
+            text: TextSpan(
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
               ),
+              children: [
+                const TextSpan(text: 'Tersedia Air: '),
+                TextSpan(
+                  text: remainingWater,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
+              ],
             ),
           ),
           // === Obx untuk Pakan ===
