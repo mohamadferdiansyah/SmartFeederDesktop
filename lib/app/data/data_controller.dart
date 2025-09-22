@@ -457,7 +457,7 @@ class DataController extends GetxController {
 
   Future<void> addHalterDevice(HalterDeviceModel model) async {
     await halterDeviceDao.insert(model);
-    await loadHalterDevicesFromDb();
+    // await loadHalterDevicesFromDb();
   }
 
   Future<void> loadHalterDevicesFromDb() async {
@@ -470,7 +470,7 @@ class DataController extends GetxController {
     String oldDeviceId,
   ) async {
     await halterDeviceDao.update(model, oldDeviceId);
-    await loadHalterDevicesFromDb();
+    // await loadHalterDevicesFromDb();
   }
 
   Future<void> deleteHalterDevice(String deviceId) async {
@@ -492,12 +492,12 @@ class DataController extends GetxController {
 
   Future<void> addNodeRoom(NodeRoomModel model) async {
     await nodeRoomDao.insert(model);
-    await loadNodeRoomsFromDb();
+    // await loadNodeRoomsFromDb();
   }
 
   Future<void> updateNodeRoom(NodeRoomModel model, String oldDeviceId) async {
     await nodeRoomDao.update(model, oldDeviceId);
-    await loadNodeRoomsFromDb();
+    // await loadNodeRoomsFromDb();
   }
 
   Future<void> deleteNodeRoom(String nodeId) async {
@@ -530,8 +530,8 @@ class DataController extends GetxController {
 
   Future<void> addNodeRoomDetail(NodeRoomDetailModel model) async {
     await nodeRoomDetailDao.insert(model);
-    nodeRoomDetailHistory.add(model);
-    await loadNodeRoomDetailHistory();
+    // nodeRoomDetailHistory.add(model);
+    // await loadNodeRoomDetailHistory();
   }
 
   Future<void> loadNodeRoomDetailHistory() async {
@@ -580,7 +580,7 @@ class DataController extends GetxController {
     // if (detailHistory.length > 1000) {
     //   detailHistory.removeLast();
     // }
-    await loadAllHalterDeviceDetails();
+    // await loadAllHalterDeviceDetails();
   }
 
   Future<void> updateHalterDeviceDetail(HalterDeviceDetailModel detail) async {
@@ -643,7 +643,7 @@ class DataController extends GetxController {
 
   Future<void> addRawData(HalterRawDataModel model) async {
     await halterRawDataDao.insert(model);
-    await loadRawDataFromDb();
+    // await loadRawDataFromDb();
   }
 
   Future<void> loadRawDataFromDb() async {
@@ -670,7 +670,7 @@ class DataController extends GetxController {
 
   Future<void> addHalterAlertLog(HalterLogModel model) async {
     await halterAlertRuleEngineDao.insert(model);
-    await loadHalterAlertLogsFromDb();
+    // await loadHalterAlertLogsFromDb();
   }
 
   Future<void> loadHalterAlertLogsFromDb() async {

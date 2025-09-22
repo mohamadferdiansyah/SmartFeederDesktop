@@ -58,12 +58,11 @@ class HalterRawDataController extends GetxController {
     }).toList();
   }
 
-  // @override
-  // void onInit() {
-  //   super.onInit();
-  // // Jika ingin langsung start dummy:
-  // serialService.startDummySerial();
-  // }
+  @override
+  void onInit() {
+    super.onInit();
+    dataController.loadRawDataFromDb();
+  }
 
   get dataList => null;
 

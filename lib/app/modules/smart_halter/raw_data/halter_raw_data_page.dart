@@ -326,9 +326,9 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                         final tableWidth =
                             MediaQuery.of(context).size.width - 72;
                         final noW = tableWidth * 0.04;
-                        final dataW = tableWidth * 0.42;
+                        final dataW = tableWidth * 0.43;
                         final tglW = tableWidth * 0.13;
-                        final aksiW = tableWidth * 0.10;
+                        final aksiW = tableWidth * 0.19;
 
                         return Theme(
                           data: Theme.of(context).copyWith(
@@ -400,19 +400,19 @@ class _HalterRawDataPageState extends State<HalterRawDataPage> {
                                   ),
                                 ),
                               ),
-                              DataColumn(
-                                label: SizedBox(
-                                  width: aksiW,
-                                  child: const Center(
-                                    child: Text(
-                                      'Aksi',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              // DataColumn(
+                              //   label: SizedBox(
+                              //     width: aksiW,
+                              //     child: const Center(
+                              //       child: Text(
+                              //         'Aksi',
+                              //         style: TextStyle(
+                              //           fontWeight: FontWeight.bold,
+                              //         ),
+                              //       ),
+                              //     ),
+                              //   ),
+                              // ),
                             ],
                             source: HalterRawDataTableSource(
                               data: filteredList,
@@ -492,36 +492,36 @@ class HalterRawDataTableSource extends DataTableSource {
             ),
           ),
         ),
-        DataCell(
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                tooltip: 'Hapus',
-                onPressed: () {
-                  showCustomDialog(
-                    context: context,
-                    title: 'Hapus Data',
-                    icon: Icons.delete,
-                    iconColor: Colors.red,
-                    confirmText: 'Hapus',
-                    message: 'Apakah Anda yakin ingin menghapus data ini?',
-                    onConfirm: () {
-                      controller.deleteRawDataById(item.rawId!);
-                      showAppToast(
-                        context: context,
-                        type: ToastificationType.success,
-                        title: 'Berhasil Dihapus!',
-                        description: 'Data Raw Dihapus.',
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
+        // DataCell(
+        //   Row(
+        //     mainAxisAlignment: MainAxisAlignment.center,
+        //     children: [
+        //       IconButton(
+        //         icon: const Icon(Icons.delete, color: Colors.red),
+        //         tooltip: 'Hapus',
+        //         onPressed: () {
+        //           showCustomDialog(
+        //             context: context,
+        //             title: 'Hapus Data',
+        //             icon: Icons.delete,
+        //             iconColor: Colors.red,
+        //             confirmText: 'Hapus',
+        //             message: 'Apakah Anda yakin ingin menghapus data ini?',
+        //             onConfirm: () {
+        //               controller.deleteRawDataById(item.rawId!);
+        //               showAppToast(
+        //                 context: context,
+        //                 type: ToastificationType.success,
+        //                 title: 'Berhasil Dihapus!',
+        //                 description: 'Data Raw Dihapus.',
+        //               );
+        //             },
+        //           );
+        //         },
+        //       ),
+        //     ],
+        //   ),
+        // ),
       ],
     );
   }

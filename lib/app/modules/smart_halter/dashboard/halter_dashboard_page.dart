@@ -2,6 +2,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
+import 'package:smart_feeder_desktop/app/models/halter/node_room_detail_model.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/dashboard/halter_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/setting/halter_setting_controller.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_battery_indicator.dart';
@@ -132,6 +134,7 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                           itemCount: controller.filteredRoomList.length,
                           itemBuilder: (context, index) {
                             final room = controller.filteredRoomList[index];
+                            final selectedRoom = controller.selectedRoom.roomId;
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(
@@ -160,6 +163,9 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                   isRoomFilled: controller.isRoomFilled(
                                     room.roomId,
                                   ),
+                                  isSelected:
+                                      controller.selectedRoomIndex.value ==
+                                      index,
                                   onSelectHorse: () {
                                     controller.selectedRoomIndex.value = index;
                                   },
@@ -1470,21 +1476,18 @@ class _DetailKudaView extends StatelessWidget {
                   final data = controller.getSelectedHorseDetailHistory();
                   const maxData = 5;
 
-                  // Ambil hanya 10 data terakhir
-                  final displayData = data.length > maxData
-                      ? data.sublist(0, maxData)
-                      : data;
+                  // Sort data dari terbaru ke terlama
+                  final sortedData = List<HalterDeviceDetailModel>.from(data)
+                    ..sort(
+                      (a, b) => (b.time ?? DateTime(0)).compareTo(
+                        a.time ?? DateTime(0),
+                      ),
+                    );
 
-                  // if (displayData.isEmpty) {
-                  //   return Center(
-                  //     child: Text(
-                  //       'Belum ada data biometrik',
-                  //       style: TextStyle(color: Colors.grey),
-                  //     ),
-                  //   );
-                  // }
+                  // Ambil hanya 5 data terbaru
+                  final displayData = sortedData.take(maxData).toList();
 
-                  final reversedData = displayData.reversed.toList();
+                  final revresedData = displayData.reversed.toList();
 
                   List<FlSpot> bpmSpots = [];
                   List<FlSpot> suhuSpots = [];
@@ -1492,8 +1495,8 @@ class _DetailKudaView extends StatelessWidget {
                   List<FlSpot> respirasiSpots = [];
                   List<String> timeLabels = [];
 
-                  for (int i = 0; i < reversedData.length; i++) {
-                    final d = reversedData[i];
+                  for (int i = 0; i < revresedData.length; i++) {
+                    final d = revresedData[i];
                     bpmSpots.add(
                       FlSpot(i.toDouble(), (d.heartRate ?? 0).toDouble()),
                     );
@@ -1507,6 +1510,9 @@ class _DetailKudaView extends StatelessWidget {
                         .split('T')[1]
                         .split('.')[0];
                     timeLabels.add(timeStr);
+                    print(
+                      'INI PRINTANT LU ${d.heartRate} ${d.temperature} ${d.spo} ${d.respiratoryRate}',
+                    );
                   }
 
                   return BiometricChartTabSection(
@@ -1896,10 +1902,18 @@ class _DetailRuanganView extends StatelessWidget {
                   final data = controller.getSelectedNodeRoomHistory();
                   const maxData = 5;
 
-                  final displayData = data.length > maxData
-                      ? data.sublist(0, maxData)
-                      : data;
+                  // Sort data dari terbaru ke terlama
+                  final sortedData = List<NodeRoomDetailModel>.from(data)
+                    ..sort(
+                      (a, b) => (b.time ?? DateTime(0)).compareTo(
+                        a.time ?? DateTime(0),
+                      ),
+                    );
 
+                  // Ambil hanya 5 data terbaru
+                  final displayData = sortedData.take(maxData).toList();
+
+                  // Reverse agar urutan waktu dari lama ke baru di sumbu X
                   final reversedData = displayData.reversed.toList();
 
                   List<FlSpot> suhuSpots = [];
@@ -1919,7 +1933,7 @@ class _DetailRuanganView extends StatelessWidget {
                     co2Spots.add(FlSpot(i.toDouble(), d.co2));
                     amoSpots.add(FlSpot(i.toDouble(), d.ammonia));
                     final timeStr = d.time != null
-                        ? d.time!.toIso8601String().split('T')[1].split('.')[0]
+                        ? d.time.toIso8601String().split('T')[1].split('.')[0]
                         : '-';
                     timeLabels.add(timeStr);
                   }

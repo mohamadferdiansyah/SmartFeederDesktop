@@ -39,14 +39,13 @@ class HalterDeviceController extends GetxController {
   }
 
   Future<void> updateDevice(HalterDeviceModel model, String oldDeviceId) async {
-      await dataController.updateHalterDevice(model, oldDeviceId);
+    await dataController.updateHalterDevice(model, oldDeviceId);
     await refreshDevices();
   }
 
   Future<void> refreshDevices() async {
     await dataController.loadHalterDevicesFromDb();
   }
-
 
   Future<void> deleteDevice(String deviceId) async {
     await dataController.deleteHalterDevice(deviceId);

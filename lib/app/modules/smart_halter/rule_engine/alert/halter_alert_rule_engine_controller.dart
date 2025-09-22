@@ -50,6 +50,7 @@ class HalterAlertRuleEngineController extends GetxController {
           isHigh: false,
         );
         await addAlertLog(log);
+        halterHorseLogList.add(log);
       } else if (temperature > s.tempMax) {
         final log = HalterLogModel(
           deviceId: deviceId,
@@ -59,6 +60,7 @@ class HalterAlertRuleEngineController extends GetxController {
           isHigh: true,
         );
         await addAlertLog(log);
+        halterHorseLogList.add(log);
       }
     }
 
@@ -71,6 +73,7 @@ class HalterAlertRuleEngineController extends GetxController {
         isHigh: true,
       );
       await addAlertLog(log);
+      halterHorseLogList.add(log);
     }
 
     if (humidity != null && humidity < s.humidityMin) {
@@ -82,6 +85,7 @@ class HalterAlertRuleEngineController extends GetxController {
         isHigh: false,
       );
       await addAlertLog(log);
+      halterHorseLogList.add(log);
     }
 
     if (lightIntensity != null && lightIntensity > s.lightIntensityMax) {
@@ -94,6 +98,7 @@ class HalterAlertRuleEngineController extends GetxController {
         isHigh: true,
       );
       await addAlertLog(log);
+      halterHorseLogList.add(log);
     }
 
     if (lightIntensity != null && lightIntensity < s.lightIntensityMin) {
@@ -106,6 +111,7 @@ class HalterAlertRuleEngineController extends GetxController {
         isHigh: false,
       );
       await addAlertLog(log);
+      halterHorseLogList.add(log);
     }
   }
 
@@ -131,6 +137,7 @@ class HalterAlertRuleEngineController extends GetxController {
           isHigh: false,
         );
         await addAlertLog(log);
+        halterHorseLogList.add(log);
       } else if (suhu > s.tempMax) {
         final log = HalterLogModel(
           deviceId: deviceId,
@@ -140,6 +147,7 @@ class HalterAlertRuleEngineController extends GetxController {
           isHigh: true,
         );
         await addAlertLog(log);
+        halterHorseLogList.add(log);
       }
     }
 
@@ -153,6 +161,7 @@ class HalterAlertRuleEngineController extends GetxController {
           isHigh: false,
         );
         await addAlertLog(log);
+        halterHorseLogList.add(log);
       } else if (spo > s.spoMax) {
         final log = HalterLogModel(
           deviceId: deviceId,
@@ -162,6 +171,7 @@ class HalterAlertRuleEngineController extends GetxController {
           isHigh: true,
         );
         await addAlertLog(log);
+        halterHorseLogList.add(log);
       }
     }
 
@@ -175,6 +185,7 @@ class HalterAlertRuleEngineController extends GetxController {
           isHigh: false,
         );
         await addAlertLog(log);
+        halterHorseLogList.add(log);
       } else if (bpm > s.heartRateMax) {
         final log = HalterLogModel(
           deviceId: deviceId,
@@ -184,6 +195,7 @@ class HalterAlertRuleEngineController extends GetxController {
           isHigh: true,
         );
         await addAlertLog(log);
+        halterHorseLogList.add(log);
       }
     }
 
@@ -197,6 +209,7 @@ class HalterAlertRuleEngineController extends GetxController {
         isHigh: true,
       );
       await addAlertLog(log);
+      halterHorseLogList.add(log);
     }
 
     if (battery != null && battery < s.batteryMin) {
@@ -208,6 +221,7 @@ class HalterAlertRuleEngineController extends GetxController {
         isHigh: true,
       );
       await addAlertLog(log);
+      halterHorseLogList.add(log);
     }
   }
 }

@@ -45,6 +45,9 @@ class HalterSerialService extends GetxService {
 
   RxList<NodeRoomModel> get nodeRoomList => dataController.nodeRoomList;
 
+  RxList<NodeRoomDetailModel> get nodeRoomDetailHistory =>
+      dataController.nodeRoomDetailHistory;
+
   RxList<HalterDeviceModel> get halterDeviceList =>
       dataController.halterDeviceList;
   RxList<HalterRawDataModel> get rawData => dataController.rawData;
@@ -171,6 +174,13 @@ class HalterSerialService extends GetxService {
         ),
         old.deviceId,
       );
+      halterDeviceList[idx] = HalterDeviceModel(
+        deviceId: old.deviceId,
+        status: 'pairing',
+        batteryPercent: old.batteryPercent,
+        horseId: old.horseId,
+        version: old.version,
+      );
       _pairingDevices.add(deviceId);
       // Cancel timer lama jika ada
       _devicePairingTimers[deviceId]?.cancel();
@@ -193,6 +203,13 @@ class HalterSerialService extends GetxService {
                 version: old2.version,
               ),
               old2.deviceId,
+            );
+            halterDeviceList[idx2] = HalterDeviceModel(
+              deviceId: old2.deviceId,
+              status: 'off',
+              batteryPercent: old2.batteryPercent,
+              horseId: old2.horseId,
+              version: old2.version,
             );
             _pairingDevices.remove(deviceId);
           }
@@ -222,6 +239,13 @@ class HalterSerialService extends GetxService {
               version: old.version,
             ),
             old.deviceId,
+          );
+          halterDeviceList[idx] = HalterDeviceModel(
+            deviceId: old.deviceId,
+            status: 'off',
+            batteryPercent: old.batteryPercent,
+            horseId: old.horseId,
+            version: old.version,
           );
           await logDeviceStatus(deviceId, false); // <-- Tambahkan di sini
         }
@@ -342,8 +366,10 @@ class HalterSerialService extends GetxService {
         // Update RxList dan DB
         if (index == -1) {
           await addNodeRoomDevice(nodeRoom);
+          nodeRoomList.add(nodeRoom);
         } else {
           await updateNodeRoomDevice(nodeRoom, nodeRoom.deviceId);
+          nodeRoomList[index] = nodeRoom;
         }
 
         // Simpan ke detail/history (data sensor diambil dari serial string)
@@ -352,7 +378,7 @@ class HalterSerialService extends GetxService {
           header: headerNodeRoom,
         );
         await addNodeRoomDetail(detailModel);
-
+        nodeRoomDetailHistory.add(detailModel);
         // Logging, threshold, dsb bisa gunakan detailModel
         controller.checkAndLogNode(
           detailModel.deviceId,
@@ -365,6 +391,8 @@ class HalterSerialService extends GetxService {
         await addRawData(
           HalterRawDataModel(data: dataLine, time: DateTime.now()),
         );
+
+        rawData.add(HalterRawDataModel(data: dataLine, time: DateTime.now()));
       } catch (e) {
         print('NodeRoom parsing error: $e');
       }
@@ -732,6 +760,13 @@ class HalterSerialService extends GetxService {
               ),
               old.deviceId,
             );
+            halterDeviceList[idx] = HalterDeviceModel(
+              deviceId: old.deviceId,
+              status: 'on',
+              batteryPercent: old.batteryPercent,
+              horseId: old.horseId,
+              version: old.version,
+            );
             _pairingDevices.remove(fixedDetail.deviceId);
             _devicePairingTimers[fixedDetail.deviceId]?.cancel();
           }
@@ -740,13 +775,6 @@ class HalterSerialService extends GetxService {
         _resetDeviceTimeout(fixedDetail.deviceId);
 
         if (indexDevice == -1) {
-          // halterDeviceList.add(
-          //   HalterDeviceModel(
-          //     deviceId: fixedDetail.deviceId,
-          //     status: 'on',
-          //     batteryPercent: voltageToPercent(fixedDetail.voltage).round(),
-          //   ),
-          // );
           addHalterDevice(
             HalterDeviceModel(
               deviceId: fixedDetail.deviceId,
@@ -755,13 +783,16 @@ class HalterSerialService extends GetxService {
               version: '2.0',
             ),
           );
+
+          halterDeviceList.add(
+            HalterDeviceModel(
+              deviceId: fixedDetail.deviceId,
+              status: 'on',
+              batteryPercent: voltageToPercent(fixedDetail.voltage).round(),
+              version: '2.0',
+            ),
+          );
         } else {
-          // halterDeviceList[indexDevice] = HalterDeviceModel(
-          //   deviceId: fixedDetail.deviceId,
-          //   status: 'on',
-          //   batteryPercent: voltageToPercent(fixedDetail.voltage).round(),
-          //   horseId: halterDeviceList[indexDevice].horseId,
-          // );
           updateHalterDevice(
             HalterDeviceModel(
               deviceId: fixedDetail.deviceId,
@@ -771,6 +802,13 @@ class HalterSerialService extends GetxService {
               version: halterDeviceList[indexDevice].version,
             ),
             fixedDetail.deviceId,
+          );
+          halterDeviceList[indexDevice] = HalterDeviceModel(
+            deviceId: fixedDetail.deviceId,
+            status: 'on',
+            batteryPercent: voltageToPercent(fixedDetail.voltage).round(),
+            horseId: halterDeviceList[indexDevice].horseId,
+            version: halterDeviceList[indexDevice].version,
           );
         }
 
@@ -784,6 +822,7 @@ class HalterSerialService extends GetxService {
         // }
 
         addHalterDeviceDetail(fixedDetail);
+        detailHistoryList.add(fixedDetail);
 
         if (indexDevice != -1 &&
             halterDeviceList[indexDevice].horseId != null) {
@@ -804,15 +843,10 @@ class HalterSerialService extends GetxService {
 
         final validatedLine = replaceNanWithRandom(dataLine);
 
-        // rawData.add(
-        //   HalterRawDataModel(
-        //     rawId: rawData.length + 1,
-        //     data: validatedLine,
-        //     time: DateTime.now(),
-        //   ),
-        // );
-
         await addRawData(
+          HalterRawDataModel(data: validatedLine, time: DateTime.now()),
+        );
+        rawData.add(
           HalterRawDataModel(data: validatedLine, time: DateTime.now()),
         );
 
@@ -978,15 +1012,16 @@ class HalterSerialService extends GetxService {
         int pitch = randInt(-45, 90);
         int yaw = randInt(-180, 180);
         // double voltase = double.parse(randDouble(3200, 4200));
-        double voltase = 7;
+        // double voltase = 7;
         // int bpm = 30;
         // double spo = 96;
         // double suhu = 38;
         // double respirasi = 10;`
-        int bpm = 32;
-        double spo = 99;
-        double suhu = 35.5;
-        double respirasi = 12;
+        double voltase = double.parse(randDouble(5.4, 7.4));
+        int bpm = randInt(28, 120);
+        double spo = double.parse(randDouble(90, 100));
+        double suhu = double.parse(randDouble(35, 40));
+        double respirasi = double.parse(randDouble(8, 30));
         int intervalData = 15000;
 
         final dataString =
@@ -1021,7 +1056,7 @@ class HalterSerialService extends GetxService {
         );
 
         // Format langsung SHIPB...
-        return "SHIPB,011,"
+        return "SHIPB,1,"
             "$latitude,$longitude,$altitude,$sog,$cog,"
             "$pitch,$yaw,$roll,"
             "$voltase,"
@@ -1032,7 +1067,7 @@ class HalterSerialService extends GetxService {
       String makeDummyNodeRoomData(String deviceNum) {
         // Format: SRIPB,1,30.30,63.70,2.50,1.1,1.1,1.1,*
         final header = "SRIPB";
-        final id = 099;
+        final id = 1;
         final suhu = randDouble(25, 35); // Suhu
         final kelembapan = randDouble(40, 80); // Kelembapan
         final cahaya = randDouble(10, 100); // Cahaya
@@ -1048,8 +1083,8 @@ class HalterSerialService extends GetxService {
       });
       for (final did in deviceIds) {
         final dummyLine = makeDummyData(did);
-        final dummyLineRoom = makeDummyNodeRoomData(did);
-        _processBlockRoom(dummyLineRoom);
+        // final dummyLineRoom = makeDummyNodeRoomData(did);
+        // _processBlockRoom(dummyLineRoom);
         _processBlock(dummyLine); // Untuk SHIPB
       }
     });

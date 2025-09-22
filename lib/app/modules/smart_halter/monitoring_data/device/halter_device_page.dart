@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 // Ganti dengan import model dan widget sesuai project-mu
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
+import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/data/storage/halter/data_team_halter.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_model.dart';
@@ -947,7 +948,7 @@ class HalterDeviceDataTableSource extends DataTableSource {
                       height: 38,
                       backgroundColor: AppColors.primary,
                       text: 'Pilih Kuda',
-                      icon: Icons.house_siding_rounded,
+                      icon: Icons.pets_rounded,
                       borderRadius: 6,
                       fontSize: 14,
                       onPressed: () => onPilihKuda(device),
@@ -1021,6 +1022,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
   DateTime? tanggalAwal;
   DateTime? tanggalAkhir;
   final HalterDeviceController _controller = Get.find<HalterDeviceController>();
+  final DataController _dataController = Get.find<DataController>();
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   int? _sortColumnIndex;
   bool _sortAscending = true;
@@ -1053,6 +1055,12 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
     }
     return filtered;
   }
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _dataController.loadAllHalterDeviceDetails();
+  // }
 
   void _sort<T>(
     List<HalterDeviceDetailModel> data,
@@ -1261,7 +1269,16 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                     onPressed: () async {
                       final team = DataTeamHalter.getTeam();
                       final success = await _controller.exportDetailExcel(
-                        _filteredData(_controller.detailHistoryList),
+                        _filteredData(_controller.detailHistoryList)..sort((
+                          a,
+                          b,
+                        ) {
+                          final aTime =
+                              a.time ?? DateTime.fromMillisecondsSinceEpoch(0);
+                          final bTime =
+                              b.time ?? DateTime.fromMillisecondsSinceEpoch(0);
+                          return bTime.compareTo(aTime);
+                        }),
                         team,
                       );
                       showAppToast(
@@ -1288,7 +1305,16 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                     text: 'Export PDF',
                     onPressed: () async {
                       final success = await _controller.exportDetailPDF(
-                        _filteredData(_controller.detailHistoryList),
+                        _filteredData(_controller.detailHistoryList)..sort((
+                          a,
+                          b,
+                        ) {
+                          final aTime =
+                              a.time ?? DateTime.fromMillisecondsSinceEpoch(0);
+                          final bTime =
+                              b.time ?? DateTime.fromMillisecondsSinceEpoch(0);
+                          return bTime.compareTo(aTime);
+                        }),
                       );
                       showAppToast(
                         context: context,
@@ -1310,7 +1336,15 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Obx(() {
-                final filtered = _filteredData(_controller.detailHistoryList);
+                final filtered = _filteredData(_controller.detailHistoryList)
+                  ..sort((a, b) {
+                    final aTime =
+                        a.time ?? DateTime.fromMillisecondsSinceEpoch(0);
+                    final bTime =
+                        b.time ?? DateTime.fromMillisecondsSinceEpoch(0);
+                    return bTime.compareTo(aTime);
+                  });
+                ;
                 final logList =
                     Get.find<HalterDevicePowerLogController>().logList;
                 final logsForDevice = logList
@@ -1418,40 +1452,48 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                   final suhuW = tableWidth * 0.07;
                   final respW = tableWidth * 0.08;
 
-                  return Obx(() {
-                    final filtered = _filteredData(
-                      _controller.detailHistoryList,
-                    );
-                    // Sort
-                    if (_sortColumnIndex != null) {
-                      switch (_sortColumnIndex!) {
-                        case 0:
-                          _sort<String>(
-                            filtered,
-                            (d) => d.deviceId,
-                            _sortAscending,
-                          );
-                          break;
-                        case 1:
-                          _sort<DateTime>(
-                            filtered,
-                            (d) => d.time,
-                            _sortAscending,
-                          );
-                          break;
-                      }
-                    }
-                    return Theme(
-                      data: Theme.of(context).copyWith(
-                        cardColor: Colors.white,
-                        dataTableTheme: DataTableThemeData(
-                          headingRowColor: MaterialStateProperty.all(
-                            Colors.grey[200]!,
-                          ),
-                          dataRowColor: MaterialStateProperty.all(Colors.white),
+                  return Theme(
+                    data: Theme.of(context).copyWith(
+                      cardColor: Colors.white,
+                      dataTableTheme: DataTableThemeData(
+                        headingRowColor: MaterialStateProperty.all(
+                          Colors.grey[200]!,
                         ),
+                        dataRowColor: MaterialStateProperty.all(Colors.white),
                       ),
-                      child: PaginatedDataTable(
+                    ),
+                    child: Obx(() {
+                      final filtered =
+                          _filteredData(_controller.detailHistoryList)
+                            ..sort((a, b) {
+                              final aTime =
+                                  a.time ??
+                                  DateTime.fromMillisecondsSinceEpoch(0);
+                              final bTime =
+                                  b.time ??
+                                  DateTime.fromMillisecondsSinceEpoch(0);
+                              return bTime.compareTo(aTime);
+                            });
+                      // Sort
+                      if (_sortColumnIndex != null) {
+                        switch (_sortColumnIndex!) {
+                          case 0:
+                            _sort<String>(
+                              filtered,
+                              (d) => d.deviceId,
+                              _sortAscending,
+                            );
+                            break;
+                          case 1:
+                            _sort<DateTime>(
+                              filtered,
+                              (d) => d.time,
+                              _sortAscending,
+                            );
+                            break;
+                        }
+                      }
+                      return PaginatedDataTable(
                         columnSpacing: 0,
                         horizontalMargin: 0,
                         sortColumnIndex: _sortColumnIndex,
@@ -1579,9 +1621,9 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                           });
                         },
                         showCheckboxColumn: false,
-                      ),
-                    );
-                  });
+                      );
+                    }),
+                  );
                 },
               ),
             ),

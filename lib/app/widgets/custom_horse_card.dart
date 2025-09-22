@@ -13,6 +13,7 @@ class CustomHorseCard extends StatelessWidget {
   final bool cctvActive;
   final VoidCallback? onSelectHorse;
   final VoidCallback? onTapCctv;
+  final bool isSelected;
 
   const CustomHorseCard({
     super.key,
@@ -23,6 +24,7 @@ class CustomHorseCard extends StatelessWidget {
     required this.horseId,
     required this.horseRoom,
     required this.cctvActive,
+    this.isSelected = false,
     this.onSelectHorse,
     this.onTapCctv,
   });
@@ -204,15 +206,15 @@ class CustomHorseCard extends StatelessWidget {
                 child: SizedBox(
                   height: 48,
                   child: CustomButton(
-                    text: 'Pilih Ruangan',
-                    onPressed: onSelectHorse ?? () {},
-                    backgroundColor: AppColors.primary,
-                    textColor: Colors.white,
-                    borderRadius: 10,
-                    icon: Icons.house_siding_rounded,
-                    iconSize: 24,
-                    fontSize: 18,
-                  ),
+  text: isSelected ? 'Sedang Dipilih' : 'Pilih Ruangan',
+  onPressed: onSelectHorse ?? () {},
+  backgroundColor: isSelected ? Colors.blueGrey : AppColors.primary,
+  textColor: Colors.white,
+  borderRadius: 10,
+  icon: Icons.house_siding_rounded,
+  iconSize: 24,
+  fontSize: 18,
+),
                 ),
               ),
               const SizedBox(width: 8),

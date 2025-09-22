@@ -302,7 +302,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                             width: MediaQuery.of(context).size.width * 0.24,
                             height:
                                 MediaQuery.of(context).size.height *
-                                0.28, // tambah tinggi sedikit
+                                0.24, // tambah tinggi sedikit
                             borderRadius: 16,
                             scrollable: false,
                             content: Obx(() {
@@ -371,7 +371,23 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                                   BorderRadius.circular(8),
                                             ),
                                           ),
-                                          onPressed: loraConnected
+                                          onPressed:
+                                              settingController
+                                                      .selectedLoraPort
+                                                      .value ==
+                                                  null
+                                              ? () {
+                                                  showAppToast(
+                                                    context: context,
+                                                    type: ToastificationType
+                                                        .error,
+                                                    title:
+                                                        'Pilih Port Terlebih Dahulu!',
+                                                    description:
+                                                        'Silakan pilih port sebelum menghubungkan Lora.',
+                                                  );
+                                                }
+                                              : loraConnected
                                               ? () {
                                                   setState(() {
                                                     settingController
@@ -384,34 +400,14 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                                         null;
                                                     settingController
                                                         .disconnectSerial();
-                                                    toastification.show(
+                                                    showAppToast(
                                                       context: context,
-                                                      title: const Text(
-                                                        'Koneksi Lora Terputus',
-                                                        style: TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
                                                       type: ToastificationType
                                                           .error,
-                                                      description: const Text(
-                                                        'Lora telah terputus.',
-                                                      ),
-                                                      boxShadow: const [
-                                                        BoxShadow(
-                                                          color: Colors.black26,
-                                                          blurRadius: 8,
-                                                          offset: Offset(0, 2),
-                                                        ),
-                                                      ],
-                                                      alignment:
-                                                          Alignment.topCenter,
-                                                      autoCloseDuration:
-                                                          const Duration(
-                                                            seconds: 2,
-                                                          ),
+                                                      title:
+                                                          'Koneksi Lora Terputus!',
+                                                      description:
+                                                          'Lora Telah Terputus.',
                                                     );
                                                   });
                                                 }
@@ -425,42 +421,17 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                                       port: settingController
                                                           .selectedLoraPort
                                                           .value!,
-                                                      context:
-                                                          context, // Pass context for toast
+                                                      context: context,
                                                     );
                                                     if (loraConnected) {
-                                                      toastification.show(
+                                                      showAppToast(
                                                         context: context,
-                                                        title: const Text(
-                                                          'Koneksi Lora Berhasil',
-                                                          style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
-                                                        ),
                                                         type: ToastificationType
                                                             .success,
-                                                        description: Text(
-                                                          'Port: $settingController.selectedLoraPort.value',
-                                                        ),
-                                                        boxShadow: const [
-                                                          BoxShadow(
-                                                            color:
-                                                                Colors.black26,
-                                                            blurRadius: 8,
-                                                            offset: Offset(
-                                                              0,
-                                                              2,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                        alignment:
-                                                            Alignment.topCenter,
-                                                        autoCloseDuration:
-                                                            const Duration(
-                                                              seconds: 2,
-                                                            ),
+                                                        title:
+                                                            'Koneksi Lora Berhasil!',
+                                                        description:
+                                                            'Port: ${settingController.selectedLoraPort.value}',
                                                       );
                                                     }
                                                   });
@@ -475,11 +446,10 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                       SizedBox(width: 8),
                                       // Tombol cek port
                                       SizedBox(
-                                        height: 38,
+                                        height: 33,
                                         child: ElevatedButton.icon(
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                Colors.blue.shade700,
+                                            backgroundColor: AppColors.primary,
                                             foregroundColor: Colors.white,
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
@@ -498,19 +468,12 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                                             await settingController
                                                 .refreshAvailablePorts();
                                             setState(() {});
-                                            toastification.show(
+                                            showAppToast(
                                               context: context,
-                                              title: const Text(
-                                                'Port Diperbarui!',
-                                              ),
-                                              type: ToastificationType.info,
-                                              description: const Text(
-                                                'Daftar port sudah di-refresh.',
-                                              ),
-                                              alignment: Alignment.topCenter,
-                                              autoCloseDuration: const Duration(
-                                                seconds: 2,
-                                              ),
+                                              type: ToastificationType.success,
+                                              title: 'Port Diperbaharui!',
+                                              description:
+                                                  'Daftar Port Sudah Dimuat Ulang.',
                                             );
                                           },
                                         ),

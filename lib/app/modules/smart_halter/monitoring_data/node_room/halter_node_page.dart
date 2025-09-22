@@ -912,11 +912,11 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
     return data;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _dataController.loadNodeRoomDetailHistory();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _dataController.loadNodeRoomDetailHistory();
+  // }
 
   void _sort<T extends Comparable>(
     List<NodeRoomDetailModel> data,
@@ -1116,7 +1116,18 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                     text: 'Export Excel',
                     onPressed: () async {
                       final success = await _controller
-                          .exportNodeRoomDetailExcel(filteredData, team);
+                          .exportNodeRoomDetailExcel(
+                            filteredData..sort((a, b) {
+                              final aTime =
+                                  a.time ??
+                                  DateTime.fromMillisecondsSinceEpoch(0);
+                              final bTime =
+                                  b.time ??
+                                  DateTime.fromMillisecondsSinceEpoch(0);
+                              return bTime.compareTo(aTime);
+                            }),
+                            team,
+                          );
                       showAppToast(
                         context: context,
                         type: success
@@ -1141,7 +1152,13 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                     text: 'Export PDF',
                     onPressed: () async {
                       final success = await _controller.exportNodeRoomDetailPDF(
-                        filteredData,
+                        filteredData..sort((a, b) {
+                          final aTime =
+                              a.time ?? DateTime.fromMillisecondsSinceEpoch(0);
+                          final bTime =
+                              b.time ?? DateTime.fromMillisecondsSinceEpoch(0);
+                          return bTime.compareTo(aTime);
+                        }),
                       );
                       showAppToast(
                         context: context,
@@ -1181,9 +1198,17 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
             Expanded(
               child: Obx(() {
                 final allData = _dataController.nodeRoomDetailHistory;
-                final filteredData = allData
-                    .where((d) => d.deviceId == widget.deviceId)
-                    .toList();
+                final filteredData =
+                    allData.where((d) => d.deviceId == widget.deviceId).toList()
+                      ..sort((a, b) {
+                        final aTime =
+                            a.time ?? DateTime.fromMillisecondsSinceEpoch(0);
+                        final bTime =
+                            b.time ?? DateTime.fromMillisecondsSinceEpoch(0);
+                        return bTime.compareTo(
+                          aTime,
+                        ); // Descending, terbaru di atas
+                      });
 
                 return LayoutBuilder(
                   builder: (context, constraints) {
