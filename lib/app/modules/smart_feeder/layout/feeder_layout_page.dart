@@ -33,12 +33,12 @@ class FeederLayoutPage extends StatelessWidget {
       icon: Icons.storage_rounded,
       children: [
         SidebarMenuItem(
-          title: "Data IoT Feeder",
+          title: "Data IoT Main Feeder",
           icon: Icons.device_hub,
           page: FeederDevicePage(),
         ),
         SidebarMenuItem(
-          title: "Data IoT Room",
+          title: "Data IoT Water Room",
           icon: Icons.device_hub,
           page: FeederRoomWaterDevicePage(),
         ),

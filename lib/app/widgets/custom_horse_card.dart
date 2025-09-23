@@ -206,15 +206,17 @@ class CustomHorseCard extends StatelessWidget {
                 child: SizedBox(
                   height: 48,
                   child: CustomButton(
-  text: isSelected ? 'Sedang Dipilih' : 'Pilih Ruangan',
-  onPressed: onSelectHorse ?? () {},
-  backgroundColor: isSelected ? Colors.blueGrey : AppColors.primary,
-  textColor: Colors.white,
-  borderRadius: 10,
-  icon: Icons.house_siding_rounded,
-  iconSize: 24,
-  fontSize: 18,
-),
+                    text: isSelected ? 'Sedang Dipilih' : 'Pilih Ruangan',
+                    onPressed: onSelectHorse ?? () {},
+                    backgroundColor: isSelected
+                        ? Colors.blueGrey
+                        : AppColors.primary,
+                    textColor: Colors.white,
+                    borderRadius: 10,
+                    icon: Icons.house_siding_rounded,
+                    iconSize: 24,
+                    fontSize: 18,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),

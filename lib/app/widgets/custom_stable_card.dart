@@ -15,6 +15,7 @@ class CustomStableCard extends StatelessWidget {
   final String lastFeedText;
   final VoidCallback onSelect;
   final Color? primaryColor;
+  final bool isSelected;
 
   const CustomStableCard({
     Key? key,
@@ -28,6 +29,7 @@ class CustomStableCard extends StatelessWidget {
     required this.remainingFeed,
     required this.lastFeedText,
     required this.onSelect,
+    this.isSelected = false,
     this.primaryColor,
   }) : super(key: key);
 
@@ -162,7 +164,7 @@ class CustomStableCard extends StatelessWidget {
                 color: Colors.black,
               ),
               children: [
-                const TextSpan(text: 'Tersedia Air: '),
+                const TextSpan(text: 'Status Air: '),
                 TextSpan(
                   text: remainingWater,
                   style: TextStyle(
@@ -203,13 +205,15 @@ class CustomStableCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           CustomButton(
-            text: 'Pilih Ruangan',
-            onPressed: onSelect,
-            backgroundColor: primaryColor ?? AppColors.primary,
-            textColor: Colors.white,
-            borderRadius: 10,
-            icon: Icons.house_siding_rounded,
-          ),
+      text: isSelected ? 'Sedang Dipilih' : 'Pilih Ruangan',
+      onPressed: onSelect,
+      backgroundColor: isSelected ? Colors.blueGrey : (primaryColor ?? AppColors.primary),
+      textColor: Colors.white,
+      borderRadius: 10,
+      icon: Icons.house_siding_rounded,
+      iconSize: 24,
+      fontSize: 18,
+    ),
         ],
       ),
     );

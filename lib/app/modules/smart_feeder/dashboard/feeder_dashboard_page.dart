@@ -1,6 +1,7 @@
 // ignore_for_file: unrelated_type_equality_checks, deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
@@ -9,6 +10,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_feeder/control_schedule/c
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/layout/feeder_layout_controller.dart';
 import 'package:smart_feeder_desktop/app/services/mqtt_service.dart';
+import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_battery_indicator.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
@@ -16,6 +18,7 @@ import 'package:smart_feeder_desktop/app/widgets/custom_history_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_stable_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_stable_tank_card.dart';
+import 'package:toastification/toastification.dart';
 
 class FeederDashboardPage extends StatefulWidget {
   const FeederDashboardPage({super.key});
@@ -97,7 +100,9 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                   controller: feedController,
                   hint: 'Masukkan jumlah pakan',
                   icon: Icons.food_bank,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                  ],
                 ),
                 const SizedBox(height: 6),
                 Row(
@@ -125,14 +130,12 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                 Expanded(
                   child: CustomButton(
                     text: 'Batal',
-                    hasShadow: false,
                     onPressed: () {
                       Get.back();
                     },
                     fontSize: 20,
-                    borderColor: Colors.red,
-                    backgroundColor: Colors.transparent,
-                    textColor: Colors.red,
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
                   ),
                 ),
                 SizedBox(width: 16), // jarak antar tombol
@@ -140,13 +143,41 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                   child: CustomButton(
                     text: 'Isi',
                     onPressed: () {
-                      print(controller.selectedRoom.roomId);
-                      mqtt.publishDeliveryRequest(
-                        deviceId: controller.getFeederDevice()!.deviceId,
-                        destination: controller.selectedRoom.roomId,
-                        amount: double.tryParse(feedController.text) ?? 0.0,
+                      final input = double.tryParse(feedController.text) ?? 0.0;
+                      final maxFeed = 50.0; // kapasitas maksimal tempat makan
+                      final remainingFeed =
+                          controller.selectedRoom.remainingFeed;
+                      if (input <= 0) {
+                        showAppToast(
+                          context: context,
+                          type: ToastificationType.error,
+                          title: 'Input Tidak Valid',
+                          description: 'Jumlah pakan harus lebih dari 0.',
+                        );
+                        return;
+                      }
+                      if (input + remainingFeed > maxFeed) {
+                        showAppToast(
+                          context: context,
+                          type: ToastificationType.error,
+                          title: 'Kapasitas Melebihi Batas',
+                          description:
+                              'Total pakan (${(input + remainingFeed).toStringAsFixed(1)}g) melebihi kapasitas maksimal ($maxFeed g).',
+                        );
+                        return;
+                      }
+                      // mqtt.publishDeliveryRequest(
+                      //   deviceId: controller.getFeederDevice()!.deviceId,
+                      //   destination: controller.selectedRoom.roomId,
+                      //   amount: double.tryParse(feedController.text) ?? 0.0,
+                      // );
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.success,
+                        title: 'Tempat Pakan Di isi',
+                        description: 'Pakan Segera Di isi Sebanyak ($input g).',
                       );
-                      print(controller.getFeederDevice()!.deviceId);
+                      Get.back();
                     },
                     fontSize: 20,
                     backgroundColor: Colors.green,
@@ -1439,7 +1470,9 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                             ? 'Penjadwalan'
                                             : scheduleType == 'auto'
                                             ? 'Otomatis'
-                                            : 'Manual',
+                                            : scheduleType == 'manual'
+                                            ? 'Manual'
+                                            : '-',
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
@@ -1644,13 +1677,14 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                           itemBuilder: (context, index) {
                             final room = controller.filteredRoomList[index];
                             return Padding(
-                              padding: const EdgeInsets.only(bottom: 16.0),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8.0,
+                                horizontal: 8,
+                              ),
                               child: CustomStableCard(
                                 stableName: room.name,
                                 stableId: room.roomId,
                                 imageAsset: 'assets/images/stable.jpg',
-                                // feedScheduleText: room.feedScheduleType,
-                                // waterScheduleText: room.waterScheduleType,
                                 isActive:
                                     controller.getDeviceStatusByRoom(
                                       room.roomId,
@@ -1673,9 +1707,10 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                 ),
                                 onSelect: () {
                                   controller.selectedRoomIndex.value = index;
-                                  print(controller.selectedRoom.remainingWater);
                                 },
                                 primaryColor: AppColors.primary,
+                                isSelected:
+                                    controller.selectedRoomIndex.value == index,
                               ),
                             );
                           },

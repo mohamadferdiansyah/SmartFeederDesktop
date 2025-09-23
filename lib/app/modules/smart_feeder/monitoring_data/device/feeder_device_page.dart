@@ -509,7 +509,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                   child: Row(
                     children: [
                       Text(
-                        'Daftar Perangkat Feeder',
+                        'Daftar Perangkat IoT Main Feeder',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -1261,7 +1261,7 @@ class _FeederDeviceDetailDialogState extends State<FeederDeviceDetailDialog> {
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final tableWidth = constraints.maxWidth;
-                  final noW = tableWidth * 0.055 ;
+                  final noW = tableWidth * 0.055;
                   final timeW = tableWidth * 0.2;
                   final statusW = tableWidth * 0.18;
                   final destW = tableWidth * 0.18;

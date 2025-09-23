@@ -244,7 +244,7 @@ class HalterDashboardController extends GetxController {
         spo: detail.spo?.toDouble(),
         respirasi: detail.respiratoryRate?.toDouble(),
       );
-      return status == "Sehat";
+      return status == "Normal";
     }).length;
   }
 
@@ -264,7 +264,7 @@ class HalterDashboardController extends GetxController {
         spo: detail.spo?.toDouble(),
         respirasi: detail.respiratoryRate?.toDouble(),
       );
-      return status != "Sehat";
+      return status != "Normal";
     }).length;
   }
 

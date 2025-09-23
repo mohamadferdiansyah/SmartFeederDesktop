@@ -453,7 +453,7 @@ class _FeederRoomWaterDevicePageState extends State<FeederRoomWaterDevicePage> {
                   child: Row(
                     children: [
                       Text(
-                        'Daftar Perangkat Ruangan',
+                        'Daftar Perangkat IoT Water Room',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,

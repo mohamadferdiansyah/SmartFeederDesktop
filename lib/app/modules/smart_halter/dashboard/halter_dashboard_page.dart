@@ -10,6 +10,7 @@ import 'package:smart_feeder_desktop/app/widgets/custom_battery_indicator.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_biometric_chart.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_biometric_legend.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_cctv_preview.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_halter_log_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_horse_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_lingkungan_chart.dart';
@@ -168,6 +169,7 @@ class HalterDashboardPageState extends State<HalterDashboardPage> {
                                       index,
                                   onSelectHorse: () {
                                     controller.selectedRoomIndex.value = index;
+                                    setState(() => selectedTab = 0);
                                   },
                                 ),
                               ),
@@ -1730,7 +1732,7 @@ class _DetailRuanganView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                "Data Aktual Kandang",
+                "Kamera CCTV Ruangan",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 8),
@@ -1740,21 +1742,17 @@ class _DetailRuanganView extends StatelessWidget {
                   Expanded(
                     child: Column(
                       children: [
-                        Icon(Icons.videocam, size: 90, color: Colors.grey[400]),
-                        const SizedBox(height: 8),
-                        DropdownButton<String>(
-                          value: "Tidak Terhubung",
-                          items: const [
-                            DropdownMenuItem(
-                              value: "Tidak Terhubung",
-                              child: Text("Tidak Terhubung"),
-                            ),
-                            DropdownMenuItem(
-                              value: "Terhubung",
-                              child: Text("Terhubung"),
-                            ),
-                          ],
-                          onChanged: (value) {},
+                        Text(
+                          'CCTV 1',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        CustomCctvPreview(
+                          cctvId:
+                              controller.selectedRoom.cctvId != null &&
+                                  controller.selectedRoom.cctvId!.isNotEmpty
+                              ? controller.selectedRoom.cctvId![0]
+                              : null,
                         ),
                       ],
                     ),
@@ -1763,21 +1761,17 @@ class _DetailRuanganView extends StatelessWidget {
                   Expanded(
                     child: Column(
                       children: [
-                        Icon(Icons.videocam, size: 90, color: Colors.grey[400]),
-                        const SizedBox(height: 8),
-                        DropdownButton<String>(
-                          value: "Tidak Terhubung",
-                          items: const [
-                            DropdownMenuItem(
-                              value: "Tidak Terhubung",
-                              child: Text("Tidak Terhubung"),
-                            ),
-                            DropdownMenuItem(
-                              value: "Terhubung",
-                              child: Text("Terhubung"),
-                            ),
-                          ],
-                          onChanged: (value) {},
+                        Text(
+                          'CCTV 2',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        CustomCctvPreview(
+                          cctvId:
+                              controller.selectedRoom.cctvId != null &&
+                                  controller.selectedRoom.cctvId!.length > 1
+                              ? controller.selectedRoom.cctvId![1]
+                              : null,
                         ),
                       ],
                     ),
