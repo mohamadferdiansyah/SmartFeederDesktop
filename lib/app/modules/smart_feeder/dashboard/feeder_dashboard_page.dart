@@ -14,6 +14,7 @@ import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_battery_indicator.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_feeder_history_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_history_card.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_stable_card.dart';
@@ -689,7 +690,9 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                         ?.waterRemaining ??
                                     'kosong',
                                 max: 5,
-                                lastText: 'Belum Ada Pengisian',
+                                lastText: controller.getLastWaterFromHistory(
+                                  selectedRoom,
+                                ),
                                 getTankImageAsset:
                                     controller.getStableTankImageAsset,
                               ),
@@ -906,6 +909,11 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                                               item.roomId ==
                                                               selectedRoomId,
                                                         )
+                                                        .where(
+                                                          (item) =>
+                                                              item.type ==
+                                                              'feed',
+                                                        )
                                                         .toList();
 
                                                 if (selectedHistory.isEmpty) {
@@ -942,217 +950,14 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                                         itemBuilder: (context, index) {
                                                           final item =
                                                               displayHistory[index];
-                                                          return Container(
-                                                            margin:
-                                                                const EdgeInsets.symmetric(
-                                                                  vertical: 8,
-                                                                  horizontal: 8,
-                                                                ),
-                                                            decoration: BoxDecoration(
-                                                              color:
-                                                                  Colors.white,
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    14,
-                                                                  ),
-                                                              boxShadow: [
-                                                                BoxShadow(
-                                                                  color: AppColors
-                                                                      .primary
-                                                                      .withOpacity(
-                                                                        0.07,
-                                                                      ),
-                                                                  blurRadius: 8,
-                                                                  offset:
-                                                                      const Offset(
-                                                                        0,
-                                                                        2,
-                                                                      ),
-                                                                ),
-                                                              ],
-                                                              border: Border.all(
-                                                                color: AppColors
-                                                                    .primary
-                                                                    .withOpacity(
-                                                                      0.18,
-                                                                    ),
-                                                                width: 1,
-                                                              ),
-                                                            ),
-                                                            child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets.symmetric(
-                                                                    vertical:
-                                                                        16,
-                                                                    horizontal:
-                                                                        18,
-                                                                  ),
-                                                              child: Row(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  Container(
-                                                                    width: 38,
-                                                                    height: 38,
-                                                                    decoration: BoxDecoration(
-                                                                      color: AppColors
-                                                                          .primary
-                                                                          .withOpacity(
-                                                                            0.12,
-                                                                          ),
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                            10,
-                                                                          ),
-                                                                    ),
-                                                                    child: Center(
-                                                                      child: Icon(
-                                                                        Icons
-                                                                            .restaurant_rounded,
-                                                                        color: AppColors
-                                                                            .primary,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  const SizedBox(
-                                                                    width: 18,
-                                                                  ),
-                                                                  Expanded(
-                                                                    child: Column(
-                                                                      crossAxisAlignment:
-                                                                          CrossAxisAlignment
-                                                                              .start,
-                                                                      children: [
-                                                                        Text(
-                                                                          'Jumlah Pakan: ${item.amount.toStringAsFixed(2)}g',
-                                                                          style: const TextStyle(
-                                                                            fontWeight:
-                                                                                FontWeight.bold,
-                                                                            fontSize:
-                                                                                18,
-                                                                            color:
-                                                                                Colors.deepOrange,
-                                                                          ),
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          height:
-                                                                              4,
-                                                                        ),
-                                                                        Row(
-                                                                          children: [
-                                                                            Icon(
-                                                                              Icons.access_time_rounded,
-                                                                              size: 18,
-                                                                              color: Colors.blueGrey,
-                                                                            ),
-                                                                            const SizedBox(
-                                                                              width: 4,
-                                                                            ),
-                                                                            Text(
-                                                                              DateFormat(
-                                                                                'dd MMM yyyy, HH:mm',
-                                                                              ).format(
-                                                                                item.timestamp,
-                                                                              ),
-                                                                              style: const TextStyle(
-                                                                                fontSize: 14,
-                                                                                color: Colors.blueGrey,
-                                                                              ),
-                                                                            ),
-                                                                          ],
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                                  Column(
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .end,
-                                                                    children: [
-                                                                      Row(
-                                                                        children: [
-                                                                          Icon(
-                                                                            item.mode ==
-                                                                                    'auto'
-                                                                                ? Icons.autorenew_rounded
-                                                                                : item.mode ==
-                                                                                      'penjadwalan'
-                                                                                ? Icons.schedule_rounded
-                                                                                : item.mode ==
-                                                                                      'manual'
-                                                                                ? Icons.settings_rounded
-                                                                                : Icons.help_outline,
-                                                                            size:
-                                                                                18,
-                                                                            color:
-                                                                                item.mode ==
-                                                                                    'penjadwalan'
-                                                                                ? Colors.teal
-                                                                                : item.mode ==
-                                                                                      'auto'
-                                                                                ? Colors.blue
-                                                                                : Colors.orange,
-                                                                          ),
-                                                                          const SizedBox(
-                                                                            width:
-                                                                                4,
-                                                                          ),
-                                                                          Text(
-                                                                            item.mode ==
-                                                                                    'penjadwalan'
-                                                                                ? 'Penjadwalan'
-                                                                                : item.mode ==
-                                                                                      'auto'
-                                                                                ? 'Otomatis'
-                                                                                : 'Manual',
-                                                                            style: TextStyle(
-                                                                              fontSize: 14,
-                                                                              color:
-                                                                                  item.mode ==
-                                                                                      'penjadwalan'
-                                                                                  ? Colors.teal
-                                                                                  : item.mode ==
-                                                                                        'auto'
-                                                                                  ? Colors.blue
-                                                                                  : Colors.orange,
-                                                                              fontWeight: FontWeight.bold,
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                      const SizedBox(
-                                                                        height:
-                                                                            8,
-                                                                      ),
-                                                                      Row(
-                                                                        children: [
-                                                                          Icon(
-                                                                            Icons.devices_other,
-                                                                            size:
-                                                                                18,
-                                                                            color:
-                                                                                Colors.orange[800],
-                                                                          ),
-                                                                          const SizedBox(
-                                                                            width:
-                                                                                4,
-                                                                          ),
-                                                                          Text(
-                                                                            item.deviceId,
-                                                                            style: TextStyle(
-                                                                              fontSize: 14,
-                                                                              color: Colors.orange[800],
-                                                                              fontWeight: FontWeight.bold,
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
+                                                          return CustomFeederHistoryCard(
+                                                            type: 'feed',
+                                                            amount: item.amount,
+                                                            timestamp:
+                                                                item.timestamp,
+                                                            mode: item.mode,
+                                                            deviceId:
+                                                                item.deviceId,
                                                           );
                                                         },
                                                       ),
@@ -1160,8 +965,9 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                                     if (showSelengkapnya)
                                                       Padding(
                                                         padding:
-                                                            const EdgeInsets.only(
-                                                              top: 8.0,
+                                                            const EdgeInsets.symmetric(
+                                                              vertical: 4.0,
+                                                              horizontal: 4,
                                                             ),
                                                         child: CustomButton(
                                                           text: 'Selengkapnya',
@@ -1179,15 +985,109 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                                 );
                                               }),
                                               // === TAB AIR ===
-                                              Center(
-                                                child: Text(
-                                                  'Belum Ada Riwayat Air',
-                                                  style: TextStyle(
-                                                    color: Colors.blueGrey,
-                                                    fontSize: 18,
-                                                  ),
-                                                ),
-                                              ),
+                                              Obx(() {
+                                                final selectedIndex = controller
+                                                    .selectedRoomIndex
+                                                    .value;
+                                                if (controller
+                                                    .filteredRoomList
+                                                    .isEmpty) {
+                                                  return Center(
+                                                    child: Text(
+                                                      'Tidak Ada Ruangan',
+                                                      style: TextStyle(
+                                                        color: Colors.blueGrey,
+                                                        fontSize: 18,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                                final selectedRoomId = controller
+                                                    .filteredRoomList[selectedIndex]
+                                                    .roomId;
+                                                final selectedHistory =
+                                                    controller
+                                                        .feederDeviceHistoryList
+                                                        .where(
+                                                          (item) =>
+                                                              item.roomId ==
+                                                              selectedRoomId,
+                                                        )
+                                                        .where(
+                                                          (item) =>
+                                                              item.type ==
+                                                              'water',
+                                                        )
+                                                        .toList();
+
+                                                if (selectedHistory.isEmpty) {
+                                                  return Center(
+                                                    child: Text(
+                                                      'Belum Ada Riwayat Pakan',
+                                                      style: TextStyle(
+                                                        color: Colors.blueGrey,
+                                                        fontSize: 18,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+
+                                                final showMax = 10;
+                                                final showSelengkapnya =
+                                                    selectedHistory.length >
+                                                    showMax;
+                                                final displayHistory =
+                                                    showSelengkapnya
+                                                    ? selectedHistory.sublist(
+                                                        0,
+                                                        showMax,
+                                                      )
+                                                    : selectedHistory;
+
+                                                return Column(
+                                                  children: [
+                                                    Expanded(
+                                                      child: ListView.builder(
+                                                        itemCount:
+                                                            displayHistory
+                                                                .length,
+                                                        itemBuilder: (context, index) {
+                                                          final item =
+                                                              displayHistory[index];
+                                                          return CustomFeederHistoryCard(
+                                                            type: 'water',
+                                                            status: item.status,
+                                                            timestamp:
+                                                                item.timestamp,
+                                                            mode: item.mode,
+                                                            deviceId:
+                                                                item.deviceId,
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                    if (showSelengkapnya)
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              vertical: 4.0,
+                                                              horizontal: 4,
+                                                            ),
+                                                        child: CustomButton(
+                                                          text: 'Selengkapnya',
+                                                          backgroundColor:
+                                                              AppColors.primary,
+                                                          textColor:
+                                                              Colors.white,
+                                                          icon: Icons.list,
+                                                          onPressed: () {
+                                                            // TODO: tampilkan halaman/modal riwayat lengkap
+                                                          },
+                                                        ),
+                                                      ),
+                                                  ],
+                                                );
+                                              }),
                                               // Untuk tab air, ganti dengan list history air jika sudah ada model/datanya
                                             ],
                                           ),
@@ -1681,36 +1581,40 @@ class _FeederDashboardPageState extends State<FeederDashboardPage> {
                                 vertical: 8.0,
                                 horizontal: 8,
                               ),
-                              child: CustomStableCard(
-                                stableName: room.name,
-                                stableId: room.roomId,
-                                imageAsset: 'assets/images/stable.jpg',
-                                isActive:
-                                    controller.getDeviceStatusByRoom(
-                                      room.roomId,
-                                    ) ==
-                                    "Aktif",
-                                remainingWater:
-                                    (controller
-                                                .getDevicesByRoomId(room.roomId)
-                                                ?.waterRemaining ??
-                                            'kosong')
-                                        .toString()
-                                        .replaceFirstMapped(
-                                          RegExp(r'^[a-zA-Z]'),
-                                          (match) =>
-                                              match.group(0)!.toUpperCase(),
-                                        ),
-                                remainingFeed: room.remainingFeed.obs,
-                                lastFeedText: controller.getLastFeedFromHistory(
-                                  room,
+                              child: Obx(
+                                () => CustomStableCard(
+                                  stableName: room.name,
+                                  stableId: room.roomId,
+                                  imageAsset: 'assets/images/stable.jpg',
+                                  isActive:
+                                      controller.getDeviceStatusByRoom(
+                                        room.roomId,
+                                      ) ==
+                                      "Aktif",
+                                  remainingWater:
+                                      (controller
+                                                  .getDevicesByRoomId(
+                                                    room.roomId,
+                                                  )
+                                                  ?.waterRemaining ??
+                                              'kosong')
+                                          .toString()
+                                          .replaceFirstMapped(
+                                            RegExp(r'^[a-zA-Z]'),
+                                            (match) =>
+                                                match.group(0)!.toUpperCase(),
+                                          ),
+                                  remainingFeed: room.remainingFeed.obs,
+                                  lastFeedText: controller
+                                      .getLastFeedFromHistory(room),
+                                  onSelect: () {
+                                    controller.selectedRoomIndex.value = index;
+                                  },
+                                  primaryColor: AppColors.primary,
+                                  isSelected:
+                                      controller.selectedRoomIndex.value ==
+                                      index,
                                 ),
-                                onSelect: () {
-                                  controller.selectedRoomIndex.value = index;
-                                },
-                                primaryColor: AppColors.primary,
-                                isSelected:
-                                    controller.selectedRoomIndex.value == index,
                               ),
                             );
                           },

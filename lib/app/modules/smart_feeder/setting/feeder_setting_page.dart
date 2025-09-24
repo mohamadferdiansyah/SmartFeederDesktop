@@ -77,6 +77,7 @@ class FeederSettingPageState extends State<FeederSettingPage> {
                             children: [
                               CustomCard(
                                 title: 'Koneksi MQTT',
+                                withExpanded: false,
                                 headerColor: AppColors.primary,
                                 headerHeight: 50,
                                 titleFontSize: 18,

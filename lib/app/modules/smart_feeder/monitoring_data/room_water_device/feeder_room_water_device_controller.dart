@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_history_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_water_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 
@@ -13,8 +14,11 @@ class FeederRoomWaterDeviceController extends GetxController {
 
   List<RoomModel> get roomList => dataController.roomList;
 
-  List<FeederRoomWaterDeviceModel> get feederRoomDeviceList =>
+  RxList<FeederRoomWaterDeviceModel> get feederRoomDeviceList =>
       dataController.feederRoomDeviceList;
+      
+  RxList<FeederDeviceHistoryModel> get feederDeviceHistoryList =>
+      dataController.feederDeviceHistoryList;
 
   String getRoomName(String roomId) {
     return roomList.firstWhere((room) => room.roomId == roomId).name;

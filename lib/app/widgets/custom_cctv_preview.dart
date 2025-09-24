@@ -42,7 +42,7 @@ class _CustomCctvPreviewState extends State<CustomCctvPreview> {
     if (cctv != null) {
       final rtspUrl = 'rtsp://${cctv.ipAddress}:${cctv.port}/h264_ulaw.sdp';
       _player = Player();
-      await _player!.setVolume(0);
+      await _player!.setVolume(100);
       _videoController = VideoController(_player!);
       _player!.stream.error.listen((error) {
         setState(() {

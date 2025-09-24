@@ -56,12 +56,12 @@ class HalterSettingPageState extends State<HalterSettingPage> {
   @override
   void initState() {
     super.initState();
-    settingController.selectedLoraPort.value =
-        settingController.setting.value.loraPort.isEmpty
-        ? null
-        : settingController.setting.value.loraPort;
-    settingController.loraConnected.value =
-        settingController.setting.value.loraPort.isNotEmpty;
+    // settingController.selectedLoraPort.value =
+    //     settingController.setting.value.loraPort.isEmpty
+    //     ? null
+    //     : settingController.setting.value.loraPort;
+    // settingController.loraConnected.value =
+    //     settingController.setting.value.loraPort.isNotEmpty;
     _selectedJenisPengiriman = settingController.setting.value.type.isEmpty
         ? null
         : settingController.setting.value.type;

@@ -1732,7 +1732,7 @@ class _DetailRuanganView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                "Kamera CCTV Ruangan",
+                "CCTV Ruangan",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 8),

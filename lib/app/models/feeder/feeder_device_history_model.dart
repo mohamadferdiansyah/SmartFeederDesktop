@@ -4,7 +4,9 @@ class FeederDeviceHistoryModel {
   final String deviceId;
   final String mode;
   final String roomId;
-  final double amount;
+  final double? amount; // nullable, hanya untuk pakan
+  final String? status; // nullable, hanya untuk air ("penuh"/"kosong")
+  final String type; // "feed" atau "water"
 
   FeederDeviceHistoryModel({
     this.id,
@@ -12,7 +14,9 @@ class FeederDeviceHistoryModel {
     required this.deviceId,
     required this.mode,
     required this.roomId,
-    required this.amount,
+    this.amount,
+    this.status,
+    required this.type,
   });
 
   factory FeederDeviceHistoryModel.fromMap(Map<String, dynamic> map) => FeederDeviceHistoryModel(
@@ -21,7 +25,9 @@ class FeederDeviceHistoryModel {
         deviceId: map['device_id'],
         mode: map['mode'],
         roomId: map['room_id'],
-        amount: (map['amount'] ?? 0.0).toDouble(),
+        amount: map['amount'] != null ? (map['amount'] as num?)?.toDouble() : null,
+        status: map['status'],
+        type: map['type'] ?? 'feed',
       );
 
   Map<String, dynamic> toMap() => {
@@ -30,6 +36,8 @@ class FeederDeviceHistoryModel {
         'device_id': deviceId,
         'mode': mode,
         'room_id': roomId,
-        'amount': amount,
+        if (amount != null) 'amount': amount,
+        if (status != null) 'status': status,
+        'type': type,
       };
 }

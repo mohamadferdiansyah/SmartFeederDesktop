@@ -20,8 +20,6 @@ class MqttService extends GetxService {
   // Untuk heartbeat timeout
   final Map<String, Timer> _deviceTimeoutTimers = {};
 
-  _PendingFill? _pendingFill;
-
   Future<void> checkDeviceTimeoutOnStartup({
     Duration timeout = const Duration(seconds: 20),
   }) async {
@@ -162,41 +160,6 @@ class MqttService extends GetxService {
       );
     }
 
-    // Logic pengisian
-    // if (status == 'delivery' && destination != null && amount != null) {
-    //   // Simpan pending fill
-    //   final device = dataController.feederDeviceList.firstWhereOrNull(
-    //     (d) => d.deviceId == deviceId,
-    //   );
-    //   final mode = device?.scheduleType ?? 'manual';
-    //   _pendingFill = _PendingFill(
-    //     deviceId: deviceId,
-    //     mode: mode,
-    //     roomId: destination,
-    //     amount: (amount is num)
-    //         ? amount.toDouble()
-    //         : double.tryParse(amount.toString()) ?? 0.0,
-    //     timestamp: timestamp,
-    //   );
-    // } else if (status == 'done' &&
-    //     destination != null &&
-    //     _pendingFill != null) {
-    //   // Jika status done dan destination sama dengan pending, tambahkan ke history
-    //   if (_pendingFill!.deviceId == deviceId &&
-    //       _pendingFill!.roomId == destination) {
-    //     dataController.addFillHistory(
-    //       FeederDeviceHistoryModel(
-    //         timestamp: _pendingFill!.timestamp,
-    //         deviceId: _pendingFill!.deviceId,
-    //         mode: _pendingFill!.mode,
-    //         roomId: _pendingFill!.roomId,
-    //         amount: _pendingFill!.amount,
-    //       ),
-    //     );
-    //     _pendingFill = null;
-    //   }
-    // }
-
     if (status == 'done') {
       final device = dataController.feederDeviceList.firstWhereOrNull(
         (d) => d.deviceId == deviceId,
@@ -208,6 +171,7 @@ class MqttService extends GetxService {
           deviceId: deviceId,
           mode: mode,
           roomId: destination,
+          type: 'feed',
           amount: (amount is num)
               ? amount.toDouble()
               : double.tryParse(amount.toString()) ?? 0.0,
@@ -277,6 +241,9 @@ class MqttService extends GetxService {
     final index = dataController.feederRoomDeviceList.indexWhere(
       (d) => d.deviceId == deviceId,
     );
+
+    // if (dataController.feederRoomDeviceList[index].roomId == null) return;
+
     if (index != -1) {
       final old = dataController.feederRoomDeviceList[index];
       final updated = FeederRoomWaterDeviceModel(
@@ -288,6 +255,20 @@ class MqttService extends GetxService {
       );
       // Update di database dan RxList
       dataController.updateFeederRoomDevice(updated, old.deviceId);
+
+      if (water == 'penuh' && old.roomId != null) {
+        dataController.addFillHistory(
+          FeederDeviceHistoryModel(
+            timestamp: DateTime.now(),
+            deviceId: old.deviceId,
+            mode: 'auto',
+            roomId: old.roomId ?? '',
+            type: 'water',
+            status: water,
+          ),
+        );
+        dataController.updateRemainingWater(old.roomId ?? '', water);
+      }
     }
   }
 
@@ -368,20 +349,4 @@ class MqttService extends GetxService {
     disconnect();
     super.onClose();
   }
-}
-
-class _PendingFill {
-  final String deviceId;
-  final String mode;
-  final String roomId;
-  final double amount;
-  final DateTime timestamp;
-
-  _PendingFill({
-    required this.deviceId,
-    required this.mode,
-    required this.roomId,
-    required this.amount,
-    required this.timestamp,
-  });
 }

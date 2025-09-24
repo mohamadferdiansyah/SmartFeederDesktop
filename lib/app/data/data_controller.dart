@@ -282,6 +282,32 @@ class DataController extends GetxController {
     }
   }
 
+  Future<void> updateRemainingWater(String roomId, String status) async {
+    // Cari room di RxList
+    final index = roomList.indexWhere((r) => r.roomId == roomId);
+    if (index != -1) {
+      final old = roomList[index];
+      final updatedRoom = RoomModel(
+        roomId: old.roomId,
+        name: old.name,
+        deviceSerial: old.deviceSerial,
+        status: old.status,
+        cctvId: old.cctvId,
+        stableId: old.stableId  ,
+        horseId: old.horseId,
+        remainingWater: status,
+        remainingFeed: old.remainingFeed,
+        lastFeedText: old.lastFeedText.value,
+        waterScheduleIntervalHour: old.waterScheduleIntervalHour.value,
+        feedScheduleIntervalHour: old.feedScheduleIntervalHour.value,
+      );
+      // Update di DB
+      await roomDao.update(updatedRoom);
+      // Update di RxList
+      roomList[index] = updatedRoom;
+    }
+  }
+
   Future<void> deleteRoom(String roomId) async {
     await roomDao.delete(roomId);
     await loadRoomsFromDb();

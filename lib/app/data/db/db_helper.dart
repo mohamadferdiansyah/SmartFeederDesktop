@@ -50,7 +50,9 @@ class DBHelper {
             device_id TEXT,
             mode TEXT,
             room_id TEXT,
-            amount DOUBLE
+            amount DOUBLE,
+            status TEXT,
+            type TEXT
           )
         ''');
 

@@ -236,7 +236,22 @@ class FeederDashboardController extends GetxController {
         .toList();
     if (history.isEmpty) return 'Belum Ada Pengisian';
     history.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-    return DateFormat('dd-MM-yyyy HH:mm').format(history.first.timestamp);
+    return DateFormat('dd-MM-yyyy HH:mm:ss').format(history.first.timestamp);
+  }
+
+  String getLastWaterFromHistory(RoomModel room) {
+    // Cari device yang sedang dipakai di stable ruangan ini
+    final device = feederRoomDeviceList.firstWhereOrNull(
+      (d) => d.roomId == room.roomId,
+    );
+    if (device == null) return 'Belum Ada Pengisian';
+    // Cari history paling baru untuk device ini dan room ini
+    final history = feederDeviceHistoryList
+        .where((h) => h.deviceId == device.deviceId && h.roomId == room.roomId)
+        .toList();
+    if (history.isEmpty) return 'Belum Ada Pengisian';
+    history.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    return DateFormat('dd-MM-yyyy HH:mm:ss').format(history.first.timestamp);
   }
 
   // int getFeederDeviceBatteryPercent(String deviceId) {
