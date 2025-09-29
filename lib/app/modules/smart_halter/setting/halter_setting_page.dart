@@ -12,6 +12,7 @@ import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_card.dart';
 import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_input.dart';
+import 'package:smart_feeder_desktop/app/widgets/custom_map_picker.dart';
 import 'package:toastification/toastification.dart';
 
 class HalterSettingPage extends StatefulWidget {
@@ -33,6 +34,11 @@ class HalterSettingPageState extends State<HalterSettingPage> {
   final List<TextEditingController> _anggotaControllers = [
     TextEditingController(),
   ];
+
+  double? _lat;
+  double? _lng;
+  double? _alt;
+
   final DateTime _tanggal = DateTime.now();
   final String tanggalStr = DateFormat(
     "dd MMMM yyyy",
@@ -56,12 +62,12 @@ class HalterSettingPageState extends State<HalterSettingPage> {
   @override
   void initState() {
     super.initState();
-    // settingController.selectedLoraPort.value =
-    //     settingController.setting.value.loraPort.isEmpty
-    //     ? null
-    //     : settingController.setting.value.loraPort;
-    // settingController.loraConnected.value =
-    //     settingController.setting.value.loraPort.isNotEmpty;
+    settingController.selectedLoraPort.value =
+        settingController.setting.value.loraPort.isEmpty
+        ? null
+        : settingController.setting.value.loraPort;
+    settingController.loraConnected.value =
+        settingController.setting.value.loraPort.isNotEmpty;
     _selectedJenisPengiriman = settingController.setting.value.type.isEmpty
         ? null
         : settingController.setting.value.type;
@@ -859,14 +865,13 @@ class HalterSettingPageState extends State<HalterSettingPage> {
             headerHeight: 50,
             titleFontSize: 18,
             width: MediaQuery.of(context).size.width * 0.51,
-            height: MediaQuery.of(context).size.height * 0.58,
+            height: MediaQuery.of(context).size.height * 0.74,
             borderRadius: 16,
             scrollable: false,
             content: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 12),
                   CustomInput(
                     controller: _namaTimController,
                     label: 'Tim Pengujian *',
@@ -930,6 +935,18 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                       const SizedBox(height: 12),
                       buildModeRealSwitchSimple(context),
                     ],
+                  ),
+                  CustomMapPicker(
+                    initialLat: _lat,
+                    initialLng: _lng,
+                    initialAlt: _alt,
+                    onChanged: (lat, lng, alt) {
+                      setState(() {
+                        _lat = lat;
+                        _lng = lng;
+                        _alt = alt;
+                      });
+                    },
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -1041,6 +1058,9 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                         location: lokasi,
                         date: tanggal,
                         members: anggota,
+                        latitude: _lat,
+                        longitude: _lng,
+                        altitude: _alt,
                       );
                       DataTeamHalter.saveTeam(team);
 

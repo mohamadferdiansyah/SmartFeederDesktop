@@ -1439,8 +1439,8 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                   final timeW = tableWidth * 0.1;
                   final devIdW = tableWidth * 0.08;
                   final latW = tableWidth * 0.07;
-                  final longW = tableWidth * 0.07;
-                  final altW = tableWidth * 0.07;
+                  final longW = tableWidth * 0.13;
+                  final altW = tableWidth * 0.06;
                   final sogW = tableWidth * 0.06;
                   final cogW = tableWidth * 0.06;
                   final rollW = tableWidth * 0.05;

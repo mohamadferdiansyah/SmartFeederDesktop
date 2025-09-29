@@ -1049,40 +1049,40 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                   ),
                 );
               }),
-            // if (device != null)
-            //   Align(
-            //     alignment: Alignment.bottomRight,
-            //     child: Padding(
-            //       padding: const EdgeInsets.only(top: 12),
-            //       child: CustomButton(
-            //         text: 'Reset Kalibrasi',
-            //         icon: Icons.refresh,
-            //         backgroundColor: Colors.orange,
-            //         height: 40,
-            //         fontSize: 16,
-            //         onPressed: () {
-            //           DataHalterDeviceCalibrationOffset.save(
-            //             HalterDeviceCalibrationOffsetModel(
-            //               deviceId: device.deviceId,
-            //               temperatureOffset: 0,
-            //               heartRateOffset: 0,
-            //               spoOffset: 0,
-            //               respirationOffset: 0,
-            //               updatedAt: DateTime.now(),
-            //             ),
-            //           );
-            //           Get.snackbar(
-            //             "Kalibrasi Direset",
-            //             "Offset kalibrasi untuk device ${device.deviceId} sudah direset.",
-            //             snackPosition: SnackPosition.TOP,
-            //             backgroundColor: Colors.orange,
-            //             colorText: Colors.white,
-            //           );
-            //           setState(() {});
-            //         },
-            //       ),y
-            //     ),
-            //   ),
+            if (device != null)
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: CustomButton(
+                    text: 'Reset Kalibrasi',
+                    icon: Icons.refresh,
+                    backgroundColor: Colors.orange,
+                    height: 40,
+                    fontSize: 16,
+                    onPressed: () {
+                      DataHalterDeviceCalibrationOffset.save(
+                        HalterDeviceCalibrationOffsetModel(
+                          deviceId: device.deviceId,
+                          temperatureOffset: 0,
+                          heartRateOffset: 0,
+                          spoOffset: 0,
+                          respirationOffset: 0,
+                          updatedAt: DateTime.now(),
+                        ),
+                      );
+                      Get.snackbar(
+                        "Kalibrasi Direset",
+                        "Offset kalibrasi untuk device ${device.deviceId} sudah direset.",
+                        snackPosition: SnackPosition.TOP,
+                        backgroundColor: Colors.orange,
+                        colorText: Colors.white,
+                      );
+                      setState(() {});
+                    },
+                  ),
+                ),
+              ),
           ],
         ),
       );

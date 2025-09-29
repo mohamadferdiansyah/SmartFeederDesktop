@@ -222,6 +222,8 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                           child: Text("Imunisasi"),
                         ),
                         DropdownMenuItem(value: "Sehat", child: Text("Sehat")),
+                        DropdownMenuItem(value: "Sakit", child: Text("Sakit")),
+                        DropdownMenuItem(value: "Istirahat", child: Text("Istirahat")),
                         DropdownMenuItem(
                           value: "Lainnya",
                           child: Text("Lainnya"),
@@ -679,6 +681,8 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                           child: Text("Imunisasi"),
                         ),
                         DropdownMenuItem(value: "Sehat", child: Text("Sehat")),
+                        DropdownMenuItem(value: "Sakit", child: Text("Sakit")),
+                        DropdownMenuItem(value: "Istirahat", child: Text("Istirahat")),
                         DropdownMenuItem(
                           value: "Lainnya",
                           child: Text("Lainnya"),
