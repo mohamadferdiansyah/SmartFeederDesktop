@@ -7,6 +7,7 @@ class NodeRoomModel {
   // final double co2;
   // final double ammonia;
   // final DateTime? time;
+  final String status;
   final String version;
 
   NodeRoomModel({
@@ -18,10 +19,16 @@ class NodeRoomModel {
     // required this.co2,
     // required this.ammonia,
     // this.time,
+    required this.status,
     required this.version,
   });
 
-  factory NodeRoomModel.fromSerial(String line, {String? header, String version = "2.0"}) {
+  factory NodeRoomModel.fromSerial(
+    String line, {
+    String? header,
+    String version = "2.0",
+    String? status,
+  }) {
     String raw = line;
     if (raw.endsWith('*')) {
       raw = raw.substring(0, raw.length - 1);
@@ -37,13 +44,7 @@ class NodeRoomModel {
     }
     return NodeRoomModel(
       deviceId: deviceId,
-      // temperature: double.tryParse(parts[2]) ?? 0.0,
-      // humidity: double.tryParse(parts[3]) ?? 0.0,
-      // lightIntensity: double.tryParse(parts[4]) ?? 0.0,
-      // co: double.tryParse(parts[5]) ?? 0.0,
-      // co2: double.tryParse(parts[6]) ?? 0.0,
-      // ammonia: double.tryParse(parts[7]) ?? 0.0,
-      // time: DateTime.now(),
+      status: status ?? 'on', // Status default 'on' saat terima data
       version: version,
     );
   }
@@ -60,6 +61,7 @@ class NodeRoomModel {
       // time: map['time'] != null
       //     ? DateTime.tryParse(map['time'].toString())
       //     : null,
+      status: map['status'],
       version: map['version'] ?? '2.0',
     );
   }
@@ -74,6 +76,7 @@ class NodeRoomModel {
       // 'co2': co2,
       // 'ammonia': ammonia,
       // 'time': time?.toIso8601String(),
+      'status': status,
       'version': version,
     };
   }

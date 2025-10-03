@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
@@ -96,7 +97,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
   //       cells: [
   //         DataCell(Text(id.toString())),
   //         DataCell(Text(timestamp.toString())),
-  //         DataCell(Text('Suhu Badan')),
+  //         DataCell(Text('Suhu Badan (°C)')),
   //         DataCell(Text('${detail.temperature?.toStringAsFixed(2) ?? "-"} ')),
   //         DataCell(Text('${detail.temperature?.toStringAsFixed(2) ?? "-"} ')),
   //         DataCell(Text('${calibration.temperature.toStringAsFixed(2)} ')),
@@ -106,7 +107,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
   //       cells: [
   //         DataCell(Text(id.toString())),
   //         DataCell(Text(timestamp.toString())),
-  //         DataCell(Text('Detak Jantung')),
+  //         DataCell(Text('Detak Jantung (beat/m)')),
   //         DataCell(Text('${detail.heartRate?.toStringAsFixed(2) ?? "-"}')),
   //         DataCell(Text('${detail.heartRate?.toStringAsFixed(2) ?? "-"}')),
   //         DataCell(Text('${calibration.heartRate.toStringAsFixed(2)}')),
@@ -126,7 +127,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
   //       cells: [
   //         DataCell(Text(id.toString())),
   //         DataCell(Text(timestamp.toString())),
-  //         DataCell(Text('Respirasi')),
+  //         DataCell(Text('Respirasi (breath/m)')),
   //         DataCell(
   //           Text('${detail.respiratoryRate?.toStringAsFixed(2) ?? "-"}'),
   //         ),
@@ -218,7 +219,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
 
   //   print('[Kalibrasi] Offset tersimpan untuk deviceId: $deviceId');
   //   print(
-  //     '[Kalibrasi] Suhu: ${offset.temperatureOffset}, BPM: ${offset.heartRateOffset}, SPO: ${offset.spoOffset}, Respirasi: ${offset.respirationOffset}',
+  //     '[Kalibrasi] Suhu: ${offset.temperatureOffset}, BPM: ${offset.heartRateOffset}, SPO: ${offset.spoOffset}, Respirasi (breath/m): ${offset.respirationOffset}',
   //   );
 
   //   Get.snackbar(
@@ -227,37 +228,45 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
   //         "Suhu: ${offset.temperatureOffset.toStringAsFixed(2)}, "
   //         "BPM: ${offset.heartRateOffset.toStringAsFixed(2)}, "
   //         "SPO: ${offset.spoOffset.toStringAsFixed(2)}, "
-  //         "Respirasi: ${offset.respirationOffset.toStringAsFixed(2)}",
+  //         "Respirasi (breath/m): ${offset.respirationOffset.toStringAsFixed(2)}",
   //     snackPosition: SnackPosition.TOP,
   //     backgroundColor: Colors.green,
   //     colorText: Colors.white,
   //   );
   // }
 
-  late TextEditingController suhuCtrl;
-  late TextEditingController heartRateCtrl;
-  late TextEditingController spoCtrl;
-  late TextEditingController respirasiCtrl;
-  late TextEditingController suhuRuanganCtrl;
-  late TextEditingController kelembapanCtrl;
-  late TextEditingController indeksCahayaCtrl;
+  late TextEditingController suhuSlopeCtrl,
+      heartRateSlopeCtrl,
+      respirationSlopeCtrl,
+      suhuInterceptCtrl,
+      heartRateInterceptCtrl,
+      respirationInterceptCtrl;
 
   @override
   void initState() {
     super.initState();
-    final c = controller.calibration.value;
-    suhuCtrl = TextEditingController(text: c.temperature.toInt().toString());
-    heartRateCtrl = TextEditingController(text: c.heartRate.toInt().toString());
-    spoCtrl = TextEditingController(text: c.spo.toInt().toString());
-    respirasiCtrl = TextEditingController(
-      text: c.respiration.toInt().toString(),
+
+    // Hapus bagian ini karena controller.calibration.value tidak ada
+    // final c = controller.calibration.value;
+
+    // Gunakan default values untuk initialization
+    const defaultSlope = 1.0;
+    const defaultIntercept = 0.0;
+
+    // Initialize controllers for slopes
+    suhuSlopeCtrl = TextEditingController(text: defaultSlope.toString());
+    heartRateSlopeCtrl = TextEditingController(text: defaultSlope.toString());
+    respirationSlopeCtrl = TextEditingController(text: defaultSlope.toString());
+
+    // Initialize controllers for intercepts
+    suhuInterceptCtrl = TextEditingController(
+      text: defaultIntercept.toString(),
     );
-    suhuRuanganCtrl = TextEditingController(
-      text: c.roomTemperature.toInt().toString(),
+    heartRateInterceptCtrl = TextEditingController(
+      text: defaultIntercept.toString(),
     );
-    kelembapanCtrl = TextEditingController(text: c.humidity.toInt().toString());
-    indeksCahayaCtrl = TextEditingController(
-      text: c.lightIntensity.toInt().toString(),
+    respirationInterceptCtrl = TextEditingController(
+      text: defaultIntercept.toString(),
     );
 
     // --- PATCH: load last calibration and raw data for each device ---
@@ -297,7 +306,7 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
           scrollable: false,
           title: 'Kalibrasi Sensor',
           content: DefaultTabController(
-            length: 1,
+            length: 2,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -306,14 +315,14 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                   unselectedLabelColor: Colors.black54,
                   indicatorColor: AppColors.primary,
                   tabs: const [
-                    // Tab(
-                    //   text: "Kalibrasi Halter & Node Room",
-                    //   icon: Icon(Icons.settings_rounded),
-                    // ),
                     Tab(
-                      text: "Kalibrasi Per Device",
-                      icon: Icon(Icons.devices_other),
+                      text: "Kalibrasi Halter & Node Room",
+                      icon: Icon(Icons.settings_rounded),
                     ),
+                    // Tab(
+                    //   text: "Kalibrasi Per Device",
+                    //   icon: Icon(Icons.devices_other),
+                    // ),
                     // Tab(text: "Log Kalibrasi", icon: Icon(Icons.sensor_door)),
                   ],
                 ),
@@ -324,14 +333,14 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: TabBarView(
                       children: [
-                        // Padding(
-                        //   padding: const EdgeInsets.all(6.0),
-                        //   child: _buildKalibrasiHalterTab(context),
-                        // ),
                         Padding(
                           padding: const EdgeInsets.all(6.0),
-                          child: _buildDeviceCalibrationTab(context),
+                          child: _buildKalibrasiHalterTab(context),
                         ),
+                        // Padding(
+                        //   padding: const EdgeInsets.all(6.0),
+                        //   child: _buildDeviceCalibrationTab(context),
+                        // ),
                         // Padding(
                         //   padding: const EdgeInsets.all(6.0),
                         //   child: _buildLogTableSection(context),
@@ -348,384 +357,55 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
     );
   }
 
-  // Widget _buildKalibrasiHalterTab(BuildContext context) {
-  //   return Center(
-  //     child: Column(
-  //       children: [
-  //         CustomCard(
-  //           trailing: Icon(
-  //             Icons.device_hub_rounded,
-  //             color: Colors.white,
-  //             size: 30,
-  //           ),
-  //           withExpanded: false,
-  //           height: MediaQuery.of(context).size.height * 0.29,
-  //           title: "Kalibrasi Sensor Halter",
-  //           content: Column(
-  //             children: [
-  //               Wrap(
-  //                 spacing: 18,
-  //                 runSpacing: 18,
-  //                 children: [
-  //                   _inputCard(
-  //                     title: 'Suhu Badan',
-  //                     icon: Icons.thermostat_outlined,
-  //                     controller: suhuCtrl,
-  //                     onMinus: () {
-  //                       final val = int.tryParse(suhuCtrl.text) ?? 0;
-  //                       if (val > -1000) {
-  //                         setState(() => suhuCtrl.text = (val - 1).toString());
-  //                       }
-  //                     },
-  //                     onPlus: () {
-  //                       final val = int.tryParse(suhuCtrl.text) ?? 0;
-  //                       if (val < 1000) {
-  //                         setState(() => suhuCtrl.text = (val + 1).toString());
-  //                       }
-  //                     },
-  //                     width: MediaQuery.of(context).size.width * 0.18,
-  //                     height: MediaQuery.of(context).size.height * 0.16,
-  //                   ),
-  //                   _inputCard(
-  //                     title: 'Detak Jantung',
-  //                     icon: Icons.monitor_heart,
-  //                     controller: heartRateCtrl,
-  //                     onMinus: () {
-  //                       final val = int.tryParse(heartRateCtrl.text) ?? 0;
-  //                       if (val > -1000) {
-  //                         setState(
-  //                           () => heartRateCtrl.text = (val - 1).toString(),
-  //                         );
-  //                       }
-  //                     },
-  //                     onPlus: () {
-  //                       final val = int.tryParse(heartRateCtrl.text) ?? 0;
-  //                       if (val < 1000) {
-  //                         setState(
-  //                           () => heartRateCtrl.text = (val + 1).toString(),
-  //                         );
-  //                       }
-  //                     },
-  //                     width: MediaQuery.of(context).size.width * 0.18,
-  //                     height: MediaQuery.of(context).size.height * 0.16,
-  //                   ),
-  //                   _inputCard(
-  //                     title: 'Kadar Oksigen',
-  //                     icon: Icons.local_fire_department_outlined,
-  //                     controller: spoCtrl,
-  //                     onMinus: () {
-  //                       final val = int.tryParse(spoCtrl.text) ?? 0;
-  //                       if (val > -1000) {
-  //                         setState(() => spoCtrl.text = (val - 1).toString());
-  //                       }
-  //                     },
-  //                     onPlus: () {
-  //                       final val = int.tryParse(spoCtrl.text) ?? 0;
-  //                       if (val < 1000) {
-  //                         setState(() => spoCtrl.text = (val + 1).toString());
-  //                       }
-  //                     },
-  //                     width: MediaQuery.of(context).size.width * 0.18,
-  //                     height: MediaQuery.of(context).size.height * 0.16,
-  //                   ),
-  //                   _inputCard(
-  //                     title: 'Respirasi',
-  //                     icon: Icons.air_outlined,
-  //                     controller: respirasiCtrl,
-  //                     onMinus: () {
-  //                       final val = int.tryParse(respirasiCtrl.text) ?? 0;
-  //                       if (val > -1000) {
-  //                         setState(
-  //                           () => respirasiCtrl.text = (val - 1).toString(),
-  //                         );
-  //                       }
-  //                     },
-  //                     onPlus: () {
-  //                       final val = int.tryParse(respirasiCtrl.text) ?? 0;
-  //                       if (val < 1000) {
-  //                         setState(
-  //                           () => respirasiCtrl.text = (val + 1).toString(),
-  //                         );
-  //                       }
-  //                     },
-  //                     width: MediaQuery.of(context).size.width * 0.18,
-  //                     height: MediaQuery.of(context).size.height * 0.16,
-  //                   ),
-  //                 ],
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //         SizedBox(height: 16),
-  //         CustomCard(
-  //           withExpanded: false,
-  //           height: MediaQuery.of(context).size.height * 0.29,
-  //           trailing: Icon(
-  //             Icons.house_siding_rounded,
-  //             color: Colors.white,
-  //             size: 30,
-  //           ),
-  //           title: "Kalibrasi Sensor Node Room",
-  //           content: Column(
-  //             children: [
-  //               Wrap(
-  //                 spacing: 18,
-  //                 runSpacing: 18,
-  //                 children: [
-  //                   _inputCard(
-  //                     title: 'Suhu Ruangan',
-  //                     icon: Icons.thermostat_outlined,
-  //                     controller: suhuRuanganCtrl,
-  //                     onMinus: () {
-  //                       final val = int.tryParse(suhuRuanganCtrl.text) ?? 0;
-  //                       if (val > -1000) {
-  //                         setState(
-  //                           () => suhuRuanganCtrl.text = (val - 1).toString(),
-  //                         );
-  //                       }
-  //                     },
-  //                     onPlus: () {
-  //                       final val = int.tryParse(suhuRuanganCtrl.text) ?? 0;
-  //                       if (val < 1000) {
-  //                         setState(
-  //                           () => suhuRuanganCtrl.text = (val + 1).toString(),
-  //                         );
-  //                       }
-  //                     },
-  //                     width: MediaQuery.of(context).size.width * 0.24,
-  //                     height: MediaQuery.of(context).size.height * 0.16,
-  //                   ),
-  //                   _inputCard(
-  //                     title: 'Kelembapan',
-  //                     icon: Icons.water_drop_outlined,
-  //                     controller: kelembapanCtrl,
-  //                     onMinus: () {
-  //                       final val = int.tryParse(kelembapanCtrl.text) ?? 0;
-  //                       if (val > -1000) {
-  //                         setState(
-  //                           () => kelembapanCtrl.text = (val - 1).toString(),
-  //                         );
-  //                       }
-  //                     },
-  //                     onPlus: () {
-  //                       final val = int.tryParse(kelembapanCtrl.text) ?? 0;
-  //                       if (val < 1000) {
-  //                         setState(
-  //                           () => kelembapanCtrl.text = (val + 1).toString(),
-  //                         );
-  //                       }
-  //                     },
-  //                     width: MediaQuery.of(context).size.width * 0.24,
-  //                     height: MediaQuery.of(context).size.height * 0.16,
-  //                   ),
-  //                   _inputCard(
-  //                     title: 'Indeks Cahaya',
-  //                     icon: Icons.light_mode_outlined,
-  //                     controller: indeksCahayaCtrl,
-  //                     onMinus: () {
-  //                       final val = int.tryParse(indeksCahayaCtrl.text) ?? 0;
-  //                       if (val > -1000) {
-  //                         setState(
-  //                           () => indeksCahayaCtrl.text = (val - 1).toString(),
-  //                         );
-  //                       }
-  //                     },
-  //                     onPlus: () {
-  //                       final val = int.tryParse(indeksCahayaCtrl.text) ?? 0;
-  //                       if (val < 1000) {
-  //                         setState(
-  //                           () => indeksCahayaCtrl.text = (val + 1).toString(),
-  //                         );
-  //                       }
-  //                     },
-  //                     width: MediaQuery.of(context).size.width * 0.24,
-  //                     height: MediaQuery.of(context).size.height * 0.16,
-  //                   ),
-  //                 ],
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //         SizedBox(height: 16),
-  //         CustomButton(
-  //           onPressed: () {
-  //             controller.updateCalibration(
-  //               temperature: double.tryParse(suhuCtrl.text) ?? 0,
-  //               heartRate: double.tryParse(heartRateCtrl.text) ?? 0,
-  //               spo: double.tryParse(spoCtrl.text) ?? 0,
-  //               respiration: double.tryParse(respirasiCtrl.text) ?? 0,
-  //               roomTemperature: double.tryParse(suhuRuanganCtrl.text) ?? 0,
-  //               humidity: double.tryParse(kelembapanCtrl.text) ?? 0,
-  //               lightIntensity: double.tryParse(indeksCahayaCtrl.text) ?? 0,
-  //             );
-  //             Get.snackbar(
-  //               "Kalibrasi Tersimpan",
-  //               "Nilai kalibrasi berhasil disimpan.",
-  //               snackPosition: SnackPosition.TOP,
-  //               backgroundColor: Colors.green,
-  //               colorText: Colors.white,
-  //             );
-  //           },
-  //           text: 'Simpan',
-  //           iconTrailing: Icons.save,
-  //           backgroundColor: AppColors.primary,
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _inputCard({
-  //   required String title,
-  //   required IconData icon,
-  //   required TextEditingController controller,
-  //   required VoidCallback onMinus,
-  //   required VoidCallback onPlus,
-  //   double? width,
-  //   double? height,
-  //   int min = -1000,
-  //   int max = 1000,
-  // }) {
-  //   return CustomCard(
-  //     title: title,
-  //     withExpanded: false,
-  //     trailing: Icon(icon, color: Colors.white, size: 24),
-  //     headerColor: AppColors.primary,
-  //     headerHeight: 50,
-  //     titleFontSize: 18,
-  //     width: width ?? 120,
-  //     height: height ?? 100,
-  //     borderRadius: 16,
-  //     scrollable: false,
-  //     content: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.stretch,
-  //       children: [
-  //         Expanded(
-  //           child: Row(
-  //             children: [
-  //               Expanded(
-  //                 child: TextField(
-  //                   controller: controller,
-  //                   keyboardType: TextInputType.number,
-  //                   decoration: InputDecoration(
-  //                     filled: true,
-  //                     fillColor: Colors.grey[100],
-  //                     border: OutlineInputBorder(
-  //                       borderRadius: BorderRadius.circular(10),
-  //                     ),
-  //                     contentPadding: const EdgeInsets.symmetric(
-  //                       horizontal: 12,
-  //                       vertical: 8,
-  //                     ),
-  //                   ),
-  //                   style: const TextStyle(fontSize: 18),
-  //                   inputFormatters: [
-  //                     // Only allow numbers and minus
-  //                   ],
-  //                 ),
-  //               ),
-  //               const SizedBox(width: 8),
-  //               Column(
-  //                 mainAxisAlignment: MainAxisAlignment.center,
-  //                 children: [
-  //                   SizedBox(
-  //                     width: 36,
-  //                     height: 36,
-  //                     child: ElevatedButton(
-  //                       style: ElevatedButton.styleFrom(
-  //                         backgroundColor: AppColors.primary,
-  //                         shape: RoundedRectangleBorder(
-  //                           borderRadius: BorderRadius.circular(10),
-  //                         ),
-  //                         padding: EdgeInsets.zero,
-  //                       ),
-  //                       onPressed: onPlus,
-  //                       child: const Icon(
-  //                         Icons.add,
-  //                         color: Colors.white,
-  //                         size: 22,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                   const SizedBox(height: 6),
-  //                   SizedBox(
-  //                     width: 36,
-  //                     height: 36,
-  //                     child: ElevatedButton(
-  //                       style: ElevatedButton.styleFrom(
-  //                         backgroundColor: AppColors.primary,
-  //                         shape: RoundedRectangleBorder(
-  //                           borderRadius: BorderRadius.circular(10),
-  //                         ),
-  //                         padding: EdgeInsets.zero,
-  //                       ),
-  //                       onPressed: onMinus,
-  //                       child: const Icon(
-  //                         Icons.remove,
-  //                         color: Colors.white,
-  //                         size: 22,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // ...existing code...
-  Widget _buildDeviceCalibrationTab(BuildContext context) {
+  Widget _buildKalibrasiHalterTab(BuildContext context) {
     final halterDeviceList = controller.dataController.halterDeviceList;
-    final ruleList =
-        Get.find<HalterTableRuleEngineController>().biometricClassificationList;
-    final RxList<HalterDeviceCalibrationModel> deviceCalibrations =
-        <HalterDeviceCalibrationModel>[].obs;
-
-    // Inisialisasi RxList dari storage saat pertama kali build
-    if (deviceCalibrations.isEmpty) {
-      final all = DataHalterDeviceCalibration.getAll();
-      deviceCalibrations.addAll(all);
-    }
-
-    // State untuk device yang dipilih
     final Rx<String?> selectedDeviceId =
         (halterDeviceList.isNotEmpty ? halterDeviceList.first.deviceId : null)
             .obs;
-    final Map<String, Rx<HalterBiometricRuleEngineModel?>> selectedRuleMap = {
-      for (final device in halterDeviceList)
-        device.deviceId: Rx<HalterBiometricRuleEngineModel?>(null),
-    };
+
+    // Controllers untuk device yang dipilih
+    final Map<String, Map<String, TextEditingController>> deviceControllers =
+        {};
+
+    // Initialize controllers untuk semua device
+    for (final device in halterDeviceList) {
+      final calibration = controller.getCalibrationForDevice(device.deviceId);
+      deviceControllers[device.deviceId] = {
+        'temperatureSlope': TextEditingController(
+          text: calibration.temperatureSlope.toString(),
+        ),
+        'temperatureIntercept': TextEditingController(
+          text: calibration.temperatureIntercept.toString(),
+        ),
+        'heartRateSlope': TextEditingController(
+          text: calibration.heartRateSlope.toString(),
+        ),
+        'heartRateIntercept': TextEditingController(
+          text: calibration.heartRateIntercept.toString(),
+        ),
+        'respirationSlope': TextEditingController(
+          text: calibration.respirationSlope.toString(),
+        ),
+        'respirationIntercept': TextEditingController(
+          text: calibration.respirationIntercept.toString(),
+        ),
+      };
+    }
 
     return Obx(() {
-      final device = halterDeviceList.firstWhereOrNull(
-        (d) => d.deviceId == selectedDeviceId.value,
-      );
-      final rxSelectedRule = device != null
-          ? selectedRuleMap[device.deviceId]!
+      final currentDeviceId = selectedDeviceId.value;
+      final controllers = currentDeviceId != null
+          ? deviceControllers[currentDeviceId]
           : null;
-      // final lastCalibration = device != null
-      //     ? deviceCalibrations.firstWhereOrNull(
-      //         (c) => c.deviceId == device.deviceId,
-      //       )
-      //     : null;
-      final isLoading =
-          device != null && _isLoadingDevice[device.deviceId] == true;
 
-      return CustomCard(
-        title: 'Kalibrasi Halter',
-        withExpanded: false,
-        content: Column(
+      return Center(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'IoT Node Halter',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
-            const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: selectedDeviceId.value,
               isExpanded: true,
@@ -742,352 +422,811 @@ class _HalterCalibrationPageState extends State<HalterCalibrationPage> {
                   .toList(),
               onChanged: (id) => selectedDeviceId.value = id,
             ),
-            const SizedBox(height: 8),
-            if (device != null)
-              Obx(
-                () => DropdownButtonFormField<HalterBiometricRuleEngineModel>(
-                  value: rxSelectedRule?.value,
-                  isExpanded: true,
-                  decoration: const InputDecoration(
-                    labelText: "Rule Kalibrasi",
-                  ),
-                  items: ruleList
-                      .map(
-                        (r) => DropdownMenuItem(value: r, child: Text(r.name)),
-                      )
-                      .toList(),
-                  onChanged: (rule) {
-                    rxSelectedRule?.value = rule;
-                  },
+            SizedBox(height: 16),
+            if (controllers != null) ...[
+              CustomCard(
+                trailing: Icon(
+                  Icons.device_hub_rounded,
+                  color: Colors.white,
+                  size: 30,
+                ),
+                withExpanded: false,
+                height: MediaQuery.of(context).size.height * 0.27,
+                title: "Slope Sensor Halter - ${currentDeviceId}",
+                content: Column(
+                  children: [
+                    Wrap(
+                      spacing: 18,
+                      runSpacing: 18,
+                      children: [
+                        _inputCard(
+                          title: 'Suhu Badan (°C)',
+                          icon: Icons.thermostat_outlined,
+                          controller: controllers['temperatureSlope']!,
+                          onMinus: () {
+                            final val =
+                                double.tryParse(
+                                  controllers['temperatureSlope']!.text,
+                                ) ??
+                                0.0;
+                            if (val > -1000) {
+                              controllers['temperatureSlope']!.text =
+                                  (val - 0.1).toStringAsFixed(1);
+                            }
+                          },
+                          onPlus: () {
+                            final val =
+                                double.tryParse(
+                                  controllers['temperatureSlope']!.text,
+                                ) ??
+                                0.0;
+                            if (val < 1000) {
+                              controllers['temperatureSlope']!.text =
+                                  (val + 0.1).toStringAsFixed(1);
+                            }
+                          },
+                          width: MediaQuery.of(context).size.width * 0.23,
+                          height: MediaQuery.of(context).size.height * 0.16,
+                        ),
+                        _inputCard(
+                          title: 'Detak Jantung (beat/m)',
+                          icon: Icons.monitor_heart,
+                          controller: controllers['heartRateSlope']!,
+                          onMinus: () {
+                            final val =
+                                double.tryParse(
+                                  controllers['heartRateSlope']!.text,
+                                ) ??
+                                0.0;
+                            if (val > -1000) {
+                              controllers['heartRateSlope']!.text = (val - 0.1)
+                                  .toStringAsFixed(1);
+                            }
+                          },
+                          onPlus: () {
+                            final val =
+                                double.tryParse(
+                                  controllers['heartRateSlope']!.text,
+                                ) ??
+                                0.0;
+                            if (val < 1000) {
+                              controllers['heartRateSlope']!.text = (val + 0.1)
+                                  .toStringAsFixed(1);
+                            }
+                          },
+                          width: MediaQuery.of(context).size.width * 0.23,
+                          height: MediaQuery.of(context).size.height * 0.16,
+                        ),
+                        _inputCard(
+                          title: 'Respirasi (breath/m)',
+                          icon: Icons.air,
+                          controller: controllers['respirationSlope']!,
+                          onMinus: () {
+                            final val =
+                                double.tryParse(
+                                  controllers['respirationSlope']!.text,
+                                ) ??
+                                0.0;
+                            if (val > -1000) {
+                              controllers['respirationSlope']!.text =
+                                  (val - 0.1).toStringAsFixed(1);
+                            }
+                          },
+                          onPlus: () {
+                            final val =
+                                double.tryParse(
+                                  controllers['respirationSlope']!.text,
+                                ) ??
+                                0.0;
+                            if (val < 1000) {
+                              controllers['respirationSlope']!.text =
+                                  (val + 0.1).toStringAsFixed(1);
+                            }
+                          },
+                          width: MediaQuery.of(context).size.width * 0.23,
+                          height: MediaQuery.of(context).size.height * 0.16,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            const SizedBox(height: 8),
-            if (device != null)
+              SizedBox(height: 16),
+              CustomCard(
+                trailing: Icon(
+                  Icons.device_hub_rounded,
+                  color: Colors.white,
+                  size: 30,
+                ),
+                withExpanded: false,
+                height: MediaQuery.of(context).size.height * 0.27,
+                title: "Intercept Sensor Halter - ${currentDeviceId}",
+                content: Column(
+                  children: [
+                    Wrap(
+                      spacing: 18,
+                      runSpacing: 18,
+                      children: [
+                        _inputCard(
+                          title: 'Suhu Badan (°C)',
+                          icon: Icons.thermostat_outlined,
+                          controller: controllers['temperatureIntercept']!,
+                          onMinus: () {
+                            final val =
+                                double.tryParse(
+                                  controllers['temperatureIntercept']!.text,
+                                ) ??
+                                0.0;
+                            if (val > -1000) {
+                              controllers['temperatureIntercept']!.text =
+                                  (val - 0.1).toStringAsFixed(1);
+                            }
+                          },
+                          onPlus: () {
+                            final val =
+                                double.tryParse(
+                                  controllers['temperatureIntercept']!.text,
+                                ) ??
+                                0.0;
+                            if (val < 1000) {
+                              controllers['temperatureIntercept']!.text =
+                                  (val + 0.1).toStringAsFixed(1);
+                            }
+                          },
+                          width: MediaQuery.of(context).size.width * 0.23,
+                          height: MediaQuery.of(context).size.height * 0.16,
+                        ),
+                        _inputCard(
+                          title: 'Detak Jantung (beat/m)',
+                          icon: Icons.monitor_heart,
+                          controller: controllers['heartRateIntercept']!,
+                          onMinus: () {
+                            final val =
+                                double.tryParse(
+                                  controllers['heartRateIntercept']!.text,
+                                ) ??
+                                0.0;
+                            if (val > -1000) {
+                              controllers['heartRateIntercept']!.text =
+                                  (val - 0.1).toStringAsFixed(1);
+                            }
+                          },
+                          onPlus: () {
+                            final val =
+                                double.tryParse(
+                                  controllers['heartRateIntercept']!.text,
+                                ) ??
+                                0.0;
+                            if (val < 1000) {
+                              controllers['heartRateIntercept']!.text =
+                                  (val + 0.1).toStringAsFixed(1);
+                            }
+                          },
+                          width: MediaQuery.of(context).size.width * 0.23,
+                          height: MediaQuery.of(context).size.height * 0.16,
+                        ),
+                        _inputCard(
+                          title: 'Respirasi (breath/m)',
+                          icon: Icons.air,
+                          controller: controllers['respirationIntercept']!,
+                          onMinus: () {
+                            final val =
+                                double.tryParse(
+                                  controllers['respirationIntercept']!.text,
+                                ) ??
+                                0.0;
+                            if (val > -1000) {
+                              controllers['respirationIntercept']!.text =
+                                  (val - 0.1).toStringAsFixed(1);
+                            }
+                          },
+                          onPlus: () {
+                            final val =
+                                double.tryParse(
+                                  controllers['respirationIntercept']!.text,
+                                ) ??
+                                0.0;
+                            if (val < 1000) {
+                              controllers['respirationIntercept']!.text =
+                                  (val + 0.1).toStringAsFixed(1);
+                            }
+                          },
+                          width: MediaQuery.of(context).size.width * 0.23,
+                          height: MediaQuery.of(context).size.height * 0.16,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 16),
               CustomButton(
-                text: isLoading ? 'Menunggu Data...' : 'Kalibrasi',
-                iconTrailing: isLoading ? null : Icons.save,
-                backgroundColor: AppColors.primary,
-                isDisabled: isLoading,
-                onPressed: () async {
-                  final rule = rxSelectedRule?.value;
-                  if (rule == null) {
-                    showAppToast(
-                      context: context,
-                      type: ToastificationType.error,
-                      title: 'Data Tidak Valid!',
-                      description: 'Pilih Rule Terlebih Dahulu.',
-                    );
-                    return;
-                  }
+                onPressed: () {
+                  if (currentDeviceId == null) return;
 
-                  // Buat referensi kalibrasi baru
-                  final referensi = HalterDeviceCalibrationModel(
-                    deviceId: device.deviceId,
-                    temperature: rule.suhuMin ?? rule.suhuMax ?? 0,
-                    heartRate: (rule.heartRateMin ?? rule.heartRateMax ?? 0)
-                        .toDouble(),
-                    spo: rule.spoMin ?? rule.spoMax ?? 0,
-                    respiration: (rule.respirasiMin ?? rule.respirasiMax ?? 0)
-                        .toDouble(),
-                    updatedAt: DateTime.now(),
+                  final temperatureSlope =
+                      double.tryParse(controllers['temperatureSlope']!.text) ??
+                      1.0;
+                  final temperatureIntercept =
+                      double.tryParse(
+                        controllers['temperatureIntercept']!.text,
+                      ) ??
+                      0.0;
+                  final heartRateSlope =
+                      double.tryParse(controllers['heartRateSlope']!.text) ??
+                      1.0;
+                  final heartRateIntercept =
+                      double.tryParse(
+                        controllers['heartRateIntercept']!.text,
+                      ) ??
+                      0.0;
+                  final respirationSlope =
+                      double.tryParse(controllers['respirationSlope']!.text) ??
+                      1.0;
+                  final respirationIntercept =
+                      double.tryParse(
+                        controllers['respirationIntercept']!.text,
+                      ) ??
+                      0.0;
+
+                  controller.updateDeviceCalibration(
+                    deviceId: currentDeviceId,
+                    temperatureSlope: temperatureSlope,
+                    temperatureIntercept: temperatureIntercept,
+                    heartRateSlope: heartRateSlope,
+                    heartRateIntercept: heartRateIntercept,
+                    respirationSlope: respirationSlope,
+                    respirationIntercept: respirationIntercept,
                   );
-                  DataHalterDeviceCalibration.save(referensi);
 
-                  _isLoadingDevice[device.deviceId] = true;
-
-                  // Polling data RAW terbaru setelah tombol diklik
-                  final pollingStartTime = DateTime.now();
-                  final latestRaw = await _waitForLatestRawDeviceData(
-                    device.deviceId,
-                    lastTime: pollingStartTime,
-                    timeout: const Duration(minutes: 1),
-                  );
-
-                  if (latestRaw == null) {
-                    showAppToast(
-                      context: context,
-                      type: ToastificationType.error,
-                      title: 'Kalibrasi Gagal!',
-                      description: 'Tidak Ada Data Sensor Dalam 1 Menit.',
-                    );
-                    _isLoadingDevice[device.deviceId] = false;
-                    return;
-                  }
-
-                  // Hitung offset baru dari data sensor terbaru
-                  final offset = HalterDeviceCalibrationOffsetModel(
-                    deviceId: device.deviceId,
-                    temperatureOffset:
-                        referensi.temperature - (latestRaw.temperature ?? 0),
-                    heartRateOffset:
-                        referensi.heartRate - (latestRaw.heartRate ?? 0),
-                    spoOffset: referensi.spo - (latestRaw.spo ?? 0),
-                    respirationOffset:
-                        referensi.respiration -
-                        (latestRaw.respiratoryRate ?? 0),
-                    updatedAt: DateTime.now(),
-                  );
-                  DataHalterDeviceCalibrationOffset.save(offset);
-
-                  // Update RxList offset & lastSensor
-                  final idx = offsetList.indexWhere(
-                    (o) => o.deviceId == device.deviceId,
-                  );
-                  if (idx >= 0)
-                    offsetList[idx] = offset;
-                  else
-                    offsetList.add(offset);
-
-                  lastSensorMap[device.deviceId] = latestRaw;
-
-                  _isLoadingDevice[device.deviceId] = false;
-
-                  // Tambahkan log kalibrasi (jika perlu)
-                  final logController =
-                      Get.find<HalterCalibrationLogController>();
-                  logController.addLog(
-                    HalterCalibrationLogModel(
-                      deviceId: device.deviceId,
-                      timestamp: DateTime.now(),
-                      sensorName: 'Suhu Badan (°C)',
-                      referensi: referensi.temperature.toStringAsFixed(2),
-                      sensorValue:
-                          latestRaw.temperature?.toStringAsFixed(2) ?? "-",
-                      nilaiKalibrasi:
-                          (referensi.temperature - (latestRaw.temperature ?? 0))
-                              .toStringAsFixed(2),
-                    ),
-                  );
-                  logController.addLog(
-                    HalterCalibrationLogModel(
-                      deviceId: device.deviceId,
-                      timestamp: DateTime.now(),
-                      sensorName: 'Detak Jantung (beat/m)',
-                      referensi: referensi.heartRate.toStringAsFixed(2),
-                      sensorValue:
-                          latestRaw.heartRate?.toStringAsFixed(2) ?? "-",
-                      nilaiKalibrasi:
-                          (referensi.heartRate - (latestRaw.heartRate ?? 0))
-                              .toStringAsFixed(2),
-                    ),
-                  );
-                  logController.addLog(
-                    HalterCalibrationLogModel(
-                      deviceId: device.deviceId,
-                      timestamp: DateTime.now(),
-                      sensorName: 'SpO₂ (%)',
-                      referensi: referensi.spo.toStringAsFixed(2),
-                      sensorValue: latestRaw.spo?.toStringAsFixed(2) ?? "-",
-                      nilaiKalibrasi: (referensi.spo - (latestRaw.spo ?? 0))
-                          .toStringAsFixed(2),
-                    ),
-                  );
-                  logController.addLog(
-                    HalterCalibrationLogModel(
-                      deviceId: device.deviceId,
-                      timestamp: DateTime.now(),
-                      sensorName: 'Respirasi (breath/m)',
-                      referensi: referensi.respiration.toStringAsFixed(2),
-                      sensorValue:
-                          latestRaw.respiratoryRate?.toStringAsFixed(2) ?? "-",
-                      nilaiKalibrasi:
-                          (referensi.respiration -
-                                  (latestRaw.respiratoryRate ?? 0))
-                              .toStringAsFixed(2),
-                    ),
-                  );
                   showAppToast(
                     context: context,
                     type: ToastificationType.success,
-                    title: 'Berhasil Kalibrasi!',
-                    description: 'Halter Berhasil Terkalibrasi.',
+                    title: 'Berhasil Disimpan!',
+                    description:
+                        'Kalibrasi sensor untuk $currentDeviceId berhasil diperbarui.',
                   );
                 },
+                text: 'Simpan Kalibrasi Device ${currentDeviceId}',
+                iconTrailing: Icons.save,
+                backgroundColor: AppColors.primary,
               ),
-            const SizedBox(height: 8),
-            if (device != null)
-              Text(
-                'Terakhir Kalibrasi:',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            if (device != null)
-              Obx(() {
-                final offset = offsetList.firstWhereOrNull(
-                  (o) => o.deviceId == device.deviceId,
-                );
-                final latestRaw = lastSensorMap[device.deviceId];
-
-                final lastCalibration = deviceCalibrations.firstWhereOrNull(
-                  (c) => c.deviceId == device.deviceId,
-                );
-
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: const [
-                      DataColumn(label: Text('Timestamp')),
-                      DataColumn(label: Text('Nama Sensor')),
-                      DataColumn(label: Text('Data lookup (Referensi)')),
-                      DataColumn(label: Text('Data Sensor')),
-                      DataColumn(label: Text('Nilai Kalibrasi')),
-                    ],
-                    rows: [
-                      if (lastCalibration != null)
-                        ...() {
-                          return [
-                            DataRow(
-                              cells: [
-                                DataCell(
-                                  Text(
-                                    DateFormat(
-                                      'dd-MM-yyyy HH:mm:ss',
-                                    ).format(lastCalibration.updatedAt),
-                                  ),
-                                ),
-                                DataCell(const Text('Suhu Badan (°C)')),
-                                DataCell(
-                                  Text(
-                                    '${lastCalibration.temperature.toStringAsFixed(2)}',
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    '${latestRaw?.temperature?.toStringAsFixed(2) ?? "-"}',
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    '${offset?.temperatureOffset.toStringAsFixed(2) ?? "-"}',
-                                  ),
-                                ),
-                              ],
-                            ),
-                            DataRow(
-                              cells: [
-                                DataCell(
-                                  Text(
-                                    DateFormat(
-                                      'dd-MM-yyyy HH:mm:ss',
-                                    ).format(lastCalibration.updatedAt),
-                                  ),
-                                ),
-                                DataCell(const Text('Detak Jantung (beat/m)')),
-                                DataCell(
-                                  Text(
-                                    '${lastCalibration.heartRate.toStringAsFixed(2)}',
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    '${latestRaw?.heartRate?.toStringAsFixed(2) ?? "-"}',
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    '${offset?.heartRateOffset.toStringAsFixed(2) ?? "-"}',
-                                  ),
-                                ),
-                              ],
-                            ),
-                            DataRow(
-                              cells: [
-                                DataCell(
-                                  Text(
-                                    DateFormat(
-                                      'dd-MM-yyyy HH:mm:ss',
-                                    ).format(lastCalibration.updatedAt),
-                                  ),
-                                ),
-                                DataCell(const Text('SpO₂ (%)')),
-                                DataCell(
-                                  Text(
-                                    '${lastCalibration.spo.toStringAsFixed(2)}',
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    '${latestRaw?.spo?.toStringAsFixed(2) ?? "-"}',
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    '${offset?.spoOffset.toStringAsFixed(2) ?? "-"}',
-                                  ),
-                                ),
-                              ],
-                            ),
-                            DataRow(
-                              cells: [
-                                DataCell(
-                                  Text(
-                                    DateFormat(
-                                      'dd-MM-yyyy HH:mm:ss',
-                                    ).format(lastCalibration.updatedAt),
-                                  ),
-                                ),
-                                DataCell(const Text('Respirasi (breath/m)')),
-                                DataCell(
-                                  Text(
-                                    '${lastCalibration.respiration.toStringAsFixed(2)}',
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    '${latestRaw?.respiratoryRate?.toStringAsFixed(2) ?? "-"}',
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    '${offset?.respirationOffset.toStringAsFixed(2) ?? "-"}',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ];
-                        }(),
-                    ],
-                  ),
-                );
-              }),
-            if (device != null)
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: CustomButton(
-                    text: 'Reset Kalibrasi',
-                    icon: Icons.refresh,
-                    backgroundColor: Colors.orange,
-                    height: 40,
-                    fontSize: 16,
-                    onPressed: () {
-                      DataHalterDeviceCalibrationOffset.save(
-                        HalterDeviceCalibrationOffsetModel(
-                          deviceId: device.deviceId,
-                          temperatureOffset: 0,
-                          heartRateOffset: 0,
-                          spoOffset: 0,
-                          respirationOffset: 0,
-                          updatedAt: DateTime.now(),
-                        ),
-                      );
-                      Get.snackbar(
-                        "Kalibrasi Direset",
-                        "Offset kalibrasi untuk device ${device.deviceId} sudah direset.",
-                        snackPosition: SnackPosition.TOP,
-                        backgroundColor: Colors.orange,
-                        colorText: Colors.white,
-                      );
-                      setState(() {});
-                    },
-                  ),
-                ),
-              ),
+            ],
           ],
         ),
       );
     });
   }
+
+  Widget _inputCard({
+    required String title,
+    required IconData icon,
+    required TextEditingController controller,
+    required VoidCallback onMinus,
+    required VoidCallback onPlus,
+    double? width,
+    double? height,
+    double min = -1000,
+    double max = 1000,
+    double step = 0.1, // Tambahkan parameter step
+  }) {
+    return CustomCard(
+      title: title,
+      withExpanded: false,
+      trailing: Icon(icon, color: Colors.white, size: 24),
+      headerColor: AppColors.primary,
+      headerHeight: 50,
+      titleFontSize: 18,
+      width: width ?? 120,
+      height: height ?? 100,
+      borderRadius: 16,
+      scrollable: false,
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: controller,
+                    keyboardType: TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                    ),
+                    style: const TextStyle(fontSize: 18),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: EdgeInsets.zero,
+                        ),
+                        onPressed: () {
+                          final currentVal =
+                              double.tryParse(controller.text) ?? 0.0;
+                          final newVal = currentVal + step;
+                          if (newVal <= max) {
+                            controller.text = newVal.toStringAsFixed(1);
+                          }
+                        },
+                        child: const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 22,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: EdgeInsets.zero,
+                        ),
+                        onPressed: () {
+                          final currentVal =
+                              double.tryParse(controller.text) ?? 0.0;
+                          final newVal = currentVal - step;
+                          if (newVal >= min) {
+                            controller.text = newVal.toStringAsFixed(1);
+                          }
+                        },
+                        child: const Icon(
+                          Icons.remove,
+                          color: Colors.white,
+                          size: 22,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  // ...existing code...
+  // Widget _buildDeviceCalibrationTab(BuildContext context) {
+  //   final halterDeviceList = controller.dataController.halterDeviceList;
+  //   final ruleList =
+  //       Get.find<HalterTableRuleEngineController>().biometricClassificationList;
+  //   final RxList<HalterDeviceCalibrationModel> deviceCalibrations =
+  //       <HalterDeviceCalibrationModel>[].obs;
+
+  //   // Inisialisasi RxList dari storage saat pertama kali build
+  //   if (deviceCalibrations.isEmpty) {
+  //     final all = DataHalterDeviceCalibration.getAll();
+  //     deviceCalibrations.addAll(all);
+  //   }
+
+  //   // State untuk device yang dipilih
+  //   final Rx<String?> selectedDeviceId =
+  //       (halterDeviceList.isNotEmpty ? halterDeviceList.first.deviceId : null)
+  //           .obs;
+  //   final Map<String, Rx<HalterBiometricRuleEngineModel?>> selectedRuleMap = {
+  //     for (final device in halterDeviceList)
+  //       device.deviceId: Rx<HalterBiometricRuleEngineModel?>(null),
+  //   };
+
+  //   return Obx(() {
+  //     final device = halterDeviceList.firstWhereOrNull(
+  //       (d) => d.deviceId == selectedDeviceId.value,
+  //     );
+  //     final rxSelectedRule = device != null
+  //         ? selectedRuleMap[device.deviceId]!
+  //         : null;
+  //     // final lastCalibration = device != null
+  //     //     ? deviceCalibrations.firstWhereOrNull(
+  //     //         (c) => c.deviceId == device.deviceId,
+  //     //       )
+  //     //     : null;
+  //     final isLoading =
+  //         device != null && _isLoadingDevice[device.deviceId] == true;
+
+  //     return CustomCard(
+  //       title: 'Kalibrasi Halter',
+  //       withExpanded: false,
+  //       content: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  // Text(
+  //   'IoT Node Halter',
+  //   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+  // ),
+  //           const SizedBox(height: 8),
+  //           DropdownButtonFormField<String>(
+  //             value: selectedDeviceId.value,
+  //             isExpanded: true,
+  //             decoration: const InputDecoration(
+  //               labelText: "Pilih IoT Node Halter",
+  //             ),
+  //             items: halterDeviceList
+  //                 .map(
+  //                   (d) => DropdownMenuItem(
+  //                     value: d.deviceId,
+  //                     child: Text(d.deviceId),
+  //                   ),
+  //                 )
+  //                 .toList(),
+  //             onChanged: (id) => selectedDeviceId.value = id,
+  //           ),
+  //           const SizedBox(height: 8),
+  //           if (device != null)
+  //             Obx(
+  //               () => DropdownButtonFormField<HalterBiometricRuleEngineModel>(
+  //                 value: rxSelectedRule?.value,
+  //                 isExpanded: true,
+  //                 decoration: const InputDecoration(
+  //                   labelText: "Rule Kalibrasi",
+  //                 ),
+  //                 items: ruleList
+  //                     .map(
+  //                       (r) => DropdownMenuItem(value: r, child: Text(r.name)),
+  //                     )
+  //                     .toList(),
+  //                 onChanged: (rule) {
+  //                   rxSelectedRule?.value = rule;
+  //                 },
+  //               ),
+  //             ),
+  //           const SizedBox(height: 8),
+  //           if (device != null)
+  //             CustomButton(
+  //               text: isLoading ? 'Menunggu Data...' : 'Kalibrasi',
+  //               iconTrailing: isLoading ? null : Icons.save,
+  //               backgroundColor: AppColors.primary,
+  //               isDisabled: isLoading,
+  //               onPressed: () async {
+  //                 final rule = rxSelectedRule?.value;
+  //                 if (rule == null) {
+  //                   showAppToast(
+  //                     context: context,
+  //                     type: ToastificationType.error,
+  //                     title: 'Data Tidak Valid!',
+  //                     description: 'Pilih Rule Terlebih Dahulu.',
+  //                   );
+  //                   return;
+  //                 }
+
+  //                 // Buat referensi kalibrasi baru
+  //                 final referensi = HalterDeviceCalibrationModel(
+  //                   deviceId: device.deviceId,
+  //                   temperature: rule.suhuMin ?? rule.suhuMax ?? 0,
+  //                   heartRate: (rule.heartRateMin ?? rule.heartRateMax ?? 0)
+  //                       .toDouble(),
+  //                   spo: rule.spoMin ?? rule.spoMax ?? 0,
+  //                   respiration: (rule.Respirasi (breath/m)Min ?? rule.Respirasi (breath/m)Max ?? 0)
+  //                       .toDouble(),
+  //                   updatedAt: DateTime.now(),
+  //                 );
+  //                 DataHalterDeviceCalibration.save(referensi);
+
+  //                 _isLoadingDevice[device.deviceId] = true;
+
+  //                 // Polling data RAW terbaru setelah tombol diklik
+  //                 final pollingStartTime = DateTime.now();
+  //                 final latestRaw = await _waitForLatestRawDeviceData(
+  //                   device.deviceId,
+  //                   lastTime: pollingStartTime,
+  //                   timeout: const Duration(minutes: 1),
+  //                 );
+
+  //                 if (latestRaw == null) {
+  //                   showAppToast(
+  //                     context: context,
+  //                     type: ToastificationType.error,
+  //                     title: 'Kalibrasi Gagal!',
+  //                     description: 'Tidak Ada Data Sensor Dalam 1 Menit.',
+  //                   );
+  //                   _isLoadingDevice[device.deviceId] = false;
+  //                   return;
+  //                 }
+
+  //                 // Hitung offset baru dari data sensor terbaru
+  //                 final offset = HalterDeviceCalibrationOffsetModel(
+  //                   deviceId: device.deviceId,
+  //                   temperatureOffset:
+  //                       referensi.temperature - (latestRaw.temperature ?? 0),
+  //                   heartRateOffset:
+  //                       referensi.heartRate - (latestRaw.heartRate ?? 0),
+  //                   spoOffset: referensi.spo - (latestRaw.spo ?? 0),
+  //                   respirationOffset:
+  //                       referensi.respiration -
+  //                       (latestRaw.respiratoryRate ?? 0),
+  //                   updatedAt: DateTime.now(),
+  //                 );
+  //                 DataHalterDeviceCalibrationOffset.save(offset);
+
+  //                 // Update RxList offset & lastSensor
+  //                 final idx = offsetList.indexWhere(
+  //                   (o) => o.deviceId == device.deviceId,
+  //                 );
+  //                 if (idx >= 0)
+  //                   offsetList[idx] = offset;
+  //                 else
+  //                   offsetList.add(offset);
+
+  //                 lastSensorMap[device.deviceId] = latestRaw;
+
+  //                 _isLoadingDevice[device.deviceId] = false;
+
+  //                 // Tambahkan log kalibrasi (jika perlu)
+  //                 final logController =
+  //                     Get.find<HalterCalibrationLogController>();
+  //                 logController.addLog(
+  //                   HalterCalibrationLogModel(
+  //                     deviceId: device.deviceId,
+  //                     timestamp: DateTime.now(),
+  //                     sensorName: 'Suhu Badan (°C) (°C)',
+  //                     referensi: referensi.temperature.toStringAsFixed(2),
+  //                     sensorValue:
+  //                         latestRaw.temperature?.toStringAsFixed(2) ?? "-",
+  //                     nilaiKalibrasi:
+  //                         (referensi.temperature - (latestRaw.temperature ?? 0))
+  //                             .toStringAsFixed(2),
+  //                   ),
+  //                 );
+  //                 logController.addLog(
+  //                   HalterCalibrationLogModel(
+  //                     deviceId: device.deviceId,
+  //                     timestamp: DateTime.now(),
+  //                     sensorName: 'Detak Jantung (beat/m) (beat/m)',
+  //                     referensi: referensi.heartRate.toStringAsFixed(2),
+  //                     sensorValue:
+  //                         latestRaw.heartRate?.toStringAsFixed(2) ?? "-",
+  //                     nilaiKalibrasi:
+  //                         (referensi.heartRate - (latestRaw.heartRate ?? 0))
+  //                             .toStringAsFixed(2),
+  //                   ),
+  //                 );
+  //                 logController.addLog(
+  //                   HalterCalibrationLogModel(
+  //                     deviceId: device.deviceId,
+  //                     timestamp: DateTime.now(),
+  //                     sensorName: 'SpO₂ (%)',
+  //                     referensi: referensi.spo.toStringAsFixed(2),
+  //                     sensorValue: latestRaw.spo?.toStringAsFixed(2) ?? "-",
+  //                     nilaiKalibrasi: (referensi.spo - (latestRaw.spo ?? 0))
+  //                         .toStringAsFixed(2),
+  //                   ),
+  //                 );
+  //                 logController.addLog(
+  //                   HalterCalibrationLogModel(
+  //                     deviceId: device.deviceId,
+  //                     timestamp: DateTime.now(),
+  //                     sensorName: 'Respirasi (breath/m) (breath/m)',
+  //                     referensi: referensi.respiration.toStringAsFixed(2),
+  //                     sensorValue:
+  //                         latestRaw.respiratoryRate?.toStringAsFixed(2) ?? "-",
+  //                     nilaiKalibrasi:
+  //                         (referensi.respiration -
+  //                                 (latestRaw.respiratoryRate ?? 0))
+  //                             .toStringAsFixed(2),
+  //                   ),
+  //                 );
+  //                 showAppToast(
+  //                   context: context,
+  //                   type: ToastificationType.success,
+  //                   title: 'Berhasil Kalibrasi!',
+  //                   description: 'Halter Berhasil Terkalibrasi.',
+  //                 );
+  //               },
+  //             ),
+  //           const SizedBox(height: 8),
+  //           if (device != null)
+  //             Text(
+  //               'Terakhir Kalibrasi:',
+  //               style: const TextStyle(fontWeight: FontWeight.bold),
+  //             ),
+  //           if (device != null)
+  //             Obx(() {
+  //               final offset = offsetList.firstWhereOrNull(
+  //                 (o) => o.deviceId == device.deviceId,
+  //               );
+  //               final latestRaw = lastSensorMap[device.deviceId];
+
+  //               final lastCalibration = deviceCalibrations.firstWhereOrNull(
+  //                 (c) => c.deviceId == device.deviceId,
+  //               );
+
+  //               return SingleChildScrollView(
+  //                 scrollDirection: Axis.horizontal,
+  //                 child: DataTable(
+  //                   columns: const [
+  //                     DataColumn(label: Text('Timestamp')),
+  //                     DataColumn(label: Text('Nama Sensor')),
+  //                     DataColumn(label: Text('Data lookup (Referensi)')),
+  //                     DataColumn(label: Text('Data Sensor')),
+  //                     DataColumn(label: Text('Nilai Kalibrasi')),
+  //                   ],
+  //                   rows: [
+  //                     if (lastCalibration != null)
+  //                       ...() {
+  //                         return [
+  //                           DataRow(
+  //                             cells: [
+  //                               DataCell(
+  //                                 Text(
+  //                                   DateFormat(
+  //                                     'dd-MM-yyyy HH:mm:ss',
+  //                                   ).format(lastCalibration.updatedAt),
+  //                                 ),
+  //                               ),
+  //                               DataCell(const Text('Suhu Badan (°C) (°C)')),
+  //                               DataCell(
+  //                                 Text(
+  //                                   '${lastCalibration.temperature.toStringAsFixed(2)}',
+  //                                 ),
+  //                               ),
+  //                               DataCell(
+  //                                 Text(
+  //                                   '${latestRaw?.temperature?.toStringAsFixed(2) ?? "-"}',
+  //                                 ),
+  //                               ),
+  //                               DataCell(
+  //                                 Text(
+  //                                   '${offset?.temperatureOffset.toStringAsFixed(2) ?? "-"}',
+  //                                 ),
+  //                               ),
+  //                             ],
+  //                           ),
+  //                           DataRow(
+  //                             cells: [
+  //                               DataCell(
+  //                                 Text(
+  //                                   DateFormat(
+  //                                     'dd-MM-yyyy HH:mm:ss',
+  //                                   ).format(lastCalibration.updatedAt),
+  //                                 ),
+  //                               ),
+  //                               DataCell(const Text('Detak Jantung (beat/m) (beat/m)')),
+  //                               DataCell(
+  //                                 Text(
+  //                                   '${lastCalibration.heartRate.toStringAsFixed(2)}',
+  //                                 ),
+  //                               ),
+  //                               DataCell(
+  //                                 Text(
+  //                                   '${latestRaw?.heartRate?.toStringAsFixed(2) ?? "-"}',
+  //                                 ),
+  //                               ),
+  //                               DataCell(
+  //                                 Text(
+  //                                   '${offset?.heartRateOffset.toStringAsFixed(2) ?? "-"}',
+  //                                 ),
+  //                               ),
+  //                             ],
+  //                           ),
+  //                           DataRow(
+  //                             cells: [
+  //                               DataCell(
+  //                                 Text(
+  //                                   DateFormat(
+  //                                     'dd-MM-yyyy HH:mm:ss',
+  //                                   ).format(lastCalibration.updatedAt),
+  //                                 ),
+  //                               ),
+  //                               DataCell(const Text('SpO₂ (%)')),
+  //                               DataCell(
+  //                                 Text(
+  //                                   '${lastCalibration.spo.toStringAsFixed(2)}',
+  //                                 ),
+  //                               ),
+  //                               DataCell(
+  //                                 Text(
+  //                                   '${latestRaw?.spo?.toStringAsFixed(2) ?? "-"}',
+  //                                 ),
+  //                               ),
+  //                               DataCell(
+  //                                 Text(
+  //                                   '${offset?.spoOffset.toStringAsFixed(2) ?? "-"}',
+  //                                 ),
+  //                               ),
+  //                             ],
+  //                           ),
+  //                           DataRow(
+  //                             cells: [
+  //                               DataCell(
+  //                                 Text(
+  //                                   DateFormat(
+  //                                     'dd-MM-yyyy HH:mm:ss',
+  //                                   ).format(lastCalibration.updatedAt),
+  //                                 ),
+  //                               ),
+  //                               DataCell(const Text('Respirasi (breath/m) (breath/m)')),
+  //                               DataCell(
+  //                                 Text(
+  //                                   '${lastCalibration.respiration.toStringAsFixed(2)}',
+  //                                 ),
+  //                               ),
+  //                               DataCell(
+  //                                 Text(
+  //                                   '${latestRaw?.respiratoryRate?.toStringAsFixed(2) ?? "-"}',
+  //                                 ),
+  //                               ),
+  //                               DataCell(
+  //                                 Text(
+  //                                   '${offset?.respirationOffset.toStringAsFixed(2) ?? "-"}',
+  //                                 ),
+  //                               ),
+  //                             ],
+  //                           ),
+  //                         ];
+  //                       }(),
+  //                   ],
+  //                 ),
+  //               );
+  //             }),
+  //           if (device != null)
+  //             Align(
+  //               alignment: Alignment.bottomRight,
+  //               child: Padding(
+  //                 padding: const EdgeInsets.only(top: 12),
+  //                 child: CustomButton(
+  //                   text: 'Reset Kalibrasi',
+  //                   icon: Icons.refresh,
+  //                   backgroundColor: Colors.orange,
+  //                   height: 40,
+  //                   fontSize: 16,
+  //                   onPressed: () {
+  //                     DataHalterDeviceCalibrationOffset.save(
+  //                       HalterDeviceCalibrationOffsetModel(
+  //                         deviceId: device.deviceId,
+  //                         temperatureOffset: 0,
+  //                         heartRateOffset: 0,
+  //                         spoOffset: 0,
+  //                         respirationOffset: 0,
+  //                         updatedAt: DateTime.now(),
+  //                       ),
+  //                     );
+  //                     Get.snackbar(
+  //                       "Kalibrasi Direset",
+  //                       "Offset kalibrasi untuk device ${device.deviceId} sudah direset.",
+  //                       snackPosition: SnackPosition.TOP,
+  //                       backgroundColor: Colors.orange,
+  //                       colorText: Colors.white,
+  //                     );
+  //                     setState(() {});
+  //                   },
+  //                 ),
+  //               ),
+  //             ),
+  //         ],
+  //       ),
+  //     );
+  //   });
+  // }
 
   // Widget _buildLogTableSection(BuildContext context) {
   //   return CustomCard(

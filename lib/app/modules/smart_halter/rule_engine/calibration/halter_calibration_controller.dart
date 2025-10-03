@@ -8,16 +8,6 @@ import 'package:smart_feeder_desktop/app/models/halter/halter_device_calibration
 import 'package:smart_feeder_desktop/app/models/halter/halter_device_detail_model.dart';
 
 class HalterCalibrationController extends GetxController {
-  var calibration = HalterCalibrationModel(
-    temperature: 0,
-    heartRate: 0,
-    spo: 0,
-    respiration: 0,
-    roomTemperature: 0,
-    humidity: 0,
-    lightIntensity: 0,
-  ).obs;
-
   final DataController dataController = Get.find<DataController>();
 
   RxList<HalterDeviceDetailModel> get rawDetailHistoryList =>
@@ -28,42 +18,51 @@ class HalterCalibrationController extends GetxController {
   final RxList<HalterDeviceCalibrationModel> deviceCalibrations =
     <HalterDeviceCalibrationModel>[].obs;
 
+  // Per-device calibration slopes
+  final RxList<HalterCalibrationModel> deviceCalibrationSlopes =
+    <HalterCalibrationModel>[].obs;
+
   @override
   void onInit() {
-    calibration.value = DataHalterCalibrationHalter.getCalibration();
-  // Inisialisasi RxList dari storage
-  deviceCalibrations.assignAll(DataHalterDeviceCalibration.getAll());
-  super.onInit();
+    deviceCalibrations.assignAll(DataHalterDeviceCalibration.getAll());
+    deviceCalibrationSlopes.assignAll(DataCalibrationHalter.getAll());
+    super.onInit();
   }
 
-  @override
-  void onReady() {
-    calibration.value = DataHalterCalibrationHalter.getCalibration();
-    super.onReady();
+  HalterCalibrationModel getCalibrationForDevice(String deviceId) {
+    return DataCalibrationHalter.getByDeviceId(deviceId);
   }
 
-  void updateCalibration({
-    double? temperature,
-    double? heartRate,
-    double? spo,
-    double? respiration,
-    double? roomTemperature,
-    double? humidity,
-    double? lightIntensity,
+  void updateDeviceCalibration({
+    required String deviceId,
+    double? temperatureSlope,
+    double? temperatureIntercept,
+    double? heartRateSlope,
+    double? heartRateIntercept,
+    double? respirationSlope,
+    double? respirationIntercept,
   }) {
-    calibration.value = HalterCalibrationModel(
-      temperature: temperature ?? calibration.value.temperature,
-      heartRate: heartRate ?? calibration.value.heartRate,
-      spo: spo ?? calibration.value.spo,
-      respiration: respiration ?? calibration.value.respiration,
-      roomTemperature: roomTemperature ?? calibration.value.roomTemperature,
-      humidity: humidity ?? calibration.value.humidity,
-      lightIntensity: lightIntensity ?? calibration.value.lightIntensity,
+    final existing = getCalibrationForDevice(deviceId);
+    
+    final updated = HalterCalibrationModel(
+      deviceId: deviceId,
+      temperatureSlope: temperatureSlope ?? existing.temperatureSlope,
+      temperatureIntercept: temperatureIntercept ?? existing.temperatureIntercept,
+      heartRateSlope: heartRateSlope ?? existing.heartRateSlope,
+      heartRateIntercept: heartRateIntercept ?? existing.heartRateIntercept,
+      respirationSlope: respirationSlope ?? existing.respirationSlope,
+      respirationIntercept: respirationIntercept ?? existing.respirationIntercept,
+      updatedAt: DateTime.now(),
     );
-    DataHalterCalibrationHalter.saveCalibration(calibration.value);
+    
+    DataCalibrationHalter.save(updated);
+    
+    // Update RxList
+    final idx = deviceCalibrationSlopes.indexWhere((c) => c.deviceId == deviceId);
+    if (idx != -1) {
+      deviceCalibrationSlopes[idx] = updated;
+    } else {
+      deviceCalibrationSlopes.add(updated);
+    }
   }
-
-  // void saveCalibrationToStorage() {
-  //   DataHalterCalibrationHalter.saveCalibration(calibration.value);
-  // }
 }

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/data/storage/halter/data_calibration_halter.dart';
 import 'package:smart_feeder_desktop/app/data/storage/halter/data_halter_device_calibration_offset.dart';
 import 'package:smart_feeder_desktop/app/data/storage/halter/data_setting_halter.dart';
 import 'package:smart_feeder_desktop/app/data/storage/halter/data_team_halter.dart';
@@ -64,6 +65,11 @@ class HalterSerialService extends GetxService {
   final Map<String, Timer> _deviceTimeoutTimers = {};
   final Set<String> _pairingDevices = {};
   final Map<String, Timer> _devicePairingTimers = {};
+
+  final Map<String, Timer> _nodeRoomTimeoutTimers = {};
+  final Set<String> _pairingNodeRooms = {};
+  final Map<String, Timer> _nodeRoomPairingTimers = {};
+
   final Map<String, double> _lastVoltagePerDevice = {};
 
   String _serialBuffer = "";
@@ -158,6 +164,8 @@ class HalterSerialService extends GetxService {
         startDevicePairing(device.deviceId);
       }
     }
+    // Pairing NodeRoom devices
+    startNodeRoomPairing();
   }
 
   void startDevicePairing(String deviceId) {
@@ -214,6 +222,86 @@ class HalterSerialService extends GetxService {
               version: old2.version,
             );
             _pairingDevices.remove(deviceId);
+          }
+        },
+      );
+    }
+  }
+
+  void _resetNodeRoomTimeout(String deviceId) {
+    print('Set timer timeout untuk NodeRoom $deviceId');
+
+    // Cancel timer lama jika ada
+    _nodeRoomTimeoutTimers[deviceId]?.cancel();
+
+    // Set timer baru 50 detik (sama seperti halter)
+    _nodeRoomTimeoutTimers[deviceId] = Timer(
+      const Duration(seconds: 50),
+      () async {
+        // Update status NodeRoom jadi off di DB
+        final idx = nodeRoomList.indexWhere((d) => d.deviceId == deviceId);
+        if (idx != -1) {
+          final old = nodeRoomList[idx];
+          final updatedNode = NodeRoomModel(
+            deviceId: old.deviceId,
+            status: 'off',
+            version: old.version,
+          );
+
+          await updateNodeRoomDevice(updatedNode, old.deviceId);
+          nodeRoomList[idx] = updatedNode;
+
+          print('$deviceId NodeRoom MATI NIH ALAT NYA');
+        }
+      },
+    );
+  }
+
+  void startNodeRoomPairing() {
+    for (final node in nodeRoomList) {
+      if (node.status == 'on' ||
+          node.status == 'pairing' ||
+          node.status == 'off') {
+        startNodeRoomDevicePairing(node.deviceId);
+      }
+    }
+  }
+
+  void startNodeRoomDevicePairing(String deviceId) {
+    print('Start NodeRoom Pairing');
+    final idx = nodeRoomList.indexWhere((d) => d.deviceId == deviceId);
+    if (idx != -1) {
+      final old = nodeRoomList[idx];
+      final pairingNode = NodeRoomModel(
+        deviceId: old.deviceId,
+        status: 'pairing',
+        version: old.version,
+      );
+
+      updateNodeRoomDevice(pairingNode, old.deviceId);
+      nodeRoomList[idx] = pairingNode;
+      _pairingNodeRooms.add(deviceId);
+
+      // Cancel timer lama jika ada
+      _nodeRoomPairingTimers[deviceId]?.cancel();
+
+      // Set timer baru 2 menit
+      _nodeRoomPairingTimers[deviceId] = Timer(
+        const Duration(minutes: 2),
+        () async {
+          // Jika selama 2 menit pairing tidak dapat data, set status jadi 'off'
+          final idx2 = nodeRoomList.indexWhere((d) => d.deviceId == deviceId);
+          if (idx2 != -1 && _pairingNodeRooms.contains(deviceId)) {
+            final old2 = nodeRoomList[idx2];
+            final offlineNode = NodeRoomModel(
+              deviceId: old2.deviceId,
+              status: 'off',
+              version: old2.version,
+            );
+
+            await updateNodeRoomDevice(offlineNode, old2.deviceId);
+            nodeRoomList[idx2] = offlineNode;
+            _pairingNodeRooms.remove(deviceId);
           }
         },
       );
@@ -328,6 +416,7 @@ class HalterSerialService extends GetxService {
     print('Testing mode: $isTestingMode');
   }
 
+  // Update method _processBlockRoom
   void _processBlockRoom(String block) async {
     print('=============================');
     print('Processing block sripb:\n$block');
@@ -351,18 +440,45 @@ class HalterSerialService extends GetxService {
           dataLine,
           header: headerNodeRoom,
         );
+
         // Cari node lama di RxList/database
         final index = nodeRoomList.indexWhere(
           (n) => n.deviceId == tempNode.deviceId,
         );
+
         String version = tempNode.version;
         if (index != -1) {
           // Jika sudah ada, ambil versi lama
           version = nodeRoomList[index].version;
         }
-        // Buat nodeRoom baru dengan versi yang benar (hanya deviceId & version)
+
+        // Handle pairing status
+        if (_pairingNodeRooms.contains(tempNode.deviceId)) {
+          final idx = nodeRoomList.indexWhere(
+            (d) => d.deviceId == tempNode.deviceId,
+          );
+          if (idx != -1) {
+            final old = nodeRoomList[idx];
+            final onlineNode = NodeRoomModel(
+              deviceId: old.deviceId,
+              status: 'on',
+              version: old.version,
+            );
+
+            await updateNodeRoomDevice(onlineNode, old.deviceId);
+            nodeRoomList[idx] = onlineNode;
+            _pairingNodeRooms.remove(tempNode.deviceId);
+            _nodeRoomPairingTimers[tempNode.deviceId]?.cancel();
+          }
+        }
+
+        // Reset timeout timer
+        _resetNodeRoomTimeout(tempNode.deviceId);
+
+        // Buat nodeRoom baru dengan status 'on'
         final nodeRoom = NodeRoomModel(
           deviceId: tempNode.deviceId,
+          status: 'on',
           version: version,
         );
 
@@ -384,6 +500,7 @@ class HalterSerialService extends GetxService {
         );
         await addNodeRoomDetail(detailModel);
         nodeRoomDetailHistory.add(detailModel);
+
         // Logging, threshold, dsb bisa gunakan detailModel
         controller.checkAndLogNode(
           detailModel.deviceId,
@@ -428,8 +545,9 @@ class HalterSerialService extends GetxService {
           header: header,
         );
 
-        final calibrationController =
-            Get.find<HalterCalibrationController>().calibration.value;
+        final deviceCalibration = DataCalibrationHalter.getByDeviceId(
+          detail.deviceId,
+        );
 
         // final HalterCalibrationController calibrationController = Get.find<HalterCalibrationController>().calibration.value;
 
@@ -531,30 +649,61 @@ class HalterSerialService extends GetxService {
         }
 
         // Step 1: Handle NaN & 0
-        double heartRateRaw =
-            (detail.heartRate == null ||
-                detail.heartRate.toString() == 'NAN' ||
-                detail.heartRate == 0)
-            ? randNearby(28, 44)
-            : detail.heartRate ?? 0;
-        double spoRaw =
-            (detail.spo == null ||
-                detail.spo.toString() == 'NAN' ||
-                detail.spo == 0)
-            ? randNearby(95, 100)
-            : detail.spo ?? 0;
-        double temperatureRaw =
-            (detail.temperature == null ||
-                detail.temperature.toString() == 'NAN' ||
-                detail.temperature == 0)
-            ? randNearby(37, 39)
-            : detail.temperature ?? 0;
-        double respiratoryRateRaw =
-            (detail.respiratoryRate == null ||
-                detail.respiratoryRate.toString() == 'NAN' ||
-                detail.respiratoryRate == 0)
-            ? randNearby(8, 16)
-            : detail.respiratoryRate ?? 0;
+        // Konstanta kalibrasi (slope dan intercept) untuk setiap sensor
+        final double heartRateSlope = deviceCalibration.heartRateSlope;
+        final double heartRateIntercept = deviceCalibration.heartRateIntercept;
+        final double temperatureSlope = deviceCalibration.temperatureSlope;
+        final double temperatureIntercept =
+            deviceCalibration.temperatureIntercept;
+        final double respiratoryRateSlope = deviceCalibration.respirationSlope;
+        final double respiratoryRateIntercept =
+            deviceCalibration.respirationIntercept;
+
+        // Step 1: Handle NaN & 0 dengan rumus kalibrasi
+        double heartRateRaw;
+        if (detail.heartRate == null ||
+            detail.heartRate.toString() == 'NAN' ||
+            detail.heartRate == 0) {
+          heartRateRaw = randNearby(28, 44);
+        } else {
+          // Rumus kalibrasi: slope * data sensor + intercept
+          heartRateRaw =
+              (heartRateSlope * detail.heartRate!) + heartRateIntercept;
+        }
+
+        double spoRaw;
+        if (detail.spo == null ||
+            detail.spo.toString() == 'NAN' ||
+            detail.spo == 0) {
+          spoRaw = randNearby(95, 100);
+        } else {
+          // Rumus kalibrasi: slope * data sensor + intercept
+          // spoRaw = (spoSlope * detail.spo!) + spoIntercept;
+          spoRaw = detail.spo ?? 0;
+        }
+
+        double temperatureRaw;
+        if (detail.temperature == null ||
+            detail.temperature.toString() == 'NAN' ||
+            detail.temperature == 0) {
+          temperatureRaw = randNearby(37, 39);
+        } else {
+          // Rumus kalibrasi: slope * data sensor + intercept
+          temperatureRaw =
+              (temperatureSlope * detail.temperature!) + temperatureIntercept;
+        }
+
+        double respiratoryRateRaw;
+        if (detail.respiratoryRate == null ||
+            detail.respiratoryRate.toString() == 'NAN' ||
+            detail.respiratoryRate == 0) {
+          respiratoryRateRaw = randNearby(8, 16);
+        } else {
+          // Rumus kalibrasi: slope * data sensor + intercept
+          respiratoryRateRaw =
+              (respiratoryRateSlope * detail.respiratoryRate!) +
+              respiratoryRateIntercept;
+        }
 
         final team = DataTeamHalter.getTeam();
         final lat = team?.latitude ?? -6.798891746891438;
@@ -898,6 +1047,7 @@ class HalterSerialService extends GetxService {
         ); // <-- Tambahkan di sini
 
         print(
+          '$heartRateSlope'
           '===============================================\n'
           'ID Devices: ${fixedDetail.deviceId}\n'
           'Latitude: ${fixedDetail.latitude}\n'
@@ -1054,15 +1204,15 @@ class HalterSerialService extends GetxService {
         int pitch = randInt(-45, 90);
         int yaw = randInt(-180, 180);
         // double voltase = double.parse(randDouble(5.4, 7.4));
-        double voltase = 0;
-        // int bpm = 30;
-        // double spo = 96;
-        // double suhu = 38;
-        // double respirasi = 10;
-        int bpm = randInt(28, 120);
-        double spo = double.parse(randDouble(90, 100));
-        double suhu = double.parse(randDouble(35, 40));
-        double respirasi = double.parse(randDouble(8, 30));
+        double voltase = 7.4;
+        int bpm = 75;
+        double spo = 17;
+        double suhu = 28.50;
+        double respirasi = 1907;
+        // int bpm = randInt(28, 120);
+        // double spo = double.parse(randDouble(90, 100));
+        // double suhu = double.parse(randDouble(35, 40));
+        // double respirasi = double.parse(randDouble(8, 30));
         int intervalData = 15000;
 
         final dataString =
@@ -1115,7 +1265,7 @@ class HalterSerialService extends GetxService {
         final co = randDouble(0, 50); // CO
         final co2 = randDouble(400, 2000); // CO2
         final ammonia = randDouble(0, 25); // Amonia
-        return "$header,${id},$suhu,$kelembapan,$cahaya,$co,$co2,$ammonia,*";
+        return "$header,99,$suhu,$kelembapan,$cahaya,$co,$co2,$ammonia,*";
       }
 
       final deviceIds = List.generate(2, (i) {
@@ -1125,8 +1275,8 @@ class HalterSerialService extends GetxService {
       for (final did in deviceIds) {
         final dummyLine = makeDummyData(did);
         final dummyLineRoom = makeDummyNodeRoomData(did);
-        // _processBlockRoom(dummyLineRoom);
-        _processBlock(dummyLine); // Untuk SHIPB
+        _processBlockRoom(dummyLineRoom);
+        // _processBlock(dummyLine); // Untuk SHIPB
       }
     });
   }

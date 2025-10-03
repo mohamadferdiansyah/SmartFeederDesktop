@@ -155,6 +155,7 @@ class _HalterNodePageState extends State<HalterNodePage> {
 
         final newNode = NodeRoomModel(
           deviceId: deviceId,
+          status: 'off',
           version: versionCtrl.text,
         );
         onSubmit(newNode);
@@ -251,6 +252,7 @@ class _HalterNodePageState extends State<HalterNodePage> {
         final deviceId = '$header${idCtrl.text.trim()}';
         final editedNode = NodeRoomModel(
           deviceId: deviceId,
+          status: node.status,
           version: versionCtrl.text,
         );
         onSubmit(editedNode);
@@ -513,9 +515,10 @@ class _HalterNodePageState extends State<HalterNodePage> {
 
                         final tableWidth =
                             MediaQuery.of(context).size.width - 72.0;
-                        final idW = tableWidth * 0.2;
-                        final actionW = tableWidth * 0.38;
-                        final versionW = tableWidth * 0.2;
+                        final idW = tableWidth * 0.15;
+                        final actionW = tableWidth * 0.33;
+                        final versionW = tableWidth * 0.15;
+                        final statusW = tableWidth * 0.15;
 
                         final dataSource = NodeRoomDataTableSource(
                           context: context,
@@ -688,6 +691,19 @@ class _HalterNodePageState extends State<HalterNodePage> {
                                     ),
                                     DataColumn(
                                       label: SizedBox(
+                                        width: statusW,
+                                        child: const Center(
+                                          child: Text(
+                                            'Status',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: SizedBox(
                                         width: actionW,
                                         child: const Center(
                                           child: Text(
@@ -755,6 +771,13 @@ class NodeRoomDataTableSource extends DataTableSource {
       cells: [
         DataCell(Center(child: Text(node.deviceId))),
         DataCell(SizedBox(child: Center(child: Text(node.version)))),
+        DataCell(
+          SizedBox(
+            child: Center(
+              child: Text(node.status == 'on' ? 'Aktif' : 'Tidak Aktif'),
+            ),
+          ),
+        ),
         // DataCell(Center(child: Text(node.temperature.toStringAsFixed(2)))),
         // DataCell(Center(child: Text(node.humidity.toStringAsFixed(2)))),
         // DataCell(Center(child: Text(node.lightIntensity.toStringAsFixed(2)))),

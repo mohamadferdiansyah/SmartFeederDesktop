@@ -31,13 +31,13 @@ class HalterSettingPageState extends State<HalterSettingPage> {
 
   final TextEditingController _namaTimController = TextEditingController();
   final TextEditingController _lokasiController = TextEditingController();
+  final TextEditingController _alt = TextEditingController();
   final List<TextEditingController> _anggotaControllers = [
     TextEditingController(),
   ];
 
   double? _lat;
   double? _lng;
-  double? _alt;
 
   final DateTime _tanggal = DateTime.now();
   final String tanggalStr = DateFormat(
@@ -939,12 +939,12 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                   CustomMapPicker(
                     initialLat: _lat,
                     initialLng: _lng,
-                    initialAlt: _alt,
+                    initialAlt: double.tryParse(_alt.text),
                     onChanged: (lat, lng, alt) {
                       setState(() {
                         _lat = lat;
                         _lng = lng;
-                        _alt = alt;
+                        _alt.text = alt != null ? alt.toString() : '';
                       });
                     },
                   ),
@@ -1007,6 +1007,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                     onPressed: () {
                       final namaTim = _namaTimController.text.trim();
                       final lokasi = _lokasiController.text.trim();
+                      final alt = _alt.text.trim();
                       final tanggal = _tanggal;
                       final anggota = _anggotaControllers
                           .map((c) => c.text.trim())
@@ -1052,6 +1053,16 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                         );
                         return;
                       }
+                      if (alt.isEmpty) {
+                        showAppToast(
+                          context: context,
+                          type: ToastificationType.error,
+                          title: 'Data Tidak Lengkap!',
+                          description:
+                              'Altitude/Ketinggian Lokasi Wajib Diisi.',
+                        );
+                        return;
+                      }
 
                       final team = TestTeamModel(
                         teamName: namaTim,
@@ -1060,7 +1071,7 @@ class HalterSettingPageState extends State<HalterSettingPage> {
                         members: anggota,
                         latitude: _lat,
                         longitude: _lng,
-                        altitude: _alt,
+                        altitude: double.tryParse(alt),
                       );
                       DataTeamHalter.saveTeam(team);
 

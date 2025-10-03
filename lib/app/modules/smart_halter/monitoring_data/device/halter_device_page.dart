@@ -1397,7 +1397,7 @@ class _HalterRawDataDialogState extends State<HalterRawDataDialog> {
                     ),
                     const SizedBox(width: 16),
                     Text(
-                      'Total Durasi Nyala: $totalDurasiStr',
+                      'Total Durasi Aktif: $totalDurasiStr',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
