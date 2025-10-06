@@ -59,12 +59,14 @@ class HalterDeviceController extends GetxController {
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
       TextCellValue('ID'),
+      TextCellValue('Versi'),
       TextCellValue('Kuda'),
       TextCellValue('Status'),
     ]);
     for (var d in data) {
       sheet.appendRow([
         TextCellValue(d.deviceId),
+        TextCellValue(d.version),
         TextCellValue(getHorseName(d.horseId)),
         TextCellValue(d.status == 'on' ? 'Aktif' : 'Tidak Aktif'),
       ]);
@@ -77,6 +79,10 @@ class HalterDeviceController extends GetxController {
       allowedExtensions: ['xlsx'],
     );
     if (path != null) {
+      // Pastikan file berekstensi .xlsx
+      if (!path.toLowerCase().endsWith('.xlsx')) {
+        path = '$path.xlsx';
+      }
       await File(path).writeAsBytes(fileBytes!);
       return true;
     }
@@ -92,11 +98,12 @@ class HalterDeviceController extends GetxController {
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Table.fromTextArray(
-          headers: ['ID', 'Kuda', 'Status'],
+          headers: ['ID', 'Versi', 'Kuda', 'Status'],
           data: data
               .map(
                 (d) => [
                   d.deviceId,
+                  d.version,
                   getHorseName(d.horseId),
                   d.status == 'on' ? 'Aktif' : 'Tidak Aktif',
                 ],
@@ -112,7 +119,12 @@ class HalterDeviceController extends GetxController {
       allowedExtensions: ['pdf'],
     );
     if (path != null) {
-      await File(path).writeAsBytes(await pdf.save());
+      // Pastikan file berekstensi .pdf
+      if (!path.toLowerCase().endsWith('.pdf')) {
+        path = '$path.pdf';
+      }
+      final file = File(path);
+      await file.writeAsBytes(await pdf.save());
       return true;
     }
     return false;
@@ -232,6 +244,10 @@ class HalterDeviceController extends GetxController {
       allowedExtensions: ['xlsx'],
     );
     if (path != null) {
+      // Pastikan file berekstensi .xlsx
+      if (!path.toLowerCase().endsWith('.xlsx')) {
+        path = '$path.xlsx';
+      }
       await File(path).writeAsBytes(fileBytes!);
       return true;
     }
@@ -263,6 +279,7 @@ class HalterDeviceController extends GetxController {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
+        orientation: pw.PageOrientation.landscape,
         build: (context) => pw.Table.fromTextArray(
           headers: [
             'No',
@@ -292,6 +309,13 @@ class HalterDeviceController extends GetxController {
             'Suhu (°C)',
             'Respirasi (breath/m)',
           ],
+          cellStyle: pw.TextStyle(
+            fontSize: 8,
+          ), // Font kecil karena banyak kolom
+          headerStyle: pw.TextStyle(
+            fontSize: 7,
+            fontWeight: pw.FontWeight.bold,
+          ),
           data: List.generate(data.length, (i) {
             final d = data[i];
             return [
@@ -334,7 +358,12 @@ class HalterDeviceController extends GetxController {
       allowedExtensions: ['pdf'],
     );
     if (path != null) {
-      await File(path).writeAsBytes(await pdf.save());
+      // Pastikan file berekstensi .pdf
+      if (!path.toLowerCase().endsWith('.pdf')) {
+        path = '$path.pdf';
+      }
+      final file = File(path);
+      await file.writeAsBytes(await pdf.save());
       return true;
     }
     return false;

@@ -59,6 +59,10 @@ class HalterDevicePowerLogController extends GetxController {
       allowedExtensions: ['xlsx'],
     );
     if (path != null) {
+      // Pastikan file berekstensi .xlsx
+      if (!path.toLowerCase().endsWith('.xlsx')) {
+        path = '$path.xlsx';
+      }
       await File(path).writeAsBytes(fileBytes!);
       return true;
     }
@@ -69,6 +73,7 @@ class HalterDevicePowerLogController extends GetxController {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
+        orientation: pw.PageOrientation.landscape,
         build: (context) => pw.Table.fromTextArray(
           headers: [
             'No',
@@ -103,7 +108,12 @@ class HalterDevicePowerLogController extends GetxController {
       allowedExtensions: ['pdf'],
     );
     if (path != null) {
-      await File(path).writeAsBytes(await pdf.save());
+      // Pastikan file berekstensi .pdf
+      if (!path.toLowerCase().endsWith('.pdf')) {
+        path = '$path.pdf';
+      }
+      final file = File(path);
+      await file.writeAsBytes(await pdf.save());
       return true;
     }
     return false;

@@ -257,8 +257,23 @@ class _FeederRoomWaterDevicePageState extends State<FeederRoomWaterDevicePage> {
       confirmText: "Simpan",
       cancelText: "Batal",
       content: Obx(() {
-        final roomList = _controller.roomList;
-        final validIds = roomList.map((r) => r.roomId).toList();
+        final allRooms = _controller.roomList;
+        final allDevices = _controller.feederRoomDeviceList;
+
+        // Dapatkan semua roomId yang sudah digunakan oleh device lain
+        final usedRoomIds = allDevices
+            .where((d) => d.deviceId != device.deviceId && d.roomId != null)
+            .map((d) => d.roomId!)
+            .toSet();
+
+        // Filter ruangan: hanya yang belum digunakan atau yang sedang digunakan device ini
+        final availableRooms = allRooms.where((room) {
+          return !usedRoomIds.contains(room.roomId) ||
+              room.roomId == device.roomId;
+        }).toList();
+
+        // Validasi selectedRoomId
+        final validIds = availableRooms.map((r) => r.roomId).toList();
         final value =
             (selectedRoomId != null && validIds.contains(selectedRoomId))
             ? selectedRoomId
@@ -270,7 +285,7 @@ class _FeederRoomWaterDevicePageState extends State<FeederRoomWaterDevicePage> {
           decoration: const InputDecoration(labelText: "Ruangan"),
           items: [
             const DropdownMenuItem(value: null, child: Text("Tidak Digunakan")),
-            ...roomList.map(
+            ...availableRooms.map(
               (r) => DropdownMenuItem(
                 value: r.roomId,
                 child: Text("${r.roomId} - ${r.name}"),
@@ -291,7 +306,7 @@ class _FeederRoomWaterDevicePageState extends State<FeederRoomWaterDevicePage> {
           return;
         }
         final updatedDevice = FeederRoomWaterDeviceModel(
-          deviceId: device.deviceId,
+          deviceId: "device.deviceId",
           status: device.status,
           batteryPercent: device.batteryPercent,
           waterRemaining: device.waterRemaining,
@@ -519,8 +534,21 @@ class _FeederRoomWaterDevicePageState extends State<FeederRoomWaterDevicePage> {
                             fontSize: 18,
                             icon: Icons.table_view_rounded,
                             text: 'Export Excel',
-                            onPressed: () {
-                              _controller.exportDeviceExcel(devices);
+                            onPressed: () async {
+                              final success = await _controller
+                                  .exportDeviceExcel(devices);
+                              showAppToast(
+                                context: context,
+                                type: success
+                                    ? ToastificationType.success
+                                    : ToastificationType.error,
+                                title: success
+                                    ? 'Berhasil Export!'
+                                    : 'Export Dibatalkan!',
+                                description: success
+                                    ? 'Data Device Diexport Ke Excel.'
+                                    : 'Export data device dibatalkan.',
+                              );
                             },
                           ),
                           const SizedBox(width: 12),
@@ -531,8 +559,22 @@ class _FeederRoomWaterDevicePageState extends State<FeederRoomWaterDevicePage> {
                             fontSize: 18,
                             icon: Icons.picture_as_pdf,
                             text: 'Export PDF',
-                            onPressed: () {
-                              _controller.exportDevicePDF(devices);
+                            onPressed: () async {
+                              final success = await _controller.exportDevicePDF(
+                                devices,
+                              );
+                              showAppToast(
+                                context: context,
+                                type: success
+                                    ? ToastificationType.success
+                                    : ToastificationType.error,
+                                title: success
+                                    ? 'Berhasil Export!'
+                                    : 'Export Dibatalkan!',
+                                description: success
+                                    ? 'Data Device Diexport Ke Excel.'
+                                    : 'Export data device dibatalkan.',
+                              );
                             },
                           ),
                         ],

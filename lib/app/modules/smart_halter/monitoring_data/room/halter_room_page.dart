@@ -136,9 +136,33 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
               SizedBox(
                 width: 200,
                 child: Obx(() {
-                  final cctvList = _controller.cctvList;
+                  final allCctvs = _controller.cctvList;
+                  final allRooms = _controller.roomList;
+
+                  // Dapatkan semua CCTV yang sudah digunakan oleh room lain
+                  final usedCctvIds = <String>{};
+                  for (final r in allRooms) {
+                    if (r.roomId != newId && r.cctvId != null) {
+                      usedCctvIds.addAll(r.cctvId!);
+                    }
+                  }
+
+                  // Filter CCTV: hanya yang belum digunakan atau yang sedang digunakan room ini
+                  final availableCctvs = allCctvs.where((cctv) {
+                    return !usedCctvIds.contains(cctv.cctvId) ||
+                        cctv.cctvId == selectedCctv1;
+                  }).toList();
+
+                  // Validasi selectedCctv1
+                  final validIds = availableCctvs.map((c) => c.cctvId).toList();
+                  final value =
+                      (selectedCctv1 != null &&
+                          validIds.contains(selectedCctv1))
+                      ? selectedCctv1
+                      : null;
+
                   return DropdownButtonFormField<String>(
-                    value: selectedHorseId,
+                    value: value,
                     isExpanded: true,
                     decoration: const InputDecoration(labelText: "CCTV 1"),
                     items: [
@@ -146,14 +170,12 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                         value: 'kosong',
                         child: Text("Tidak Pakai CCTV"),
                       ),
-                      ...cctvList
-                          .map(
-                            (h) => DropdownMenuItem(
-                              value: h.cctvId,
-                              child: Text("${h.cctvId} - ${h.ipAddress}"),
-                            ),
-                          )
-                          .toList(),
+                      ...availableCctvs.map(
+                        (h) => DropdownMenuItem(
+                          value: h.cctvId,
+                          child: Text("${h.cctvId} - ${h.ipAddress}"),
+                        ),
+                      ),
                     ],
                     onChanged: (v) {
                       setState(() {
@@ -167,9 +189,38 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
               SizedBox(
                 width: 200,
                 child: Obx(() {
-                  final cctvList = _controller.cctvList;
+                  final allCctvs = _controller.cctvList;
+                  final allRooms = _controller.roomList;
+
+                  // Dapatkan semua CCTV yang sudah digunakan oleh room lain
+                  final usedCctvIds = <String>{};
+                  for (final r in allRooms) {
+                    if (r.roomId != newId && r.cctvId != null) {
+                      usedCctvIds.addAll(r.cctvId!);
+                    }
+                  }
+
+                  // Tambahkan CCTV1 yang dipilih ke daftar yang tidak boleh dipilih untuk CCTV2
+                  if (selectedCctv1 != null && selectedCctv1 != 'kosong') {
+                    usedCctvIds.add(selectedCctv1!);
+                  }
+
+                  // Filter CCTV: hanya yang belum digunakan atau yang sedang digunakan room ini
+                  final availableCctvs = allCctvs.where((cctv) {
+                    return !usedCctvIds.contains(cctv.cctvId) ||
+                        cctv.cctvId == selectedCctv2;
+                  }).toList();
+
+                  // Validasi selectedCctv2
+                  final validIds = availableCctvs.map((c) => c.cctvId).toList();
+                  final value =
+                      (selectedCctv2 != null &&
+                          validIds.contains(selectedCctv2))
+                      ? selectedCctv2
+                      : null;
+
                   return DropdownButtonFormField<String>(
-                    value: selectedHorseId,
+                    value: value,
                     isExpanded: true,
                     decoration: const InputDecoration(labelText: "CCTV 2"),
                     items: [
@@ -177,7 +228,7 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                         value: 'kosong',
                         child: Text("Tidak Pakai CCTV"),
                       ),
-                      ...cctvList.map(
+                      ...availableCctvs.map(
                         (h) => DropdownMenuItem(
                           value: h.cctvId,
                           child: Text("${h.cctvId} - ${h.ipAddress}"),
@@ -220,15 +271,15 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
           deviceSerial: selectedDeviceSerial,
           status: status,
           cctvId: [
-            if (selectedCctv1 != null) selectedCctv1,
-            if (selectedCctv2 != null) selectedCctv2,
-          ].whereType<String>().toList(),
+            if (selectedCctv1 != null && selectedCctv1 != 'kosong')
+              selectedCctv1!,
+            if (selectedCctv2 != null && selectedCctv2 != 'kosong')
+              selectedCctv2!,
+          ],
           stableId: selectedStableId ?? "",
           horseId: selectedHorseId,
           remainingWater: 'kosong',
           remainingFeed: 0,
-          // waterScheduleType: "",
-          // feedScheduleType: "",
         );
         onSubmit(newRoom);
         showAppToast(
@@ -277,9 +328,6 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
     String? selectedStableId = room.stableId;
     String? selectedDeviceSerial = room.deviceSerial;
     String? selectedHorseId = room.horseId;
-    // String? selectedCctv = room.cctvId?.isNotEmpty == true
-    //     ? room.cctvId!.first
-    //     : null;
     String? selectedCctv1 = room.cctvId != null && room.cctvId!.length > 0
         ? room.cctvId![0]
         : null;
@@ -348,9 +396,33 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
               SizedBox(
                 width: 200,
                 child: Obx(() {
-                  final cctvList = _controller.cctvList;
+                  final allCctvs = _controller.cctvList;
+                  final allRooms = _controller.roomList;
+
+                  // Dapatkan semua CCTV yang sudah digunakan oleh room lain (kecuali room yang sedang diedit)
+                  final usedCctvIds = <String>{};
+                  for (final r in allRooms) {
+                    if (r.roomId != room.roomId && r.cctvId != null) {
+                      usedCctvIds.addAll(r.cctvId!);
+                    }
+                  }
+
+                  // Filter CCTV: hanya yang belum digunakan atau yang sedang digunakan room ini
+                  final availableCctvs = allCctvs.where((cctv) {
+                    return !usedCctvIds.contains(cctv.cctvId) ||
+                        cctv.cctvId == selectedCctv1;
+                  }).toList();
+
+                  // Validasi selectedCctv1
+                  final validIds = availableCctvs.map((c) => c.cctvId).toList();
+                  final value =
+                      (selectedCctv1 != null &&
+                          validIds.contains(selectedCctv1))
+                      ? selectedCctv1
+                      : null;
+
                   return DropdownButtonFormField<String>(
-                    value: selectedCctv1,
+                    value: value,
                     isExpanded: true,
                     decoration: const InputDecoration(labelText: "CCTV 1"),
                     items: [
@@ -358,14 +430,12 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                         value: 'kosong',
                         child: Text("Tidak Pakai CCTV"),
                       ),
-                      ...cctvList
-                          .map(
-                            (h) => DropdownMenuItem(
-                              value: h.cctvId,
-                              child: Text("${h.cctvId} - ${h.ipAddress}"),
-                            ),
-                          )
-                          .toList(),
+                      ...availableCctvs.map(
+                        (h) => DropdownMenuItem(
+                          value: h.cctvId,
+                          child: Text("${h.cctvId} - ${h.ipAddress}"),
+                        ),
+                      ),
                     ],
                     onChanged: (v) {
                       setState(() {
@@ -379,9 +449,38 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
               SizedBox(
                 width: 200,
                 child: Obx(() {
-                  final cctvList = _controller.cctvList;
+                  final allCctvs = _controller.cctvList;
+                  final allRooms = _controller.roomList;
+
+                  // Dapatkan semua CCTV yang sudah digunakan oleh room lain (kecuali room yang sedang diedit)
+                  final usedCctvIds = <String>{};
+                  for (final r in allRooms) {
+                    if (r.roomId != room.roomId && r.cctvId != null) {
+                      usedCctvIds.addAll(r.cctvId!);
+                    }
+                  }
+
+                  // Tambahkan CCTV1 yang dipilih ke daftar yang tidak boleh dipilih untuk CCTV2
+                  if (selectedCctv1 != null && selectedCctv1 != 'kosong') {
+                    usedCctvIds.add(selectedCctv1!);
+                  }
+
+                  // Filter CCTV: hanya yang belum digunakan atau yang sedang digunakan room ini
+                  final availableCctvs = allCctvs.where((cctv) {
+                    return !usedCctvIds.contains(cctv.cctvId) ||
+                        cctv.cctvId == selectedCctv2;
+                  }).toList();
+
+                  // Validasi selectedCctv2
+                  final validIds = availableCctvs.map((c) => c.cctvId).toList();
+                  final value =
+                      (selectedCctv2 != null &&
+                          validIds.contains(selectedCctv2))
+                      ? selectedCctv2
+                      : null;
+
                   return DropdownButtonFormField<String>(
-                    value: selectedCctv2,
+                    value: value,
                     isExpanded: true,
                     decoration: const InputDecoration(labelText: "CCTV 2"),
                     items: [
@@ -389,14 +488,12 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                         value: 'kosong',
                         child: Text("Tidak Pakai CCTV"),
                       ),
-                      ...cctvList
-                          .map(
-                            (h) => DropdownMenuItem(
-                              value: h.cctvId,
-                              child: Text("${h.cctvId} - ${h.ipAddress}"),
-                            ),
-                          )
-                          .toList(),
+                      ...availableCctvs.map(
+                        (h) => DropdownMenuItem(
+                          value: h.cctvId,
+                          child: Text("${h.cctvId} - ${h.ipAddress}"),
+                        ),
+                      ),
                     ],
                     onChanged: (v) {
                       setState(() {
@@ -434,15 +531,15 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
           deviceSerial: selectedDeviceSerial,
           status: status,
           cctvId: [
-            if (selectedCctv1 != null) selectedCctv1,
-            if (selectedCctv2 != null) selectedCctv2,
-          ].whereType<String>().toList(),
+            if (selectedCctv1 != null && selectedCctv1 != 'kosong')
+              selectedCctv1!,
+            if (selectedCctv2 != null && selectedCctv2 != 'kosong')
+              selectedCctv2!,
+          ],
           stableId: selectedStableId ?? "",
           horseId: selectedHorseId,
           remainingWater: room.remainingWater,
           remainingFeed: room.remainingFeed,
-          // waterScheduleType: room.waterScheduleType,
-          // feedScheduleType: room.feedScheduleType,
         );
         onSubmit(editedRoom);
         showAppToast(

@@ -103,7 +103,7 @@ class HalterRoomController extends GetxController {
     sheet.appendRow([
       TextCellValue('ID'),
       TextCellValue('Nama'),
-      TextCellValue('Device Serial'),
+      TextCellValue('IoT Node Room'),
       TextCellValue('Status'),
       TextCellValue('CCTV'),
     ]);
@@ -124,6 +124,10 @@ class HalterRoomController extends GetxController {
       allowedExtensions: ['xlsx'],
     );
     if (path != null) {
+      // Pastikan file berekstensi .xlsx
+      if (!path.toLowerCase().endsWith('.xlsx')) {
+        path = '$path.xlsx';
+      }
       await File(path).writeAsBytes(fileBytes!);
       return true;
     }
@@ -139,7 +143,7 @@ class HalterRoomController extends GetxController {
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Table.fromTextArray(
-          headers: ['ID', 'Nama', 'Device Serial', 'Status', 'CCTV'],
+          headers: ['ID', 'Nama', 'IoT Node Room', 'Status', 'CCTV'],
           data: data
               .map(
                 (d) => [
@@ -161,7 +165,12 @@ class HalterRoomController extends GetxController {
       allowedExtensions: ['pdf'],
     );
     if (path != null) {
-      await File(path).writeAsBytes(await pdf.save());
+      // Pastikan file berekstensi .pdf
+      if (!path.toLowerCase().endsWith('.pdf')) {
+        path = '$path.pdf';
+      }
+      final file = File(path);
+      await file.writeAsBytes(await pdf.save());
       return true;
     }
     return false;

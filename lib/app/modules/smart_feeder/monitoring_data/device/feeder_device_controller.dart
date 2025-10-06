@@ -56,15 +56,15 @@ class FeederDeviceController extends GetxController {
   }
 
   /// Export data device ke Excel
-  Future<void> exportDeviceExcel(List<FeederDeviceModel> data) async {
+  Future<bool> exportDeviceExcel(List<FeederDeviceModel> data) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
       TextCellValue('ID'),
       TextCellValue('Kandang'),
-      TextCellValue('Status'),
+      // TextCellValue('Status'),
+      TextCellValue('Mode Penjadwalan'),
       TextCellValue('Versi'),
-      TextCellValue('Baterai'),
     ]);
     for (var d in data) {
       // Ambil detail dari deviceId
@@ -76,30 +76,36 @@ class FeederDeviceController extends GetxController {
         TextCellValue(
           d.stableId != null ? getRoomName(d.stableId!) : 'Tidak ada',
         ),
-        TextCellValue(detail?.status ?? '-'),
+        // TextCellValue(detail?.status ?? '-'),
+        TextCellValue(d.scheduleType == 'auto' ? 'Otomatis' : 'Manual'),
         TextCellValue(d.version),
-        TextCellValue(detail?.batteryPercent.toString() ?? '-'),
       ]);
     }
     final fileBytes = excel.encode();
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel Perangkat',
-      fileName: 'Daftar_Perangkat.xlsx',
+      fileName: 'Smart_Feeder_Daftar_IoT_Main_Feeder_Device.xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );
     if (path != null) {
+      // Pastikan file berekstensi .xlsx
+      if (!path.toLowerCase().endsWith('.xlsx')) {
+        path = '$path.xlsx';
+      }
       await File(path).writeAsBytes(fileBytes!);
+      return true;
     }
+    return false;
   }
 
   /// Export data device ke PDF
-  Future<void> exportDevicePDF(List<FeederDeviceModel> data) async {
+  Future<bool> exportDevicePDF(List<FeederDeviceModel> data) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Table.fromTextArray(
-          headers: ['ID', 'Kandang', 'Status', 'Versi', 'Baterai'],
+          headers: ['ID', 'Kandang', 'Mode Penjadwalan', 'Versi'],
           data: data.map((d) {
             final detail = feederDeviceDetailList.firstWhereOrNull(
               (det) => det.deviceId == d.deviceId,
@@ -107,9 +113,8 @@ class FeederDeviceController extends GetxController {
             return [
               d.deviceId,
               d.stableId != null ? getRoomName(d.stableId!) : 'Tidak ada',
-              detail?.status ?? '-',
+              d.scheduleType == 'auto' ? 'Otomatis' : 'Manual',
               d.version,
-              detail?.batteryPercent ?? '-',
             ];
           }).toList(),
         ),
@@ -117,12 +122,19 @@ class FeederDeviceController extends GetxController {
     );
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file PDF Perangkat',
-      fileName: 'Daftar_Perangkat.pdf',
+      fileName: 'Smart_Feeder_Daftar_IoT_Main_Feeder_Device.pdf',
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
     if (path != null) {
-      await File(path).writeAsBytes(await pdf.save());
+      // Pastikan file berekstensi .pdf
+      if (!path.toLowerCase().endsWith('.pdf')) {
+        path = '$path.pdf';
+      }
+      final file = File(path);
+      await file.writeAsBytes(await pdf.save());
+      return true;
     }
+    return false;
   }
 }

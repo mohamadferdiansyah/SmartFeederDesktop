@@ -16,7 +16,7 @@ class FeederRoomWaterDeviceController extends GetxController {
 
   RxList<FeederRoomWaterDeviceModel> get feederRoomDeviceList =>
       dataController.feederRoomDeviceList;
-      
+
   RxList<FeederDeviceHistoryModel> get feederDeviceHistoryList =>
       dataController.feederDeviceHistoryList;
 
@@ -46,47 +46,52 @@ class FeederRoomWaterDeviceController extends GetxController {
     await loadDevices();
   }
 
-  Future<void> exportDeviceExcel(List<FeederRoomWaterDeviceModel> data) async {
+  Future<bool> exportDeviceExcel(List<FeederRoomWaterDeviceModel> data) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
       TextCellValue('ID'),
-      TextCellValue('Di Ruangan'),
-      TextCellValue('Tipe'),
-      TextCellValue('Status'),
+      TextCellValue('ID Room'),
+      TextCellValue('Status Air'),
     ]);
     for (var d in data) {
       sheet.appendRow([
         TextCellValue(d.deviceId),
         TextCellValue(d.roomId != null ? getRoomName(d.roomId!) : 'Tidak ada'),
-        TextCellValue(d.status),
+        TextCellValue(d.waterRemaining),
       ]);
     }
     final fileBytes = excel.encode();
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel Perangkat',
-      fileName: 'Daftar_Perangkat.xlsx',
+      fileName: 'Smart_Feeder_Daftar_IoT_Water_Room_Device.xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );
     if (path != null) {
+      // Pastikan file berekstensi .xlsx
+      if (!path.toLowerCase().endsWith('.xlsx')) {
+        path = '$path.xlsx';
+      }
       await File(path).writeAsBytes(fileBytes!);
+      return true;
     }
+    return false;
   }
 
   /// Export data device ke PDF
-  Future<void> exportDevicePDF(List<FeederRoomWaterDeviceModel> data) async {
+  Future<bool> exportDevicePDF(List<FeederRoomWaterDeviceModel> data) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Table.fromTextArray(
-          headers: ['ID', 'Di Ruangan', 'Tipe', 'Status'],
+          headers: ['ID', 'ID Room', 'Status Air'],
           data: data
               .map(
                 (d) => [
                   d.deviceId,
                   d.roomId != null ? getRoomName(d.roomId!) : 'Tidak ada',
-                  d.status,
+                  d.waterRemaining,
                 ],
               )
               .toList(),
@@ -95,12 +100,19 @@ class FeederRoomWaterDeviceController extends GetxController {
     );
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file PDF Perangkat',
-      fileName: 'Daftar_Perangkat.pdf',
+      fileName: 'Smart_Feeder_Daftar_IoT_Water_Room_Device.pdf',
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
     if (path != null) {
-      await File(path).writeAsBytes(await pdf.save());
+      // Pastikan file berekstensi .pdf
+      if (!path.toLowerCase().endsWith('.pdf')) {
+        path = '$path.pdf';
+      }
+      final file = File(path);
+      await file.writeAsBytes(await pdf.save());
+      return true;
     }
+    return false;
   }
 }

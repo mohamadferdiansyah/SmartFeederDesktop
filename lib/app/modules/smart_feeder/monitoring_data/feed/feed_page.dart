@@ -392,8 +392,22 @@ class _FeedPageState extends State<FeedPage> {
                             fontSize: 18,
                             icon: Icons.table_view_rounded,
                             text: 'Export Excel',
-                            onPressed: () {
-                              _controller.exportFeedExcel(feeds);
+                            onPressed: () async {
+                              final success = await _controller.exportFeedExcel(
+                                feeds,
+                              );
+                              showAppToast(
+                                context: context,
+                                type: success
+                                    ? ToastificationType.success
+                                    : ToastificationType.error,
+                                title: success
+                                    ? 'Berhasil Export!'
+                                    : 'Export Dibatalkan!',
+                                description: success
+                                    ? 'Data Pakan Diexport Ke Excel.'
+                                    : 'Export data pakan dibatalkan.',
+                              );
                             },
                           ),
                           const SizedBox(width: 12),
@@ -404,8 +418,22 @@ class _FeedPageState extends State<FeedPage> {
                             fontSize: 18,
                             icon: Icons.picture_as_pdf,
                             text: 'Export PDF',
-                            onPressed: () {
-                              _controller.exportFeedPDF(feeds);
+                            onPressed: () async {
+                              final success = await _controller.exportFeedPDF(
+                                feeds,
+                              );
+                              showAppToast(
+                                context: context,
+                                type: success
+                                    ? ToastificationType.success
+                                    : ToastificationType.error,
+                                title: success
+                                    ? 'Berhasil Export!'
+                                    : 'Export Dibatalkan!',
+                                description: success
+                                    ? 'Data Pakan Diexport Ke Excel.'
+                                    : 'Export data pakan dibatalkan.',
+                              );
                             },
                           ),
                         ],

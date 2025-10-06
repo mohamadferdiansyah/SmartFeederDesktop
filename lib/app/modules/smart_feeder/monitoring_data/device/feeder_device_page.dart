@@ -298,8 +298,23 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
       confirmText: "Simpan",
       cancelText: "Batal",
       content: Obx(() {
-        final stableList = _controller.stableList;
-        final validIds = stableList.map((s) => s.stableId).toList();
+        final allStables = _controller.stableList;
+        final allDevices = _controller.feederDeviceList;
+
+        // Dapatkan semua stableId yang sudah digunakan oleh device lain
+        final usedStableIds = allDevices
+            .where((d) => d.deviceId != device.deviceId && d.stableId != null)
+            .map((d) => d.stableId!)
+            .toSet();
+
+        // Filter kandang: hanya yang belum digunakan atau yang sedang digunakan device ini
+        final availableStables = allStables.where((stable) {
+          return !usedStableIds.contains(stable.stableId) ||
+              stable.stableId == device.stableId;
+        }).toList();
+
+        // Validasi selectedStableId
+        final validIds = availableStables.map((s) => s.stableId).toList();
         final value =
             (selectedStableId != null && validIds.contains(selectedStableId))
             ? selectedStableId
@@ -311,7 +326,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
           decoration: const InputDecoration(labelText: "Kandang"),
           items: [
             const DropdownMenuItem(value: null, child: Text("Tidak Digunakan")),
-            ...stableList.map(
+            ...availableStables.map(
               (s) => DropdownMenuItem(
                 value: s.stableId,
                 child: Text("${s.stableId} - ${s.name}"),
@@ -573,8 +588,21 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                             fontSize: 18,
                             icon: Icons.table_view_rounded,
                             text: 'Export Excel',
-                            onPressed: () {
-                              _controller.exportDeviceExcel(devices);
+                            onPressed: () async {
+                              final success = await _controller
+                                  .exportDeviceExcel(devices);
+                              showAppToast(
+                                context: context,
+                                type: success
+                                    ? ToastificationType.success
+                                    : ToastificationType.error,
+                                title: success
+                                    ? 'Berhasil Export!'
+                                    : 'Export Dibatalkan!',
+                                description: success
+                                    ? 'Data Device Diexport Ke Excel.'
+                                    : 'Export data device dibatalkan.',
+                              );
                             },
                           ),
                           const SizedBox(width: 12),
@@ -585,8 +613,22 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                             fontSize: 18,
                             icon: Icons.picture_as_pdf,
                             text: 'Export PDF',
-                            onPressed: () {
-                              _controller.exportDevicePDF(devices);
+                            onPressed: () async {
+                              final success = await _controller.exportDevicePDF(
+                                devices,
+                              );
+                              showAppToast(
+                                context: context,
+                                type: success
+                                    ? ToastificationType.success
+                                    : ToastificationType.error,
+                                title: success
+                                    ? 'Berhasil Export!'
+                                    : 'Export Dibatalkan!',
+                                description: success
+                                    ? 'Data Device Diexport Ke PDF.'
+                                    : 'Export data device dibatalkan.',
+                              );
                             },
                           ),
                         ],

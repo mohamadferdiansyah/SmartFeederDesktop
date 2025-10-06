@@ -32,13 +32,13 @@ class FeedController extends GetxController {
     await loadFeeds();
   }
 
-  Future<void> exportFeedExcel(List<FeedModel> data) async {
+  Future<bool> exportFeedExcel(List<FeedModel> data) async {
     var excel = Excel.createExcel();
     Sheet sheet = excel['Sheet1'];
     sheet.appendRow([
       TextCellValue('ID'),
-      TextCellValue('Nama Merek'),
-      TextCellValue('Kapasitas'),
+      TextCellValue('Merk'),
+      TextCellValue('Kapasitas (kg)'),
       TextCellValue('Tipe'),
     ]);
     for (var d in data) {
@@ -52,22 +52,28 @@ class FeedController extends GetxController {
     final fileBytes = excel.encode();
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file Excel Data Pakan',
-      fileName: 'Data_Pakan.xlsx',
+      fileName: 'Smart_Feeder_Daftar_Pakan.xlsx',
       type: FileType.custom,
       allowedExtensions: ['xlsx'],
     );
     if (path != null) {
+      // Pastikan file berekstensi .xlsx
+      if (!path.toLowerCase().endsWith('.xlsx')) {
+        path = '$path.xlsx';
+      }
       await File(path).writeAsBytes(fileBytes!);
+      return true;
     }
+    return false;
   }
 
   /// Export data pakan ke PDF
-  Future<void> exportFeedPDF(List<FeedModel> data) async {
+  Future<bool> exportFeedPDF(List<FeedModel> data) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Table.fromTextArray(
-          headers: ['ID', 'Nama Merek', 'Kapasitas', 'Tipe'],
+          headers: ['ID', 'Merk', 'Kapasitas (kg)', 'Tipe'],
           data: data
               .map((d) => [d.code, d.brand, d.capacity.toString(), d.type])
               .toList(),
@@ -76,12 +82,19 @@ class FeedController extends GetxController {
     );
     String? path = await FilePicker.platform.saveFile(
       dialogTitle: 'Simpan file PDF Data Pakan',
-      fileName: 'Data_Pakan.pdf',
+      fileName: 'Smart_Feeder_Daftar_Pakan.pdf',
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
     if (path != null) {
-      await File(path).writeAsBytes(await pdf.save());
+      // Pastikan file berekstensi .pdf
+      if (!path.toLowerCase().endsWith('.pdf')) {
+        path = '$path.pdf';
+      }
+      final file = File(path);
+      await file.writeAsBytes(await pdf.save());
+      return true;
     }
+    return false;
   }
 }

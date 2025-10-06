@@ -82,6 +82,10 @@ class HalterNodeController extends GetxController {
       allowedExtensions: ['xlsx'],
     );
     if (path != null) {
+      // Pastikan file berekstensi .xlsx
+      if (!path.toLowerCase().endsWith('.xlsx')) {
+        path = '$path.xlsx';
+      }
       await File(path).writeAsBytes(fileBytes!);
       return true;
     }
@@ -94,18 +98,10 @@ class HalterNodeController extends GetxController {
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Table.fromTextArray(
-          headers: [
-            'No',
-            'Device Id',
-            'Versi',
-          ],
+          headers: ['No', 'Device Id', 'Versi'],
           data: List.generate(data.length, (i) {
             final d = data[i];
-            return [
-              '${i + 1}',
-              d.deviceId,
-              d.version,
-            ];
+            return ['${i + 1}', d.deviceId, d.version];
           }),
         ),
       ),
@@ -117,7 +113,12 @@ class HalterNodeController extends GetxController {
       allowedExtensions: ['pdf'],
     );
     if (path != null) {
-      await File(path).writeAsBytes(await pdf.save());
+      // Pastikan file berekstensi .pdf
+      if (!path.toLowerCase().endsWith('.pdf')) {
+        path = '$path.pdf';
+      }
+      final file = File(path);
+      await file.writeAsBytes(await pdf.save());
       return true;
     }
     return false;
@@ -209,6 +210,10 @@ class HalterNodeController extends GetxController {
       allowedExtensions: ['xlsx'],
     );
     if (path != null) {
+      // Pastikan file berekstensi .xlsx
+      if (!path.toLowerCase().endsWith('.xlsx')) {
+        path = '$path.xlsx';
+      }
       await File(path).writeAsBytes(fileBytes!);
       return true;
     }
@@ -276,7 +281,12 @@ class HalterNodeController extends GetxController {
       allowedExtensions: ['pdf'],
     );
     if (path != null) {
-      await File(path).writeAsBytes(await pdf.save());
+      // Pastikan file berekstensi .pdf
+      if (!path.toLowerCase().endsWith('.pdf')) {
+        path = '$path.pdf';
+      }
+      final file = File(path);
+      await file.writeAsBytes(await pdf.save());
       return true;
     }
     return false;
