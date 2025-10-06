@@ -234,7 +234,7 @@ class MqttService extends GetxService {
 
   void _handleAirPayload(Map<String, dynamic> json) {
     final deviceId = json['device_id'];
-    final water = json['water'];
+    final water = json['status'];
     if (deviceId == null || water == null) return;
 
     // Update di feederRoomWaterDeviceList

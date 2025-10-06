@@ -51,7 +51,6 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
     return devices.where((d) {
       return d.deviceId.toLowerCase().contains(_searchText) ||
           (d.horseId ?? '').toLowerCase().contains(_searchText) ||
-          d.status.toLowerCase().contains(_searchText) ||
           d.version.toLowerCase().contains(_searchText) ||
           d.batteryPercent.toString().contains(_searchText);
     }).toList();
@@ -524,7 +523,7 @@ class _HalterDevicePageState extends State<HalterDevicePage> {
                         label: "Cari IoT Node Halter",
                         controller: _searchController,
                         icon: Icons.search,
-                        hint: 'Masukkan ID, versi, kuda, status, atau baterai',
+                        hint: 'Masukkan ID, versi, id kuda, atau baterai',
                         fontSize: 24,
                       ),
                     ),

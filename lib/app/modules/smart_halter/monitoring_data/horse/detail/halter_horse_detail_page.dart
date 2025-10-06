@@ -403,7 +403,7 @@ class _HalterHorseDetailWidgetState extends State<HalterHorseDetailWidget> {
                                       ),
                                       _modernDetailCard(
                                         "Jenis",
-                                        widget.horse.type == "local"
+                                        widget.horse.type == "lokal"
                                             ? "Lokal"
                                             : "Crossbred",
                                         Icons.category,

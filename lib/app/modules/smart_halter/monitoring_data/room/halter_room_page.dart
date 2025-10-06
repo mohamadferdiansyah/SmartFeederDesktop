@@ -710,6 +710,13 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                                 _sortAscending,
                               );
                               break;
+                            case 4: // Tambahkan case untuk kolom CCTV
+                              _sort<String>(
+                                rooms,
+                                (d) => _controller.getCctvNames(d.cctvId ?? []),
+                                _sortAscending,
+                              );
+                              break;
                           }
                         }
 
@@ -949,6 +956,13 @@ class _HalterRoomPageState extends State<HalterRoomPage> {
                                           ),
                                         ),
                                       ),
+                                      onSort: (columnIndex, ascending) {
+                                        // Tambahkan onSort ini
+                                        setState(() {
+                                          _sortColumnIndex = columnIndex;
+                                          _sortAscending = ascending;
+                                        });
+                                      },
                                     ),
                                     DataColumn(
                                       label: SizedBox(

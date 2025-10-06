@@ -1196,19 +1196,19 @@ class _DetailKudaView extends StatelessWidget {
                                         ),
                                       ],
                                     ),
-                                    Row(
-                                      children: [
-                                        Text('RSSI:'),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          '${detail?.rssi ?? 0} dBm',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blue,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                    // Row(
+                                    //   children: [
+                                    //     Text('RSSI:'),
+                                    //     const SizedBox(width: 8),
+                                    //     Text(
+                                    //       '${detail?.rssi ?? 0} dBm',
+                                    //       style: TextStyle(
+                                    //         fontWeight: FontWeight.bold,
+                                    //         color: Colors.blue,
+                                    //       ),
+                                    //     ),
+                                    //   ],
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -1278,7 +1278,7 @@ class _DetailKudaView extends StatelessWidget {
                                                               '',
                                                         )
                                                         .type ==
-                                                    'local'
+                                                    'Lokal'
                                                 ? 'Lokal'
                                                 : 'Crossbreed',
                                             style: TextStyle(

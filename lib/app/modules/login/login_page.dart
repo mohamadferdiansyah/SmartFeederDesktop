@@ -150,28 +150,28 @@ class _LoginPageState extends State<LoginPage> {
                             isPassword: true,
                           ),
                           // ========== Tambahkan Checkbox Remember Me di sini ==========
-                          SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Obx(
-                                () => Checkbox(
-                                  value: loginController.rememberMe.value,
-                                  onChanged: (value) {
-                                    loginController.rememberMe.value =
-                                        value ?? false;
-                                  },
-                                  activeColor: AppColors.primary,
-                                ),
-                              ),
-                              const Text(
-                                "Remember Me",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
+                          SizedBox(height: 16),
+                          // Row(
+                          //   children: [
+                          //     Obx(
+                          //       () => Checkbox(
+                          //         value: loginController.rememberMe.value,
+                          //         onChanged: (value) {
+                          //           loginController.rememberMe.value =
+                          //               value ?? false;
+                          //         },
+                          //         activeColor: AppColors.primary,
+                          //       ),
+                          //     ),
+                          //     const Text(
+                          //       "Remember Me",
+                          //       style: TextStyle(
+                          //         fontSize: 16,
+                          //         fontWeight: FontWeight.w500,
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
                           // ===========================================================
                           SizedBox(height: 16),
                           Obx(

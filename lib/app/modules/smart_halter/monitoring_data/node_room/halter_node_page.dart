@@ -510,6 +510,13 @@ class _HalterNodePageState extends State<HalterNodePage> {
                                 _sortAscending,
                               );
                               break;
+                            case 2:
+                              _sort<String>(
+                                nodes,
+                                (d) => d.status,
+                                _sortAscending,
+                              );
+                              break;
                           }
                         }
 
@@ -688,6 +695,12 @@ class _HalterNodePageState extends State<HalterNodePage> {
                                           ),
                                         ),
                                       ),
+                                      onSort: (columnIndex, ascending) {
+                                        setState(() {
+                                          _sortColumnIndex = columnIndex;
+                                          _sortAscending = ascending;
+                                        });
+                                      },
                                     ),
                                     DataColumn(
                                       label: SizedBox(
@@ -701,6 +714,12 @@ class _HalterNodePageState extends State<HalterNodePage> {
                                           ),
                                         ),
                                       ),
+                                      onSort: (columnIndex, ascending) {
+                                        setState(() {
+                                          _sortColumnIndex = columnIndex;
+                                          _sortAscending = ascending;
+                                        });
+                                      },
                                     ),
                                     DataColumn(
                                       label: SizedBox(
@@ -1121,6 +1140,12 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                         tanggalAwal = null;
                         tanggalAkhir = null;
                       });
+                      showAppToast(
+                        context: context,
+                        type: ToastificationType.success,
+                        title: 'Berhasil Reset!',
+                        description: 'Filter Tanggal Direset.',
+                      );
                     },
                     text: "Reset Tanggal",
                     width: 150,
@@ -1220,18 +1245,14 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
             // Tabel data dengan pagination
             Expanded(
               child: Obx(() {
-                final allData = _dataController.nodeRoomDetailHistory;
-                final filteredData =
-                    allData.where((d) => d.deviceId == widget.deviceId).toList()
-                      ..sort((a, b) {
-                        final aTime =
-                            a.time ?? DateTime.fromMillisecondsSinceEpoch(0);
-                        final bTime =
-                            b.time ?? DateTime.fromMillisecondsSinceEpoch(0);
-                        return bTime.compareTo(
-                          aTime,
-                        ); // Descending, terbaru di atas
-                      });
+                final sortedData = filteredData
+                  ..sort((a, b) {
+                    final aTime =
+                        a.time ?? DateTime.fromMillisecondsSinceEpoch(0);
+                    final bTime =
+                        b.time ?? DateTime.fromMillisecondsSinceEpoch(0);
+                    return bTime.compareTo(aTime);
+                  });
 
                 return LayoutBuilder(
                   builder: (context, constraints) {
@@ -1246,9 +1267,9 @@ class _RoomNodeDataDialogState extends State<RoomNodeDataDialog> {
                     final co2W = tableWidth * 0.1;
                     final amoW = tableWidth * 0.1;
 
-                    List<NodeRoomDetailModel> sortedData = List.from(
-                      filteredData,
-                    );
+                    // List<NodeRoomDetailModel> sortedData = List.from(
+                    //   filteredData,
+                    // );
                     if (_sortColumnIndex != null) {
                       switch (_sortColumnIndex!) {
                         case 0:

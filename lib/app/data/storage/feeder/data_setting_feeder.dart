@@ -4,7 +4,7 @@ class DataSettingFeeder {
   static final _box = GetStorage();
 
   static String getMqttHost() {
-    return _box.read('feeder_mqtt_host') ?? 'broker.emqx.io';
+    return _box.read('feeder_mqtt_host') ?? '103.49.238.216';
   }
 
   static void saveMqttHost(String host) {

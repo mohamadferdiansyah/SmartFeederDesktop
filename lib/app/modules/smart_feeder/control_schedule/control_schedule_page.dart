@@ -614,7 +614,7 @@ class _ControlSchedulePageState extends State<ControlSchedulePage> {
                                       child: _buildInfoCard(
                                         icon: Icons.category_rounded,
                                         label: 'Jenis',
-                                        value: horse.type == "local"
+                                        value: horse.type == "lokal"
                                             ? "Lokal"
                                             : "Crossbred",
                                         color: colorMain,

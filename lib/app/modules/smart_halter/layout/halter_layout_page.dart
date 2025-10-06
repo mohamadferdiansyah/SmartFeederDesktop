@@ -108,10 +108,10 @@ class HalterLayoutPage extends StatelessWidget {
           title: "Log Device Power",
           page: HalterDevicePowerLogPage(),
         ),
-        SidebarMenuItem(
-          title: "Log Kalibrasi",
-          page: HalterCalibrationLogPage(),
-        ),
+        // SidebarMenuItem(
+        //   title: "Log Kalibrasi",
+        //   page: HalterCalibrationLogPage(),
+        // ),
       ],
     ),
     SidebarMenuItem(

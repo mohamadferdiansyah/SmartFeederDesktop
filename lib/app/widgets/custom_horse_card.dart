@@ -222,7 +222,7 @@ class CustomHorseCard extends StatelessWidget {
               const SizedBox(width: 8),
               // Tombol icon kamera
               Tooltip(
-                message: cctvActive ? 'CCTV Aktif' : 'CCTV Tidak Aktif',
+                message: cctvActive ? 'Terdapat CCTV' : 'Tidak Memiliki CCTV',
                 child: SizedBox(
                   height: 48,
                   width: 48,

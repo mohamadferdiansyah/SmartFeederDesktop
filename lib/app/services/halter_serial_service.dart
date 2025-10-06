@@ -1203,16 +1203,16 @@ class HalterSerialService extends GetxService {
         int roll = randInt(-45, 90);
         int pitch = randInt(-45, 90);
         int yaw = randInt(-180, 180);
-        // double voltase = double.parse(randDouble(5.4, 7.4));
-        double voltase = 7.4;
-        int bpm = 75;
-        double spo = 17;
-        double suhu = 28.50;
-        double respirasi = 1907;
-        // int bpm = randInt(28, 120);
-        // double spo = double.parse(randDouble(90, 100));
-        // double suhu = double.parse(randDouble(35, 40));
-        // double respirasi = double.parse(randDouble(8, 30));
+        double voltase = double.parse(randDouble(7.0, 7.4));
+        // double voltase = 7.4;
+        // int bpm = 50;
+        // double spo = 94;
+        // double suhu = 38.7;
+        // double respirasi = 20;
+        int bpm = randInt(28, 38);
+        double spo = double.parse(randDouble(95, 98));
+        double suhu = double.parse(randDouble(37, 38.3));
+        double respirasi = double.parse(randDouble(8, 16));
         int intervalData = 15000;
 
         final dataString =
@@ -1247,7 +1247,7 @@ class HalterSerialService extends GetxService {
         );
 
         // Format langsung SHIPB...
-        return "SHIPB,100,"
+        return "SHIPB,$deviceId,"
             "$latitude,$longitude,$altitude,$sog,$cog,"
             "$pitch,$yaw,$roll,"
             "$voltase,"
@@ -1265,7 +1265,7 @@ class HalterSerialService extends GetxService {
         final co = randDouble(0, 50); // CO
         final co2 = randDouble(400, 2000); // CO2
         final ammonia = randDouble(0, 25); // Amonia
-        return "$header,99,$suhu,$kelembapan,$cahaya,$co,$co2,$ammonia,*";
+        return "$header,$id,$suhu,$kelembapan,$cahaya,$co,$co2,$ammonia,*";
       }
 
       final deviceIds = List.generate(2, (i) {
@@ -1276,7 +1276,7 @@ class HalterSerialService extends GetxService {
         final dummyLine = makeDummyData(did);
         final dummyLineRoom = makeDummyNodeRoomData(did);
         _processBlockRoom(dummyLineRoom);
-        // _processBlock(dummyLine); // Untuk SHIPB
+        _processBlock(dummyLine); // Untuk SHIPB
       }
     });
   }

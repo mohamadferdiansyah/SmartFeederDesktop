@@ -162,7 +162,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                         labelText: "Jenis Kuda *",
                       ),
                       items: const [
-                        DropdownMenuItem(value: "local", child: Text("Lokal")),
+                        DropdownMenuItem(value: "lokal", child: Text("Lokal")),
                         DropdownMenuItem(
                           value: "crossbred",
                           child: Text("Crossbred"),
@@ -223,7 +223,10 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                         ),
                         DropdownMenuItem(value: "Sehat", child: Text("Sehat")),
                         DropdownMenuItem(value: "Sakit", child: Text("Sakit")),
-                        DropdownMenuItem(value: "Istirahat", child: Text("Istirahat")),
+                        DropdownMenuItem(
+                          value: "Istirahat",
+                          child: Text("Istirahat"),
+                        ),
                         DropdownMenuItem(
                           value: "Lainnya",
                           child: Text("Lainnya"),
@@ -619,7 +622,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                         labelText: "Jenis Kuda *",
                       ),
                       items: const [
-                        DropdownMenuItem(value: "local", child: Text("Lokal")),
+                        DropdownMenuItem(value: "lokal", child: Text("Lokal")),
                         DropdownMenuItem(
                           value: "crossbred",
                           child: Text("Crossbred"),
@@ -682,7 +685,10 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                         ),
                         DropdownMenuItem(value: "Sehat", child: Text("Sehat")),
                         DropdownMenuItem(value: "Sakit", child: Text("Sakit")),
-                        DropdownMenuItem(value: "Istirahat", child: Text("Istirahat")),
+                        DropdownMenuItem(
+                          value: "Istirahat",
+                          child: Text("Istirahat"),
+                        ),
                         DropdownMenuItem(
                           value: "Lainnya",
                           child: Text("Lainnya"),
@@ -874,7 +880,7 @@ class _HalterHorsePageState extends State<HalterHorsePage> {
                         modalSetState(() {
                           _selectedImages.addAll(images);
                         });
-                                            },
+                      },
                       height: 40,
                       text: 'Pilih Foto Kuda',
                       iconTrailing: Icons.photo_rounded,
@@ -1635,7 +1641,7 @@ class HorseDataTableSource extends DataTableSource {
         DataCell(Center(child: Text(horse.horseId))),
         DataCell(Center(child: Text(horse.name))),
         DataCell(
-          Center(child: Text(horse.type == "local" ? 'Lokal' : 'Crossbred')),
+          Center(child: Text(horse.type == "lokal" ? 'Lokal' : 'Crossbred')),
         ),
         DataCell(Center(child: Text(horse.category ?? "-"))),
         DataCell(Center(child: Text(horse.gender))),

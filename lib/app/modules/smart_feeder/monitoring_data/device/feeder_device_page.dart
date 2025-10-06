@@ -46,7 +46,9 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
       );
       return d.deviceId.toLowerCase().contains(_searchText) ||
           (d.stableId ?? '').toLowerCase().contains(_searchText) ||
-          (detail?.status ?? '').toLowerCase().contains(_searchText) ||
+          (d.scheduleType == 'auto' ? 'otomatis' : 'manual')
+              .toLowerCase()
+              .contains(_searchText) ||
           (detail?.batteryPercent.toString() ?? '').contains(_searchText) ||
           (d.version.toString()).contains(_searchText);
     }).toList();
@@ -716,14 +718,7 @@ class _FeederDevicePageState extends State<FeederDevicePage> {
                                   _sortAscending = ascending;
                                   _sort<String>(
                                     devices,
-                                    (d) =>
-                                        _controller.feederDeviceDetailList
-                                            .firstWhereOrNull(
-                                              (det) =>
-                                                  det.deviceId == d.deviceId,
-                                            )
-                                            ?.status ??
-                                        '',
+                                    (d) => d.scheduleType,
                                     ascending,
                                   );
                                 });
