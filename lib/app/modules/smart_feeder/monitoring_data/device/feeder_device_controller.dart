@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_detail_model.dart';
@@ -126,6 +127,122 @@ class FeederDeviceController extends GetxController {
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
+    if (path != null) {
+      // Pastikan file berekstensi .pdf
+      if (!path.toLowerCase().endsWith('.pdf')) {
+        path = '$path.pdf';
+      }
+      final file = File(path);
+      await file.writeAsBytes(await pdf.save());
+      return true;
+    }
+    return false;
+  }
+
+  /// Export riwayat detail device ke Excel
+  Future<bool> exportDeviceHistoryExcel(
+    List<FeederDeviceHistoryModel> data,
+  ) async {
+    var excel = Excel.createExcel();
+    Sheet sheet = excel['Sheet1'];
+
+    final deviceName = (data.isNotEmpty) ? data.first.deviceId : '';
+    sheet.appendRow([
+      TextCellValue('No'),
+      TextCellValue('Timestamp'),
+      TextCellValue('Device ID'),
+      TextCellValue('Mode'),
+      TextCellValue('Ruangan'),
+      TextCellValue('Jumlah (g)'),
+    ]);
+
+    for (int i = 0; i < data.length; i++) {
+      final d = data[i];
+      sheet.appendRow([
+        TextCellValue('${i + 1}'),
+        TextCellValue(DateFormat('dd-MM-yyyy HH:mm:ss').format(d.timestamp)),
+        TextCellValue(d.deviceId),
+        TextCellValue(
+          d.mode == 'penjadwalan'
+              ? 'Penjadwalan'
+              : d.mode == 'auto'
+              ? 'Otomatis'
+              : 'Manual',
+        ),
+        TextCellValue(d.roomId),
+        TextCellValue(d.amount?.toString() ?? '-'),
+      ]);
+    }
+
+    final fileBytes = excel.encode();
+    String? path = await FilePicker.platform.saveFile(
+      dialogTitle: 'Simpan file Excel Riwayat Device',
+      fileName: 'Smart_Feeder_Riwayat_Device_${deviceName}.xlsx',
+      type: FileType.custom,
+      allowedExtensions: ['xlsx'],
+    );
+
+    if (path != null) {
+      // Pastikan file berekstensi .xlsx
+      if (!path.toLowerCase().endsWith('.xlsx')) {
+        path = '$path.xlsx';
+      }
+      await File(path).writeAsBytes(fileBytes!);
+      return true;
+    }
+    return false;
+  }
+
+  /// Export riwayat detail device ke PDF
+  Future<bool> exportDeviceHistoryPDF(
+    List<FeederDeviceHistoryModel> data,
+  ) async {
+    final pdf = pw.Document();
+    final deviceName = (data.isNotEmpty) ? data.first.deviceId : '';
+
+    pdf.addPage(
+      pw.Page(
+        orientation: pw.PageOrientation.landscape,
+        build: (context) => pw.Table.fromTextArray(
+          headers: [
+            'No',
+            'Timestamp',
+            'Device ID',
+            'Mode',
+            'Ruangan',
+            'Jumlah (g)',
+          ],
+          data: List.generate(data.length, (i) {
+            final d = data[i];
+            return [
+              '${i + 1}',
+              DateFormat('dd-MM-yyyy HH:mm:ss').format(d.timestamp),
+              d.deviceId,
+              d.mode == 'penjadwalan'
+                  ? 'Penjadwalan'
+                  : d.mode == 'auto'
+                  ? 'Otomatis'
+                  : 'Manual',
+              d.roomId,
+              d.amount?.toString() ?? '-',
+            ];
+          }),
+          cellStyle: pw.TextStyle(fontSize: 10),
+          headerStyle: pw.TextStyle(
+            fontSize: 11,
+            fontWeight: pw.FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+
+    String? path = await FilePicker.platform.saveFile(
+      dialogTitle: 'Simpan file PDF Riwayat Device',
+      fileName: 'Smart_Feeder_Riwayat_Device_${deviceName}.pdf',
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
     if (path != null) {
       // Pastikan file berekstensi .pdf
       if (!path.toLowerCase().endsWith('.pdf')) {

@@ -54,11 +54,11 @@ class FeederLayoutPage extends StatelessWidget {
         // ),
       ],
     ),
-    SidebarMenuItem(
-      title: "Riwayat Pengisian",
-      icon: Icons.history_rounded,
-      page: FeederHistoryPage(),
-    ),
+    // SidebarMenuItem(
+    //   title: "Riwayat Pengisian",
+    //   icon: Icons.history_rounded,
+    //   page: FeederHistoryPage(),
+    // ),
     SidebarMenuItem(
       title: "Rule Engine",
       icon: Icons.rule_rounded,

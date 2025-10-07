@@ -1289,6 +1289,70 @@ class _FeederDeviceDetailDialogState extends State<FeederDeviceDetailDialog> {
                     height: 50,
                     backgroundColor: Colors.grey,
                   ),
+                  const Spacer(),
+                  Text('Export Data :', style: const TextStyle(fontSize: 16)),
+                  const SizedBox(width: 12),
+                  CustomButton(
+                    width: MediaQuery.of(context).size.width * 0.1,
+                    height: 50,
+                    backgroundColor: Colors.green,
+                    fontSize: 18,
+                    icon: Icons.table_view_rounded,
+                    text: 'Export Excel',
+                    onPressed: () async {
+                      final filteredData = _filteredData(widget.allData)
+                        ..sort((a, b) {
+                          return b.timestamp.compareTo(a.timestamp);
+                        });
+
+                      final success = await Get.find<FeederDeviceController>()
+                          .exportDeviceHistoryExcel(filteredData);
+
+                      showAppToast(
+                        context: context,
+                        type: success
+                            ? ToastificationType.success
+                            : ToastificationType.error,
+                        title: success
+                            ? 'Berhasil Export!'
+                            : 'Export Dibatalkan!',
+                        description: success
+                            ? 'Data Riwayat Device Diexport Ke Excel.'
+                            : 'Export data riwayat device dibatalkan.',
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  CustomButton(
+                    width: MediaQuery.of(context).size.width * 0.1,
+                    height: 50,
+                    backgroundColor: Colors.redAccent,
+                    fontSize: 18,
+                    icon: Icons.picture_as_pdf,
+                    text: 'Export PDF',
+                    onPressed: () async {
+                      final filteredData = _filteredData(widget.allData)
+                        ..sort((a, b) {
+                          return b.timestamp.compareTo(a.timestamp);
+                        });
+
+                      final success = await Get.find<FeederDeviceController>()
+                          .exportDeviceHistoryPDF(filteredData);
+
+                      showAppToast(
+                        context: context,
+                        type: success
+                            ? ToastificationType.success
+                            : ToastificationType.error,
+                        title: success
+                            ? 'Berhasil Export!'
+                            : 'Export Dibatalkan!',
+                        description: success
+                            ? 'Data Riwayat Device Diexport Ke PDF.'
+                            : 'Export data riwayat device dibatalkan.',
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
