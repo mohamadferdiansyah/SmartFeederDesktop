@@ -6,7 +6,7 @@ import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_d
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_page.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/setting/feeder_setting_controller.dart';
-import 'package:smart_feeder_desktop/app/services/mqtt_service.dart';
+import 'package:smart_feeder_desktop/app/services/mqtt_feeder_service.dart';
 
 class FeederLayoutController extends GetxController {
   var currentPage = Rx<Widget>(FeederDashboardPage());
@@ -16,7 +16,7 @@ class FeederLayoutController extends GetxController {
   var currentDate = ''.obs;
   Timer? _timer;
   final DataController dataController = Get.find<DataController>();
-  final MqttService mqttService = Get.find<MqttService>();
+  final MqttFeederService mqttFeederService = Get.find<MqttFeederService>();
   final FeederSettingController feederSettingController =
       Get.find<FeederSettingController>();
   final FeederDashboardController dashboardController =
@@ -35,11 +35,11 @@ class FeederLayoutController extends GetxController {
         dashboardController.selectedRoomIndex.value = 0;
       }
     });
-    mqttService.init(
+    mqttFeederService.init(
       host: feederSettingController.mqttHost.value,
       port: feederSettingController.mqttPort.value,
     );
-    mqttService.checkDeviceTimeoutOnStartup(
+    mqttFeederService.checkDeviceTimeoutOnStartup(
       timeout: const Duration(seconds: 20),
     );
 
@@ -48,7 +48,7 @@ class FeederLayoutController extends GetxController {
 
   @override
   void onClose() {
-    mqttService.disconnect();
+    mqttFeederService.disconnect();
     _timer?.cancel();
     super.onClose();
   }

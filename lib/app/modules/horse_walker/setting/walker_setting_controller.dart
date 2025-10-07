@@ -1,51 +1,51 @@
 import 'package:get/get.dart';
-import 'package:smart_feeder_desktop/app/data/storage/feeder/data_setting_feeder.dart';
-import 'package:smart_feeder_desktop/app/services/mqtt_feeder_service.dart';
+import 'package:smart_feeder_desktop/app/data/storage/walker/data_setting_walker.dart';
+import 'package:smart_feeder_desktop/app/services/mqtt_walker_service.dart';
 
-class FeederSettingController extends GetxController {
-  final mqttHost = DataSettingFeeder.getMqttHost().obs;
-  final mqttPort = DataSettingFeeder.getMqttPort().obs;
+class WalkerSettingController extends GetxController {
+  final mqttHost = DataSettingWalker.getMqttHost().obs;
+  final mqttPort = DataSettingWalker.getMqttPort().obs;
   final mqttConnected = false.obs;
   final mqttLoading = false.obs;
 
-  late MqttFeederService _MqttFeederService;
+  late MqttWalkerService _mqttWalkerService;
 
   @override
   void onInit() {
     super.onInit();
-    _MqttFeederService = Get.find<MqttFeederService>();
+    _mqttWalkerService = Get.find<MqttWalkerService>();
 
     // Check initial connection status
     _updateConnectionStatus();
 
     // Setup periodic check untuk memastikan status selalu sinkron
     ever(mqttConnected, (bool connected) {
-      print('MQTT Connection status changed: $connected');
+      print('Walker MQTT Connection status changed: $connected');
     });
   }
 
   void _updateConnectionStatus() {
-    mqttConnected.value = _MqttFeederService.isConnected;
+    mqttConnected.value = _mqttWalkerService.isConnected;
   }
 
   void setMqttHost(String host) {
     mqttHost.value = host;
-    DataSettingFeeder.saveMqttHost(host);
+    DataSettingWalker.saveMqttHost(host);
   }
 
   void setMqttPort(int port) {
     mqttPort.value = port;
-    DataSettingFeeder.saveMqttPort(port);
+    DataSettingWalker.saveMqttPort(port);
   }
 
   Future<bool> connectMqtt() async {
     mqttLoading.value = true;
     try {
       print(
-        'Attempting to connect to MQTT: ${mqttHost.value}:${mqttPort.value}',
+        'Walker attempting to connect to MQTT: ${mqttHost.value}:${mqttPort.value}',
       );
 
-      final result = await _MqttFeederService.init(
+      final result = await _mqttWalkerService.init(
         host: mqttHost.value,
         port: mqttPort.value,
       );
@@ -53,10 +53,10 @@ class FeederSettingController extends GetxController {
       // Update status berdasarkan hasil koneksi
       mqttConnected.value = result;
 
-      print('MQTT connection result: $result');
+      print('Walker MQTT connection result: $result');
       return result;
     } catch (e) {
-      print('Error connecting to MQTT: $e');
+      print('Error connecting Walker to MQTT: $e');
       mqttConnected.value = false;
       return false;
     } finally {
@@ -66,11 +66,11 @@ class FeederSettingController extends GetxController {
 
   void disconnectMqtt() {
     try {
-      _MqttFeederService.disconnect();
+      _mqttWalkerService.disconnect();
       mqttConnected.value = false;
-      print('MQTT disconnected successfully');
+      print('Walker MQTT disconnected successfully');
     } catch (e) {
-      print('Error disconnecting MQTT: $e');
+      print('Error disconnecting Walker MQTT: $e');
     }
   }
 

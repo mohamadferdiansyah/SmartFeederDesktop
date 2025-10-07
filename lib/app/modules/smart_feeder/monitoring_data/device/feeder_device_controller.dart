@@ -11,11 +11,11 @@ import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_history_mod
 import 'package:smart_feeder_desktop/app/models/feeder/feeder_device_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'package:smart_feeder_desktop/app/models/stable_model.dart';
-import 'package:smart_feeder_desktop/app/services/mqtt_service.dart';
+import 'package:smart_feeder_desktop/app/services/mqtt_feeder_service.dart';
 
 class FeederDeviceController extends GetxController {
   final DataController dataController = Get.find<DataController>();
-  final MqttService mqtt = Get.find<MqttService>();
+  final MqttFeederService mqtt = Get.find<MqttFeederService>();
 
   RxList<RoomModel> get roomList => dataController.roomList;
   RxList<StableModel> get stableList => dataController.stableList;

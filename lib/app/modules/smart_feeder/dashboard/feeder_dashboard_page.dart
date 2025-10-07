@@ -9,7 +9,7 @@ import 'package:smart_feeder_desktop/app/constants/app_colors.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/control_schedule/control_schedule_page.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/dashboard/feeder_dashboard_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/layout/feeder_layout_controller.dart';
-import 'package:smart_feeder_desktop/app/services/mqtt_service.dart';
+import 'package:smart_feeder_desktop/app/services/mqtt_feeder_service.dart';
 import 'package:smart_feeder_desktop/app/utils/toast_utils.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_battery_indicator.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_button.dart';
@@ -31,7 +31,7 @@ class FeederDashboardPage extends StatefulWidget {
 class _FeederDashboardPageState extends State<FeederDashboardPage> {
   final FeederDashboardController controller = Get.find();
   final FeederLayoutController layoutController = Get.find();
-  final mqtt = Get.find<MqttService>();
+  final mqtt = Get.find<MqttFeederService>();
 
   Future<void> showFillFeedDialog({
     required BuildContext context,

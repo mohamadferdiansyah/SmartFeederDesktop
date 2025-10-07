@@ -10,13 +10,13 @@ import 'package:smart_feeder_desktop/app/modules/smart_feeder/setting/feeder_set
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/alert/halter_alert_rule_engine_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/smart_halter/rule_engine/threshold/halter_threshold_controller.dart';
 import 'package:smart_feeder_desktop/app/services/halter_serial_service.dart';
-import 'package:smart_feeder_desktop/app/services/mqtt_service.dart';
+import 'package:smart_feeder_desktop/app/services/mqtt_feeder_service.dart';
 import 'feeder_layout_controller.dart';
 
 class FeederLayoutBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<MqttService>(() => MqttService());
+    Get.lazyPut<MqttFeederService>(() => MqttFeederService());
     Get.lazyPut<FeederLayoutController>(() => FeederLayoutController());
     Get.lazyPut<FeedController>(() => FeedController());
     Get.lazyPut<FeederDashboardController>(() => FeederDashboardController());

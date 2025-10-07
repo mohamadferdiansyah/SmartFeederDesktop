@@ -9,7 +9,7 @@ import 'package:smart_feeder_desktop/app/models/feeder/history_entry_model.dart'
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'dart:async';
 import 'package:smart_feeder_desktop/app/models/stable_model.dart';
-import 'package:smart_feeder_desktop/app/services/mqtt_service.dart';
+import 'package:smart_feeder_desktop/app/services/mqtt_feeder_service.dart';
 
 class FeederDashboardController extends GetxController {
   RxInt nowTick = DateTime.now().millisecondsSinceEpoch.obs;
@@ -37,7 +37,7 @@ class FeederDashboardController extends GetxController {
       .toList();
 
   final DataController dataController = Get.find<DataController>();
-  // final mqttService = Get.find<MqttService>();
+  // final MqttFeederService = Get.find<MqttFeederService>();
 
   RxList<RoomModel> get roomList => dataController.roomList;
   RxList<StableModel> get stableList => dataController.stableList;
@@ -53,7 +53,7 @@ class FeederDashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // mqttService.init();
+    // MqttFeederService.init();
     // Timer.periodic(Duration(seconds: 1), (timer) {
     //   nowTick.value = DateTime.now().millisecondsSinceEpoch;
     // });
@@ -95,7 +95,7 @@ class FeederDashboardController extends GetxController {
 
   @override
   void onClose() {
-    // mqttService.disconnect();
+    // MqttFeederService.disconnect();
     _timer?.cancel();
     super.onClose();
   }

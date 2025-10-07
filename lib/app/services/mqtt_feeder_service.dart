@@ -9,7 +9,7 @@ import 'package:smart_feeder_desktop/app/models/feeder/feeder_room_water_device_
 import 'package:smart_feeder_desktop/app/modules/smart_feeder/setting/feeder_setting_controller.dart';
 import '../models/feeder/feeder_device_detail_model.dart';
 
-class MqttService extends GetxService {
+class MqttFeederService extends GetxService {
   MqttServerClient? client;
 
   final DataController dataController = Get.find<DataController>();
@@ -44,15 +44,17 @@ class MqttService extends GetxService {
         final settingController = Get.find<FeederSettingController>();
         settingController.mqttConnected.value = connected;
         print(
-          'MqttService: Updated FeederSettingController status to $connected',
+          'MqttFeederService: Updated FeederSettingController status to $connected',
         );
       } else {
         print(
-          'MqttService: FeederSettingController not registered, skipping status update',
+          'MqttFeederService: FeederSettingController not registered, skipping status update',
         );
       }
     } catch (e) {
-      print('MqttService: Error updating FeederSettingController status: $e');
+      print(
+        'MqttFeederService: Error updating FeederSettingController status: $e',
+      );
     }
   }
 
