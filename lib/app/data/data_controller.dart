@@ -40,6 +40,7 @@ import 'package:smart_feeder_desktop/app/models/horse_model.dart';
 import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'package:smart_feeder_desktop/app/models/stable_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/water_model.dart';
+import 'package:smart_feeder_desktop/app/models/walker/walker_device_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DataController extends GetxController {
@@ -133,6 +134,9 @@ class DataController extends GetxController {
 
   final RxList<HalterCalibrationLogModel> calibrationLogList =
       <HalterCalibrationLogModel>[].obs;
+
+  // Data Walker Device
+  final RxList<WalkerDeviceModel> walkerStatusList = <WalkerDeviceModel>[].obs;
 
   Future<void> initAllDaosAndLoadAll() async {
     final db = await DBHelper.database;

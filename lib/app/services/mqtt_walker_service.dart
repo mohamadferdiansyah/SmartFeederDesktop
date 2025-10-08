@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:smart_feeder_desktop/app/data/data_controller.dart';
+import 'package:smart_feeder_desktop/app/models/walker/walker_device_model.dart';
 import 'package:smart_feeder_desktop/app/modules/horse_walker/setting/walker_setting_controller.dart';
 
 class MqttWalkerService extends GetxService {
@@ -10,6 +12,13 @@ class MqttWalkerService extends GetxService {
 
   // Untuk heartbeat timeout
   final Map<String, Timer> _deviceTimeoutTimers = {};
+
+  // Data controller
+  final DataController dataController = Get.find<DataController>();
+
+  // Getter untuk walker status list
+  RxList<WalkerDeviceModel> get walkerStatusList =>
+      dataController.walkerStatusList;
 
   // Safe method untuk update status ke WalkerSettingController
   void _updateSettingControllerStatus(bool connected) {
@@ -26,8 +35,46 @@ class MqttWalkerService extends GetxService {
         );
       }
     } catch (e) {
-      print('MqttWalkerService: Error updating WalkerSettingController status: $e');
+      print(
+        'MqttWalkerService: Error updating WalkerSettingController status: $e',
+      );
     }
+  }
+
+  // Handle walker status langsung di service
+  Future<void> addOrUpdateWalkerStatus(WalkerDeviceModel status) async {
+    final index = walkerStatusList.indexWhere(
+      (w) => w.deviceId == status.deviceId,
+    );
+
+    if (index != -1) {
+      walkerStatusList[index] = status;
+    } else {
+      walkerStatusList.add(status);
+    }
+
+    print('Walker Status Updated: ${status.toString()}');
+  }
+
+  // Helper method untuk mendapatkan status berdasarkan device ID
+  WalkerDeviceModel? getWalkerStatusByDeviceId(String deviceId) {
+    try {
+      return walkerStatusList.firstWhere((w) => w.deviceId == deviceId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Helper method untuk mendapatkan walker yang aktif
+  List<WalkerDeviceModel> getActiveWalkers() {
+    return walkerStatusList.where((w) => w.status != 'OFF').toList();
+  }
+
+  // Helper method untuk mendapatkan status berdasarkan header + id
+  String getWalkerStatusById(int idDevice) {
+    final deviceId = 'SHWIPB$idDevice';
+    final status = getWalkerStatusByDeviceId(deviceId);
+    return status?.status ?? 'OFF';
   }
 
   Future<bool> init({required String host, required int port}) async {
@@ -120,24 +167,129 @@ class MqttWalkerService extends GetxService {
       client?.connectionStatus?.state == MqttConnectionState.connected;
 
   void _handleStatusPayload(Map<String, dynamic> json) {
-    // final deviceId = json['device_id'] ?? 'Unknown';
-    // final timestamp = json['timestamp'] ?? DateTime.now().toIso8601String();
-    
-    print('MASUK DATA STATUS NYA JIR');
-    // Handle walker status logic here
+    try {
+      // Validasi format data
+      if (json['header'] != 'SHWIPB') {
+        print('Walker MQTT: Invalid header: ${json['header']}');
+        return;
+      }
+
+      final header = json['header'];
+      final idDevice = json['id_device']?.toString();
+      final status = json['status']?.toString().toUpperCase();
+
+      if (idDevice == null || idDevice.isEmpty || status == null) {
+        print('Walker MQTT: Missing id_device or status');
+        return;
+      }
+
+      // Gabungkan header dengan id_device
+      final deviceId = '$header$idDevice';
+
+      // Buat model walker status
+      final walkerStatus = WalkerDeviceModel(
+        deviceId: deviceId,
+        status: status,
+        lastUpdate: DateTime.now(),
+      );
+
+      // Update langsung di service
+      addOrUpdateWalkerStatus(walkerStatus);
+
+      // Reset timeout timer untuk device ini
+      _resetDeviceTimeout(deviceId);
+
+      print('Walker Status Updated: Device $deviceId is $status');
+
+      // Handle status khusus
+      switch (status) {
+        case 'ON':
+          print('Walker Device $deviceId is online');
+          break;
+        case 'START':
+          print('Walker Device $deviceId started walking');
+          break;
+        case 'STOP':
+          print('Walker Device $deviceId stopped walking');
+          break;
+        default:
+          print('Walker Device $deviceId unknown status: $status');
+      }
+    } catch (e) {
+      print('Walker MQTT: Error handling status payload: $e');
+    }
   }
 
   void _handleControlPayload(Map<String, dynamic> json) {
-    // final deviceId = json['device_id'] ?? 'Unknown';
-    // final timestamp = json['timestamp'] ?? DateTime.now().toIso8601String();
-    
-    print('MASUK DATA CONTROL NYA JIR');
-    // Handle walker data logic here
+    try {
+      final header = json['header'] ?? 'SHWIPB';
+      final idDevice = json['id_device']?.toString() ?? 'Unknown';
+      final deviceId = '$header$idDevice';
+
+      print('Walker MQTT: Received control confirmation from device $deviceId');
+      print('Walker MQTT: Control payload: $json');
+    } catch (e) {
+      print('Walker MQTT: Error handling control payload: $e');
+    }
   }
 
-  void checkDeviceTimeoutOnStartup({required Duration timeout}) {
+  void _resetDeviceTimeout(String deviceId) {
+    // Cancel timer lama jika ada
+    _deviceTimeoutTimers[deviceId]?.cancel();
+
+    // Set timer baru untuk 2 menit
+    _deviceTimeoutTimers[deviceId] = Timer(
+      const Duration(seconds: 20),
+      () async {
+        // Set status device jadi OFF jika tidak ada heartbeat
+        final offlineStatus = WalkerDeviceModel(
+          deviceId: deviceId,
+          status: 'OFF',
+          lastUpdate: DateTime.now(),
+        );
+
+        await addOrUpdateWalkerStatus(offlineStatus);
+        print('Walker Device $deviceId set to OFFLINE due to timeout');
+      },
+    );
+  }
+
+  void checkDeviceTimeoutOnStartup({
+    Duration timeout = const Duration(minutes: 2),
+  }) {
     print('Walker MQTT: Setting up device timeout monitoring');
-    // Implementation for device timeout monitoring
+
+    // Cek semua device yang ada dan set timeout
+    for (final walkerStatus in walkerStatusList) {
+      if (walkerStatus.status != 'OFF') {
+        final timeSinceUpdate = DateTime.now().difference(
+          walkerStatus.lastUpdate,
+        );
+
+        if (timeSinceUpdate > timeout) {
+          // Device sudah timeout, set jadi OFF
+          final offlineStatus = walkerStatus.copyWith(
+            status: 'OFF',
+            lastUpdate: DateTime.now(),
+          );
+          addOrUpdateWalkerStatus(offlineStatus);
+        } else {
+          // Device masih valid, set timer untuk sisa waktu
+          final remainingTime = timeout - timeSinceUpdate;
+          _deviceTimeoutTimers[walkerStatus
+              .deviceId] = Timer(remainingTime, () async {
+            final offlineStatus = walkerStatus.copyWith(
+              status: 'OFF',
+              lastUpdate: DateTime.now(),
+            );
+            await addOrUpdateWalkerStatus(offlineStatus);
+            print(
+              'Walker Device ${walkerStatus.deviceId} set to OFFLINE due to timeout',
+            );
+          });
+        }
+      }
+    }
   }
 
   void publishWalkerCommand({
@@ -161,9 +313,7 @@ class MqttWalkerService extends GetxService {
     client!.publishMessage(
       topic,
       MqttQos.atLeastOnce,
-      MqttClientPayloadBuilder()
-          .addString(json.encode(payload))
-          .payload!,
+      MqttClientPayloadBuilder().addString(json.encode(payload)).payload!,
     );
 
     print('Walker MQTT: Published command to $topic: $payload');

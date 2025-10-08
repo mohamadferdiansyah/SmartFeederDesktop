@@ -49,6 +49,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/images/horse_walker/
     - assets/images/water_tank/
     - assets/images/feed_tank/
     - assets/images/stable_water/
