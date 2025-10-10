@@ -41,6 +41,7 @@ import 'package:smart_feeder_desktop/app/models/room_model.dart';
 import 'package:smart_feeder_desktop/app/models/stable_model.dart';
 import 'package:smart_feeder_desktop/app/models/feeder/water_model.dart';
 import 'package:smart_feeder_desktop/app/models/walker/walker_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/walker/walker_history_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DataController extends GetxController {
@@ -137,6 +138,10 @@ class DataController extends GetxController {
 
   // Data Walker Device
   final RxList<WalkerDeviceModel> walkerStatusList = <WalkerDeviceModel>[].obs;
+
+  // Data Walker History
+  final RxList<WalkerHistoryModel> walkerHistoryList =
+      <WalkerHistoryModel>[].obs;
 
   Future<void> initAllDaosAndLoadAll() async {
     final db = await DBHelper.database;
@@ -297,7 +302,7 @@ class DataController extends GetxController {
         deviceSerial: old.deviceSerial,
         status: old.status,
         cctvId: old.cctvId,
-        stableId: old.stableId  ,
+        stableId: old.stableId,
         horseId: old.horseId,
         remainingWater: status,
         remainingFeed: old.remainingFeed,
@@ -907,4 +912,19 @@ class DataController extends GetxController {
     await fillHistoryDao.clear();
     await loadFillHistoryFromDb();
   }
+
+  // Tambahkan method untuk menambah history
+Future<void> addWalkerHistory(WalkerHistoryModel history) async {
+  walkerHistoryList.add(history);
+  // TODO: Simpan ke database jika diperlukan
+}
+
+// Tambahkan method untuk update history
+Future<void> updateWalkerHistory(WalkerHistoryModel history) async {
+  final index = walkerHistoryList.indexWhere((h) => h.deviceId == history.deviceId && h.timeStop == null);
+  if (index != -1) {
+    walkerHistoryList[index] = history;
+  }
+  // TODO: Update ke database jika diperlukan
+}
 }

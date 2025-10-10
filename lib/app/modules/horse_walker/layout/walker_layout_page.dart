@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_feeder_desktop/app/modules/horse_walker/dashboard/walker_dashboard_page.dart';
+import 'package:smart_feeder_desktop/app/modules/horse_walker/history/walker_history_page.dart';
 import 'package:smart_feeder_desktop/app/modules/horse_walker/layout/walker_layout_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/horse_walker/setting/walker_setting_page.dart';
 import 'package:smart_feeder_desktop/app/widgets/custom_sidebar.dart';
@@ -32,10 +33,10 @@ class WalkerLayoutPage extends StatelessWidget {
       ],
     ),
     SidebarMenuItem(
-      title: "Data Raw",
-      icon: Icons.data_object,
-      page: Center(child: Text('Ini Raw Data', style: TextStyle(fontSize: 30))),
-    ),
+    title: "Riwayat Walker",
+    icon: Icons.history,
+    page: WalkerHistoryPage(),
+  ),
     SidebarMenuItem(
       title: "Pengaturan Aplikasi",
       icon: Icons.settings,

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_feeder_desktop/app/modules/horse_walker/dashboard/walker_dashboard_page.dart';
+import 'package:smart_feeder_desktop/app/services/mqtt_walker_service.dart';
 
 class WalkerLayoutController extends GetxController {
   var currentPage = Rx<Widget>(WalkerDashboardPage());
@@ -13,6 +14,8 @@ class WalkerLayoutController extends GetxController {
   var currentDate = ''.obs;
   Timer? _timer;
 
+  final MqttWalkerService mqttWalkerService = Get.find<MqttWalkerService>();
+
   @override
   void onInit() {
     super.onInit();
@@ -21,6 +24,7 @@ class WalkerLayoutController extends GetxController {
 
   @override
   void onClose() {
+    mqttWalkerService.disconnect();
     _timer?.cancel();
     super.onClose();
   }

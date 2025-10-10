@@ -5,10 +5,13 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/walker/walker_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/walker/walker_history_model.dart';
+import 'package:smart_feeder_desktop/app/modules/horse_walker/history/walker_history_controller.dart';
 import 'package:smart_feeder_desktop/app/modules/horse_walker/setting/walker_setting_controller.dart';
 
 class MqttWalkerService extends GetxService {
   MqttServerClient? client;
+  WalkerHistoryController? _historyController;
 
   // Untuk heartbeat timeout
   final Map<String, Timer> _deviceTimeoutTimers = {};
@@ -166,6 +169,7 @@ class MqttWalkerService extends GetxService {
   bool get isConnected =>
       client?.connectionStatus?.state == MqttConnectionState.connected;
 
+  // Update method _handleStatusPayload
   void _handleStatusPayload(Map<String, dynamic> json) {
     try {
       // Validasi format data
@@ -201,6 +205,64 @@ class MqttWalkerService extends GetxService {
 
       print('Walker Status Updated: Device $deviceId is $status');
 
+      // Record history untuk status changes - update timeStop jika STOP
+      try {
+        _historyController ??= Get.find<WalkerHistoryController>();
+
+        if (status == 'STOP') {
+          // Cari history yang sedang berjalan dan update timeStop
+          final runningHistory = _historyController!.getRunningHistoryByDevice(
+            deviceId,
+          );
+          if (runningHistory != null) {
+            // Tentukan apakah walker selesai secara natural atau dihentikan manual
+            final stopTime = DateTime.now();
+            final actualDuration = stopTime.difference(
+              runningHistory.timeStart,
+            );
+
+            bool isNaturalCompletion = false;
+
+            if (runningHistory.mode == 'duration' &&
+                runningHistory.duration != null) {
+              // Untuk mode durasi, cek apakah waktu aktual mendekati durasi yang ditentukan
+              final expectedDuration = Duration(
+                minutes: runningHistory.duration!,
+              );
+              final difference =
+                  (actualDuration.inSeconds - expectedDuration.inSeconds).abs();
+              isNaturalCompletion = difference <= 30; // Toleransi 30 detik
+            } else if (runningHistory.mode == 'rotation' &&
+                runningHistory.rotation != null) {
+              // Untuk mode rotation, kita bisa tambahkan logic berdasarkan data dari device
+              // Sementara kita anggap selesai natural jika berjalan minimal 1 menit
+              isNaturalCompletion = actualDuration.inMinutes >= 1;
+            }
+
+            final updatedHistory = WalkerHistoryModel(
+              id: runningHistory.id,
+              deviceId: runningHistory.deviceId,
+              status: isNaturalCompletion ? 'SELESAI' : 'DIHENTIKAN',
+              horseIds: runningHistory.horseIds,
+              mode: runningHistory.mode,
+              duration: runningHistory.duration,
+              rotation: runningHistory.rotation,
+              speed: runningHistory.speed,
+              timeStart: runningHistory.timeStart,
+              timeStop: stopTime,
+            );
+
+            _historyController!.updateHistory(updatedHistory);
+
+            print(
+              'Walker History Updated: ${updatedHistory.deviceId} - ${updatedHistory.status}',
+            );
+          }
+        }
+      } catch (e) {
+        print('Walker MQTT: Error recording history: $e');
+      }
+
       // Handle status khusus
       switch (status) {
         case 'ON':
@@ -233,13 +295,14 @@ class MqttWalkerService extends GetxService {
     }
   }
 
+  // Di method _resetDeviceTimeout, update timeout menjadi lebih pendek untuk testing
   void _resetDeviceTimeout(String deviceId) {
     // Cancel timer lama jika ada
     _deviceTimeoutTimers[deviceId]?.cancel();
 
-    // Set timer baru untuk 2 menit
+    // Set timer baru untuk 30 detik (untuk testing, nanti bisa diperpanjang)
     _deviceTimeoutTimers[deviceId] = Timer(
-      const Duration(seconds: 20),
+      const Duration(seconds: 30),
       () async {
         // Set status device jadi OFF jika tidak ada heartbeat
         final offlineStatus = WalkerDeviceModel(

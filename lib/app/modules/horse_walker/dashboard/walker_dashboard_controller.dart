@@ -7,6 +7,8 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:smart_feeder_desktop/app/data/data_controller.dart';
 import 'package:smart_feeder_desktop/app/models/horse_model.dart';
 import 'package:smart_feeder_desktop/app/models/walker/walker_device_model.dart';
+import 'package:smart_feeder_desktop/app/models/walker/walker_history_model.dart';
+import 'package:smart_feeder_desktop/app/modules/horse_walker/history/walker_history_controller.dart';
 import 'package:smart_feeder_desktop/app/services/mqtt_walker_service.dart';
 
 class WalkerDashboardController extends GetxController {
@@ -30,14 +32,27 @@ class WalkerDashboardController extends GetxController {
   // Tambahkan property ini
   final operationMode = 'duration'.obs; // 'duration' atau 'rotation'
 
-  // Tambahkan method ini
+  // Callback untuk animation control dari page
+  Function()? onStartAnimation;
+  Function()? onStopAnimation;
+
+  // Worker untuk listening status changes
+  Worker? _statusWorker;
+
   void setOperationMode(String mode) {
     operationMode.value = mode;
-    // Reset nilai input ketika mode berubah
     durationCtrl.text = mode == 'duration' ? '10' : '5';
   }
 
+  void setAnimationCallbacks({Function()? onStart, Function()? onStop}) {
+    onStartAnimation = onStart;
+    onStopAnimation = onStop;
+  }
+
   final DataController dataController = Get.find<DataController>();
+
+  // Tambahkan di dalam class WalkerDashboardController
+  final WalkerHistoryController historyController = Get.put(WalkerHistoryController());
 
   RxList<HorseModel> get horseList => dataController.horseList;
   RxList<WalkerDeviceModel> get walkerStatusList =>
@@ -47,13 +62,76 @@ class WalkerDashboardController extends GetxController {
   void onInit() {
     super.onInit();
     _mqttWalkerService = Get.find<MqttWalkerService>();
+
+    // Listen untuk perubahan status walker
+    _setupWalkerStatusListener();
+  }
+
+  void _setupWalkerStatusListener() {
+    // Store worker reference untuk proper disposal
+    _statusWorker = ever(walkerStatusList, (
+      List<WalkerDeviceModel> statusList,
+    ) {
+      // Dapatkan device ID yang sedang dipilih
+      final currentDeviceId = int.tryParse(idDeviceCtrl.text.trim()) ?? 1;
+      final deviceFullId = 'SHWIPB$currentDeviceId';
+
+      // Cari status device yang sedang dipilih
+      final deviceStatus = statusList.firstWhereOrNull(
+        (device) => device.deviceId == deviceFullId,
+      );
+
+      if (deviceStatus != null) {
+        final status = deviceStatus.status.toUpperCase();
+
+        print('Walker Status Changed for $deviceFullId: $status');
+
+        // Handle animation berdasarkan status dengan safety checks
+        switch (status) {
+          case 'START':
+            // Mulai animasi jika status START
+            try {
+              if (onStartAnimation != null) {
+                onStartAnimation!();
+                print('Starting walker animation for $deviceFullId');
+              }
+            } catch (e) {
+              print('Error calling start animation: $e');
+            }
+            break;
+          case 'STOP':
+          case 'OFF':
+          case 'ON':
+            // Stop animasi jika status STOP, OFF, atau ON
+            try {
+              if (onStopAnimation != null) {
+                onStopAnimation!();
+                print('Stopping walker animation for $deviceFullId');
+              }
+            } catch (e) {
+              print('Error calling stop animation: $e');
+            }
+            break;
+        }
+      }
+    });
   }
 
   @override
   void onClose() {
+    // Dispose worker first
+    _statusWorker?.dispose();
+    _statusWorker = null;
+
+    // Reset callbacks
+    onStartAnimation = null;
+    onStopAnimation = null;
+
+    // Dispose text controllers
     idDeviceCtrl.dispose();
     speedCtrl.dispose();
     durationCtrl.dispose();
+
     super.onClose();
   }
 
@@ -94,109 +172,128 @@ class WalkerDashboardController extends GetxController {
   }
 
   Future<void> sendWalkerCommand() async {
-    if (!_mqttWalkerService.isConnected) {
+  if (!_mqttWalkerService.isConnected) {
+    Get.snackbar(
+      'Error',
+      'Walker MQTT tidak terhubung',
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+    return;
+  }
+
+  // Validasi input
+  final idDevice = int.tryParse(idDeviceCtrl.text.trim());
+  final speed = int.tryParse(speedCtrl.text.trim());
+  final durationValue = int.tryParse(durationCtrl.text.trim());
+
+  if (idDevice == null || speed == null || durationValue == null) {
+    Get.snackbar(
+      'Error',
+      'Pastikan semua field terisi dengan benar',
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+    return;
+  }
+
+  if (speed < 1 || speed > 2000) {
+    Get.snackbar(
+      'Error',
+      'Kecepatan harus antara 1-2000 RPM',
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+    return;
+  }
+
+  if (operationMode.value == 'duration') {
+    if (durationValue < 1 || durationValue > 7200) {
       Get.snackbar(
         'Error',
-        'Walker MQTT tidak terhubung',
+        'Durasi harus antara 1-7200 menit',
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
       return;
     }
-
-    // Validasi input
-    final idDevice = int.tryParse(idDeviceCtrl.text.trim());
-    final speed = int.tryParse(speedCtrl.text.trim());
-    final durationValue = int.tryParse(durationCtrl.text.trim());
-
-    if (idDevice == null || speed == null || durationValue == null) {
+  } else {
+    if (durationValue < 1 || durationValue > 1000) {
       Get.snackbar(
         'Error',
-        'Pastikan semua field terisi dengan benar',
+        'Jumlah putaran harus antara 1-1000',
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
       return;
-    }
-
-    if (speed < 1 || speed > 2000) {
-      Get.snackbar(
-        'Error',
-        'Kecepatan harus antara 1-2000 RPM',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    if (operationMode.value == 'duration') {
-      // Mode durasi - validasi durasi dalam menit
-      if (durationValue < 1 || durationValue > 7200) {
-        Get.snackbar(
-          'Error',
-          'Durasi harus antara 1-7200 menit',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-        return;
-      }
-    } else {
-      // Mode putaran - validasi jumlah putaran
-      if (durationValue < 1 || durationValue > 1000) {
-        Get.snackbar(
-          'Error',
-          'Jumlah putaran harus antara 1-1000',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-        return;
-      }
-    }
-
-    isLoading.value = true;
-
-    try {
-      // Publish ke topic walker/control
-      final payload = {
-        'header': 'SHWIPB',
-        'id_device': idDevice,
-        'control_motor': controlMotor.value,
-        'rotation': rotation.value,
-        'speed': speed,
-        'operation_mode': operationMode.value,
-        'duration': operationMode.value == 'duration' ? durationValue : null,
-        'rotation_count': operationMode.value == 'rotation'
-            ? durationValue
-            : null,
-      };
-
-      _mqttWalkerService.client!.publishMessage(
-        'walker/control',
-        MqttQos.atLeastOnce,
-        MqttClientPayloadBuilder().addString(json.encode(payload)).payload!,
-      );
-
-      print('Walker Command Sent: $payload');
-
-      Get.snackbar(
-        'Berhasil',
-        'Perintah walker berhasil dikirim',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
-    } catch (e) {
-      print('Error sending walker command: $e');
-      Get.snackbar(
-        'Error',
-        'Gagal mengirim perintah walker: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    } finally {
-      isLoading.value = false;
     }
   }
 
+  isLoading.value = true;
+
+  try {
+    final deviceFullId = 'SHWIPB$idDevice';
+    
+    // Kumpulkan kuda yang dipilih
+    final selectedHorses = <String>[];
+    if (selectedHorse1.value.isNotEmpty) selectedHorses.add(selectedHorse1.value);
+    if (selectedHorse2.value.isNotEmpty) selectedHorses.add(selectedHorse2.value);
+    if (selectedHorse3.value.isNotEmpty) selectedHorses.add(selectedHorse3.value);
+    if (selectedHorse4.value.isNotEmpty) selectedHorses.add(selectedHorse4.value);
+
+    // Publish ke topic walker/control
+    final payload = {
+      'header': 'SHWIPB',
+      'id_device': idDevice,
+      'control_motor': controlMotor.value,
+      'rotation': rotation.value,
+      'speed': speed,
+      'operation_mode': operationMode.value,
+      'duration': operationMode.value == 'duration' ? durationValue : null,
+      'rotation_count': operationMode.value == 'rotation' ? durationValue : null,
+    };
+
+    _mqttWalkerService.client!.publishMessage(
+      'walker/control',
+      MqttQos.atLeastOnce,
+      MqttClientPayloadBuilder().addString(json.encode(payload)).payload!,
+    );
+
+    print('Walker Command Sent: $payload');
+
+    // Record history - simpan sebagai status START dengan timeStart
+    final history = WalkerHistoryModel(
+      deviceId: deviceFullId,
+      status: 'START',
+      horseIds: selectedHorses,
+      mode: operationMode.value,
+      duration: operationMode.value == 'duration' ? durationValue : null,
+      rotation: operationMode.value == 'rotation' ? durationValue : null,
+      speed: speed,
+      timeStart: DateTime.now(),
+      timeStop: null, // Akan diisi saat status STOP
+    );
+    
+    await historyController.addHistory(history);
+
+    Get.snackbar(
+      'Berhasil',
+      'Perintah walker berhasil dikirim',
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
+  } catch (e) {
+    print('Error sending walker command: $e');
+    Get.snackbar(
+      'Error',
+      'Gagal mengirim perintah walker: $e',
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  } finally {
+    isLoading.value = false;
+  }
+}
   void resetForm() {
     idDeviceCtrl.text = '1';
     speedCtrl.text = '255';
@@ -206,54 +303,75 @@ class WalkerDashboardController extends GetxController {
     operationMode.value = 'duration';
   }
 
-  void stopWalker() {
-    if (!_mqttWalkerService.isConnected) {
-      Get.snackbar(
-        'Error',
-        'Walker MQTT tidak terhubung',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    final idDevice = int.tryParse(idDeviceCtrl.text.trim()) ?? 1;
-
-    try {
-      final payload = {
-        'header': 'SHWIPB',
-        'id_device': idDevice,
-        'control_motor': false,
-        'rotation': false,
-        'speed': 0,
-        'duration': 0,
-      };
-
-      _mqttWalkerService.client!.publishMessage(
-        'walker/control',
-        MqttQos.atLeastOnce,
-        MqttClientPayloadBuilder().addString(json.encode(payload)).payload!,
-      );
-
-      print('Walker Stop Command Sent: $payload');
-
-      Get.snackbar(
-        'Berhasil',
-        'Perintah stop walker berhasil dikirim',
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
-      );
-    } catch (e) {
-      print('Error stopping walker: $e');
-      Get.snackbar(
-        'Error',
-        'Gagal mengirim perintah stop: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    }
+  // Update method stopWalker untuk manual stop
+void stopWalker() {
+  if (!_mqttWalkerService.isConnected) {
+    Get.snackbar(
+      'Error',
+      'Walker MQTT tidak terhubung',
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+    return;
   }
 
+  final idDevice = int.tryParse(idDeviceCtrl.text.trim()) ?? 1;
+  final deviceFullId = 'SHWIPB$idDevice';
+
+  try {
+    final payload = {
+      'header': 'SHWIPB',
+      'id_device': idDevice,
+      'control_motor': false,
+      'rotation': false,
+      'speed': 0,
+      'duration': 0,
+      'manual_stop': true, // Tambahkan flag manual stop
+    };
+
+    _mqttWalkerService.client!.publishMessage(
+      'walker/control',
+      MqttQos.atLeastOnce,
+      MqttClientPayloadBuilder().addString(json.encode(payload)).payload!,
+    );
+
+    print('Walker Stop Command Sent: $payload');
+
+    // Update history yang sedang berjalan dengan timeStop dan status DIHENTIKAN
+    final runningHistory = historyController.getRunningHistoryByDevice(deviceFullId);
+    if (runningHistory != null) {
+      final updatedHistory = WalkerHistoryModel(
+        id: runningHistory.id,
+        deviceId: runningHistory.deviceId,
+        status: 'DIHENTIKAN', // Manual stop = DIHENTIKAN
+        horseIds: runningHistory.horseIds,
+        mode: runningHistory.mode,
+        duration: runningHistory.duration,
+        rotation: runningHistory.rotation,
+        speed: runningHistory.speed,
+        timeStart: runningHistory.timeStart,
+        timeStop: DateTime.now(),
+      );
+      
+      historyController.updateHistory(updatedHistory);
+    }
+
+    Get.snackbar(
+      'Berhasil',
+      'Walker dihentikan secara manual',
+      backgroundColor: Colors.orange,
+      colorText: Colors.white,
+    );
+  } catch (e) {
+    print('Error stopping walker: $e');
+    Get.snackbar(
+      'Error',
+      'Gagal mengirim perintah stop: $e',
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  }
+}
   void setSelectedHorse1(String horseId) {
     selectedHorse1.value = horseId;
   }

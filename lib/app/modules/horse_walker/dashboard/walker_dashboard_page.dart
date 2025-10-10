@@ -15,37 +15,138 @@ class WalkerDashboardPage extends StatefulWidget {
 
 class WalkerDashboardPageState extends State<WalkerDashboardPage>
     with SingleTickerProviderStateMixin {
-  final WalkerDashboardController controller = Get.put(
-    WalkerDashboardController(),
-  );
+  final WalkerDashboardController controller =
+      Get.find<WalkerDashboardController>();
 
   late AnimationController _animController;
   late Animation<double> _angleAnim;
+
+  // Add disposal flag
+  bool _isDisposed = false;
+
+  // Worker untuk GetX listener
+  Worker? _statusWorker;
+
+  // Add variables untuk tracking rotation direction
+  double _currentDisplayAngle = 0.0;
+  bool _lastRotationDirection = false; // false = CCW, true = CW
 
   @override
   void initState() {
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 4), // durasi 1 putaran
+      duration: Duration(seconds: 14), // durasi 1 putaran
     );
-    _angleAnim = Tween<double>(
-      begin: 0,
-      end: 2 * 3.1415926,
-    ).animate(_animController);
+    _angleAnim =
+        Tween<double>(begin: 0, end: 2 * 3.1415926).animate(_animController)
+          ..addListener(() {
+            if (mounted && !_isDisposed) {
+              _updateDisplayAngle();
+            }
+          });
+
+    // Setup animation callbacks untuk controller
+    controller.setAnimationCallbacks(
+      onStart: startWalkerAnimation,
+      onStop: stopWalkerAnimation,
+    );
+
+    // Listen untuk perubahan arah rotasi
+    ever(controller.rotation, (bool newDirection) {
+      if (_lastRotationDirection != newDirection &&
+          _animController.isAnimating) {
+        _handleRotationDirectionChange(newDirection);
+      }
+      _lastRotationDirection = newDirection;
+    });
+  }
+
+  void _updateDisplayAngle() {
+    final currentDirection = controller.rotation.value;
+
+    if (currentDirection) {
+      // CW: positive angle
+      _currentDisplayAngle = _angleAnim.value;
+    } else {
+      // CCW: negative angle
+      _currentDisplayAngle = -_angleAnim.value;
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _handleRotationDirectionChange(bool newDirection) {
+    if (!mounted || _isDisposed) return;
+
+    // Smooth transition saat mengubah arah rotasi
+    try {
+      // Get current normalized angle (0 to 2π)
+      double currentNormalizedAngle = _angleAnim.value % (2 * 3.14159);
+
+      // Reset animation dari posisi saat ini
+      _animController.stop();
+      _animController.reset();
+
+      // Create new animation dari current position
+      _angleAnim =
+          Tween<double>(
+            begin: currentNormalizedAngle,
+            end: currentNormalizedAngle + (2 * 3.14159),
+          ).animate(_animController)..addListener(() {
+            if (mounted && !_isDisposed) {
+              _updateDisplayAngle();
+            }
+          });
+
+      // Resume animation
+      _animController.repeat();
+    } catch (e) {
+      print('Error handling rotation direction change: $e');
+    }
   }
 
   void startWalkerAnimation({bool cw = true}) {
-    _animController.repeat();
+    if (!mounted || _isDisposed) return; // Safety check
+
+    try {
+      _animController.repeat();
+    } catch (e) {
+      print('Error starting animation: $e');
+    }
   }
 
   void stopWalkerAnimation() {
-    _animController.stop();
+    if (!mounted || _isDisposed) return; // Safety check
+
+    try {
+      if (_animController.isAnimating) {
+        _animController.stop();
+      }
+    } catch (e) {
+      print('Error stopping animation: $e');
+      // Ignore error if already disposed
+    }
   }
 
   @override
   void dispose() {
-    _animController.dispose();
+    // Set disposal flag first
+    _isDisposed = true;
+
+    // Dispose worker if exists
+    _statusWorker?.dispose();
+    _statusWorker = null;
+
+    // Safe dispose animation controller
+    try {
+      _animController.dispose();
+    } catch (e) {
+      print('Error disposing animation controller: $e');
+    }
+
     super.dispose();
   }
 
@@ -159,15 +260,12 @@ class WalkerDashboardPageState extends State<WalkerDashboardPage>
                             Column(
                               children: [
                                 AnimatedBuilder(
-                                  animation: _angleAnim,
+                                  animation: _animController,
                                   builder: (context, child) {
-                                    // Untuk CCW, ganti -_angleAnim.value
-                                    double angle = controller.rotation.value
-                                        ? _angleAnim.value
-                                        : -_angleAnim.value;
                                     return CustomWalkerCircle(
                                       size: 600,
-                                      lineAngle: angle, // dari animasi
+                                      lineAngle:
+                                          _currentDisplayAngle, // Gunakan calculated angle
                                       numMarkers: 12,
                                       arcColors: [
                                         Colors.red,
@@ -1381,7 +1479,6 @@ class WalkerDashboardPageState extends State<WalkerDashboardPage>
                                                 children: [
                                                   Expanded(
                                                     child: Obx(() {
-                                                      // Cek apakah ada minimal 1 kuda yang dipilih
                                                       final hasSelectedHorse =
                                                           controller
                                                               .selectedHorse1
@@ -1400,17 +1497,59 @@ class WalkerDashboardPageState extends State<WalkerDashboardPage>
                                                               .value
                                                               .isNotEmpty;
 
+                                                      final currentDeviceId =
+                                                          int.tryParse(
+                                                            controller
+                                                                .idDeviceCtrl
+                                                                .text
+                                                                .trim(),
+                                                          ) ??
+                                                          1;
+                                                      final deviceFullId =
+                                                          'SHWIPB$currentDeviceId';
+
+                                                      final deviceStatus = controller
+                                                          .walkerStatusList
+                                                          .firstWhereOrNull(
+                                                            (device) =>
+                                                                device
+                                                                    .deviceId ==
+                                                                deviceFullId,
+                                                          );
+
+                                                      final walkerStatus =
+                                                          deviceStatus?.status
+                                                              .toUpperCase();
+                                                      final isWalkerRunning =
+                                                          walkerStatus ==
+                                                          'START';
+
+                                                      final shouldDisable =
+                                                          controller
+                                                              .isLoading
+                                                              .value ||
+                                                          !hasSelectedHorse ||
+                                                          isWalkerRunning;
+
+                                                      String buttonText;
+                                                      if (!hasSelectedHorse) {
+                                                        buttonText =
+                                                            'Pilih Minimal 1 Kuda';
+                                                      } else if (isWalkerRunning) {
+                                                        buttonText =
+                                                            'Walker Sedang Berjalan';
+                                                      } else {
+                                                        buttonText =
+                                                            'Mulai Walker';
+                                                      }
+
                                                       return ElevatedButton.icon(
-                                                        onPressed:
-                                                            (controller
-                                                                    .isLoading
-                                                                    .value ||
-                                                                !hasSelectedHorse)
+                                                        onPressed: shouldDisable
                                                             ? null
                                                             : () async {
                                                                 await controller
                                                                     .sendWalkerCommand();
-                                                                startWalkerAnimation();
+                                                                // startWalkerAnimation();
                                                               },
                                                         icon:
                                                             controller
@@ -1430,17 +1569,10 @@ class WalkerDashboardPageState extends State<WalkerDashboardPage>
                                                                 Icons
                                                                     .play_arrow,
                                                               ),
-                                                        label: Text(
-                                                          !hasSelectedHorse
-                                                              ? 'Pilih Minimal 1 Kuda'
-                                                              : 'Mulai Walker',
-                                                        ),
+                                                        label: Text(buttonText),
                                                         style: ElevatedButton.styleFrom(
                                                           backgroundColor:
-                                                              (!hasSelectedHorse ||
-                                                                  controller
-                                                                      .isLoading
-                                                                      .value)
+                                                              shouldDisable
                                                               ? Colors.grey
                                                               : Colors.green,
                                                           foregroundColor:
@@ -1462,34 +1594,70 @@ class WalkerDashboardPageState extends State<WalkerDashboardPage>
                                                   ),
                                                   const SizedBox(width: 16),
                                                   Expanded(
-                                                    child: ElevatedButton.icon(
-                                                      onPressed: () {
-                                                        controller.stopWalker();
-                                                        stopWalkerAnimation();
-                                                      },
-                                                      icon: const Icon(
-                                                        Icons.stop,
-                                                      ),
-                                                      label: const Text(
-                                                        'Stop Walker',
-                                                      ),
-                                                      style: ElevatedButton.styleFrom(
-                                                        backgroundColor:
-                                                            Colors.red,
-                                                        foregroundColor:
-                                                            Colors.white,
-                                                        minimumSize: const Size(
-                                                          double.infinity,
-                                                          50,
+                                                    child: Obx(() {
+                                                      final currentDeviceId =
+                                                          int.tryParse(
+                                                            controller
+                                                                .idDeviceCtrl
+                                                                .text
+                                                                .trim(),
+                                                          ) ??
+                                                          1;
+                                                      final deviceFullId =
+                                                          'SHWIPB$currentDeviceId';
+
+                                                      final deviceStatus = controller
+                                                          .walkerStatusList
+                                                          .firstWhereOrNull(
+                                                            (device) =>
+                                                                device
+                                                                    .deviceId ==
+                                                                deviceFullId,
+                                                          );
+
+                                                      final isWalkerRunning =
+                                                          deviceStatus?.status
+                                                              .toUpperCase() ==
+                                                          'START';
+
+                                                      return ElevatedButton.icon(
+                                                        onPressed:
+                                                            isWalkerRunning
+                                                            ? () {
+                                                                controller
+                                                                    .stopWalker();
+                                                                // stopWalkerAnimation();
+                                                              }
+                                                            : null,
+                                                        icon: const Icon(
+                                                          Icons.stop,
                                                         ),
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                8,
+                                                        label: Text(
+                                                          isWalkerRunning
+                                                              ? 'Stop Walker'
+                                                              : 'Walker Tidak Berjalan',
+                                                        ),
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              isWalkerRunning
+                                                              ? Colors.red
+                                                              : Colors.grey,
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                          minimumSize:
+                                                              const Size(
+                                                                double.infinity,
+                                                                50,
                                                               ),
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  8,
+                                                                ),
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ),
+                                                      );
+                                                    }),
                                                   ),
                                                 ],
                                               ),
@@ -1507,80 +1675,7 @@ class WalkerDashboardPageState extends State<WalkerDashboardPage>
                       ),
                       const SizedBox(height: 20),
 
-                      // Information Card
-                      // Container(
-                      //   width: double.infinity,
-                      //   decoration: BoxDecoration(
-                      //     color: Colors.white,
-                      //     borderRadius: BorderRadius.circular(12),
-                      //     border: Border.all(color: Colors.grey.shade300),
-                      //   ),
-                      //   child: Column(
-                      //     children: [
-                      //       // Info Header
-                      //       Container(
-                      //         height: 50,
-                      //         width: double.infinity,
-                      //         decoration: const BoxDecoration(
-                      //           color: Colors.blue,
-                      //           borderRadius: BorderRadius.only(
-                      //             topLeft: Radius.circular(12),
-                      //             topRight: Radius.circular(12),
-                      //           ),
-                      //         ),
-                      //         child: const Center(
-                      //           child: Text(
-                      //             'Informasi Penggunaan',
-                      //             style: TextStyle(
-                      //               color: Colors.white,
-                      //               fontSize: 18,
-                      //               fontWeight: FontWeight.bold,
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ),
-                      //       // Info Content
-                      //       Padding(
-                      //         padding: const EdgeInsets.all(20.0),
-                      //         child: Column(
-                      //           crossAxisAlignment: CrossAxisAlignment.start,
-                      //           children: [
-                      //             _buildInfoRow(
-                      //               'Header',
-                      //               'SHWIPB (Fixed)',
-                      //               Icons.info,
-                      //             ),
-                      //             _buildInfoRow(
-                      //               'ID Device',
-                      //               '1-99 (Angka)',
-                      //               Icons.devices,
-                      //             ),
-                      //             _buildInfoRow(
-                      //               'Control Motor',
-                      //               'ON/OFF (Boolean)',
-                      //               Icons.power_settings_new,
-                      //             ),
-                      //             _buildInfoRow(
-                      //               'Rotation',
-                      //               'CW/CCW (Boolean)',
-                      //               Icons.rotate_90_degrees_ccw,
-                      //             ),
-                      //             _buildInfoRow(
-                      //               'Speed',
-                      //               '1-2000 RPM (Number)',
-                      //               Icons.speed,
-                      //             ),
-                      //             _buildInfoRow(
-                      //               'Duration',
-                      //               '1-7200 detik (Number)',
-                      //               Icons.timer,
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
+                      _buildRecentHistoryCard(),
                     ],
                   ),
                 ),
@@ -1590,6 +1685,203 @@ class WalkerDashboardPageState extends State<WalkerDashboardPage>
         ),
       ),
     );
+  }
+
+  // Update widget _buildRecentHistoryCard di walker_dashboard_page.dart
+  Widget _buildRecentHistoryCard() {
+    return Container(
+      width: 600,
+      margin: const EdgeInsets.only(top: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        children: [
+          Container(
+            height: 50,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: Colors.orange,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      'Riwayat Terbaru',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // TODO: Navigate to full history page
+                      // Get.toNamed('/horse-walker/history');
+                    },
+                    child: const Text(
+                      'Lihat Semua',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            constraints: const BoxConstraints(minHeight: 100, maxHeight: 200),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Obx(() {
+                final recentHistory = controller.historyController
+                    .getRecentHistory(3);
+
+                if (recentHistory.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20.0),
+                      child: Text(
+                        'Belum ada riwayat walker',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: recentHistory.length,
+                  itemBuilder: (context, index) {
+                    final history = recentHistory[index];
+                    final horseNames = controller.historyController
+                        .getHorseNamesByIds(history.horseIds);
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: _getHistoryStatusColor(
+                          history.status,
+                        ).withOpacity(0.1),
+                        border: Border.all(
+                          color: _getHistoryStatusColor(history.status),
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                _getHistoryStatusIcon(history.status),
+                                color: _getHistoryStatusColor(history.status),
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  '${history.deviceId} - ${history.statusText}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: _getHistoryStatusColor(
+                                      history.status,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                DateFormat(
+                                  'HH:mm:ss',
+                                ).format(history.timeStart),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (horseNames.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4, left: 28),
+                              child: Text(
+                                'Kuda: ${horseNames.join(', ')}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4, left: 28),
+                            child: Text(
+                              '${history.speed} RPM • ${history.modeText}: ${history.durationText}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                          if (history.timeStop != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4, left: 28),
+                              child: Text(
+                                'Durasi aktual: ${history.actualDurationText}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Update method _getHistoryStatusColor
+  Color _getHistoryStatusColor(String status) {
+    switch (status.toUpperCase()) {
+      case 'START':
+        return Colors.blue;
+      case 'SELESAI':
+        return Colors.green;
+      case 'DIHENTIKAN':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  // Update method _getHistoryStatusIcon
+  IconData _getHistoryStatusIcon(String status) {
+    switch (status.toUpperCase()) {
+      case 'START':
+        return Icons.play_arrow;
+      case 'SELESAI':
+        return Icons.check_circle;
+      case 'DIHENTIKAN':
+        return Icons.stop_circle;
+      default:
+        return Icons.history;
+    }
   }
 
   Widget _buildInfoRow(String title, String description, IconData icon) {
